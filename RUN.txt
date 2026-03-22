@@ -13,7 +13,7 @@ Or:  pnpm go:fresh
 
 ────────────────────────────────────────────────────────────────────────────────
 This loads your shell config, finds Node/pnpm, installs deps, and starts **only the web app** (not Expo).
-Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first free port 3000–3060).
+Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first free port 3000–3120).
          Dev binds HOST=127.0.0.1 by default (override with HOST=0.0.0.0 for LAN).
          If you only try localhost:3000 while something else uses it, the app will look "broken".
 

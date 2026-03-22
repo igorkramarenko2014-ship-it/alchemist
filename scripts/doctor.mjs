@@ -5,6 +5,7 @@
  *   pnpm alc:doctor
  *   (Do not use `pnpm doctor` — that is pnpm's built-in, not this script.)
  */
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
@@ -57,7 +58,27 @@ if (nodeMajor > 22) {
   console.warn(
     "WARN Node " +
       process.versions.node +
-      " — Next.js 14.x is mostly validated on Node 20–22 LTS. If `next dev` crashes or misbehaves, try Node 22 (e.g. nvm/fnm: install 22 && use 22).\n"
+      " — Next.js 14.x is mostly validated on Node 20–22 LTS. Prefer Node 22 (root .nvmrc).\n" +
+      "  nvm install 22 && nvm use 22 && node -v\n" +
+      "  No nvm yet: https://github.com/nvm-sh/nvm#installing-and-updating (or: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash — restart terminal after)\n" +
+      "  Then: pnpm install && pnpm dev\n"
+  );
+}
+
+const pnpmProbe = spawnSync("pnpm", ["-v"], { encoding: "utf8", shell: false });
+const pnpmOk = pnpmProbe.status === 0 && (pnpmProbe.stdout || "").trim().length > 0;
+if (pnpmOk) {
+  console.log("OK  pnpm", (pnpmProbe.stdout || "").trim());
+} else {
+  console.warn(
+    "WARN `pnpm` not on PATH (or failed).\n" +
+      "  Fix pnpm first (Corepack ships with Node):\n" +
+      "    corepack enable\n" +
+      "    corepack prepare pnpm@9.14.2 --activate\n" +
+      "    pnpm -v   # expect 9.14.2\n" +
+      "  If corepack enable → EACCES (cannot symlink into /usr/local/bin): sudo once, or npm install -g pnpm@9.14.2, or use Node from nvm\n" +
+      "  Until pnpm works, from repo root:  node scripts/with-pnpm.mjs install\n" +
+      "  See docs/FIRESTARTER.md (web dev / recovery) and RUN.txt\n"
   );
 }
 

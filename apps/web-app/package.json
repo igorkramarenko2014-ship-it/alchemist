@@ -5,8 +5,8 @@
     "clean": "rm -rf .next",
     "dev": "node ./scripts/dev-server.mjs",
     "dev:fresh": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node ./scripts/dev-server.mjs",
-    "build": "next build",
-    "build:fresh": "pnpm run clean && next build",
+    "build": "pnpm run clean && next build",
+    "build:fresh": "pnpm run build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
@@ -17,7 +17,7 @@
     "@alchemist/shared-ui": "workspace:*",
     "@react-three/drei": "9",
     "@react-three/fiber": "8",
-    "next": "14.2.18",
+    "next": "14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.183.2"

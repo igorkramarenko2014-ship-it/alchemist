@@ -28,7 +28,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 |--------|-------|
 | **Synced (UTC)** | **2026-03-22** |
 | **Vitest** (`@alchemist/shared-engine`) | **60** tests passed, **11** files (runner) · **11** `*.test.ts` on disk |
-| **Next.js** (`apps/web-app`) | **14.2.18** (`dependencies.next`) |
+| **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
 
@@ -64,9 +64,9 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 - **Root:** folder with **`apps/`** + **`packages/`**. **`research/`** — optional Python (see **`research/README.md`**); **not** part of **`harshcheck`**. **`vst/`** is a thin slice: same **`pnpm`** scripts **`cd ..`** to root (`dev`, **`dev:web`**, **`alc:doctor`**, **`web:dev:fresh`**, **`go`**, **`go:fresh`**, **`harshcheck`**, etc.). **`vst/README.md`** — troubleshooting.
 - **New agent:** repo **`.cursorrules`** + **`docs/FIRESTARTER.md`** Appendix B (INIT paste). **No `pnpm doctor`** — use **`pnpm alc:doctor`** (or **`pnpm run alc:doctor`** if needed).
-- **Dev:** **`pnpm dev`** (= **`pnpm dev:web`**, direct filter — **not** Turbo-wrapped for web; optional **`pnpm dev:turbo`**); **`apps/web-app/scripts/dev-server.mjs`** — default **`HOST=0.0.0.0`** (override **`HOST=127.0.0.1`** for loopback-only), port probe on **same host**, scan **3000–3060**, cyan banner. **`pnpm dev:recover`** — clears **`apps/web-app/.next/cache/{webpack,swc}`** then dev (corrupt dev cache). **`pnpm web:dev:fresh`** = full clean + **same** dev-server. **`EMFILE` / Watchpack:** **`§L`**, **`RUN.txt`**.
+- **Dev:** **`pnpm dev`** (= **`pnpm dev:web`**, direct filter — **not** Turbo-wrapped for web; optional **`pnpm dev:turbo`**); **`apps/web-app/scripts/dev-server.mjs`** — default **`HOST=0.0.0.0`** (override **`HOST=127.0.0.1`** for loopback-only), port probe on **same host**, scan **3000–3120**, cyan banner. **`pnpm dev:recover`** — clears **`apps/web-app/.next/cache/{webpack,swc}`** then dev (corrupt dev cache). **`pnpm web:dev:fresh`** = full clean + **same** dev-server. **`EMFILE` / Watchpack:** **`§L`**, **`RUN.txt`**.
 - **Client resilience:** **`app/error.tsx`** — segment **error boundary**; **`app/global-error.tsx`** — root shell (**`html`/`body`**). Both log via **`console.error`**. **`§L`**.
-- **Build hygiene:** If **`harshcheck`** / Turbo **`build`** fails inside **`.next`**, **`pnpm run clean`** (root) clears **`.next`**, **`.turbo`**, stops turbo daemon — then reinstall/build as needed. **`pnpm web:rebuild`** = clean + forced web **`next build`**.
+- **Build hygiene:** **`apps/web-app`** **`pnpm run build`** runs **`pnpm run clean`** then **`next build`** so **`harshcheck`** / Turbo does not reuse a half-written **`.next`** (avoids rare **`/_document`** / **`PageNotFoundError`** during “Collecting page data”). If **`harshcheck`** still fails inside **`.next`**, **`pnpm run clean`** (root) clears **`.next`**, **`.turbo`**, stops turbo daemon — then retry. **`pnpm web:rebuild`** = clean + forced web **`next build`**.
 
 ---
 
@@ -292,7 +292,7 @@ PATCH_HINTS: <files>
 
 | Rule | Detail |
 |------|--------|
-| **Dev server** | **`apps/web-app/scripts/dev-server.mjs`** — resolves **`next/dist/bin/next`** from **`apps/web-app`** then **repo root**; picks free port **3000–3060**; **`HOST`** default **`0.0.0.0`** (**`127.0.0.1`** for loopback-only); **cyan banner** (**127.0.0.1** + **localhost** hints). Root **`pnpm dev`** / **`npm run dev`** → **`node scripts/with-pnpm.mjs --filter @alchemist/web-app dev`** → **`dev-server.mjs`** (**no** Turbo by default); **`pnpm dev:turbo`** uses **`with-pnpm.mjs exec turbo …`**. |
+| **Dev server** | **`apps/web-app/scripts/dev-server.mjs`** — resolves **`next/dist/bin/next`** from **`apps/web-app`** then **repo root**; picks free port **3000–3120**; **`HOST`** default **`0.0.0.0`** (**`127.0.0.1`** for loopback-only); **cyan banner** (**127.0.0.1** + **localhost** hints). Root **`pnpm dev`** / **`npm run dev`** → **`node scripts/with-pnpm.mjs --filter @alchemist/web-app dev`** → **`dev-server.mjs`** (**no** Turbo by default); **`pnpm dev:turbo`** uses **`with-pnpm.mjs exec turbo …`**. |
 | **Turbo** | Root **`turbo.json`** — **`envMode: loose`**; **`globalDependencies`** on root lockfiles / workspace config for reliable remote cache invalidation. |
 | **Watchpack** | When **`WATCHPACK_POLLING`** is **unset**, dev-server sets **`WATCHPACK_POLLING=true`** (all platforms) to reduce **`EMFILE: too many open files, watch`**. Opt out: **`WATCHPACK_POLLING=0 pnpm dev`**. |
 | **Webpack / Next** | **`apps/web-app/next.config.mjs`** — in **`dev`**, **`watchOptions`** **polling** for **server and client** compilers; **`config.cache = false`** in dev (reliable vs corrupt packs). **`transpilePackages`**: **`@alchemist/*`**. **`experimental.optimizePackageImports`**: **`@react-three/fiber`**, **`@react-three/drei`**. |

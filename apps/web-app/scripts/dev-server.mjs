@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Picks a free port (3000–3060) and starts Next with an obvious URL banner.
+ * Picks a free port (3000–3120) and starts Next with an obvious URL banner.
  *
  * Env:
- * - `PORT` — preferred port (must be free on `HOST`; else we scan 3000–3060).
+ * - `PORT` — preferred port (must be free on `HOST`; else we scan 3000–3120).
  * - `HOST` — bind address for Next (default `0.0.0.0` so `http://localhost:PORT` and
  *   `http://127.0.0.1:PORT` both work; some systems map `localhost` only to `::1` while
  *   a 127.0.0.1-only bind refuses the connection). Use `HOST=127.0.0.1` for loopback-only.
@@ -124,10 +124,10 @@ async function resolvePort() {
   if (Number.isFinite(envPort) && envPort > 0) {
     if (await isPortFree(envPort)) return envPort;
     console.warn(
-      `\n⚠  PORT=${envPort} is in use — picking another free port (3000–3060).\n`
+      `\n⚠  PORT=${envPort} is in use — picking another free port (3000–3120).\n`
     );
   }
-  return findFreePort(3000, 3060);
+  return findFreePort(3000, 3120);
 }
 
 /** Nuke entire `.next` before dev when set — fixes 404 on `/`, missing error components, corrupt traces. */
@@ -212,7 +212,7 @@ console.log(`
 ${cyan}${bold}┌─────────────────────────────────────────────────────────┐
 │  ALCHEMIST WEB — open this URL in your browser:          │
 │  ${reset}${bold}${url}${reset}${cyan}${bold}                         │
-${localhostHint}${bindExplain}│  Port ${port} · scans 3000–3060 when PORT is busy.           │
+${localhostHint}${bindExplain}│  Port ${port} · scans 3000–3120 when PORT is busy.           │
 │  Stuck / webpack errors?  pnpm dev:recover  ·  web:dev:fresh          │
 │  404 / “error components” on /?  pnpm run clean  (repo root) → dev   │
 │  Missing Next / workspace?  pnpm alc:doctor  (monorepo root)         │
