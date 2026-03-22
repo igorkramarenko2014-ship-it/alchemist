@@ -3,15 +3,20 @@ import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
 import type { AICandidate } from "@alchemist/shared-types";
 
 /**
- * Live DeepSeek chat completion → `AICandidate[]`.
- * Relies on outer `AbortSignal` / `withTimeout` from `runTriad` — no nested timer here.
+ * Live Qwen via Alibaba DashScope OpenAI-compatible API.
+ * @see https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api
+ * Relies on outer `AbortSignal` / `withTimeout` from `runTriad`.
  */
-export async function fetchDeepSeekCandidates(
+const QWEN_COMPAT_COMPLETIONS_URL =
+  "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+
+export async function fetchQwenCandidates(
   prompt: string,
   apiKey: string,
   signal: AbortSignal
 ): Promise<AICandidate[]> {
-  const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+  const panelistLiteral = "QWEN";
+  const response = await fetch(QWEN_COMPAT_COMPLETIONS_URL, {
     method: "POST",
     signal,
     headers: {
@@ -19,7 +24,7 @@ export async function fetchDeepSeekCandidates(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "deepseek-chat",
+      model: "qwen-turbo",
       max_tokens: 1024,
       messages: [
         {
@@ -29,7 +34,7 @@ export async function fetchDeepSeekCandidates(
             "Return ONLY a JSON array of objects. No markdown fences. No preamble.",
             "Each object: { score: number in [0,1], reasoning: string (at least 20 characters),",
             "paramArray: number[] (each in [0,1], varied values, at least 8 entries when included),",
-            'panelist: "DEEPSEEK" }.',
+            `panelist: "${panelistLiteral}" }.`,
             "You may omit state or use minimal empty objects; omit paramArray only if you cannot satisfy ranges.",
             "Return between 1 and 8 objects.",
           ].join(" "),
@@ -40,7 +45,7 @@ export async function fetchDeepSeekCandidates(
   });
 
   if (!response.ok) {
-    throw new Error(`DeepSeek HTTP ${response.status}`);
+    throw new Error(`Qwen HTTP ${response.status}`);
   }
 
   const data = (await response.json()) as {
@@ -48,14 +53,14 @@ export async function fetchDeepSeekCandidates(
   };
   const content = data.choices?.[0]?.message?.content;
   if (typeof content !== "string") {
-    throw new Error("DeepSeek: missing message content");
+    throw new Error("Qwen: missing message content");
   }
 
   let raw: unknown;
   try {
     raw = JSON.parse(content.trim());
   } catch {
-    throw new Error("DeepSeek: response not valid JSON");
+    throw new Error("Qwen: response not valid JSON");
   }
 
   if (!Array.isArray(raw)) {
@@ -64,6 +69,6 @@ export async function fetchDeepSeekCandidates(
 
   return raw
     .slice(0, MAX_CANDIDATES)
-    .map((item) => normalizeRawCandidateItem(item, "DEEPSEEK"))
+    .map((item) => normalizeRawCandidateItem(item, "QWEN"))
     .filter((c): c is AICandidate => c != null);
 }

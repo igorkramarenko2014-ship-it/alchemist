@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
+import { fetchQwenCandidates } from "@/lib/fetch-qwen-candidates";
 import { stubPanelistCandidates, validatePromptForTriad } from "@alchemist/shared-engine";
 import type { Panelist } from "@alchemist/shared-types";
 import { NextResponse } from "next/server";
@@ -29,10 +30,13 @@ export async function triadPanelPost(request: Request, panelist: Panelist) {
 
   try {
     const useDeepSeekLive = panelist === "DEEPSEEK" && env.deepseekApiKey.length > 0;
+    const useQwenLive = panelist === "QWEN" && env.qwenApiKey.length > 0;
     const candidates = useDeepSeekLive
       ? await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, request.signal)
-      : await stubPanelistCandidates(prompt, panelist, request.signal);
-    const mode = useDeepSeekLive ? "fetcher" : "stub";
+      : useQwenLive
+        ? await fetchQwenCandidates(prompt, env.qwenApiKey, request.signal)
+        : await stubPanelistCandidates(prompt, panelist, request.signal);
+    const mode = useDeepSeekLive || useQwenLive ? "fetcher" : "stub";
     return NextResponse.json(
       { candidates },
       {

@@ -6,4 +6,6 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   /** Live `/api/triad/deepseek` when non-empty; otherwise stub. */
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
+  /** Live `/api/triad/qwen` (DashScope OpenAI-compatible) when non-empty; otherwise stub. */
+  qwenApiKey: process.env.QWEN_API_KEY ?? "",
 } as const;
