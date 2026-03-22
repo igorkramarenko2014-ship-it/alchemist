@@ -28,3 +28,6 @@ __pycache__
 .venv
 build
 *.jucer
+
+# Gate calibration local artifact (pnpm test:real-gates)
+tools/gate-calibration-output.json
