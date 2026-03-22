@@ -9,8 +9,11 @@
  *   a 127.0.0.1-only bind refuses the connection). Use `HOST=127.0.0.1` for loopback-only.
  * - `WATCHPACK_POLLING` — defaults to `true` when **unset** (EMFILE on macOS / WSL / big trees).
  *   To use native watchers: `WATCHPACK_POLLING=0 pnpm dev` (or export before dev).
+ *
+ * Preflight: verifies monorepo root (`alchemist` + workspaces). If **node_modules** is missing at
+ * root but **pnpm-lock.yaml** exists, runs **`node scripts/with-pnpm.mjs install`** once (fixes “won’t run” after clone).
  */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import { createServer } from "node:net";
@@ -19,6 +22,70 @@ import { fileURLToPath } from "node:url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const host = process.env.HOST?.trim() || "0.0.0.0";
+
+const monorepoRoot = path.join(root, "..", "..");
+const rootPkgPath = path.join(monorepoRoot, "package.json");
+const lockPath = path.join(monorepoRoot, "pnpm-lock.yaml");
+const rootNodeModules = path.join(monorepoRoot, "node_modules");
+
+function readRootPackage() {
+  try {
+    return JSON.parse(fs.readFileSync(rootPkgPath, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+const rootPkg = readRootPackage();
+if (!rootPkg || rootPkg.name !== "alchemist" || !Array.isArray(rootPkg.workspaces)) {
+  console.error(
+    "\n✖  Could not find Alchemist monorepo root.\n" +
+      "   Expected: " +
+      monorepoRoot +
+      "\n   (package.json with name \"alchemist\" and workspaces).\n" +
+      "   Open the folder that contains **apps/** and **packages/** (e.g. Vibe Projects).\n" +
+      "   If you only have **vst/**, run **pnpm dev** there — it **cd ..** to the parent repo.\n"
+  );
+  process.exit(1);
+}
+
+if (!fs.existsSync(rootNodeModules)) {
+  if (!fs.existsSync(lockPath)) {
+    console.error(
+      "\n✖  Missing **node_modules** at monorepo root and no **pnpm-lock.yaml**.\n" +
+        "   cd \"" +
+        monorepoRoot +
+        "\"\n" +
+        "   node scripts/with-pnpm.mjs install\n"
+    );
+    process.exit(1);
+  }
+  console.warn(
+    "\n⚠  No **node_modules** at monorepo root — running **pnpm install** once (workspace)…\n" +
+      "   " +
+      monorepoRoot +
+      "\n"
+  );
+  const withPnpm = path.join(monorepoRoot, "scripts", "with-pnpm.mjs");
+  const inst = spawnSync(process.execPath, [withPnpm, "install"], {
+    cwd: monorepoRoot,
+    stdio: "inherit",
+    env: { ...process.env, ALCHEMIST_PNPM_FALLBACK_QUIET: "1" },
+  });
+  if (inst.status !== 0) {
+    console.error(
+      "\n✖  Install failed. From repo root try:\n" +
+        "   node scripts/with-pnpm.mjs install\n" +
+        "   node scripts/doctor.mjs\n"
+    );
+    process.exit(inst.status ?? 1);
+  }
+  if (!fs.existsSync(rootNodeModules)) {
+    console.error("\n✖  Install finished but node_modules still missing — check disk space and errors above.\n");
+    process.exit(1);
+  }
+  console.warn("✓  Workspace install done — starting Next dev\n");
+}
 
 /**
  * Probe the same host Next will use. A mismatched probe (e.g. only `::` vs `127.0.0.1`)
@@ -62,8 +129,6 @@ async function resolvePort() {
   }
   return findFreePort(3000, 3060);
 }
-
-const port = await resolvePort();
 
 /** Nuke entire `.next` before dev when set — fixes 404 on `/`, missing error components, corrupt traces. */
 const nextRootDir = path.join(root, ".next");
@@ -121,6 +186,8 @@ if (!nextCli) {
   );
   process.exit(1);
 }
+
+const port = await resolvePort();
 
 const cyan = "\x1b[36m";
 const bold = "\x1b[1m";

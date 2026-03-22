@@ -53,6 +53,13 @@ if (nodeMajor < 20) {
   process.exit(1);
 }
 console.log("OK  Node", process.versions.node);
+if (nodeMajor > 22) {
+  console.warn(
+    "WARN Node " +
+      process.versions.node +
+      " — Next.js 14.x is mostly validated on Node 20–22 LTS. If `next dev` crashes or misbehaves, try Node 22 (e.g. nvm/fnm: install 22 && use 22).\n"
+  );
+}
 
 const webPkg = join(root, "apps", "web-app", "package.json");
 if (!existsSync(webPkg)) {
