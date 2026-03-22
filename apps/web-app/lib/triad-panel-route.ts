@@ -24,7 +24,7 @@ function nowMs(): number {
   return Date.now();
 }
 
-/** Merge client abort with `AI_TIMEOUT_MS` (same budget as `runTriad` outer timeout). */
+/** Merge client abort with route timeout (default `AI_TIMEOUT_MS`; Qwen uses 16s to match `TRIAD_PANELIST_CLIENT_TIMEOUT_MS` on the client). */
 function mergeAiTimeoutSignal(
   timeoutMs: number,
   requestSignal: AbortSignal
@@ -60,7 +60,16 @@ function triadResponseHeaders(panelist: Panelist, mode: "fetcher" | "stub"): Rec
   };
 }
 
-export async function triadPanelPost(request: Request, panelist: Panelist) {
+export type TriadPanelPostOptions = {
+  /** Per-route override; default `AI_TIMEOUT_MS` (e.g. Qwen/OpenRouter may need more). */
+  timeoutMs?: number;
+};
+
+export async function triadPanelPost(
+  request: Request,
+  panelist: Panelist,
+  options?: TriadPanelPostOptions
+) {
   let body: unknown;
   try {
     body = await request.json();
@@ -101,7 +110,8 @@ export async function triadPanelPost(request: Request, panelist: Panelist) {
       mode: "fetcher",
     });
     const t0 = nowMs();
-    const { signal, dispose } = mergeAiTimeoutSignal(AI_TIMEOUT_MS, request.signal);
+    const timeoutMs = options?.timeoutMs ?? AI_TIMEOUT_MS;
+    const { signal, dispose } = mergeAiTimeoutSignal(timeoutMs, request.signal);
     let candidates: AICandidate[] = [];
     let error: string | undefined;
     try {
@@ -119,7 +129,8 @@ export async function triadPanelPost(request: Request, panelist: Panelist) {
           prompt,
           env.llamaApiKey,
           signal,
-          llamaModel
+          llamaModel,
+          runId
         );
       }
       candidates = candidates.filter(isValidCandidate);

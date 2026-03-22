@@ -1,10 +1,10 @@
 /**
  * AI Triad: internal IDs `LLAMA` / `DEEPSEEK` / `QWEN` with blend weights in `constants`.
  * **Alchemist codenames** (Athena / Hermes / Hestia) are for UI + telemetry only.
- * 8 candidates, 8s timeout per call, fail loudly.
+ * 8 candidates; default 8s client fetch budget per panelist (Qwen 18s — see `TRIAD_PANELIST_CLIENT_TIMEOUT_MS`).
  */
 import type { AICandidate, AIAnalysis, Panelist, SerumState } from "@alchemist/shared-types";
-import { AI_TIMEOUT_MS, MAX_CANDIDATES } from "./constants";
+import { MAX_CANDIDATES, TRIAD_PANELIST_CLIENT_TIMEOUT_MS } from "./constants";
 import { validatePromptForTriad } from "./prompt-guard";
 import {
   logAthenaSoeRecalibration,
@@ -196,18 +196,19 @@ export async function runTriad(
   } else if (fetcher) {
     const chunks = await Promise.all(
       TRIAD_PANELISTS.map(async (panelist) => {
+        const panelClientTimeoutMs = TRIAD_PANELIST_CLIENT_TIMEOUT_MS[panelist];
         const controller = new AbortController();
         const s = controller.signal;
         if (signal) signal.addEventListener("abort", () => controller.abort());
         try {
           const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
-            withTimeout(fetcher(prompt, panelist, s), AI_TIMEOUT_MS)
+            withTimeout(fetcher(prompt, panelist, s), panelClientTimeoutMs)
           );
           return { value, durationMs, failed: false as const };
         } catch {
           return {
             value: [] as AICandidate[],
-            durationMs: AI_TIMEOUT_MS,
+            durationMs: panelClientTimeoutMs,
             failed: true as const,
           };
         }

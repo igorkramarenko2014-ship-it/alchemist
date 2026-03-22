@@ -41,7 +41,12 @@ export {
 } from "./validate";
 export type { ConsensusValidationResult, ParamViolation } from "./validate";
 export { encodeFxp } from "./encoder";
-export { AI_TIMEOUT_MS, MAX_CANDIDATES, PANELIST_WEIGHTS } from "./constants";
+export {
+  AI_TIMEOUT_MS,
+  MAX_CANDIDATES,
+  PANELIST_WEIGHTS,
+  TRIAD_PANELIST_CLIENT_TIMEOUT_MS,
+} from "./constants";
 export {
   TRIAD_PROMPT_MAX_CHARS,
   validatePromptForTriad,
