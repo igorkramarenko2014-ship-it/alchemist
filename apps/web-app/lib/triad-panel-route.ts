@@ -1,5 +1,9 @@
 import { env } from "@/env";
 import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
+import {
+  DEFAULT_LLAMA_GROQ_MODEL,
+  fetchLlamaCandidates,
+} from "@/lib/fetch-llama-candidates";
 import { fetchQwenCandidates } from "@/lib/fetch-qwen-candidates";
 import { stubPanelistCandidates, validatePromptForTriad } from "@alchemist/shared-engine";
 import type { Panelist } from "@alchemist/shared-types";
@@ -31,12 +35,28 @@ export async function triadPanelPost(request: Request, panelist: Panelist) {
   try {
     const useDeepSeekLive = panelist === "DEEPSEEK" && env.deepseekApiKey.length > 0;
     const useQwenLive = panelist === "QWEN" && env.qwenApiKey.length > 0;
-    const candidates = useDeepSeekLive
-      ? await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, request.signal)
-      : useQwenLive
-        ? await fetchQwenCandidates(prompt, env.qwenApiKey, request.signal)
-        : await stubPanelistCandidates(prompt, panelist, request.signal);
-    const mode = useDeepSeekLive || useQwenLive ? "fetcher" : "stub";
+    const useLlamaLive = panelist === "LLAMA" && env.llamaApiKey.length > 0;
+    const llamaModel =
+      env.llamaGroqModel.length > 0 ? env.llamaGroqModel : DEFAULT_LLAMA_GROQ_MODEL;
+
+    let candidates: Awaited<ReturnType<typeof stubPanelistCandidates>>;
+    if (useDeepSeekLive) {
+      candidates = await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, request.signal);
+    } else if (useQwenLive) {
+      candidates = await fetchQwenCandidates(prompt, env.qwenApiKey, request.signal);
+    } else if (useLlamaLive) {
+      candidates = await fetchLlamaCandidates(
+        prompt,
+        env.llamaApiKey,
+        request.signal,
+        llamaModel
+      );
+    } else {
+      candidates = await stubPanelistCandidates(prompt, panelist, request.signal);
+    }
+
+    const mode =
+      useDeepSeekLive || useQwenLive || useLlamaLive ? "fetcher" : "stub";
     return NextResponse.json(
       { candidates },
       {

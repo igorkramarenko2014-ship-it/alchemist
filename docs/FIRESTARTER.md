@@ -97,7 +97,7 @@
 
 **Timeouts:** **`AI_TIMEOUT_MS` = 8000** per panelist.
 
-**Fetcher:** **`makeTriadFetcher(false, baseUrl)`** → `POST { prompt }` to each **`/api/triad/<slug>`**; **`true`** → in-process stubs. **`/api/triad/deepseek`** → live DeepSeek when **`DEEPSEEK_API_KEY`** is set; **`/api/triad/qwen`** → live Qwen via **DashScope** compatible API when **`QWEN_API_KEY`** is set (**`env.ts`** / `.env.local`). Deployer must comply with each provider’s ToS and billing.
+**Fetcher:** **`makeTriadFetcher(false, baseUrl)`** → `POST { prompt }` to each **`/api/triad/<slug>`**; **`true`** → in-process stubs. **Live HTTP:** **`DEEPSEEK_API_KEY`** (DeepSeek), **`QWEN_API_KEY`** (DashScope Qwen), **`GROQ_API_KEY`** or **`LLAMA_API_KEY`** (Groq OpenAI-compatible Llama; optional **`LLAMA_GROQ_MODEL`**). Deployer must comply with each provider’s ToS and billing.
 
 **Prompt guard:** **`validatePromptForTriad`** — max **2000** chars; rejects Markdown code fences.
 
@@ -107,12 +107,12 @@
 |-------|---------|
 | **`POST /api/triad/deepseek`** | With **`DEEPSEEK_API_KEY`**: live **`https://api.deepseek.com/v1/chat/completions`** → JSON array → **`normalizeRawCandidateItem`** + **`isValidCandidate`** (**`lib/fetch-deepseek-candidates.ts`**, **`triad-llm-normalize.ts`**); **`x-alchemist-triad-mode: fetcher`**. Without the key: **`stub`**. |
 | **`POST /api/triad/qwen`** | With **`QWEN_API_KEY`**: live **`https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions`** (model **`qwen-turbo`**) → same parse path (**`lib/fetch-qwen-candidates.ts`**); **`fetcher`**. Without the key: **`stub`**. |
-| **`POST /api/triad/llama`** | **`stubPanelistCandidates`** only — **`stub`** until wired (same pattern as DeepSeek/Qwen). |
+| **`POST /api/triad/llama`** | With **`GROQ_API_KEY`** or **`LLAMA_API_KEY`**: live **Groq** **`https://api.groq.com/openai/v1/chat/completions`** (default model **`llama-3.3-70b-versatile`**, override **`LLAMA_GROQ_MODEL`**) → **`lib/fetch-llama-candidates.ts`**; **`fetcher`**. Without: **`stub`**. |
 | **`runTriad` + gates** | **Real:** **`AI_TIMEOUT_MS`**, optional **keyword tablebase** (**`reliability/checkers-fusion.ts`**, **`TABLEBASE_RECORDS`** — default **empty**; HARD GATE still governs real preset rows); then **`filterValid`**, distribution + adversarial filters on optional **`paramArray`**; stubs attach synthetic **`paramArray`** so the pipeline is exercised end-to-end. Telemetry: **`preset_tablebase_hit`** on match; **`triad_run_start` / `triad_run_end`** **`mode`**: **`tablebase`** \| **`fetcher`** \| **`stub`**. |
 | **`scoreCandidates` (web)** | **Real:** **`filterValid`** (incl. **≥20** char **`reasoning`**), Slavic dedupe (**param** cosine **> 0.92**; when both sides have legible text, also **Dice(bigram) > 0.88** on **`description` || `reasoning`**), preserve score order — used from **`apps/web-app/app/page.tsx`** after triad analysis. |
 | **Telemetry** | **`logEvent`** → **stderr JSON** lines (`packages/shared-engine/telemetry.ts`), not dev-only `console.log` for those events. |
 | **HARD GATE** | **`serum-offset-map.ts`** + **`validate-offsets.py`** ship in-repo; full Python validation requires a **local** **`tools/sample_init.fxp`** (often gitignored). Use **`pnpm validate:offsets`** / **`pnpm test:gate`**. |
-| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (subset of **`deepseek`**, **`qwen`**), **`triad.note`**, plus **`hardGate`**, **`telemetry`**. |
+| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, plus **`hardGate`**, **`telemetry`**. |
 
 ### 5b. Shared-engine — implementation truth (crucial & sane)
 

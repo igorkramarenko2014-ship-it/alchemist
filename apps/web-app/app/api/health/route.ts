@@ -16,20 +16,24 @@ export async function GET(request: Request) {
 
   const deepseekLive = env.deepseekApiKey.length > 0;
   const qwenLive = env.qwenApiKey.length > 0;
-  const anyLive = deepseekLive || qwenLive;
+  const llamaLive = env.llamaApiKey.length > 0;
+  const anyLive = deepseekLive || qwenLive || llamaLive;
+  const allLive = deepseekLive && qwenLive && llamaLive;
   const liveList = [
     deepseekLive ? "deepseek" : null,
     qwenLive ? "qwen" : null,
+    llamaLive ? "llama" : null,
   ].filter(Boolean);
   return NextResponse.json({
     ok: true,
     wasm,
     triad: {
       panelistRoutes: anyLive ? "mixed" : "stub",
+      triadFullyLive: allLive,
       livePanelists: liveList,
       note: anyLive
-        ? `Live panelist HTTP: ${liveList.join(", ")} (fetcher). Llama remains stub until wired. Keys: DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope). See docs/FIRESTARTER.md §5a.`
-        : "POST /api/triad/* uses stubs until provider keys are set (DEEPSEEK_API_KEY, QWEN_API_KEY). Client runTriad still applies gates, scoring, and AI_TIMEOUT_MS when using makeTriadFetcher. See docs/FIRESTARTER.md §5a.",
+        ? `Live panelist HTTP: ${liveList.join(", ")} (fetcher)${allLive ? " — full triad" : ""}. Keys: DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope), GROQ_API_KEY or LLAMA_API_KEY (Groq Llama). Optional LLAMA_GROQ_MODEL. See docs/FIRESTARTER.md §5a.`
+        : "POST /api/triad/* uses stubs until provider keys are set (DEEPSEEK_API_KEY, QWEN_API_KEY, GROQ_API_KEY or LLAMA_API_KEY). Client runTriad still applies gates, scoring, and AI_TIMEOUT_MS when using makeTriadFetcher. See docs/FIRESTARTER.md §5a.",
     },
     hardGate: {
       offsetMapPresent: true,

@@ -18,7 +18,7 @@
 
 ## Assessment snapshot
 
-**Posture (summarise when product shifts; full honesty table → `FIRESTARTER` §5a):** **`POST /api/triad/deepseek`** is **live DeepSeek** when **`DEEPSEEK_API_KEY`** is set; **`POST /api/triad/qwen`** is **live Qwen** (Alibaba **DashScope** OpenAI-compatible) when **`QWEN_API_KEY`** is set — each uses **`x-alchemist-triad-mode: fetcher`** when keyed, else **stub**. **`llama`** stays **stub** until wired. With no provider keys, all three panelist routes are **stub**. Client **`runTriad`** + **`scoreCandidates`** still apply **real** TS gates (Undercover, **`reasoning`** ≥ **20** chars, Slavic **param** + **Dice**). Optional **keyword tablebase** (**`reliability/`**, empty by default) can short-circuit **`runTriad`** (**`preset_tablebase_hit`**, **`triad_run_*`** **`mode: "tablebase"`**). **HARD GATE:** no authoritative **`.fxp`** without validated **`serum-offset-map.ts`** + **`validate-offsets.py`**. **Formulas / modules → `FIRESTARTER` §5b.**
+**Posture (summarise when product shifts; full honesty table → `FIRESTARTER` §5a):** **`POST /api/triad/deepseek`** / **`qwen`** / **`llama`** are **live HTTP** when **`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`** (DashScope), or **`GROQ_API_KEY`** / **`LLAMA_API_KEY`** (Groq Llama) are set — each route uses **`x-alchemist-triad-mode: fetcher`** when keyed, else **stub**. With **no** keys, all three are **stub**. **`GET /api/health`** exposes **`triad.livePanelists`** and **`triad.triadFullyLive`** when all three are keyed. Client **`runTriad`** + **`scoreCandidates`** apply **real** TS gates (Undercover, **`reasoning`** ≥ **20** chars, Slavic **param** + **Dice**). Optional **keyword tablebase** can short-circuit **`runTriad`**. **HARD GATE:** no authoritative **`.fxp`** without validated **`serum-offset-map.ts`** + **`validate-offsets.py`**. **Formulas / modules → `FIRESTARTER` §5b.**
 
 <!-- ALCHEMIST:FIRE_METRICS:BEGIN -->
 
@@ -84,7 +84,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 ## B2. Web triad handoff
 
-`makeTriadFetcher(false, …)` same-origin; `POST { prompt }` → `{ candidates }`; stubs with `true`; **`middleware.ts`** `x-request-id`; **`env.ts`** for secrets (**`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`** → live **`/api/triad/deepseek`** / **`qwen`**).
+`makeTriadFetcher(false, …)` same-origin; `POST { prompt }` → `{ candidates }`; stubs with `true`; **`middleware.ts`** `x-request-id`; **`env.ts`** for secrets (**`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`**, **`GROQ_API_KEY`** or **`LLAMA_API_KEY`**, optional **`LLAMA_GROQ_MODEL`**).
 
 ---
 
@@ -128,7 +128,7 @@ No encoder / authoritative `SerumState` / real `.fxp` work without validated **`
 16. **Transparent compliance hygiene (optional):** **`pnpm check:transparent`** — scans **`shared-engine`** `.ts` for denylisted shadow-pattern strings (e.g. stealth verdict symbols, “amnesia” governance). **Not** a substitute for review or **`pnpm verify:harsh`**; wire into CI if desired — see **§I**, **`docs/AGENT-PLAYBOOK.md`**.  
 17. **WASM export / health (if shipping browser `.fxp`):** **`pnpm run build:wasm`** in **`packages/fxp-encoder`** after Rust + **`wasm32-unknown-unknown`**; **`GET /api/health/wasm`** matches client prerequisites (**§C**). **`harshcheck`** green does **not** require Rust (encoder **`pnpm build`** may stub — **`FIRESTARTER` §10**).  
 18. **Toolchain PATH:** If **`pnpm`** is absent, root **`pnpm dev`** / **`pnpm harshcheck`** still work when invoked as **`npm run dev`** / **`npm run harshcheck`** at root (they call **`with-pnpm.mjs`**). **`pnpm alc:doctor`** remains **`node scripts/doctor.mjs`** — no **`pnpm`** required to run the doctor script itself.  
-19. **Triad HTTP vs gates:** **`GET /api/health`** includes **`triad.panelistRoutes`**: **`"stub"`** (no provider keys) or **`"mixed"`** (at least one of DeepSeek/Qwen live), **`triad.livePanelists`** (e.g. **`["deepseek","qwen"]`**), **`hardGate.pythonValidate`**, **`telemetry.logEvent`** (stderr JSON). Per route: **`fetcher`** when the matching env key is set; **`llama`** remains **stub** until wired — **`FIRESTARTER` §5a**.  
+19. **Triad HTTP vs gates:** **`GET /api/health`** includes **`triad.panelistRoutes`**: **`"stub"`** or **`"mixed"`** (≥1 live panelist), **`triad.livePanelists`**, **`triad.triadFullyLive`** (all three keyed), **`hardGate.pythonValidate`**, **`telemetry.logEvent`** (stderr JSON). Per route: **`fetcher`** when the matching env key is set — **`FIRESTARTER` §5a**.  
 20. **Offset validation (optional CI):** **`pnpm validate:offsets`** and **`pnpm assert:hard-gate`** run **`tools/validate-offsets.py`** with the **`.fxp`** path when **`tools/sample_init.fxp`** exists (the assert script prints an explicit OK on success). With **`ALCHEMIST_STRICT_OFFSETS=1`**, exits **1** if the sample is missing (fail closed). **Never** invoke **`validate-offsets.py`** without the required **`fxp_path`** argument.  
 21. **Git root (recovery):** **`git rev-parse --show-toplevel`** must equal the monorepo root (path containing **`apps/`** + **`packages/`**). If it resolves to **`$HOME`**, remove mistaken **`~/.git`** and re-init or clone — see **`FIRESTARTER` §2a**. **HTTPS push:** personal GitHub username + PAT (fine-grained **resource owner** = **user**, not org); org **SSO** authorize token if required.
 
@@ -149,7 +149,7 @@ No encoder / authoritative `SerumState` / real `.fxp` work without validated **`
 | Governance | `triad-panel-governance.ts` | Health scores; **`athena_soe_recalibration`** if velocity &lt; 0.7 |
 | SOE | `soe.ts` | Hints from aggregates — **no** `fs` / `child_process` |
 | Gates | `validate.ts`, `score.ts` | Undercover + legibility (**≥20** char **`reasoning`**) + Slavic (**param** cosine **0.92** + optional **Dice** on legibility text) |
-| Triad | `triad.ts`, `triad-panel-route.ts`, `fetch-deepseek-candidates.ts`, `fetch-qwen-candidates.ts`, `triad-llm-normalize.ts`, API routes | Parallel panelists — **no** runtime self-rewrite; optional **keyword tablebase** short-circuit → **`triad_run_*`** **`mode: "tablebase"`**; **`deepseek`** / **`qwen`** → **`fetcher`** when env keys set, else **stub**; **`llama`** **stub** until wired — client **`runTriad`** + **`scoreCandidates`** still apply real gates |
+| Triad | `triad.ts`, `triad-panel-route.ts`, `fetch-*-candidates.ts`, `triad-llm-normalize.ts`, API routes | Parallel panelists — **no** runtime self-rewrite; optional **keyword tablebase** short-circuit → **`triad_run_*`** **`mode: "tablebase"`**; each **`/api/triad/*`** → **`fetcher`** when its provider env key is set, else **stub** — client **`runTriad`** + **`scoreCandidates`** still apply real gates |
 | Taxonomy (offline → 8) | `taxonomy/engine.ts`, `taxonomy/sparse-rank.ts`, `taxonomy/README.md` | **`rankTaxonomy`** for large lists; engine **≤200** rows; **`scoreCandidates`** path; **`shared-engine` index** |
 | Arbitration (opt-in) | `arbitration/transparent-arbitration.ts`, `arbitration/types.ts` | **2-of-3** vote on order strategy; **telemetry**; **no** Slavic bypass |
 | Perf audit (opt-in) | `perf/compliant-perf-boss.ts`, `perf/README.md` | **`perf_boss_*`** timings; **no** shadow / triad override |
