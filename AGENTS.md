@@ -49,7 +49,7 @@ See **[`RUN.txt`](RUN.txt)** for a copy-paste one-liner.
 
 ## Composer prompt packs (browser)
 
-**[`docs/alchemist-cursor-prompts.html`](docs/alchemist-cursor-prompts.html)** · **[`docs/alchemist-high-efficiency-prompts.html`](docs/alchemist-high-efficiency-prompts.html)** · **[`docs/alchemist-cpc-execution-plan.html`](docs/alchemist-cpc-execution-plan.html)** · **[`docs/alchemist-full-unblock-plan.html`](docs/alchemist-full-unblock-plan.html)** · **[`docs/alchemist-new-moves.html`](docs/alchemist-new-moves.html)** — index **`docs/FIRESTARTER.md` §12**; **next moves** summary **`docs/FIRE.md`** Assessment snapshot.
+**[`docs/alchemist-cursor-prompts.html`](docs/alchemist-cursor-prompts.html)** · **[`docs/alchemist-high-efficiency-prompts.html`](docs/alchemist-high-efficiency-prompts.html)** · **[`docs/alchemist-cpc-execution-plan.html`](docs/alchemist-cpc-execution-plan.html)** · **[`docs/alchemist-full-unblock-plan.html`](docs/alchemist-full-unblock-plan.html)** · **[`docs/alchemist-new-moves.html`](docs/alchemist-new-moves.html)** · **[`docs/alchemist-tablebase-seeding.html`](docs/alchemist-tablebase-seeding.html)** — index **`docs/FIRESTARTER.md` §12**; **next moves** summary **`docs/FIRE.md`** Assessment snapshot.
 
 ## UI / Mercury
 

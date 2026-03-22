@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alchemist — Tablebase Seeding</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:   #07090c;
+    --s1:   #0c1018;
+    --s2:   #111820;
+    --b1:   #1c2a3a;
+    --b2:   #273d55;
+    --teal: #5eead4;
+    --amber:#fbbf24;
+    --red:  #f87171;
+    --green:#4ade80;
+    --text: #dce8f4;
+    --dim:  #5c7a96;
+    --dim2: #394f63;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.65; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(7,9,12,0.96); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--b1);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 44px;
+  }
+  .brand { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.2em; color: var(--teal); text-transform: uppercase; }
+  .right  { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--dim2); letter-spacing: 0.1em; }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 56px 24px 100px; }
+
+  /* hero */
+  .h-eye { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 0.24em; color: var(--teal); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+  .h-eye::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--b1), transparent); }
+  .h-title { font-family: 'Instrument Serif', Georgia, serif; font-size: 44px; font-style: italic; letter-spacing: -0.02em; line-height: 1.08; margin-bottom: 16px; }
+  .h-title span { font-style: normal; color: var(--teal); }
+  .h-sub { color: var(--dim); font-size: 14px; max-width: 580px; line-height: 1.8; margin-bottom: 28px; }
+
+  /* context box */
+  .ctx {
+    background: rgba(94,234,212,0.04); border: 1px solid rgba(94,234,212,0.16);
+    border-radius: 10px; padding: 20px 22px; margin-bottom: 32px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  }
+  .ctx-item {}
+  .ctx-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 0.18em; color: var(--dim); text-transform: uppercase; margin-bottom: 5px; }
+  .ctx-val { font-size: 13px; color: var(--text); line-height: 1.55; }
+  .ctx-val code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--teal); }
+
+  /* skip strip */
+  .skip { background: var(--s1); border: 1px solid var(--b1); border-radius: 8px; padding: 14px 18px; margin-bottom: 32px; }
+  .skip-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 0.18em; color: var(--dim2); text-transform: uppercase; margin-bottom: 8px; }
+  .skip-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .skip-item { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim2); background: var(--s2); border: 1px solid var(--b1); border-radius: 3px; padding: 3px 9px; }
+
+  /* legal warning */
+  .legal { background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.22); border-radius: 8px; padding: 16px 20px; margin-bottom: 28px; }
+  .legal-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 0.18em; color: var(--amber); text-transform: uppercase; margin-bottom: 8px; }
+  .legal-body { font-size: 12px; color: #fcd34d; line-height: 1.7; }
+  .legal-body strong { color: var(--amber); }
+  .legal-body code { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  /* prompt card */
+  .cc { border-radius: 10px; overflow: hidden; border: 1px solid var(--b1); margin-bottom: 0; }
+  .cc-bar { display: flex; align-items: center; justify-content: space-between; background: var(--s2); border-bottom: 1px solid var(--b1); padding: 10px 16px; }
+  .cc-lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim); }
+  .cpb { background: transparent; border: 1px solid var(--b2); border-radius: 4px; color: var(--dim); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 5px 14px; transition: all 0.14s; white-space: nowrap; }
+  .cpb:hover { border-color: var(--teal); color: var(--teal); background: rgba(94,234,212,0.05); }
+  .cpb.ok { border-color: var(--green); color: var(--green); }
+  pre.cb { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.72; color: #a8bccf; background: #060910; padding: 20px; white-space: pre; overflow-x: auto; max-height: 480px; overflow-y: auto; }
+  pre.cb::-webkit-scrollbar { width: 3px; height: 3px; }
+  pre.cb::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 2px; }
+  .cc-ft { display: flex; gap: 14px; flex-wrap: wrap; padding: 10px 16px; background: var(--s1); border-top: 1px solid var(--b1); }
+  .ft { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim2); }
+  .ft .l { color: var(--amber); } .ft .ok { color: var(--green); } .ft .f { color: var(--teal); }
+
+  footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--b1); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--dim2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">Alchemist</span>
+  <span class="right">Tablebase seeding · FIRE.md §H §K aligned · 2026-03-22</span>
+</div>
+
+<div class="page">
+
+  <div class="h-eye">One genuinely new prompt</div>
+  <h1 class="h-title">Seed the tablebase<br>from <span>real presets</span></h1>
+  <p class="h-sub">
+    Serum 2 launched in early 2025. Large free preset libraries now exist
+    (Cymatics, Gravitas, WA Production, PresetShare). This makes tablebase
+    seeding from real <code style="font-family:monospace;color:var(--teal)">.fxp</code> files viable for the first time.
+    Everything else in the three uploaded docs is already in the queue.
+  </p>
+
+  <!-- CONTEXT -->
+  <div class="ctx">
+    <div class="ctx-item">
+      <div class="ctx-lbl">Why now</div>
+      <div class="ctx-val">Large free preset packs (1k–5k presets) are publicly available from Cymatics, Gravitas Create, WA Production, PresetShare.com. Prior to Serum 2 these were sparse.</div>
+    </div>
+    <div class="ctx-item">
+      <div class="ctx-lbl">What changes</div>
+      <div class="ctx-val">Tablebase currently has <code>TABLEBASE_RECORDS = []</code> — empty by default. Real records make the keyword short-circuit path actually useful.</div>
+    </div>
+    <div class="ctx-item">
+      <div class="ctx-lbl">FIRE contracts involved</div>
+      <div class="ctx-val"><code>§H</code> taxonomy bridge · <code>§K</code> AGL provenance · <code>§D</code> HARD GATE · <code>FIRESTARTER §13</code> tablebase schema</div>
+    </div>
+    <div class="ctx-item">
+      <div class="ctx-lbl">Hard gate rule</div>
+      <div class="ctx-val">Every preset entering the tablebase must have its <code>paramArray</code> validated against <code>serum-offset-map.ts</code> via <code>validate-offsets.py</code>. No exceptions.</div>
+    </div>
+  </div>
+
+  <!-- ALREADY QUEUED -->
+  <div class="skip">
+    <div class="skip-lbl">Already in queue — not reproduced</div>
+    <div class="skip-items">
+      <span class="skip-item">UX banner</span>
+      <span class="skip-item">gate:suggest</span>
+      <span class="skip-item">PANELIST_TIMEOUT_MS</span>
+      <span class="skip-item">circuit breaker</span>
+      <span class="skip-item">baseline CI</span>
+      <span class="skip-item">SOE consumer</span>
+      <span class="skip-item">WASM assert</span>
+      <span class="skip-item">OpenRouter/Qwen</span>
+      <span class="skip-item">tablebase compete mode</span>
+      <span class="skip-item">per-gate breakdown</span>
+      <span class="skip-item">selection logging</span>
+      <span class="skip-item">snapshot CI</span>
+    </div>
+  </div>
+
+  <!-- LEGAL WARNING -->
+  <div class="legal">
+    <div class="legal-lbl">⚠ Legal precondition — read before running this prompt</div>
+    <div class="legal-body">
+      <strong>Only use presets you have clear rights to index.</strong>
+      Free/public-domain packs (Cymatics free vaults, Gravitas Create free tiers, WA Production free downloads) are safest.
+      Commercial packs typically forbid redistribution and reverse-engineering — do not use them without checking ToS.
+      The tablebase stores <code>paramArray</code> (parameter values) and <code>reasoning</code> text, not the original .fxp binary.
+      This is a provenance decision — document your source in the <code>sourcePack</code> field.
+      Full legal policy: <code>LEGAL.md</code> / <code>PRIVACY.md</code> + <code>FIRE.md §G §K</code>.
+    </div>
+  </div>
+
+  <!-- PROMPT -->
+  <div class="cc">
+    <div class="cc-bar">
+      <span class="cc-lbl">Cursor / Composer — new session</span>
+      <button class="cpb" onclick="cp('p1',this)">Copy prompt</button>
+    </div>
+    <pre class="cb" id="p1"># [TASK]: Seed keyword tablebase from real .fxp preset library
+# [CONTEXT]: docs/FIRE.md §H (taxonomy), §K (AGL provenance), §D (HARD GATE)
+#            docs/FIRESTARTER.md §13 (tablebase schema), §4 (HARD GATE)
+# [LEGAL PRECONDITION]: Only use .fxp files you have rights to index.
+#   Free packs (Cymatics free vault, Gravitas Create free, WA Production
+#   free downloads, PresetShare public domain) are safest. Document source.
+
+## Background
+packages/shared-engine/reliability/tablebase-db.ts exports TABLEBASE_RECORDS = []
+It is intentionally empty — the system works without it but the keyword
+short-circuit path (preset_tablebase_hit) is never exercised.
+
+Real .fxp libraries are now widely available (Serum 2 ecosystem, 2025–2026).
+This prompt builds a pipeline to extract, validate, and load real records.
+
+## What to build
+
+### Step 1: scripts/extract-preset-metadata.mjs  (new file)
+Input: directory path containing .fxp files (pass as argument or env)
+  node scripts/extract-preset-metadata.mjs --dir ~/Downloads/cymatics-free-pack
+
+For each .fxp file:
+1. Read raw bytes
+2. Extract paramArray using serum-offset-map.ts offsets
+   (import from packages/fxp-encoder/serum-offset-map.ts)
+   paramArray = 128 floats from the validated offset positions
+3. Validate each param value is in [0, 1] via validateSerumParamArray
+   from @alchemist/shared-engine/validate
+4. Skip file if validation fails — log skipped count at end
+5. Extract preset name from .fxp header bytes (offset 0x0C, length 28, ASCII)
+6. Build a metadata record:
+   {
+     "name": string,                // preset name from .fxp header
+     "sourcePack": string,          // from --source flag or env PRESET_SOURCE
+     "licenseType": "free" | "commercial_personal",  // from --license flag
+     "paramArray": number[],        // 128 validated floats
+     "extractedAt": ISO string
+   }
+
+Write output to: tools/preset-metadata-extracted.jsonl
+One record per line (newline-delimited JSON).
+logEvent("preset_extraction_complete", { total, validated, skipped, source })
+
+### Step 2: scripts/build-tablebase-records.mjs  (new file)
+Input: tools/preset-metadata-extracted.jsonl
+Groups presets by musical character using rankTaxonomy from @alchemist/shared-engine
+
+For each preset, infer keyword set from preset name heuristics:
+  "bass" → ["bass", "sub", "low"]
+  "lead" → ["lead", "synth", "melody"]
+  "pad"  → ["pad", "ambient", "texture"]
+  "pluck"→ ["pluck", "arp", "short"]
+  "fx"   → ["fx", "riser", "impact"]
+  default→ ["preset", "serum"]
+
+Builds tablebase records in the schema from tablebase-schema.ts:
+  {
+    keywords: string[],
+    candidates: AICandidate[]   // typed from @alchemist/shared-types
+  }
+Where each AICandidate has:
+  panelist: "DEEPSEEK"          // use DEEPSEEK as source panelist for weightedScore
+  score: 0.7                    // conservative default for tablebase entries
+  reasoning: "<name> preset from <sourcePack>. paramArray validated."
+  paramArray: number[]          // from extracted metadata
+  state: {}                     // empty SerumState skeleton (serum-offset-map defines it)
+
+Write output to: tools/tablebase-records-generated.json
+logEvent("tablebase_build_complete", { recordCount, candidateCount, sources })
+
+### Step 3: Manual review step (NOT automated)
+Operator opens tools/tablebase-records-generated.json and reviews:
+- Are the keyword groupings sensible?
+- Are the reasoning strings legible (≥20 chars — REASONING_LEGIBILITY_MIN_CHARS)?
+- Remove any records with suspicious paramArray values
+After review, operator copies approved records to:
+  packages/shared-engine/reliability/tablebase-db.ts
+  (replace the empty TABLEBASE_RECORDS = [] with the approved array)
+
+### Step 4: Add package.json scripts
+"preset:extract": "node scripts/extract-preset-metadata.mjs",
+"preset:build-tablebase": "node scripts/build-tablebase-records.mjs"
+
+### Step 5: Update .gitignore
+tools/preset-metadata-extracted.jsonl   # contains extracted param data
+tools/tablebase-records-generated.json  # pre-review draft
+
+## Constraints
+- Do NOT write directly to tablebase-db.ts — manual review required (Step 3)
+- Do NOT skip validateSerumParamArray — every record must pass HARD GATE
+- The reasoning field for each candidate must be ≥ 20 chars (isValidCandidate)
+- sourcePack field is REQUIRED — do not build records without provenance
+- logEvent for all extraction + build events (auditable)
+- pnpm verify:harsh must stay green (no shared-engine changes in this task)
+- pnpm check:transparent must pass
+- Update docs/FIRESTARTER.md §13: note preset:extract + preset:build-tablebase
+- Update docs/FIRE.md §K: note tablebase seeding pipeline in Legal row
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+# Then run the pipeline:
+PRESET_SOURCE="cymatics-free-2025" node scripts/extract-preset-metadata.mjs \
+  --dir ~/path/to/fxp-files --license free
+node scripts/build-tablebase-records.mjs
+# Review tools/tablebase-records-generated.json before Step 3</pre>
+    <div class="cc-ft">
+      <span class="ft"><span class="l">legal:</span> sourcePack required · free packs only unless ToS checked</span>
+      <span class="ft"><span class="ok">HARD GATE enforced per record</span></span>
+      <span class="ft"><span class="ok">manual review before tablebase-db.ts write</span></span>
+      <span class="ft"><span class="f">FIRE §H §K §D</span></span>
+    </div>
+  </div>
+
+  <footer>
+    <span>Project Alchemist · Tablebase seeding (one genuinely new prompt)</span>
+    <span>FIRE.md §H §K §D aligned · 2026-03-22</span>
+  </footer>
+</div>
+
+<script>
+function cp(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    btn.textContent = '✓ Copied'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy prompt'; btn.classList.remove('ok'); }, 2200);
+  });
+}
+</script>
+</body>
+</html>
