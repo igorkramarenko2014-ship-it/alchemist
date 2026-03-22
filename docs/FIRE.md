@@ -36,7 +36,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 ### Next moves (operator / agent)
 
-**Composer HTML packs** (task prompts + on-page **rejected** anti-patterns): **`docs/alchemist-cursor-prompts.html`** (P0–P3), **`docs/alchemist-high-efficiency-prompts.html`** (per-gate calibration breakdown; optional **`tablebaseMode: 'compete'`**), **`docs/alchemist-cpc-execution-plan.html`** (timeouts / snapshot CI / **`gate:suggest`** / selection telemetry), **`docs/alchemist-full-unblock-plan.html`** (M1–M5 pipeline). **Roles → `FIRESTARTER` §12.**
+**Composer HTML packs** (task prompts + on-page **rejected** anti-patterns): **`docs/alchemist-cursor-prompts.html`** (P0–P3), **`docs/alchemist-high-efficiency-prompts.html`** (per-gate calibration breakdown; optional **`tablebaseMode: 'compete'`**), **`docs/alchemist-cpc-execution-plan.html`** (timeouts / snapshot CI / **`gate:suggest`** / selection telemetry), **`docs/alchemist-full-unblock-plan.html`** (M1–M5 pipeline), **`docs/alchemist-new-moves.html`** (post-queue: circuit breaker, gate baseline regression CI, **`verify_post_summary`** capture). **Roles → `FIRESTARTER` §12.**
 
 **Recently shipped:** **`QWEN_BASE_URL`** wiring; **`pnpm test:real-gates`** + **`logEvent`** **`calibration_*`** (artifact **`tools/gate-calibration-output.json`** — **gitignored**); **`useTriadHealth`** + dock triad status; root **`env:check`**, **`verify:keys`**, **`check:ready`**, **`build:wasm`** — **`FIRESTARTER` §9.**
 

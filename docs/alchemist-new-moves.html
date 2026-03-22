@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alchemist — New Moves (post-queue)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:    #070a0e;
+    --s1:    #0c1219;
+    --s2:    #111a25;
+    --s3:    #16222f;
+    --b1:    #1d2e42;
+    --b2:    #274059;
+    --teal:  #5eead4;
+    --amber: #fbbf24;
+    --red:   #f87171;
+    --green: #4ade80;
+    --blue:  #7dd3fc;
+    --rose:  #fb7185;
+    --text:  #dce8f5;
+    --dim:   #5d7a96;
+    --dim2:  #3a4f63;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 14px; line-height: 1.65;
+  }
+
+  /* ── TOP BAR ─────────────────────────────── */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(7,10,14,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--b1);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 44px;
+  }
+  .tb-left { display: flex; align-items: center; gap: 24px; }
+  .tb-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+    color: var(--teal); text-transform: uppercase;
+  }
+  .tb-links { display: flex; gap: 2px; }
+  .tb-a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--dim);
+    padding: 4px 10px; border-radius: 3px;
+    cursor: pointer; transition: color 0.12s;
+  }
+  .tb-a:hover { color: var(--text); }
+  .tb-right {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--dim2); letter-spacing: 0.1em;
+  }
+
+  /* ── PAGE ────────────────────────────────── */
+  .page { max-width: 920px; margin: 0 auto; padding: 56px 24px 100px; }
+
+  /* ── HERO ────────────────────────────────── */
+  .hero { margin-bottom: 52px; }
+  .h-pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.24em;
+    color: var(--teal); text-transform: uppercase; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .h-pre::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--b1), transparent); }
+  .h-title {
+    font-size: 42px; font-weight: 700; font-style: italic;
+    letter-spacing: -0.03em; line-height: 1.08; margin-bottom: 16px;
+  }
+  .h-title span { font-style: normal; color: var(--teal); }
+  .h-sub {
+    color: var(--dim); font-size: 14px;
+    max-width: 580px; line-height: 1.8; margin-bottom: 28px;
+  }
+  .h-sub code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--teal); }
+
+  /* already-queued strip */
+  .queued {
+    background: rgba(94,234,212,0.04);
+    border: 1px solid rgba(94,234,212,0.14);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 28px;
+  }
+  .q-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.18em;
+    color: var(--dim); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .q-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .q-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--dim2);
+    background: var(--s1); border: 1px solid var(--b1);
+    border-radius: 3px; padding: 3px 9px;
+  }
+
+  /* rejected */
+  .rej {
+    background: rgba(248,113,113,0.04);
+    border: 1px solid rgba(248,113,113,0.16);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 36px;
+  }
+  .r-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.18em;
+    color: var(--red); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .r-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .r-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #fca5a5;
+    background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.16);
+    border-radius: 3px; padding: 3px 9px;
+    text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.4);
+  }
+
+  /* row of 3 cards */
+  .card-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; margin-bottom: 52px; }
+  .cr-card {
+    background: var(--s1); border: 1px solid var(--b1);
+    padding: 16px 16px 14px;
+  }
+  .cr-card:first-child { border-radius: 8px 0 0 8px; }
+  .cr-card:last-child  { border-radius: 0 8px 8px 0; }
+  .cr-n { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 0.14em; margin-bottom: 6px; }
+  .cr-t { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .cr-s { font-size: 11px; color: var(--dim); line-height: 1.45; }
+  .cr-e { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--dim2); margin-top: 8px; }
+
+  /* ── PROMPT SECTION ──────────────────────── */
+  .sec { margin-bottom: 46px; scroll-margin-top: 56px; }
+  .sec-hd { margin-bottom: 14px; }
+  .sec-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+  .stag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.14em;
+    padding: 3px 10px; border-radius: 3px; text-transform: uppercase;
+  }
+  .s1 { background: rgba(251,113,133,0.1);  color: var(--rose);  border: 1px solid rgba(251,113,133,0.28); }
+  .s2 { background: rgba(125,211,252,0.1);  color: var(--blue);  border: 1px solid rgba(125,211,252,0.28); }
+  .s3 { background: rgba(74,222,128,0.1);   color: var(--green); border: 1px solid rgba(74,222,128,0.26); }
+  .ftag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--dim2); background: var(--s2);
+    border: 1px solid var(--b1); border-radius: 3px; padding: 3px 8px;
+  }
+  .etag { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--dim2); margin-left: auto; }
+  .sec-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .sec-desc { font-size: 13px; color: var(--dim); max-width: 640px; line-height: 1.75; margin-bottom: 12px; }
+  .why {
+    border-left: 2px solid var(--b2); padding: 10px 16px; margin-bottom: 14px;
+    font-size: 12px; color: var(--dim); line-height: 1.7;
+  }
+  .why strong { color: var(--text); }
+  .why code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--teal); }
+
+  /* code card */
+  .cc { border-radius: 10px; overflow: hidden; border: 1px solid var(--b1); }
+  .cc-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--s2); border-bottom: 1px solid var(--b1); padding: 9px 16px;
+  }
+  .cc-lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim); }
+  .cpb {
+    background: transparent; border: 1px solid var(--b2); border-radius: 4px;
+    color: var(--dim); cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 5px 13px; transition: all 0.14s; white-space: nowrap;
+  }
+  .cpb:hover  { border-color: var(--teal); color: var(--teal); background: rgba(94,234,212,0.05); }
+  .cpb.done   { border-color: var(--green); color: var(--green); }
+  pre.cb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px; line-height: 1.72; color: #aabccc;
+    background: #060910; padding: 20px; white-space: pre;
+    overflow-x: auto; max-height: 440px; overflow-y: auto;
+  }
+  pre.cb::-webkit-scrollbar { width: 3px; height: 3px; }
+  pre.cb::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 2px; }
+  .cc-ft {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    padding: 9px 16px; background: var(--s1); border-top: 1px solid var(--b1);
+  }
+  .ft { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim2); }
+  .ft .l { color: var(--amber); } .ft .ok { color: var(--green); }
+  .ft .w  { color: var(--amber); } .ft .f  { color: var(--teal); }
+
+  /* divider */
+  hr.dr { border: none; border-top: 1px solid var(--b1); margin: 42px 0; position: relative; }
+  hr.dr::after {
+    content: attr(data-l); position: absolute; top: -8px; left: 50%;
+    transform: translateX(-50%); background: var(--bg); padding: 0 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    letter-spacing: 0.16em; color: var(--dim2); text-transform: uppercase;
+  }
+
+  footer {
+    margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--b1);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--dim2); letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <span class="tb-brand">Alchemist</span>
+    <div class="tb-links">
+      <span class="tb-a" onclick="go('s1')">N1 · Circuit breaker</span>
+      <span class="tb-a" onclick="go('s2')">N2 · Baseline CI</span>
+      <span class="tb-a" onclick="go('s3')">N3 · SOE consumer</span>
+    </div>
+  </div>
+  <span class="tb-right">New moves · post-queue · FIRE.md aligned</span>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="h-pre">New moves — not in previous HTML packs</div>
+    <h1 class="h-title">Three <span>genuinely new</span><br>prompts</h1>
+    <p class="h-sub">
+      These are not in the existing queue (<code>alchemist-full-unblock-plan.html</code> etc.).
+      Each addresses something the previous packs left open.
+      All FIRE-compliant. All have a Copy button.
+    </p>
+
+    <div class="queued">
+      <div class="q-lbl">Already in queue — not reproduced here</div>
+      <div class="q-items">
+        <span class="q-item">UI partial banner</span>
+        <span class="q-item">PANELIST_TIMEOUT_MS</span>
+        <span class="q-item">gate:suggest stdout</span>
+        <span class="q-item">snapshot CI</span>
+        <span class="q-item">triad_candidate_selected</span>
+        <span class="q-item">REQUIRE_WASM assert</span>
+        <span class="q-item">tablebase compete mode</span>
+        <span class="q-item">per-gate breakdown</span>
+        <span class="q-item">QWEN_BASE_URL / OpenRouter</span>
+      </div>
+    </div>
+
+    <div class="rej">
+      <div class="r-lbl">Rejected from all three uploaded docs</div>
+      <div class="r-items">
+        <span class="r-item">dynamic weight recalibration at runtime</span>
+        <span class="r-item">embedding cache + semantic pre-routing</span>
+        <span class="r-item">speculative early-exit cancelling panelists</span>
+        <span class="r-item">elite-mode-setup.sh auto-patching</span>
+        <span class="r-item">provenance cryptography / Web Crypto</span>
+        <span class="r-item">isolation forest anomaly detection</span>
+        <span class="r-item">pnpm gate:apply auto-write</span>
+        <span class="r-item">triadMode field added to health route</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD ROW -->
+  <div class="card-row">
+    <div class="cr-card">
+      <div class="cr-n" style="color:var(--rose)">New 1</div>
+      <div class="cr-t">Circuit breaker</div>
+      <div class="cr-s">Skip a panelist that keeps failing — reset after cool-down. Prevents SOE poisoning from one bad provider.</div>
+      <div class="cr-e">~2h · shared-engine only</div>
+    </div>
+    <div class="cr-card">
+      <div class="cr-n" style="color:var(--blue)">New 2</div>
+      <div class="cr-t">Baseline CI regression</div>
+      <div class="cr-s">Commit a gate-baseline.json. CI fails if drop rate drifts > 10pp above it. Prevents silent quality decay.</div>
+      <div class="cr-e">~2h · scripts + CI only</div>
+    </div>
+    <div class="cr-card">
+      <div class="cr-n" style="color:var(--green)">New 3</div>
+      <div class="cr-t">SOE hint consumer</div>
+      <div class="cr-s">Pipe verify_post_summary stderr → append to soe-hints.jsonl. Offline analysis with pnpm soe:review.</div>
+      <div class="cr-e">~1h · scripts only</div>
+    </div>
+  </div>
+
+  <!-- N1 -->
+  <div class="sec" id="s1">
+    <div class="sec-hd">
+      <div class="sec-row">
+        <span class="stag s1">New 1</span>
+        <span class="ftag">FIRE §F triad layer · §I no shadow state</span>
+        <span class="etag">~2h</span>
+      </div>
+      <div class="sec-title">Circuit breaker for repeated panelist failures</div>
+      <div class="sec-desc">
+        When a panelist fails N times in a row, skip it for a cool-down window rather than
+        hammering it and generating repeated empty-array failures that corrupt
+        <code style="font-family:monospace;color:var(--rose)">triadFailureRate</code> and
+        trigger false <code style="font-family:monospace;color:var(--rose)">athena_soe_recalibration</code>.
+        State lives in module memory — no persistent storage, no shadow governance.
+      </div>
+    </div>
+    <div class="why">
+      <strong>Why this is new:</strong> The existing timeout queue entry (PANELIST_TIMEOUT_MS)
+      fixes per-call latency. The circuit breaker is different — it handles the case where a provider
+      is down or rate-limited and every call is failing. Without it, a single broken provider
+      forces <code>triadFailureRate</code> to 0.33+ per run, which governance reads as model quality failure
+      and recalibrates weights. The breaker prevents that feedback loop while being fully auditable.
+    </div>
+    <div class="cc">
+      <div class="cc-bar">
+        <span class="cc-lbl">Cursor / Composer — new session</span>
+        <button class="cpb" onclick="cp('n1',this)">Copy prompt</button>
+      </div>
+      <pre class="cb" id="n1"># [TASK]: Add circuit breaker for repeated panelist failures
+# [CONTEXT]: docs/FIRE.md §F (triad layer), §I (no shadow state)
+# [CANONICAL]: PANELIST_WEIGHTS unchanged. No persistent state. logEvent required.
+
+## Problem
+When a provider is down or rate-limited, every call returns [] and increments
+triadFailureRate. Governance may trigger athena_soe_recalibration based on
+network outage, not model quality. This is a false signal.
+
+## What to build
+
+### packages/shared-engine/triad-circuit-breaker.ts  (new file)
+Export a simple in-memory circuit breaker module:
+
+  interface BreakerState {
+    failures: number;
+    openedAt: number | null;  // timestamp ms, null = closed
+  }
+
+  const CIRCUIT_BREAKER_THRESHOLD = 3;   // failures before open
+  const CIRCUIT_BREAKER_RESET_MS  = 300_000; // 5 min cool-down
+
+  const state = new Map<string, BreakerState>();
+
+  export function canCallPanelist(panelist: string): boolean
+  // Returns false when circuit is open AND cool-down has not elapsed.
+  // Returns true (and resets failures to 0) when cool-down has elapsed.
+
+  export function recordPanelistSuccess(panelist: string): void
+  // Resets failure count to 0 and closes circuit.
+
+  export function recordPanelistFailure(panelist: string): void
+  // Increments failure count. Opens circuit (sets openedAt) when threshold reached.
+  // logEvent("circuit_breaker_opened", { panelist, failures, openedAt })
+
+  export function recordPanelistReset(panelist: string): void
+  // Called when cool-down elapsed and circuit is half-open again.
+  // logEvent("circuit_breaker_reset", { panelist })
+
+All logEvent calls use logEvent from @alchemist/shared-engine/telemetry.
+No fs, no child_process, no external deps.
+
+### packages/shared-engine/triad.ts
+In the per-panelist fetcher loop:
+- Before calling fetcher(prompt, panelist, signal):
+    if (!canCallPanelist(panelist.id)) {
+      logEvent("circuit_breaker_skip", { panelist: panelist.id, runId })
+      return [];  // treat as empty — same as timeout
+    }
+- On success (candidates.length > 0): recordPanelistSuccess(panelist.id)
+- On catch or timeout: recordPanelistFailure(panelist.id)
+
+### packages/shared-engine/tests/triad-circuit-breaker.test.ts  (new file)
+- Test: circuit opens after CIRCUIT_BREAKER_THRESHOLD failures
+- Test: canCallPanelist returns false when open, true after reset
+- Test: success resets failure count
+- Test: logEvent called on open and reset
+- Test: triad.ts skips panelist when breaker is open (mock)
+
+## Constraints
+- State is in-memory only — resets on process restart (intentional)
+- No automatic weight changes — PANELIST_WEIGHTS unchanged
+- No changes to scoreCandidates or any gate
+- pnpm verify:harsh green (60 + new tests)
+- pnpm check:transparent clean
+- Update docs/FIRESTARTER.md §5b triad.ts row: note circuit breaker
+- Update docs/FIRE.md §F triad layer row: note circuit_breaker_* events
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="l">touches:</span> shared-engine only</span>
+        <span class="ft"><span class="ok">in-memory — resets on restart</span></span>
+        <span class="ft"><span class="ok">no weight changes</span></span>
+        <span class="ft"><span class="f">FIRE §F · §I</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="dr" data-l="independent sessions">
+
+  <!-- N2 -->
+  <div class="sec" id="s2">
+    <div class="sec-hd">
+      <div class="sec-row">
+        <span class="stag s2">New 2</span>
+        <span class="ftag">FIRE §E3 — extends snapshot CI · no contract change</span>
+        <span class="etag">~2h</span>
+      </div>
+      <div class="sec-title">Gate baseline + regression CI check</div>
+      <div class="sec-desc">
+        The existing snapshot CI (in the queue) detects gate failures.
+        This adds a committed <code style="font-family:monospace;color:var(--blue)">tools/gate-baseline.json</code>
+        that encodes the known-good drop rate from your first real calibration run.
+        CI fails if the current run drifts more than 10 percentage points above it —
+        catching silent quality decay before it reaches users.
+      </div>
+    </div>
+    <div class="why">
+      <strong>Why this is new:</strong> The snapshot CI checks absolute gate pass/fail.
+      This checks <em>relative drift</em> against a committed baseline.
+      The difference: snapshot CI tells you gates are broken; baseline CI tells you
+      gates are quietly getting worse. Both are needed. Run this after your first
+      successful <code>pnpm test:real-gates</code> with all three keys live.
+    </div>
+    <div class="cc">
+      <div class="cc-bar">
+        <span class="cc-lbl">Cursor / Composer — new session</span>
+        <button class="cpb" onclick="cp('n2',this)">Copy prompt</button>
+      </div>
+      <pre class="cb" id="n2"># [TASK]: Gate baseline + CI regression check
+# [CONTEXT]: docs/FIRE.md §E3, scripts/calibrate-gates.ts (already exists)
+# [PRECONDITION]: Run BASE_URL=http://127.0.0.1:3002 pnpm test:real-gates with all
+#   3 keys live. Copy survivalRates from tools/gate-calibration-output.json
+#   into the baseline file created below.
+
+## What to build
+
+### 1. tools/gate-baseline.json  (new committed file)
+Create with the values from your first real calibration run:
+{
+  "capturedAt": "YYYY-MM-DD",
+  "totalPrompts": 0,
+  "survivalRates": {
+    "isValid":      0,
+    "distribution": 0,
+    "adversarial":  0
+  },
+  "slavicDedupeRate": 0,
+  "reasoningLengths": {
+    "pctUnder20": 0
+  },
+  "note": "Baseline from first live calibration run. Update deliberately."
+}
+Fill all 0s with real values from gate-calibration-output.json before committing.
+This file IS committed to git (unlike gate-calibration-output.json which is gitignored).
+
+### 2. scripts/check-gate-regression.mjs  (new file)
+- Reads tools/gate-baseline.json (exit with clear error if missing)
+- Reads tools/gate-calibration-output.json (exit with clear error if missing)
+- Computes drift per gate: current.survivalRates.X - baseline.survivalRates.X
+- Fails (exit 1) if:
+    any survival rate dropped more than REGRESSION_THRESHOLD (default 0.10) below baseline
+    OR reasoningLengths.pctUnder20 > 0 in current (hard — zero tolerance)
+- On failure: prints human-readable diff table to stdout
+- On pass: prints summary table
+- Env: REGRESSION_THRESHOLD overrides default 0.10
+
+### 3. Add to root package.json scripts
+"gate:check-regression": "node scripts/check-gate-regression.mjs"
+
+### 4. Usage in release flow (add to docs)
+After pnpm test:real-gates:
+  pnpm gate:check-regression
+
+In CI (optional, env flag to disable for initial runs):
+  REGRESSION_THRESHOLD=0.15 pnpm gate:check-regression
+
+## Constraints
+- tools/gate-baseline.json IS committed — it is the reference truth
+- tools/gate-calibration-output.json is gitignored — it is the live measurement
+- Script changes NO thresholds — comparison only
+- pnpm verify:harsh stays green (no shared-engine changes)
+- Update docs/FIRESTARTER.md §9 scripts table: add gate:check-regression
+- Update docs/FIRE.md §E3: note baseline regression check
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+# Then run (after first real calibration):
+pnpm gate:check-regression</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="l">precondition:</span> real calibration run with all 3 keys</span>
+        <span class="ft"><span class="ok">baseline file is committed — intentionally updated</span></span>
+        <span class="ft"><span class="ok">no threshold changes</span></span>
+        <span class="ft"><span class="f">FIRE §E3</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="dr" data-l="independent sessions">
+
+  <!-- N3 -->
+  <div class="sec" id="s3">
+    <div class="sec-hd">
+      <div class="sec-row">
+        <span class="stag s3">New 3</span>
+        <span class="ftag">FIRE §E1.5 verify_post_summary — dev tool only</span>
+        <span class="etag">~1h</span>
+      </div>
+      <div class="sec-title">SOE hint consumer — stderr → local file</div>
+      <div class="sec-desc">
+        <code style="font-family:monospace;color:var(--green)">verify_post_summary.soeHint</code> is emitted to stderr
+        after every verify run but currently goes nowhere.
+        This adds a tiny script that wraps the verify commands and appends
+        <code style="font-family:monospace;color:var(--green)">soeHint</code> lines to a local
+        <code style="font-family:monospace;color:var(--green)">soe-hints.jsonl</code> file for offline review.
+        One-command viewer included.
+      </div>
+    </div>
+    <div class="why">
+      <strong>Why this is new:</strong> SOE hints are currently invisible — they emit to stderr
+      and disappear. Accumulating them in a local append-only file creates an ops history
+      that feeds directly into <code>mergeGreatLibraryIntoSoeSnapshot</code> (FIRE §K)
+      when you're ready to close the feedback loop. Zero impact on production.
+      Dev-only tool, gitignored output.
+    </div>
+    <div class="cc">
+      <div class="cc-bar">
+        <span class="cc-lbl">Cursor / Composer — new session</span>
+        <button class="cpb" onclick="cp('n3',this)">Copy prompt</button>
+      </div>
+      <pre class="cb" id="n3"># [TASK]: SOE hint consumer — capture verify_post_summary to local file
+# [CONTEXT]: docs/FIRE.md §E1 item 5, §K (AGL offline path)
+# [CONSTRAINT]: Dev-only. No changes to shared-engine or verify scripts.
+
+## What to build
+
+### scripts/verify-with-soe-capture.mjs  (new file)
+A thin wrapper around the existing verify commands that captures
+verify_post_summary events from stderr and appends them to a local file.
+
+Usage:
+  node scripts/verify-with-soe-capture.mjs [harsh|web]
+  # Default: 'harsh' (runs pnpm verify:harsh)
+
+Behavior:
+1. Spawn: node scripts/with-pnpm.mjs [verify:harsh | harshcheck]
+   (reuse existing with-pnpm.mjs — do not reinvent)
+2. Pipe stderr line-by-line
+3. For each line containing "verify_post_summary":
+   - Parse JSON
+   - Append to soe-hints.jsonl:
+     { "ts": ISO, "mode": ..., "exitCode": ..., "soeHint": ..., "durationMs": ... }
+4. Pass all stderr through unchanged (operator still sees normal output)
+5. Exit with same code as spawned process
+
+Output file: soe-hints.jsonl at monorepo root (gitignored)
+Each line is one JSON object (newline-delimited JSON).
+
+### scripts/soe-review.mjs  (new file)
+Reads soe-hints.jsonl and prints a human-readable summary:
+
+  SOE HINT HISTORY (last 20 runs)
+  ────────────────────────────────
+  2026-03-22T14:01  verify-harsh  exit:0  hint: "triadFailureRate nominal"
+  2026-03-22T13:44  verify-harsh  exit:0  hint: "latency within threshold"
+  ...
+
+  Most recent soeHint: "..."
+  Runs captured: N   Green: N   Failed: N
+
+### Add to root package.json scripts
+"verify:capture": "node scripts/verify-with-soe-capture.mjs harsh"
+"soe:review":     "node scripts/soe-review.mjs"
+
+### Add to .gitignore
+soe-hints.jsonl
+
+## Constraints
+- Does NOT modify run-verify-with-summary.mjs or any verify script
+- Does NOT change shared-engine
+- Does NOT send data anywhere — local file only
+- pnpm verify:harsh still works unchanged (this is an opt-in wrapper)
+- pnpm verify:harsh stays green
+- Update docs/FIRESTARTER.md §9: add verify:capture + soe:review
+- Note in docs/FIRE.md §E1.5: soe-hints.jsonl capture available via verify:capture
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh            # original command still works
+pnpm verify:capture          # wrapper — same result + writes soe-hints.jsonl
+pnpm soe:review              # view accumulated hints
+pnpm fire:sync</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="ok">dev-only — output gitignored</span></span>
+        <span class="ft"><span class="ok">no shared-engine changes</span></span>
+        <span class="ft"><span class="l">feeds:</span> FIRE §K AGL offline path</span>
+        <span class="ft"><span class="f">FIRE §E1.5</span></span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Project Alchemist · New moves (post-queue)</span>
+    <span>FIRE.md §E §F §I §K aligned · 2026-03-22</span>
+  </footer>
+
+</div>
+
+<script>
+function cp(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    btn.textContent = '✓ Copied'; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy prompt'; btn.classList.remove('done'); }, 2200);
+  });
+}
+function go(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
