@@ -4,13 +4,13 @@
  */
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
-  /** Live `/api/triad/deepseek` when non-empty; otherwise stub. */
+  /** Live `/api/triad/deepseek` when non-empty (`DEEPSEEK_API_KEY`). */
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
-  /** Live `/api/triad/qwen` (DashScope OpenAI-compatible) when non-empty; otherwise stub. */
+  /** Live `/api/triad/qwen` (DashScope OpenAI-compatible) when non-empty (`QWEN_API_KEY`). */
   qwenApiKey: process.env.QWEN_API_KEY ?? "",
   /**
    * Live `/api/triad/llama` via Groq OpenAI-compatible API when non-empty.
-   * Prefer `GROQ_API_KEY` (provider-native); `LLAMA_API_KEY` accepted as alias.
+   * `GROQ_API_KEY` (preferred) or `LLAMA_API_KEY`.
    */
   llamaApiKey: process.env.GROQ_API_KEY ?? process.env.LLAMA_API_KEY ?? "",
   /** Optional Groq model id for Llama panelist (default `llama-3.3-70b-versatile`). */

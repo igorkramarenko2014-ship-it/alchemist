@@ -1,17 +1,22 @@
 import { MAX_CANDIDATES } from "@alchemist/shared-engine";
+import { readOpenAiAssistantText } from "@/lib/openai-compatible-chat";
+import { triadPanelistSystemPrompt } from "@/lib/triad-panelist-system-prompt";
 import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
 import type { AICandidate } from "@alchemist/shared-types";
 
+const DEEPSEEK_CHAT_URL = "https://api.deepseek.com/v1/chat/completions";
+
 /**
  * Live DeepSeek chat completion → `AICandidate[]`.
- * Relies on outer `AbortSignal` / `withTimeout` from `runTriad` — no nested timer here.
+ * Outer `AbortSignal` must enforce `AI_TIMEOUT_MS` (see `triad-panel-route.ts`).
  */
 export async function fetchDeepSeekCandidates(
   prompt: string,
   apiKey: string,
   signal: AbortSignal
 ): Promise<AICandidate[]> {
-  const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+  const panelist = "DEEPSEEK" as const;
+  const response = await fetch(DEEPSEEK_CHAT_URL, {
     method: "POST",
     signal,
     headers: {
@@ -22,18 +27,7 @@ export async function fetchDeepSeekCandidates(
       model: "deepseek-chat",
       max_tokens: 1024,
       messages: [
-        {
-          role: "system",
-          content: [
-            "You are a Serum VST preset assistant.",
-            "Return ONLY a JSON array of objects. No markdown fences. No preamble.",
-            "Each object: { score: number in [0,1], reasoning: string (at least 20 characters),",
-            "paramArray: number[] (each in [0,1], varied values, at least 8 entries when included),",
-            'panelist: "DEEPSEEK" }.',
-            "You may omit state or use minimal empty objects; omit paramArray only if you cannot satisfy ranges.",
-            "Return between 1 and 8 objects.",
-          ].join(" "),
-        },
+        { role: "system", content: triadPanelistSystemPrompt(panelist) },
         { role: "user", content: prompt },
       ],
     }),
@@ -43,11 +37,9 @@ export async function fetchDeepSeekCandidates(
     throw new Error(`DeepSeek HTTP ${response.status}`);
   }
 
-  const data = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const content = data.choices?.[0]?.message?.content;
-  if (typeof content !== "string") {
+  const body: unknown = await response.json();
+  const content = readOpenAiAssistantText(body);
+  if (content === null) {
     throw new Error("DeepSeek: missing message content");
   }
 
@@ -64,6 +56,6 @@ export async function fetchDeepSeekCandidates(
 
   return raw
     .slice(0, MAX_CANDIDATES)
-    .map((item) => normalizeRawCandidateItem(item, "DEEPSEEK"))
+    .map((item) => normalizeRawCandidateItem(item, panelist))
     .filter((c): c is AICandidate => c != null);
 }

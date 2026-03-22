@@ -17,6 +17,8 @@ Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first 
          Dev binds 0.0.0.0 by default (loopback-only: HOST=127.0.0.1).
          If the banner shows :3001 (or any port ≠ 3000), something else already owns :3000 — do NOT open :3000; you will see another app’s errors (500/404). A yellow warning appears above the cyan box when this happens.
 
+**Terminal says “Ready” but the app “won’t run” in the browser:** you almost certainly opened the **wrong port** (often **:3000** while Alchemist is on **:3003**, etc.). Use **only** the **`http://127.0.0.1:PORT`** line inside the **cyan** box. To see what owns **3000**: `lsof -nP -iTCP:3000 -sTCP:LISTEN` — quit that process if you want Alchemist to bind **3000** next time.
+
 **If `pnpm dev` or `./scripts/go.sh` fails:**
   cd "/Users/igorkramarenko/Desktop/Vibe Projects"   # must be the folder with apps/ + packages/
   pnpm install

@@ -1,21 +1,21 @@
 import { MAX_CANDIDATES } from "@alchemist/shared-engine";
+import { readOpenAiAssistantText } from "@/lib/openai-compatible-chat";
+import { triadPanelistSystemPrompt } from "@/lib/triad-panelist-system-prompt";
 import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
 import type { AICandidate } from "@alchemist/shared-types";
 
-/**
- * Live Qwen via Alibaba DashScope OpenAI-compatible API.
- * @see https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api
- * Relies on outer `AbortSignal` / `withTimeout` from `runTriad`.
- */
 const QWEN_COMPAT_COMPLETIONS_URL =
   "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
 
+/**
+ * Live Qwen via Alibaba DashScope OpenAI-compatible API.
+ */
 export async function fetchQwenCandidates(
   prompt: string,
   apiKey: string,
   signal: AbortSignal
 ): Promise<AICandidate[]> {
-  const panelistLiteral = "QWEN";
+  const panelist = "QWEN" as const;
   const response = await fetch(QWEN_COMPAT_COMPLETIONS_URL, {
     method: "POST",
     signal,
@@ -24,21 +24,10 @@ export async function fetchQwenCandidates(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "qwen-turbo",
+      model: "qwen-plus",
       max_tokens: 1024,
       messages: [
-        {
-          role: "system",
-          content: [
-            "You are a Serum VST preset assistant.",
-            "Return ONLY a JSON array of objects. No markdown fences. No preamble.",
-            "Each object: { score: number in [0,1], reasoning: string (at least 20 characters),",
-            "paramArray: number[] (each in [0,1], varied values, at least 8 entries when included),",
-            `panelist: "${panelistLiteral}" }.`,
-            "You may omit state or use minimal empty objects; omit paramArray only if you cannot satisfy ranges.",
-            "Return between 1 and 8 objects.",
-          ].join(" "),
-        },
+        { role: "system", content: triadPanelistSystemPrompt(panelist) },
         { role: "user", content: prompt },
       ],
     }),
@@ -48,11 +37,9 @@ export async function fetchQwenCandidates(
     throw new Error(`Qwen HTTP ${response.status}`);
   }
 
-  const data = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const content = data.choices?.[0]?.message?.content;
-  if (typeof content !== "string") {
+  const body: unknown = await response.json();
+  const content = readOpenAiAssistantText(body);
+  if (content === null) {
     throw new Error("Qwen: missing message content");
   }
 
@@ -69,6 +56,6 @@ export async function fetchQwenCandidates(
 
   return raw
     .slice(0, MAX_CANDIDATES)
-    .map((item) => normalizeRawCandidateItem(item, "QWEN"))
+    .map((item) => normalizeRawCandidateItem(item, panelist))
     .filter((c): c is AICandidate => c != null);
 }
