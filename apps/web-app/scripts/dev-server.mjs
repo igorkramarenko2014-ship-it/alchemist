@@ -136,6 +136,7 @@ ${cyan}${bold}┌─────────────────────
 │  ${reset}${bold}${url}${reset}${cyan}${bold}                         │
 ${localhostHint}${bindExplain}│  Port ${port} · scans 3000–3060 when PORT is busy.           │
 │  Stuck / webpack errors?  pnpm dev:recover  ·  web:dev:fresh          │
+│  404 / “error components” on /?  pnpm run clean  (repo root) → dev   │
 │  Missing Next / workspace?  pnpm alc:doctor  (monorepo root)         │
 └─────────────────────────────────────────────────────────┘${reset}
 `);

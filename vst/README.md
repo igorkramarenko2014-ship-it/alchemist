@@ -33,7 +33,8 @@ pnpm dev
 6. **Stale Next / types** — **`pnpm web:dev:fresh`** (from root or from `vst/` — forwards to root). If **`next build`** / **`harshcheck`** throws **`MODULE_NOT_FOUND`** under **`.next`**, run **`pnpm run clean`** at root (or **`pnpm web:rebuild`**) then retry.
 7. **`EMFILE: too many open files, watch`** — repo enables webpack polling + **`WATCHPACK_POLLING=true`** (when unset) in dev; **`ulimit -n 65536`** if needed; opt out: **`WATCHPACK_POLLING=0 pnpm dev`**. See **`RUN.txt`**.
 8. **Webpack dev cache / `hasStartTime` / “Restoring pack … failed”** — **`pnpm dev:recover`** (from root or **`vst/`**) clears webpack+swc cache then starts dev; or **`pnpm web:dev:fresh`**; or **`ALCHEMIST_NEXT_SCRUB_WEBPACK=1 pnpm dev`**.
-9. **`FAIL @alchemist/shared-engine not resolvable`** from **`pnpm alc:doctor`** — run **`pnpm install`** from **repo root** (workspace links missing).
+9. **Home page 404, blank shell, or dev overlay “missing required error components”** — corrupt **`apps/web-app/.next`**. From **repo root**: **`pnpm run clean`** then **`pnpm dev`** (or **`pnpm web:dev:fresh`**).
+10. **`FAIL @alchemist/shared-engine not resolvable`** from **`pnpm alc:doctor`** — run **`pnpm install`** from **repo root** (workspace links missing).
 
 ## Bind to all interfaces (phone / LAN)
 
