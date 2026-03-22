@@ -31,13 +31,13 @@ export function cosineSimilarityParamArrays(a: number[], b: number[]): number {
 }
 
 /** FIRESTARTER / FIRE — drop near-duplicate presets after scoring order. */
-export const SLAVIC_FILTER_COSINE_THRESHOLD = 0.92;
+export const SLAVIC_FILTER_COSINE_THRESHOLD = 0.8;
 
 /**
  * When legibility text exists on both candidates, require this Dice(bigram) floor to count as duplicate.
  * (Not neural “semantic” similarity — deterministic string geometry only.)
  */
-export const SLAVIC_TEXT_DICE_THRESHOLD = 0.88;
+export const SLAVIC_TEXT_DICE_THRESHOLD = 0.75;
 
 /** Normalized legibility slice: optional `description`, else `reasoning`. */
 export function slavicLegibilityText(c: AICandidate): string {

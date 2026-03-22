@@ -109,7 +109,7 @@
 | **`POST /api/triad/qwen`** | **Fetcher (live, key required):** with **`QWEN_API_KEY`**, **`QWEN_BASE_URL`** (default DashScope-compatible root) + **`/chat/completions`** — model **`qwen-plus`** or, when URL indicates OpenRouter, **`qwen/qwen-plus`** (**`lib/fetch-qwen-candidates.ts`**, route reads **`env.qwenBaseUrl`**). **`triadPanelPost`** upstream abort **16_000** ms (slow OpenRouter peers). Same telemetry + default **`AI_TIMEOUT_MS`** for other routes + **`nodejs`** runtime. Without the key: **`stub`**. |
 | **`POST /api/triad/llama`** | **Fetcher (live, key required):** with **`GROQ_API_KEY`** or **`LLAMA_API_KEY`**, Groq **`https://api.groq.com/openai/v1/chat/completions`** (default **`llama-3.3-70b-versatile`**, override **`LLAMA_GROQ_MODEL`**) → **`lib/fetch-llama-candidates.ts`** — validates Groq envelope, strips triple-backtick code fences before assistant JSON parse, **`llama_parse_error`** / **`llama_raw_response_debug`** on stderr. Same telemetry + **`AI_TIMEOUT_MS`** + **`nodejs`** runtime. Without: **`stub`**. |
 | **`runTriad` + gates** | **Real:** per-panelist client **`fetch`** timeouts (**`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`** — **QWEN** **18_000** ms so browser does not abort before the Qwen route’s **16_000** ms upstream); optional **keyword tablebase** (**`reliability/checkers-fusion.ts`**, **`TABLEBASE_RECORDS`** — default **empty**; HARD GATE still governs real preset rows); then **`filterValid`**, distribution + adversarial filters on optional **`paramArray`**; stubs attach synthetic **`paramArray`** so the pipeline is exercised end-to-end. Telemetry: **`preset_tablebase_hit`** on match; **`triad_run_start` / `triad_run_end`** **`mode`**: **`tablebase`** \| **`fetcher`** \| **`stub`**. |
-| **`scoreCandidates` (web)** | **Real:** **`filterValid`** (incl. **≥20** char **`reasoning`**), Slavic dedupe (**param** cosine **> 0.92**; when both sides have legible text, also **Dice(bigram) > 0.88** on **`description` || `reasoning`**), preserve score order — used from **`apps/web-app/app/page.tsx`** after triad analysis. |
+| **`scoreCandidates` (web)** | **Real:** **`filterValid`** (incl. **≥15** char **`reasoning`**), Slavic dedupe (**param** cosine **> 0.80**; when both sides have legible text, also **Dice(bigram) > 0.75** on **`description` || `reasoning`**), preserve score order — used from **`apps/web-app/app/page.tsx`** after triad analysis. |
 | **Telemetry** | **`logEvent`** → **stderr JSON** lines (`packages/shared-engine/telemetry.ts`), not dev-only `console.log` for those events. |
 | **HARD GATE** | **`serum-offset-map.ts`** + **`validate-offsets.py`** ship in-repo; full Python validation requires a **local** **`tools/sample_init.fxp`** (often gitignored). Use **`pnpm validate:offsets`** / **`pnpm test:gate`**. |
 | **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, plus **`hardGate`**, **`telemetry`**. |
@@ -126,8 +126,8 @@ This subsection is the **canonical map** of logic shipped in **`packages/shared-
 | **`prompt-guard.ts`** | **`TRIAD_PROMPT_MAX_CHARS` = 2000**; **`validatePromptForTriad`** — reject empty, too long, or prompts containing a Markdown code fence (triple backtick). |
 | **`triad.ts`** | **`runTriad`**, **`makeTriadFetcher`**, **`stubPanelistCandidates`**, **`TRIAD_PANELISTS`**. Optional **`skipTablebase`**; tablebase hit skips HTTP/stub fetch. Parallel panelist calls; per-panelist client **`withTimeout`** (**`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`**); gates; optional consensus summary. |
 | **`reliability/`** | **`tablebase-schema.ts`**, **`tablebase-db.ts`** (empty **`TABLEBASE_RECORDS`** until validated rows land), **`checkers-fusion.ts`** — **`lookupTablebaseCandidate`**, **`findTablebaseRecordForPrompt`**. |
-| **`validate.ts`** | **`REASONING_LEGIBILITY_MIN_CHARS` = 20**; **`filterValid`** / **`isValidCandidate`** (**`reasoning`** trimmed length ≥ 20); **Undercover** distribution gate; **Slavic** contextual entropy + variance; **`validateSerumParamArray`** **[0, 1]**; **`consensusValidateCandidate`**, **`filterConsensusValid`**, **`buildValidationSummary`**. |
-| **`score.ts`** | **`weightedScore(c)`**; **`cosineSimilarityParamArrays`**; **`SLAVIC_FILTER_COSINE_THRESHOLD` = 0.92**; **`SLAVIC_TEXT_DICE_THRESHOLD` = 0.88**; **`slavicLegibilityText`**, **`diceBigramSimilarity`**; **`slavicFilterDedupe`**; **`scoreCandidates`** = filterValid → dedupe (no redundant re-sort — order preserved from dedupe pass). |
+| **`validate.ts`** | **`REASONING_LEGIBILITY_MIN_CHARS` = 15**; **`filterValid`** / **`isValidCandidate`** (**`reasoning`** trimmed length ≥ 15); **Undercover** distribution gate; **Slavic** contextual entropy + variance; **`validateSerumParamArray`** **[0, 1]**; **`consensusValidateCandidate`**, **`filterConsensusValid`**, **`buildValidationSummary`**. |
+| **`score.ts`** | **`weightedScore(c)`**; **`cosineSimilarityParamArrays`**; **`SLAVIC_FILTER_COSINE_THRESHOLD` = 0.80**; **`SLAVIC_TEXT_DICE_THRESHOLD` = 0.75**; **`slavicLegibilityText`**, **`diceBigramSimilarity`**; **`slavicFilterDedupe`**; **`scoreCandidates`** = filterValid → dedupe (no redundant re-sort — order preserved from dedupe pass). |
 | **`encoder.ts`** | **`encodeFxp(params, programName)`** — dynamic import **`@alchemist/fxp-encoder/wasm`**, **`encode_fxp_fxck`**. Fails loudly if WASM not built. |
 | **`triad-panel-governance.ts`** | **`computeTriadGovernance`** — default weights **45% / 35% / 20%** (fidelity / velocity / frugality); **`velocityScoreFromMeanPanelistMs`** (piecewise vs **18_000 ms** and **800 ms**); **`athenaSoeRecalibrationRecommended`** when velocity component **&lt; 0.7**. |
 | **`triad-monitor.ts`** | Run / panelist timing; **`logTriadRunStart`**, **`logTriadPanelistEnd`**, **`logTriadRunEnd`**, **`logAthenaSoeRecalibration`**. **`TriadRunMode`**: **`stub`** \| **`fetcher`** \| **`tablebase`**. |
@@ -145,7 +145,7 @@ This subsection is the **canonical map** of logic shipped in **`packages/shared-
    - **`runTriad` does *not* call `scoreCandidates`.** It does **not** apply cosine dedupe; that is **`scoreCandidates`**’s job.
 
 2. **`scoreCandidates(candidates)`** — **client / re-rank path** (e.g. web UI after triad)  
-   - **`filterValid`** → **`slavicFilterDedupe`** (sort by **`weightedScore`** desc first; drop if param cosine **&gt; 0.92** vs a kept row **and** (if both have legible **`description` || `reasoning`**) **Dice(bigram)** **&gt; 0.88**; **no** or empty **`paramArray`** → always kept). Output order is already descending by weighted score (**no** second sort).
+   - **`filterValid`** → **`slavicFilterDedupe`** (sort by **`weightedScore`** desc first; drop if param cosine **&gt; 0.80** vs a kept row **and** (if both have legible **`description` || `reasoning`**) **Dice(bigram)** **&gt; 0.75**; **no** or empty **`paramArray`** → always kept). Output order is already descending by weighted score (**no** second sort).
 
 Stub candidates use **synthetic `paramArray` of length 16** (two distinct patterns in **`stubPanelistCandidates`**) so Undercover + Slavic + cosine paths execute in dev; **full Serum FxCk is 128 floats** when wired from real inference + encoder.
 
@@ -153,7 +153,7 @@ Stub candidates use **synthetic `paramArray` of length 16** (two distinct patter
 
 - **`score`** ∈ **[0, 1]** (numeric).  
 - **`state`** truthy.  
-- **`reasoning`** string after trim with length **≥ `REASONING_LEGIBILITY_MIN_CHARS` (20)** — auditable agent explanation, not one-word stubs.  
+- **`reasoning`** string after trim with length **≥ `REASONING_LEGIBILITY_MIN_CHARS` (15)** — auditable agent explanation, not one-word stubs.  
 - **`AICandidate.description`** (optional **`shared-types`**) is used by **`slavicLegibilityText`** when non-empty; else **`reasoning`**.  
 - **No** requirement here for **`paramArray`** length or **[0, 1]** range — use **`consensusValidateCandidate`** / **`validateSerumParamArray`** when params must be enforced.
 
@@ -179,14 +179,14 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 #### Consensus / FxCk range
 
 - **`validateSerumParamArray`:** each numeric index **must** be in **[0, 1]**; collects violations.  
-- **`consensusValidateCandidate`:** score **[0,1]**; state + **`reasoning`** meeting **`isValidCandidate`** (incl. **≥20** chars trimmed); if **`paramArray`** is present and is an array, runs **`validateSerumParamArray`** and folds violations into result.  
+- **`consensusValidateCandidate`:** score **[0,1]**; state + **`reasoning`** meeting **`isValidCandidate`** (incl. **≥15** chars trimmed); if **`paramArray`** is present and is an array, runs **`validateSerumParamArray`** and folds violations into result.  
 - **`buildValidationSummary`:** human-readable lines per failed candidate (panelist + reasoning + param messages).
 
 #### Weighted score & Slavic dedupe (param + legibility text)
 
 - **`weightedScore(c)`** = **`c.score * (PANELIST_WEIGHTS[c.panelist] ?? 0)`**.  
 - **`cosineSimilarityParamArrays(a, b)`** uses **`min(length)`** slice; dot / √(‖a‖²‖b‖²).  
-- **`slavicFilterDedupe`:** sort by weighted score desc; for each candidate with non-empty **`paramArray`**, drop if **param** cosine **&gt; 0.92** vs a kept row **and** either (a) legibility text missing/short on either side → **param-only** duplicate rule, or (b) both sides legible → require **Dice(bigram)** **&gt; `SLAVIC_TEXT_DICE_THRESHOLD` (0.88)** to count as duplicate (same knobs, different **reasoning** → may **keep** both). **Not** transformer embeddings — deterministic string geometry only (**`FIRE.md`** snapshot).
+- **`slavicFilterDedupe`:** sort by weighted score desc; for each candidate with non-empty **`paramArray`**, drop if **param** cosine **&gt; 0.80** vs a kept row **and** either (a) legibility text missing/short on either side → **param-only** duplicate rule, or (b) both sides legible → require **Dice(bigram)** **&gt; `SLAVIC_TEXT_DICE_THRESHOLD` (0.75)** to count as duplicate (same knobs, different **reasoning** → may **keep** both). **Not** transformer embeddings — deterministic string geometry only (**`FIRE.md`** snapshot).
 
 #### Encoder contract
 
@@ -195,7 +195,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 #### Sanity rules for agents / external LLMs
 
 - Do **not** describe **`validate.ts` / `score.ts`** gates as analog **DSP** (see **`.cursor/rules/alchemist-dsp-vs-ts-gates.mdc`**).  
-- Changing thresholds (**0.92**, **0.002**, **1.5**, distribution bands) is a **product** change — update **tests** (**`undercover-slavic.test.ts`**, **`engine-harsh.test.ts`**, etc.) and **§5b / §6** together.  
+- Changing thresholds (**0.80** cosine, **0.75** Dice, **15**-char reasoning, **0.002**, **1.5**, distribution bands) is a **product** change — update **tests** (**`undercover-slavic.test.ts`**, **`engine-harsh.test.ts`**, etc.) and **§5b / §6** together.  
 - **`PANELIST_WEIGHTS`** and **`TRIAD_PANELISTS`** order must stay aligned with **`/api/triad/*`** and docs (**§5**).
 
 ---
@@ -206,9 +206,9 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **Undercover CAI:** `validate.ts` — distribution (mean **[0.2,0.8]**, edge ≤**40%**, uniqueness ≥**0.1**).
 
-**Slavic / adversarial:** **`getContextualEntropyThreshold`**, **`candidatePassesAdversarial`**, **`slavicFilterDedupe`** — **param** cosine **0.92** (**`SLAVIC_FILTER_COSINE_THRESHOLD`**) plus, when both rows have legible **`description` || `reasoning`**, **Dice(bigram)** **0.88** (**`SLAVIC_TEXT_DICE_THRESHOLD`**) — **`slavicFilterDedupe`** takes **one** argument (candidates array).
+**Slavic / adversarial:** **`getContextualEntropyThreshold`**, **`candidatePassesAdversarial`**, **`slavicFilterDedupe`** — **param** cosine **0.80** (**`SLAVIC_FILTER_COSINE_THRESHOLD`**) plus, when both rows have legible **`description` || `reasoning`**, **Dice(bigram)** **0.75** (**`SLAVIC_TEXT_DICE_THRESHOLD`**) — **`slavicFilterDedupe`** takes **one** argument (candidates array).
 
-**Shipped semantics:** Dedupe is **param-first** (Serum-style vectors) with a **deterministic** text tie-break on legible **`description` || `reasoning`** — **not** transformer embeddings. **`filterValid`** / **`isValidCandidate`** require **`reasoning`** length **≥ 20** (**`REASONING_LEGIBILITY_MIN_CHARS`**). A future **optional** path (e.g. description embeddings + a second dedupe stage) would be **additive** and would need its own bundle / latency budget and **`shared-types`** review — **not** implied today.
+**Shipped semantics:** Dedupe is **param-first** (Serum-style vectors) with a **deterministic** text tie-break on legible **`description` || `reasoning`** — **not** transformer embeddings. **`filterValid`** / **`isValidCandidate`** require **`reasoning`** length **≥ 15** (**`REASONING_LEGIBILITY_MIN_CHARS`**). A future **optional** path (e.g. description embeddings + a second dedupe stage) would be **additive** and would need its own bundle / latency budget and **`shared-types`** review — **not** implied today.
 
 **Taxonomy bridge:** **`taxonomy/engine.ts`** reuses **`scoreCandidates`** for the same validation + Slavic path; see **§13** and **`FIRE.md` §H**.
 
@@ -282,9 +282,11 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **Triad / shared-engine edits:** After changing **`packages/shared-engine`** (**`triad.ts`**, **`constants.ts`**, …) or **`app/api/triad/*`**, **restart `pnpm dev`** so the server and **`transpilePackages`** bundle pick up **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`** and route timeouts (stale dev sessions can look like a permanent **8000** ms client cap).
 
+**Assistants (Claude, etc.):** **`docs/CRUCIAL-FIX-WEB-APP-NOT-RUNNING.md`** — monorepo root, cyan-banner port, corrupt **`.next`**, triad timeout / Groq **`max_tokens`** recovery ladder.
+
 **Client errors:** **`app/error.tsx`** — segment **error boundary**; **`app/global-error.tsx`** — root layout failures (includes **`html`/`body`**). Recovery hints: **`pnpm dev:recover`** (webpack/swc cache only), **`web:dev:fresh`**, **`pnpm run clean`**, **`pnpm dev`**, **127.0.0.1** URL from banner. **`FIRE.md` §L**.
 
-**Production build:** **`apps/web-app`** script **`pnpm run build`** runs **`pnpm run clean`** then **`next build`** so **`harshcheck`** does not inherit a corrupt partial **`.next`** (rare **`/_document`** / **`PageNotFoundError`** during “Collecting page data”).
+**Production build:** **`apps/web-app`** script **`pnpm run build`** runs **`pnpm run clean`** then **`NODE_OPTIONS=--max-old-space-size=8192 next build`** so **`harshcheck`** does not inherit a corrupt partial **`.next`** and page-data collection is less likely to flake (rare **`PageNotFoundError`** / missing webpack chunk).
 
 **Build / harshcheck odd failures:** If **`next build`** or Turbo still reports **`MODULE_NOT_FOUND`** or odd page errors inside **`.next`**, run **`pnpm run clean`** at root (or **`pnpm web:rebuild`**) then retry — **`RUN.txt`**, **`vst/README.md`**.
 
@@ -469,7 +471,7 @@ Paste into a **new** chat. Permanent rules already in **`.cursorrules`** + **`.c
 - **Recovery:** monorepo root **or** `vst/` → `pnpm alc:doctor` (**NOT** `pnpm doctor`) → `pnpm install` (or **`node scripts/with-pnpm.mjs install`**) at root if Next won’t resolve → `pnpm dev` (= **`dev:web`**) → stale **`.next`**: `pnpm run clean` then `pnpm web:dev:fresh` or `pnpm harshcheck` → optional **`pnpm dev:turbo`**. **`with-pnpm.mjs`** if **`pnpm`** is not on PATH. **Git:** open folder with **`apps/`** + **`packages/`**; **`FIRESTARTER` §2a** if **`git status`** lists your whole home folder.
 - **Truth:** `docs/FIRESTARTER.md` (**comprehensive** + **Appendix C** optional agent steps) + `docs/FIRE.md` (**outside assessment** — update **both** after material moves; **Doc logic** at top of FIRESTARTER). **`pnpm check:transparent`**.
 - **Legal / security / privacy:** `LEGAL.md`, **`PRIVACY.md`** (template), `LICENSE`, `SECURITY.md` (root); FIRESTARTER **§14**, FIRE **§G** — not legal advice.
-- **Taxonomy:** large list → **`rankTaxonomy`**; or **≤200** `AICandidate` → **`narrowTaxonomyPoolToTriadCandidates`**; FIRE **§H**, **§6** / **§13** — **`reasoning`** ≥ **20** chars (**`isValidCandidate`**); optional **`description`** on **`AICandidate`** (**`shared-types`**); no opaque **`metadata`** without schema + doc update.
+- **Taxonomy:** large list → **`rankTaxonomy`**; or **≤200** `AICandidate` → **`narrowTaxonomyPoolToTriadCandidates`**; FIRE **§H**, **§6** / **§13** — **`reasoning`** ≥ **15** chars (**`isValidCandidate`**); optional **`description`** on **`AICandidate`** (**`shared-types`**); no opaque **`metadata`** without schema + doc update.
 - **Arbitration (opt-in):** **`runTransparentArbitration`** — logged, deterministic, uses **`scoreCandidates`**; FIRE **§I**, **§7b**; not default in **`runTriad`**.
 - **Perf:** **`pnpm perf:boss`** / **`runCompliantPerfBoss`** — **`perf_boss_*`** JSON; not shadow KGB; full monorepo cost still **`pnpm harshcheck`**.
 - **Verify rollup:** stderr **`verify_post_summary`** after **`pnpm verify:harsh`** / **`harshcheck`** — auditable; grep last line or parse JSON. **`pnpm fire:sync`** (or **`ALCHEMIST_FIRE_SYNC=1`**) refreshes **`docs/FIRE.md`** machine metrics after green verify.

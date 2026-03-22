@@ -24,7 +24,7 @@
 ## Gates — TypeScript only
 
 - **Undercover CAI** = distribution + adversarial **statistical** gates (`validate.ts`).
-- **Slavic filter** = cosine dedup + scoring (`score.ts`, threshold **0.92**).
+- **Slavic filter** = cosine dedup + scoring (`score.ts`, threshold **0.80**).
 - No analog saturator / resonant IIR **implementation** here. No `TransmutationSwitch.cpp` in `web-app` / `shared-engine`.
 
 ## SOE

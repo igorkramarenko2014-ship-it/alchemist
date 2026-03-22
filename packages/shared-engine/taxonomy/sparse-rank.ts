@@ -50,7 +50,7 @@ export function filterTaxonomyByPromptKeywords(
  * **Sync** — `async` in user snippets adds nothing without real I/O.
  *
  * Pipeline: keyword sparse (≤ **`TAXONOMY_KEYWORD_SPARSE_MAX`**) → **`narrowTaxonomyPoolToTriadCandidates`**
- * (**`scoreCandidates`**: valid + Slavic **0.92** + weighted sort) → **≤ 8**.
+ * (**`scoreCandidates`**: valid + Slavic **0.80** cosine + weighted sort) → **≤ 8**.
  */
 export function rankTaxonomy(
   prompt: string,

@@ -30,7 +30,7 @@ Use this when editing **`web-app`**, **`shared-engine`**, **`shared-types`**, or
 ## 4. Gate purity (TS only)
 
 - **Undercover / distribution / adversarial:** **`validate.ts`** (and related tests).
-- **Slavic cosine dedupe (0.92):** **`score.ts`** (`SLAVIC_FILTER_COSINE_THRESHOLD`, **`slavicFilterDedupe`**).
+- **Slavic cosine dedupe (0.80):** **`score.ts`** (`SLAVIC_FILTER_COSINE_THRESHOLD`, **`slavicFilterDedupe`**).
 - Do not describe these gates using **DSP hardware** metaphors in code/comments (saturator, biquad, etc.) — see **`alchemist-dsp-vs-ts-gates.mdc`**.
 
 ## 5. SOE & governance

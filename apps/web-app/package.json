@@ -5,7 +5,7 @@
     "clean": "rm -rf .next",
     "dev": "node ./scripts/dev-server.mjs",
     "dev:fresh": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node ./scripts/dev-server.mjs",
-    "build": "pnpm run clean && next build",
+    "build": "pnpm run clean && NODE_OPTIONS=--max-old-space-size=8192 next build",
     "build:fresh": "pnpm run build",
     "start": "next start",
     "lint": "eslint .",

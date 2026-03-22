@@ -5,7 +5,7 @@
 **Guarantees (Alchemist / FIRE):**
 
 - **Telemetry:** every stage and the final outcome call **`logEvent`** (`arbitration_*`).
-- **No bypass:** ordering uses **`scoreCandidates`** (validation + Slavic **0.92** + weights) before **ALPHA** vs **OMEGA** reordering.
+- **No bypass:** ordering uses **`scoreCandidates`** (validation + Slavic **0.80** cosine / **0.75** Dice + weights) before **ALPHA** vs **OMEGA** reordering.
 - **Deterministic:** votes are **`djb2` hashes** of `runId`, `prompt`, pool fingerprint, and prior votes — **no `Math.random()`**.
 - **Not wired** into **`runTriad`** by default — opt-in import where you explicitly want this behavior.
 

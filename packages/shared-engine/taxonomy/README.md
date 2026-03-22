@@ -20,7 +20,7 @@ No authoritative `.fxp` / `SerumState` fills without the **HARD GATE** (`serum-o
 | Passing **&gt; 200** rows to **`narrowTaxonomyPoolToTriadCandidates`** | **`TaxonomyPoolTooLargeError`** — use **`rankTaxonomy`** or pre-slice / index offline first |
 | `item.description` | **`AICandidate`** uses **`reasoning`**, not `description` |
 | `import … from '../gates/score'` | Path does not exist — use **`../score`** or **`rankTaxonomy`** / **`narrowTaxonomyPoolToTriadCandidates`** |
-| `slavicFilterDedupe(pool, 0.92)` | **One argument only**; threshold is **`SLAVIC_FILTER_COSINE_THRESHOLD`** in `score.ts` |
+| `slavicFilterDedupe(pool)` | **One argument only**; cosine threshold is **`SLAVIC_FILTER_COSINE_THRESHOLD`** in `score.ts` (**0.80**) |
 | `metadata` on `AICandidate` | No `metadata` field — extend **`shared-types`** only with a deliberate schema change |
 | `async` with no I/O | Use **sync** APIs; await **real** offline work first |
 | Only Slavic, no `scoreCandidates` | Loses **`filterValid`** and **weighted** ordering — use **`scoreCandidates`** (via engine) |

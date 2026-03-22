@@ -55,7 +55,7 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-/** Synthetic params so Undercover + Slavic paths run on stubs (cosine < 0.92 vs B). */
+/** Synthetic params so Undercover + Slavic paths run on stubs (cosine < SLAVIC threshold vs B). */
 const STUB_PARAM_ARRAY_A: number[] = Array.from({ length: 16 }, (_, i) => 0.25 + i * 0.028);
 const STUB_PARAM_ARRAY_B: number[] = Array.from(
   { length: 16 },

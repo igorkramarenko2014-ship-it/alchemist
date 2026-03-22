@@ -6,7 +6,7 @@
  *
  * **Do not** copy-paste patterns that:
  * - import from non-existent `../gates/score` (use `../score`)
- * - call `slavicFilterDedupe(candidates, 0.92)` — threshold is fixed in `score.ts` (`SLAVIC_FILTER_COSINE_THRESHOLD`)
+ * - call `slavicFilterDedupe(candidates)` — threshold is fixed in `score.ts` (`SLAVIC_FILTER_COSINE_THRESHOLD`)
  * - silent `slice` of a massive pool without keyword/index pre-pass — we **throw** if `length > TAXONOMY_PRE_SLAVIC_POOL_MAX`
  * - add `metadata` on `AICandidate` — type lives in `@alchemist/shared-types` without that field
  * - skip `scoreCandidates` — you lose `filterValid` + weighted sort (Slavic alone is not the full gate path)
@@ -45,7 +45,7 @@ export class TaxonomyPoolTooLargeError extends Error {
 }
 
 /**
- * Validates pool size, runs **`scoreCandidates`** (valid candidates + Slavic dedupe @ 0.92 + weighted sort),
+ * Validates pool size, runs **`scoreCandidates`** (valid candidates + Slavic dedupe @ 0.80 + weighted sort),
  * returns top **`MAX_CANDIDATES`** by weighted panelist score.
  *
  * **Sync** — no I/O. If you need async offline jobs, await **before** building `preSlavicPool`, then call this.

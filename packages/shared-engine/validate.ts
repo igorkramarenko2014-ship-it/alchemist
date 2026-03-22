@@ -6,7 +6,7 @@
 import type { AICandidate } from "@alchemist/shared-types";
 
 /** Undercover legibility: agents must explain choices (FIRE — auditable, not empty slogans). */
-export const REASONING_LEGIBILITY_MIN_CHARS = 20;
+export const REASONING_LEGIBILITY_MIN_CHARS = 15;
 
 /** Serum normalised param range (shared-types: 0.0–1.0 unless units require otherwise). */
 const PARAM_MIN = 0;

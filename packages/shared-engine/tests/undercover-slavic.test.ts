@@ -112,7 +112,7 @@ describe("Slavic — cosine dedup", () => {
     const out = scoreCandidates(list);
     expect(out.length).toBe(2);
     expect(weightedScore(out[0])).toBeGreaterThanOrEqual(weightedScore(out[1]));
-    expect(SLAVIC_FILTER_COSINE_THRESHOLD).toBe(0.92);
+    expect(SLAVIC_FILTER_COSINE_THRESHOLD).toBe(0.8);
   });
 });
 
