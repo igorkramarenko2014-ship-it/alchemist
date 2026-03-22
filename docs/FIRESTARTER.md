@@ -43,9 +43,19 @@
 | `tools/` | `validate-offsets.py`, optional `sample_init.fxp` for HARD GATE |
 | `research/` | **Optional Python** experiments — **`research/README.md`** (strategic fusion PyTorch, Lava–Aji OSC). **Not** the TS preset / triad / HARD GATE path. |
 | `vst/` | Cursor slice — **`package.json`** forwards to root via **`node ../scripts/with-pnpm.mjs`** / **`doctor.mjs`** / **`run-verify-with-summary.mjs`** (not bare **`pnpm`** on PATH). **`packageManager`**: **`pnpm@9.14.2`**, **`engines.node`**: **≥20**. Parent folder **must** contain **`apps/`** + **`packages/`**. |
-| `scripts/` | **`with-pnpm.mjs`** (root **`pnpm dev`**, **`harshcheck`**, **`go`**, etc. — falls back to **`npx pnpm@9.14.2`** if **`pnpm`** missing), `go.sh`, **`doctor.mjs`** (`pnpm alc:doctor`), **`run-verify-with-summary.mjs`** ( **`verify_post_summary`**; steps use **`with-pnpm.mjs`**; optional **`ALCHEMIST_FIRE_SYNC=1`** → **`sync-fire-md.mjs`** on green), **`sync-fire-md.mjs`** (**`pnpm fire:sync`** — refresh **`docs/FIRE.md`** metrics block), **`git-save.mjs`** (**`pnpm save`** / **`pnpm git:save`** — stage + commit + push), **`recover-web-dev.mjs`**, **`check-no-shadow-patterns.mjs`**, `list-project-docs.sh`, `test-gate-hint.mjs`; **`packages/fxp-encoder/scripts/`** — **`skip-if-no-rust.cjs`**, **`clear-stub-marker.cjs`**, **`sync-maps.cjs`** |
+| `scripts/` | **`with-pnpm.mjs`** (root **`pnpm dev`**, **`harshcheck`**, **`go`**, etc. — falls back to **`npx pnpm@9.14.2`** if **`pnpm`** missing), `go.sh`, **`doctor.mjs`** (`pnpm alc:doctor`), **`run-verify-with-summary.mjs`** ( **`verify_post_summary`**; steps use **`with-pnpm.mjs`**; optional **`ALCHEMIST_FIRE_SYNC=1`** → **`sync-fire-md.mjs`** on green), **`sync-fire-md.mjs`** (**`pnpm fire:sync`** — refresh **`docs/FIRE.md`** metrics block), **`git-save.mjs`** (**`pnpm save`** / **`pnpm git:save`** — stage + commit + push), **`github-first-push.mjs`** (**`pnpm github:first-push`** — add **`origin`** + first **`git push`**), **`recover-web-dev.mjs`**, **`check-no-shadow-patterns.mjs`**, `list-project-docs.sh`, `test-gate-hint.mjs`; **`packages/fxp-encoder/scripts/`** — **`skip-if-no-rust.cjs`**, **`clear-stub-marker.cjs`**, **`sync-maps.cjs`** |
 
 **Package manager:** **pnpm** workspaces. **Node ≥ 20**.
+
+### 2a. Git & GitHub (recovery — read if `git status` looks insane)
+
+| Rule | Detail |
+|------|--------|
+| **Canonical root** | The folder you open in Cursor / run **`pnpm`** from must contain **`apps/`** and **`packages/`**. If **`git rev-parse --show-toplevel`** prints **`$HOME`** while you are inside the project, you have a mistaken **`~/.git`** — remove it (**`rm -rf ~/.git`**) only if that repo has no commits you need, then **`git init`** in the real project root or **`git clone`** from **`origin`**. |
+| **Empty Desktop folders** | A folder with **only** **`.git`** and no **`apps/`** is **not** this monorepo — delete or ignore it; use **`Vibe Projects`** (or your real clone path). |
+| **`origin`** | **`git remote -v`** → **`https://github.com/…/alchemist.git`** (or SSH). **`pnpm save`** pushes when **`origin`** exists. |
+| **First push** | **`pnpm github:first-push -- "https://github.com/ORG/REPO.git"`** — see **`RUN.txt`**. |
+| **HTTPS auth** | **Username** = **personal** GitHub handle (not the org slug). **Password** = **PAT**. Fine-grained PAT: **Resource owner** = **your user**; grant **Contents: Read and write** on the org repo; **Authorize SSO** for the org if required. **`gh auth login`** + **`gh auth setup-git`** avoids fighting prompts. |
 
 ---
 
@@ -294,6 +304,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`verify_post_summary`** | Final **stderr** JSON line: **`event`**, **`mode`** (`verify-harsh` \| `verify-web`), **`exitCode`**, **`durationMs`**, **`failedStep`** (`shared-types:build` \| `turbo:typecheck` \| `test:engine` \| `turbo:build:web-app` or **`null`**), **`monorepoRoot`**, **`soeHint`**, **`note`**. Vitest may emit other JSON lines first — parse/grep **`verify_post_summary`** for the rollup. |
 | **`pnpm fire:sync`** | **`node scripts/sync-fire-md.mjs`** — runs **`pnpm test:engine`**; on success, rewrites **`docs/FIRE.md`** between **`ALCHEMIST:FIRE_METRICS`** comments (Vitest counts, Next version, sync date). Optional **`ALCHEMIST_FIRE_SYNC=1`** with **`pnpm harshcheck`** / **`verify:harsh`** to run automatically after green verify. |
 | **`pnpm save`** / **`pnpm git:save`** | **`node scripts/git-save.mjs`** — stage all, commit (message from argv or prompt), **`git push`** when **`origin`** exists |
+| **`pnpm github:first-push`** | **`node scripts/github-first-push.mjs`** — **`git remote add origin <url>`** + **`git push -u`** (first time); **`RUN.txt`**, **§2a** |
 | **`pnpm test:engine`** | Vitest `shared-engine` only (incl. taxonomy, arbitration, **compliant-perf-boss**, **talent-market-scout**, **learning-great-library**, **reliability-tablebase**, undercover/slavic, triad governance, SOE, engine-harsh) |
 | **`pnpm perf:boss`** | Runs perf-boss Vitest file — stderr **`perf_boss_*`** JSON timings (FIRE-compliant; not full monorepo) |
 | **`pnpm test:gate`** | Offset gate hint |
@@ -438,7 +449,7 @@ Paste into a **new** chat. Permanent rules already in **`.cursorrules`** + **`.c
 - **Undercover / Slavic:** **TS gates** (`validate.ts`, `score.ts`) — not analog circuits. **`runTriad`** ≠ **`scoreCandidates`** (see **FIRESTARTER §5b**). Optional **keyword tablebase** (`reliability/`, empty by default) short-circuits **`runTriad`** — **no** gate bypass; telemetry **`preset_tablebase_hit`** / **`mode: "tablebase"`**.
 - **Greek codenames:** ATHENA=DEEPSEEK 0.40, HERMES=LLAMA 0.35, HESTIA=QWEN 0.25 — telemetry + UI; velocity = **triad wall time**, not DAW buffer ms.
 - **Governance:** 45/35/20 on telemetry — `triad-panel-governance.ts`.
-- **Recovery:** monorepo root **or** `vst/` → `pnpm alc:doctor` (**NOT** `pnpm doctor`) → `pnpm install` (or **`node scripts/with-pnpm.mjs install`**) at root if Next won’t resolve → `pnpm dev` (= **`dev:web`**) → stale **`.next`**: `pnpm run clean` then `pnpm web:dev:fresh` or `pnpm harshcheck` → optional **`pnpm dev:turbo`**. **`with-pnpm.mjs`** if **`pnpm`** is not on PATH.
+- **Recovery:** monorepo root **or** `vst/` → `pnpm alc:doctor` (**NOT** `pnpm doctor`) → `pnpm install` (or **`node scripts/with-pnpm.mjs install`**) at root if Next won’t resolve → `pnpm dev` (= **`dev:web`**) → stale **`.next`**: `pnpm run clean` then `pnpm web:dev:fresh` or `pnpm harshcheck` → optional **`pnpm dev:turbo`**. **`with-pnpm.mjs`** if **`pnpm`** is not on PATH. **Git:** open folder with **`apps/`** + **`packages/`**; **`FIRESTARTER` §2a** if **`git status`** lists your whole home folder.
 - **Truth:** `docs/FIRESTARTER.md` (**comprehensive**) + `docs/FIRE.md` (**outside assessment / LLM optimisation surface** — update **both** after material moves; **Doc logic** at top of FIRESTARTER). Optional: `docs/AGENT-PLAYBOOK.md`; **`pnpm check:transparent`**.
 - **Legal / security / privacy:** `LEGAL.md`, **`PRIVACY.md`** (template), `LICENSE`, `SECURITY.md` (root); FIRESTARTER **§14**, FIRE **§G** — not legal advice.
 - **Taxonomy:** large list → **`rankTaxonomy`**; or **≤200** `AICandidate` → **`narrowTaxonomyPoolToTriadCandidates`**; FIRE **§H**, **§6** / **§13** — **`reasoning`** ≥ **20** chars (**`isValidCandidate`**); optional **`description`** on **`AICandidate`** (**`shared-types`**); no opaque **`metadata`** without schema + doc update.

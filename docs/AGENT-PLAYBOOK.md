@@ -1,6 +1,7 @@
+
 # Transparent Triad & ops hints — agent playbook
 
-**Path:** `docs/AGENT-PLAYBOOK.md`.  
+**Path:** `docs/AGENT-PLAYBOOK.md`.
 **Not** canonical law — **`FIRE.md`** (outside assessment / LLM surface) + **`FIRESTARTER.md`** (comprehensive bible + **Doc logic**) are. This file is a **FIRE-aligned** multi-step flow for tools and humans. **Material changes** → update **both** canonical docs per **`FIRESTARTER` Doc logic**.
 
 **Mandate:** Auditable **`logEvent`** telemetry; **no** Slavic bypass; **no** shadow state; **no** unauditable “amnesia” or buffer wipes. See **`FIRE.md` §I–§K** and **`.cursor/skills/harshcheck/SKILL.md`**.
