@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "version": 1,
+    "disclaimer": "Operator-maintained, illustrative comparative scores for triad planning only. Not live leaderboards, vendor claims, or model-selection advice. Update from your own evals and ToS/billing constraints.",
+    "updated": "2026-03"
+  },
+  "talents": [
+    {
+      "id": "deepseek-v3-2-speciale",
+      "displayName": "DeepSeek V3.2 (illustrative)",
+      "comparativeScore": 0.9,
+      "freeTierOriented": true,
+      "competesWithPanelist": "DEEPSEEK",
+      "notes": "Maps to Athena / DEEPSEEK role in Alchemist triad — replace scores with your harness."
+    },
+    {
+      "id": "qwen-3-5-max",
+      "displayName": "Qwen 3.5 class (illustrative)",
+      "comparativeScore": 0.88,
+      "freeTierOriented": true,
+      "competesWithPanelist": "QWEN",
+      "notes": "Hestia / QWEN competitor slot — illustrative only."
+    },
+    {
+      "id": "glm-5-reasoning",
+      "displayName": "GLM-5 reasoning class (illustrative)",
+      "comparativeScore": 0.86,
+      "freeTierOriented": true,
+      "competesWithPanelist": "LLAMA",
+      "notes": "Hermes / LLAMA competitor slot — illustrative only."
+    }
+  ]
+}

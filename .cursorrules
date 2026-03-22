@@ -1,0 +1,60 @@
+# Project Alchemist — root Cursor context
+
+**[INIT]** TS/Next.js monorepo: NL → Serum **preset candidates** → rank → optional WASM **`.fxp`**. **Not** a C++/JUCE/AU plugin in this tree unless you open a **separate** DSP project.
+
+**Stack:** `apps/web-app`, `packages/shared-engine`, `packages/shared-types`, optional Rust→WASM in `packages/fxp-encoder`.
+
+## Truth sources (read before big edits)
+
+- **`docs/FIRESTARTER.md`** — **recovery bible** / full orientation; **Doc logic** = FIRE vs FIRESTARTER; **Appendix A** workflow; **Appendix B** INIT. **Material** product edits land here first.
+- **`docs/FIRE.md`** — **lightweight** assessment / LLM surface: §E–§L, **`verify_post_summary`**. **Metrics block:** **`pnpm fire:sync`** (after green verify) or **`ALCHEMIST_FIRE_SYNC=1`** — not a substitute for FIRESTARTER for implementation detail.
+- **`.cursor/rules/alchemist-brief.mdc`** + **`alchemist-dsp-vs-ts-gates.mdc`** + **`alchemist-role-mission.mdc`** — always-on guardrails + **Lead Architect** role / **`/plan`·`/fix`·`/refactor`·`/audit`** overrides.
+- **`research/README.md`** + **`alchemist-aji-fluidic.mdc`** (scoped) — optional **Python** CV/OSC + fusion; **not** TS triad/gates.
+
+## Greek Trinity (telemetry + panelists)
+
+| Codename | Wire `Panelist` | Blend weight | Role here |
+|----------|-----------------|-------------|-----------|
+| **ATHENA** | `DEEPSEEK` | 0.40 | Primary panelist; governance “lead”; `athena_soe_recalibration` when latency stress. **Not** a C++ DSP class. |
+| **HERMES** | `LLAMA` | 0.35 | “Velocity” = **API / triad wall time** (`meanPanelistMs` in snapshots), **not** DAW buffer ms. |
+| **HESTIA** | `QWEN` | 0.25 | Frugality / third model. |
+
+**Governance weights** (telemetry scores, not THD): **45% / 35% / 20%** — `packages/shared-engine/triad-panel-governance.ts`.
+
+## Gates — TypeScript only
+
+- **Undercover CAI** = distribution + adversarial **statistical** gates (`validate.ts`).
+- **Slavic filter** = cosine dedup + scoring (`score.ts`, threshold **0.92**).
+- No analog saturator / resonant IIR **implementation** here. No `TransmutationSwitch.cpp` in `web-app` / `shared-engine`.
+
+## SOE
+
+`soe.ts` — **pure TS hints** from aggregate triad metrics. Not oversampling or buffer switching.
+
+## New-session recovery (repo root)
+
+1. Cwd has **`apps/`** + **`packages/`**.
+2. `pnpm alc:doctor` (NOT `pnpm doctor` — pnpm built-in).
+3. **HARD GATE:** no authoritative Serum/encoder work without validated `serum-offset-map.ts` + `validate-offsets.py` on real `.fxp`.
+4. `pnpm verify:harsh` or `pnpm harshcheck` before claiming green.
+
+## Commands
+
+```bash
+pnpm alc:doctor    # env (NOT pnpm doctor)
+pnpm dev           # or pnpm dev:web if Turbo fails
+pnpm verify:harsh  # fast: types + Vitest
+pnpm harshcheck    # + next build (spell: harshcheck not harshchek)
+```
+
+## HARD GATE
+
+No authoritative Serum bytes / `.fxp` generation without validated `packages/fxp-encoder/serum-offset-map.ts` + `tools/validate-offsets.py` on a real init `.fxp`.
+
+## Browser export
+
+**Export .fxp** in the web app needs **`packages/fxp-encoder`** **`pnpm run build:wasm`** (Rust). **`GET /api/health/wasm`** must return **`available`** — see **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C**.
+
+---
+
+*Persona OK in UI copy; implementation stays TS + documented facts. 🤖*

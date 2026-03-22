@@ -1,0 +1,17 @@
+{
+  "_comment": "VST2 FXP layout from vst2-preset-parser (big-endian). Cross-ref: CharlesHolbrow/vst2-preset-parser, Steinberg Vst2xProgram. Chunk (FPCh) payload is plugin-specific; only header validated here.",
+  "header": [
+    { "name": "chunkMagic", "offset_hex": "0x00", "type": "str4", "expected": "CcnK", "min": null, "max": null, "default": "CcnK", "units": "" },
+    { "name": "firstChunkByteSize", "offset_hex": "0x04", "type": "uint32_be", "min": 0, "max": 2147483647, "default": null, "units": "bytes" },
+    { "name": "fxMagic", "offset_hex": "0x08", "type": "str4", "expected_set": ["FxCk", "FPCh"], "min": null, "max": null, "units": "" },
+    { "name": "version", "offset_hex": "0x0C", "type": "uint32_be", "min": 0, "max": 2, "default": 1, "units": "" },
+    { "name": "idUint", "offset_hex": "0x10", "type": "uint32_be", "min": 0, "max": 4294967295, "default": null, "units": "" },
+    { "name": "fxVersion", "offset_hex": "0x14", "type": "uint32_be", "min": 0, "max": 4294967295, "default": null, "units": "" },
+    { "name": "count", "offset_hex": "0x18", "type": "uint32_be", "min": 0, "max": 4294967295, "default": null, "units": "" },
+    { "name": "programName", "offset_hex": "0x1C", "type": "str28", "min": null, "max": null, "default": null, "units": "" }
+  ],
+  "FxCk_params_start_hex": "0x38",
+  "FxCk_param_size_bytes": 4,
+  "FPCh_byteSize_hex": "0x38",
+  "FPCh_chunk_start_hex": "0x3C"
+}

@@ -1,0 +1,69 @@
+---
+description: Pre-flight checklist — HARD GATE, triad contract, TS gates, scripts (complements alchemist-brief + dsp-vs-ts)
+globs: apps/web-app/**/*.{ts,tsx},packages/shared-engine/**/*.ts,packages/shared-types/**/*.ts,packages/fxp-encoder/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Alchemist — quality checklist (agent)
+
+Use this when editing **`web-app`**, **`shared-engine`**, **`shared-types`**, or **`fxp-encoder`**. **Canonical context:** **`alchemist-brief.mdc`**, **`alchemist-dsp-vs-ts-gates.mdc`**, **`docs/FIRE.md`**, **`docs/FIRESTARTER.md`**.
+
+## 1. HARD GATE (encoder / Serum bytes)
+
+- **`packages/fxp-encoder/serum-offset-map.ts`** must exist; offsets sourced from **`tools/serum_offset_map_sourced.json`**, not invented.
+- **`tools/validate-offsets.py`** validates a **real** Serum init **`.fxp`** against the map.
+- Do **not** ship placeholder offset constants (e.g. `0xDEADBEEF`) as production truth.
+- **Recovery:** `pnpm test:gate` (prints hint when `tools/sample_init.fxp` is present). Place a real init preset as **`tools/sample_init.fxp`** locally (often gitignored) to run Python validation. **`pnpm validate:offsets`** / **`pnpm assert:hard-gate`** invoke **`validate-offsets.py <fxp>`** when the sample exists; **`ALCHEMIST_STRICT_OFFSETS=1`** fails closed if missing. **Browser WASM:** `pnpm run build:wasm` in **`packages/fxp-encoder`** — **`docs/FIRESTARTER.md` §10**.
+
+## 2. Triad contract
+
+- **Weights** (single source): **`PANELIST_WEIGHTS`** in **`packages/shared-engine/constants.ts`** — DEEPSEEK **0.40**, LLAMA **0.35**, QWEN **0.25**.
+- **Routes:** `app/api/triad/{llama,deepseek,qwen}/route.ts` → shared **`triadPanelPost`**.
+- **Today’s behavior:** routes call **`stubPanelistCandidates`** until real provider wiring + env keys are added; still must respect **`MAX_CANDIDATES`**, **`AI_TIMEOUT_MS`**, **`validatePromptForTriad`**. Success responses should advertise **`x-alchemist-triad-mode: stub`**; **`GET /api/health`** surfaces **`triad`** + **`hardGate`** for honesty — **`FIRESTARTER` §5a**, **`FIRE.md`** snapshot.
+- If weights change: update **`FIRE.md`** §B / **`FIRESTARTER.md`** §5 in the same change.
+
+## 3. Types & build order
+
+- After **`shared-types`** edits: **`pnpm --filter @alchemist/shared-types build`** (or **`pnpm harshcheck`** / **`pnpm verify:harsh`**, which build types first).
+- Prefer explicit types from **`@alchemist/shared-types`**; avoid **`any`** on triad, validation, and export paths.
+
+## 4. Gate purity (TS only)
+
+- **Undercover / distribution / adversarial:** **`validate.ts`** (and related tests).
+- **Slavic cosine dedupe (0.92):** **`score.ts`** (`SLAVIC_FILTER_COSINE_THRESHOLD`, **`slavicFilterDedupe`**).
+- Do not describe these gates using **DSP hardware** metaphors in code/comments (saturator, biquad, etc.) — see **`alchemist-dsp-vs-ts-gates.mdc`**.
+
+## 5. SOE & governance
+
+- **`soe.ts`:** pure hints — no **`fs`**, **`child_process`**, or network I/O.
+- **`triad-panel-governance.ts`:** default **45 / 35 / 20** (fidelity / velocity / frugality); telemetry via **`triad-monitor`** / **`logEvent`**.
+
+## 6. Telemetry
+
+- Use **`logEvent`** from **`packages/shared-engine/telemetry.ts`** (structured JSON line) for server-side triad/monitor events — not ad-hoc `console.log` for the same.
+
+## 7. Scripts (avoid pnpm confusion)
+
+- **Doctor:** **`pnpm alc:doctor`** or **`pnpm run alc:doctor`** — **not** **`pnpm doctor`** (pnpm built-in).
+- **Verify:** **`pnpm harshcheck`** **=** **`pnpm verify:web`** (aliases). Faster without **`next build`:** **`pnpm verify:harsh`**. Optional **`pnpm check:transparent`** — **`shared-engine`** shadow-pattern denylist (**`FIRE.md` §I**).
+- **Stale Next:** **`pnpm web:dev:fresh`**. **Cursor-only `vst/`:** scripts **`cd ..`** to root — see **`vst/README.md`**.
+- **Dev EMFILE / Watchpack:** **`FIRE.md` §L**, **`FIRESTARTER` §8** — webpack polling + **`WATCHPACK_POLLING`** in **`dev-server.mjs`**; **`app/error.tsx`** + **`global-error.tsx`**. **`MODULE_NOT_FOUND`** in **`.next`**: **`pnpm run clean`** / **`web:rebuild`**.
+
+## 8. Taxonomy (if touched)
+
+- Large pools: **`rankTaxonomy(prompt, full)`** or offline narrow; engine **`narrowTaxonomyPoolToTriadCandidates`** throws if **&gt; `TAXONOMY_PRE_SLAVIC_POOL_MAX` (200)** — see **`taxonomy/README.md`**, **`FIRESTARTER.md`** §13, **`FIRE.md` §H**.
+
+---
+
+**Note:** This file is guidance for the AI; it does not run CI. For pre-ship verification, run **`pnpm harshcheck`** from the monorepo root.
+
+**Legal / security:** Root **`LEGAL.md`** (not legal advice), **`LICENSE`**, **`SECURITY.md`** (vuln reporting).
+
+## 9. Arbitration (if touched)
+
+- **`runTransparentArbitration`** must keep **`logEvent`** and **`scoreCandidates`** — no Slavic bypass, no stealth. See **`arbitration/README.md`**, **`FIRE.md`** snapshot, **`FIRESTARTER` §7b`.
+- **Reject:** “Shadow kernel,” **KGB** stacks, **amnesia** / purged audit logs, **`Symbol`** verdicts that **bypass** **`SLAVIC_FILTER_COSINE_THRESHOLD`**, omnipotent auto model-swap, or **`v8`** buffer wipes — **not** shipped; see **`FIRE.md` §I**.
+
+## 10. Perf boss (if touched)
+
+- **`runCompliantPerfBoss`** must **only** add **`perf_boss_*`** telemetry — no hidden paths, no triad override. See **`perf/README.md`**, **`pnpm perf:boss`**.

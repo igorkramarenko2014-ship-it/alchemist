@@ -1,0 +1,19 @@
+{
+  "$comment": "EXAMPLE ONLY — optional contract for offline AGL jobs. Not used at runtime by shared-engine. Do not commit proprietary pack contents.",
+  "schemaHint": "preset_metadata_batch_v1",
+  "provenance": "https://example.org/your-dataset-manifest",
+  "collectedAt": "2026-03-15T12:00:00.000Z",
+  "jobRunId": "agl-batch-001",
+  "presets": [
+    {
+      "id": "example-001",
+      "descriptorText": "gritty dark bass analog-style",
+      "licenseClass": "CC",
+      "paramSummaryRef": "optional-uri-to-non-authoritative-summary-json"
+    }
+  ],
+  "soeSnapshotAugment": {
+    "gateDropRate": 0.12,
+    "meanPanelistMs": 3200
+  }
+}

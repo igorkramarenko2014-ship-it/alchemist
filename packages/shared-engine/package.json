@@ -1,0 +1,25 @@
+{
+  "name": "@alchemist/shared-engine",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": { ".": "./index.ts" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "perf:boss": "vitest run tests/compliant-perf-boss.test.ts"
+  },
+  "dependencies": {
+    "@alchemist/shared-types": "workspace:*"
+  },
+  "optionalDependencies": {
+    "@alchemist/fxp-encoder": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

@@ -1,0 +1,16 @@
+Copyright (c) 2026 Alchemist / Vibe Projects contributors
+
+All rights reserved. Unauthorized copying, distribution, modification, or use
+of this software and its documentation, in whole or in part, is prohibited
+without prior written permission from the copyright holder.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, OR NON-INFRINGEMENT. IN NO EVENT SHALL
+THE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF,
+OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE, EXCEPT WHERE SUCH EXCLUSION IS PROHIBITED BY LAW.
+
+To release under an open license (e.g. MIT), replace this file and set
+`"license"` in `package.json` accordingly.

@@ -1,0 +1,47 @@
+{
+  "name": "alchemist",
+  "private": true,
+  "license": "UNLICENSED",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "dev:turbo": "node scripts/with-pnpm.mjs exec turbo run dev --filter=@alchemist/web-app",
+    "dev:web": "node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "dev:all": "turbo run dev",
+    "dev:mobile": "turbo run dev --filter=@alchemist/mobile-app",
+    "go": "node scripts/with-pnpm.mjs install && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "go:fresh": "node scripts/with-pnpm.mjs install && node scripts/with-pnpm.mjs run web:dev:fresh",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "docs:list": "bash scripts/list-project-docs.sh",
+    "clean": "rm -rf apps/web-app/.next apps/mobile-app/.expo .turbo && node scripts/with-pnpm.mjs exec turbo daemon stop 2>/dev/null || true",
+    "web:rebuild": "node scripts/with-pnpm.mjs run clean && node scripts/with-pnpm.mjs exec turbo run build --filter=@alchemist/web-app --force",
+    "web:dev:fresh": "node scripts/with-pnpm.mjs run clean && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "dev:recover": "node scripts/recover-web-dev.mjs && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "test:engine": "pnpm --filter @alchemist/shared-engine test",
+    "verify:harsh": "node scripts/run-verify-with-summary.mjs verify-harsh",
+    "verify:web": "node scripts/run-verify-with-summary.mjs verify-web",
+    "harshcheck": "node scripts/with-pnpm.mjs verify:web",
+    "test:gate": "node scripts/test-gate-hint.mjs",
+    "validate:offsets": "node scripts/validate-offsets-if-sample.mjs",
+    "assert:hard-gate": "node scripts/assert-hard-gate.mjs",
+    "check:transparent": "node scripts/check-no-shadow-patterns.mjs",
+    "alc:doctor": "node scripts/doctor.mjs",
+    "perf:boss": "pnpm --filter @alchemist/shared-engine perf:boss",
+    "git:save": "node scripts/git-save.mjs",
+    "save": "node scripts/git-save.mjs",
+    "fire:sync": "node scripts/sync-fire-md.mjs",
+    "github:first-push": "node scripts/github-first-push.mjs"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "pnpm@9.14.2",
+  "engines": {
+    "node": ">=20"
+  }
+}

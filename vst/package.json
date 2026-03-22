@@ -1,0 +1,30 @@
+{
+  "name": "@alchemist/cursor-vst-slice",
+  "private": true,
+  "description": "Cursor sometimes opens only this vst/ folder. The real app lives one level up.",
+  "packageManager": "pnpm@9.14.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "bootstrap": "cd .. && node scripts/with-pnpm.mjs install",
+    "setup": "cd .. && node scripts/with-pnpm.mjs install",
+    "alc:doctor": "cd .. && node scripts/doctor.mjs",
+    "dev": "cd .. && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "dev:web": "cd .. && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "build": "cd .. && node scripts/with-pnpm.mjs exec turbo run build --filter=@alchemist/web-app",
+    "verify:web": "cd .. && node scripts/run-verify-with-summary.mjs verify-web",
+    "harshcheck": "cd .. && node scripts/with-pnpm.mjs verify:web",
+    "verify:harsh": "cd .. && node scripts/run-verify-with-summary.mjs verify-harsh",
+    "typecheck": "cd .. && node scripts/with-pnpm.mjs exec turbo run typecheck --filter='!@alchemist/mobile-app'",
+    "go": "cd .. && chmod +x scripts/go.sh 2>/dev/null && ./scripts/go.sh",
+    "go:fresh": "cd .. && node scripts/with-pnpm.mjs install && node scripts/with-pnpm.mjs run web:dev:fresh",
+    "web:dev:fresh": "cd .. && node scripts/with-pnpm.mjs run web:dev:fresh",
+    "dev:recover": "cd .. && node scripts/with-pnpm.mjs run dev:recover",
+    "perf:boss": "cd .. && node scripts/with-pnpm.mjs --filter @alchemist/shared-engine perf:boss",
+    "git:save": "cd .. && node scripts/git-save.mjs",
+    "save": "cd .. && node scripts/git-save.mjs",
+    "fire:sync": "cd .. && node scripts/sync-fire-md.mjs",
+    "github:first-push": "cd .. && node scripts/github-first-push.mjs"
+  }
+}

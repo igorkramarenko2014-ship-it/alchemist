@@ -1,0 +1,23 @@
+---
+description: Triad Greek names + TS governance vs DSP — no hallucinated C++ AU/VST in web/engine
+alwaysApply: true
+---
+
+# Alchemist: architecture boundary (harsh check)
+
+## What this monorepo actually implements
+
+- **Undercover CAI** = **TypeScript** preset-candidate gates (`validate.ts`: distribution / variance / entropy — “non-linear” **statistical** behavior, not saturation DSP).
+- **Slavic filter** = **TypeScript** cosine dedup + scoring (`score.ts`), not resonant IIR/VST filtering.
+- **Triad Panel / SOE** = **`triad-panel-governance.ts`**, **`soe.ts`**, **`triad-monitor.ts`** — latency, gate-drop, API health. **Not** buffer-size or sample-rate DSP.
+- **Greek codenames** = **branding + telemetry** (`PANELIST_ALCHEMIST_CODENAME`: ATHENA / HERMES / HESTIA). Wire IDs stay **`LLAMA` / `DEEPSEEK` / `QWEN`** for routes and `PANELIST_WEIGHTS`.
+
+## Do **not** do here (unless starting a **separate** JUCE/plugin tree)
+
+- No **`AlchemistGovernor`**, **`TransmutationSwitch`**, or **`SelfOptimizingEngine`** as **C++** classes for AU/VST3 in **`apps/web-app`** or **`packages/shared-engine`**.
+- No claims that **`runTriad`** or **`computeTriadGovernance`** control **64-bit convolution**, **IIR vs FIR**, **Logic Pro buffer ms**, or **phase-smearing** — they don’t.
+- If the user wants real DSP “transmutation,” **new project** (e.g. `packages/alchemist-audio/` or external repo) + honest docs; **do not** merge that fiction into TS preset docs.
+
+## When extending “liquid mercury” / fidelity
+
+- Express it as **stricter TS gates**, **better scoring**, or **validated Serum params** — still behind the **fxp-encoder / offset-map HARD GATE** in `alchemist-brief.mdc`.

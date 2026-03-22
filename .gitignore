@@ -1,0 +1,30 @@
+node_modules
+# Local vendored toolchains / IDE (never commit)
+.node/
+.bin/
+.rustup/
+.cargo/
+.vscode/
+
+.pnpm-store
+.pnpm-debug.log*
+.turbo
+coverage
+*.log
+# Rust: avoid indexing/committing the crates.io mirror (hundreds of unrelated READMEs)
+.cargo/registry
+.cargo/git
+target/
+
+.next
+.expo
+dist
+*.tsbuildinfo
+.DS_Store
+.env*.local
+*.fxp
+__pycache__
+*.pyc
+.venv
+build
+*.jucer

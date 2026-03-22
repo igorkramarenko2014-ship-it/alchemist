@@ -1,0 +1,98 @@
+Copy this ENTIRE line into Terminal and press Enter:
+────────────────────────────────────────────────────────────────────────────────
+
+(source ~/.zprofile 2>/dev/null; source ~/.zshrc 2>/dev/null; export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"; cd "/Users/igorkramarenko/Desktop/Vibe Projects" && chmod +x scripts/go.sh && ./scripts/go.sh)
+
+Fresh dev (clears stale Next/Turbo cache first):
+────────────────────────────────────────────────────────────────────────────────
+(source ~/.zprofile 2>/dev/null; source ~/.zshrc 2>/dev/null; export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"; cd "/Users/igorkramarenko/Desktop/Vibe Projects" && chmod +x scripts/go.sh && ALCHEMIST_FRESH=1 ./scripts/go.sh)
+Or:  pnpm go:fresh
+
+────────────────────────────────────────────────────────────────────────────────
+This loads your shell config, finds Node/pnpm, installs deps, and starts **only the web app** (not Expo).
+Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first free port 3000–3060).
+         Dev binds HOST=127.0.0.1 by default (override with HOST=0.0.0.0 for LAN).
+         If you only try localhost:3000 while something else uses it, the app will look "broken".
+
+**If `pnpm dev` or `./scripts/go.sh` fails:**
+  cd "/Users/igorkramarenko/Desktop/Vibe Projects"   # must be the folder with apps/ + packages/
+  pnpm install
+  pnpm alc:doctor          # Node, Next + workspace packages (NOT `pnpm doctor` — pnpm built-in)
+  pnpm dev:recover         # clears apps/web-app/.next/cache/webpack+swc then dev — fixes many "won't start" dev errors
+  pnpm dev                 # direct web dev-server — use 127.0.0.1 URL from cyan banner, not localhost
+  pnpm verify:harsh        # optional sanity: types + Vitest
+  pnpm fire:sync           # optional: refresh docs/FIRE.md metrics (runs test:engine; needs green tests)
+  # optional Turbo wrapper: pnpm dev:turbo
+
+**Mobile (Expo) separately:**  pnpm dev:mobile
+**Everything at once:**         pnpm dev:all
+
+If you see "Node.js is not installed", run this first (installs Node via Homebrew):
+  brew install node
+Then run the long command above again.
+
+────────────────────────────────────────────────────────────────────────────────
+STILL SEEING AN OLD UI OR OLD TRIAD BEHAVIOUR?
+────────────────────────────────────────────────────────────────────────────────
+
+1) Stop the dev server (Ctrl+C).
+
+2) From repo root ("Vibe Projects"), clear Next + Turbo cache and restart dev:
+     pnpm web:dev:fresh
+
+   Or only the web app:
+     cd apps/web-app && pnpm dev:fresh
+
+3) If you use PRODUCTION mode (next start), you MUST rebuild after code changes:
+     pnpm web:rebuild
+     pnpm --filter @alchemist/web-app start
+
+4) Hard-refresh the browser: Cmd+Shift+R (Mac) or disable cache in DevTools Network tab.
+
+5) Open the correct folder in Cursor: "Vibe Projects" (repo root), not only "vst/".
+
+   If you only have "vst/" open: from that folder run `pnpm dev` — vst/package.json forwards to the parent repo.
+   If **`pnpm: command not found`**: from **`vst/`** run **`npm run dev`** (uses `npx pnpm@9.14.2` via `with-pnpm.mjs`).
+
+**Webpack dev cache / "Restoring pack … failed" / `hasStartTime`:**
+  From repo root: `pnpm web:dev:fresh`  OR  `ALCHEMIST_NEXT_SCRUB_WEBPACK=1 pnpm dev` (clears only `apps/web-app/.next/cache/webpack`).
+
+**EMFILE: too many open files, watch** (macOS / WSL / big trees):
+  Repo defaults: `apps/web-app/next.config.mjs` webpack **polling** (server + client) in dev;
+  `apps/web-app/scripts/dev-server.mjs` sets **WATCHPACK_POLLING=true** when the var is **unset**.
+  Opt out of polling: `WATCHPACK_POLLING=0 pnpm dev`
+  If Watchpack still complains: `ulimit -n 65536` then restart `pnpm dev` from repo root.
+
+next.config.mjs sets transpilePackages for @alchemist/* so workspace packages are not stuck on an old compiled copy.
+
+If `next build` / `pnpm harshcheck` fails with MODULE_NOT_FOUND inside apps/web-app/.next:
+  pnpm run clean && pnpm harshcheck
+  # or: pnpm web:rebuild
+
+Browser "Export .fxp" (needs Rust + wasm-pack):
+  cd packages/fxp-encoder && pnpm run build:wasm
+  # Health: GET /api/health/wasm — see docs/FIRESTARTER.md §10, docs/FIRE.md §C
+
+────────────────────────────────────────────────────────────────────────────────
+SAVE TO GITHUB (after every meaningful step — do not lose the project)
+────────────────────────────────────────────────────────────────────────────────
+
+From repo root ("Vibe Projects"):
+
+  pnpm save -- "short description of what you changed"
+
+Or:  node scripts/git-save.mjs "your message"
+
+From **vst/** only:  npm run save -- "your message"
+
+First time only — put your real repo URL in ONE command (create empty repo at https://github.com/new first):
+
+  pnpm github:first-push -- "https://github.com/YOUR_USER/YOUR_REPO.git"
+
+(SSH is fine too: git@github.com:YOUR_USER/YOUR_REPO.git)
+
+No URL handy? Run the same command with no args — it prints step-by-step instructions.
+
+After origin exists, `pnpm save -- "…"` commits and pushes for you.
+
+If git complains about loose objects:  rm -f .git/gc.log && git gc --prune=now

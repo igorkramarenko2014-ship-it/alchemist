@@ -1,0 +1,13 @@
+---
+description: Project Alchemist — build order, HARD GATE, stack, AI triad
+alwaysApply: true
+---
+
+# Alchemist
+
+- **HARD GATE**: `packages/fxp-encoder/serum-offset-map.ts` MUST exist and be validated (via `tools/validate-offsets.py` against a real Serum init .fxp) before any encoder, preset generation, .fxp writes, or SerumState parameter values. No placeholders. No hallucinated offsets.
+- **Browser Export .fxp**: wasm-pack **`pkg/`** via `packages/fxp-encoder` **`pnpm run build:wasm`** (Rust). Web **`GET /api/health/wasm`** gates UI. **`harshcheck`** may pass without Rust (stub). **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C**.
+- **Build order**: 1 shared-types (skeleton) → 2 validate-offsets.py + source offset map → 3 serum-offset-map.ts → 4 fxp-encoder (Rust WASM) → 5 shared-engine → 6 web-app → 7 mobile-app → 8 vst.
+- **Stack**: Next.js 14 App Router, TS strict, Tailwind, Expo, JUCE + Python sidecar, Vercel serverless, Rust→WASM fxp-encoder client-side.
+- **AI Triad**: DeepSeek (w=0.40), Llama (w=0.35), Qwen (w=0.25). 8 candidates, score, discard invalid/out-of-range. **UI/telemetry codenames:** DEEPSEEK→ATHENA, LLAMA→HERMES, QWEN→HESTIA (`triad-panel-governance.ts`). **Undercover + Slavic = TS gates only** — not AU/VST DSP; see **`alchemist-dsp-vs-ts-gates.mdc`**.
+- **Design**: #111827 bg, #5EEAD4 primary, sharp flat geometric, dark-mode-first. Fail loudly; 8s AI timeout; shared-types is source of truth.

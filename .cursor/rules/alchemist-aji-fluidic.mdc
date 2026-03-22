@@ -1,0 +1,29 @@
+---
+description: Optional CV/OSC “Aji + Lava” bridge — latent vibe & blob→control (not TS Serum gates)
+globs: research/**/*.{py,md}, tools/**/*.{py,md}
+alwaysApply: false
+---
+
+# MODULE: AJI-FLUIDIC INTUITION (optional hardware bridge)
+
+**Scope:** Python + OpenCV + OSC to a **local DAW/synth**. **Not** the Next.js **`shared-engine`** preset path, **not** Undercover/Slavic statistical gates, **not** authoritative Serum `.fxp` bytes — see **`alchemist-dsp-vs-ts-gates.mdc`** and **`alchemist-brief.mdc` HARD GATE**.
+
+## AJI (latent potential)
+
+- Treat user **NL prompts** (elsewhere in the product) as having **latent contrast**: e.g. “dark techno” → optional high-frequency texture or contrast in **control space** (OSC), not a claim that TS `runTriad` performs ladder-filter DSP.
+- **Potentiality buffers:** OK in **Python bridge** (pre-warm smoothed OSC targets, rate-limited sends) — do **not** pretend this is C++ plugin buffer management in **`web-app`**.
+
+## LAVA (OpenCV blob / contour motion)
+
+- Use **`cv2`** blob or contour pipelines for **organic** control signals.
+- Suggested mappings (implementation-specific): blob **area** → subtle **cutoff/Q** targets; **centroid speed** → LFO-rate-like target; **split/merge heuristics** → density/scatter scalar.
+- Prefer **headless** OpenCV in CI (`opencv-python-headless`) when no GUI.
+
+## SUGARCOAT (predictive OSC)
+
+- Namespace: e.g. `/alchemist/subtle/*` so users can **ignore** in the DAW.
+- Heuristic: **precise/clean** prompts → slightly **warm** offsets; **chaotic** prompts → slightly **tighter** smoothing / structural slew limits — implement as **Python policy**, document addresses; no fake telemetry in **`logEvent`**.
+
+## Implementation rule
+
+Code for this module lives under **`research/`** or **`tools/`**. When editing **`packages/shared-engine`** or **`apps/web-app`**, **do not** merge this narrative into triad/gate **types** without **`shared-types`** + product review.

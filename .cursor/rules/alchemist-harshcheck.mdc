@@ -1,0 +1,32 @@
+---
+description: Alchemist verify — harshcheck spelling and pre-ship vs fast verify
+alwaysApply: true
+---
+
+# Harshcheck & verify (Alchemist)
+
+## Spelling (hard gate for copy-paste)
+
+- **Correct:** `pnpm harshcheck` — one word, **two h**, ends in **ck** (like “check”).
+- **Wrong (do not use in docs, scripts, or chat):** `harshchek`, `harschchek`, `harsh chek`, `harsh-check` as the script name.
+
+When telling the user what to run, echo the exact root script: **`pnpm harshcheck`**.
+
+## What each command does
+
+| Command | Use |
+|--------|-----|
+| **`pnpm verify:harsh`** | Fast loop: shared-types build → typecheck (no mobile) → `shared-engine` Vitest — **no** `next build`. |
+| **`pnpm harshcheck`** | Pre-ship: same as above **plus** `next build` (via `scripts/run-verify-with-summary.mjs`). |
+
+Both end with stderr **`verify_post_summary`** (auditable JSON). Implementation: `node scripts/with-pnpm.mjs` (pnpm optional on PATH).
+
+## Neighbouring gotcha
+
+- **`pnpm alc:doctor`** — **not** `pnpm doctor` (pnpm built-in).
+
+## Optional (docs hygiene)
+
+- After green verify: **`pnpm fire:sync`** refreshes **`docs/FIRE.md`** metrics block (`ALCHEMIST:FIRE_METRICS` comments), or set **`ALCHEMIST_FIRE_SYNC=1`** on verify.
+
+**Truth sources:** `docs/FIRE.md` §E1, `docs/FIRESTARTER.md` §9, root `package.json` scripts.
