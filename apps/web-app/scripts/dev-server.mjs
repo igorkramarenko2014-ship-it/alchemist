@@ -192,6 +192,7 @@ const port = await resolvePort();
 const cyan = "\x1b[36m";
 const bold = "\x1b[1m";
 const reset = "\x1b[0m";
+const yellow = "\x1b[33m";
 function browserOpenUrl(listenHost, p) {
   if (listenHost === "0.0.0.0" || listenHost === "::") return `http://127.0.0.1:${p}`;
   if (listenHost.includes(":") && !listenHost.startsWith("["))
@@ -199,6 +200,14 @@ function browserOpenUrl(listenHost, p) {
   return `http://${listenHost}:${p}`;
 }
 const url = browserOpenUrl(host, port);
+/** Habit: users open :3000 while another process already owns it — they hit the wrong app (often 500/404). */
+if (port !== 3000 && !(await isPortFree(3000))) {
+  console.warn(
+    `${yellow}${bold}⚠  Port 3000 is already in use — that is a different process.${reset}\n` +
+      `   ${bold}This${reset} dev server is ${bold}${url}${reset} only (also in the cyan box below).\n` +
+      `   To free 3000: quit the other server or run  ${bold}lsof -i :3000${reset}  (macOS/Linux).\n`
+  );
+}
 const localhostHint =
   host === "0.0.0.0" || host === "::"
     ? `│  ${reset}Also:${reset} ${bold}http://localhost:${port}${reset}${cyan}${bold} (same server)                    │\n`

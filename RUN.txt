@@ -14,8 +14,8 @@ Or:  pnpm go:fresh
 ────────────────────────────────────────────────────────────────────────────────
 This loads your shell config, finds Node/pnpm, installs deps, and starts **only the web app** (not Expo).
 Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first free port 3000–3120).
-         Dev binds HOST=127.0.0.1 by default (override with HOST=0.0.0.0 for LAN).
-         If you only try localhost:3000 while something else uses it, the app will look "broken".
+         Dev binds 0.0.0.0 by default (loopback-only: HOST=127.0.0.1).
+         If the banner shows :3001 (or any port ≠ 3000), something else already owns :3000 — do NOT open :3000; you will see another app’s errors (500/404). A yellow warning appears above the cyan box when this happens.
 
 **If `pnpm dev` or `./scripts/go.sh` fails:**
   cd "/Users/igorkramarenko/Desktop/Vibe Projects"   # must be the folder with apps/ + packages/
