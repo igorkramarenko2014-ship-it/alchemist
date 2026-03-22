@@ -12,13 +12,13 @@
 
 **Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside the sync markers). **`docs/`** holds **only** **`FIRE.md`** + **`FIRESTARTER.md`**; optional agent workflow and Aji/session notes live in **FIRESTARTER Appendix C–D** and **§12**.
 
-**Contents:** **§A–C** invariants, **Assessment snapshot**, **§E** VERIFY / RISKS / SUGGEST, **§F–§L** contracts.
+**Contents:** **§A–C** invariants, **Assessment snapshot** (metrics, **next moves**, verify loop), **§E** VERIFY / RISKS / SUGGEST, **§F–§L** contracts.
 
 ---
 
 ## Assessment snapshot
 
-**Posture (summarise when product shifts; full honesty table → `FIRESTARTER` §5a):** **`POST /api/triad/deepseek`** / **`qwen`** / **`llama`** are **fetcher (live, key required)** when **`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`** (DashScope **`qwen-plus`**), or **`GROQ_API_KEY`** / **`LLAMA_API_KEY`** (Groq Llama) are set — **`export const runtime = 'nodejs'`**, **`logEvent`** **`triad_run_start`** / **`triad_panelist_end`** on stderr (**`mode: fetcher`**, **`alchemistCodename`**, **`AI_TIMEOUT_MS`** **`AbortController`**), headers **`x-alchemist-triad-mode: fetcher`**; on provider/timeout failure routes return **`{ candidates: [] }`** with the same headers. Without keys: **stub** + **`mode: stub`** telemetry. **`GET /api/health`** exposes **`triad.livePanelists`** / **`triadFullyLive`**. Client **`runTriad`** + **`scoreCandidates`** apply **real** TS gates (Undercover, **`reasoning`** ≥ **20** chars, Slavic **param** + **Dice**). Optional **keyword tablebase** can short-circuit **`runTriad`**. **HARD GATE:** no authoritative **`.fxp`** without validated **`serum-offset-map.ts`** + **`validate-offsets.py`**. **Formulas / modules → `FIRESTARTER` §5b.**
+**Posture (summarise when product shifts; full honesty table → `FIRESTARTER` §5a):** **`POST /api/triad/deepseek`** / **`qwen`** / **`llama`** are **fetcher (live, key required)** when **`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`** (default DashScope-compatible **`qwen-plus`**; optional **`QWEN_BASE_URL`** for OpenRouter **`qwen/qwen-plus`** — **`env.ts`** / Qwen route), or **`GROQ_API_KEY`** / **`LLAMA_API_KEY`** (Groq Llama) are set — **`export const runtime = 'nodejs'`**, **`logEvent`** **`triad_run_start`** / **`triad_panelist_end`** on stderr (**`mode: fetcher`**, **`alchemistCodename`**, **`AI_TIMEOUT_MS`** **`AbortController`**), headers **`x-alchemist-triad-mode: fetcher`**; on provider/timeout failure routes return **`{ candidates: [] }`** with the same headers. Without keys: **stub** + **`mode: stub`** telemetry. **`GET /api/health`** exposes **`triad.livePanelists`** / **`triadFullyLive`**. Client **`runTriad`** + **`scoreCandidates`** apply **real** TS gates (Undercover, **`reasoning`** ≥ **20** chars, Slavic **param** + **Dice**). Optional **keyword tablebase** can short-circuit **`runTriad`**. **HARD GATE:** no authoritative **`.fxp`** without validated **`serum-offset-map.ts`** + **`validate-offsets.py`**. **Formulas / modules → `FIRESTARTER` §5b.**
 
 <!-- ALCHEMIST:FIRE_METRICS:BEGIN -->
 
@@ -33,6 +33,14 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
 
 <!-- ALCHEMIST:FIRE_METRICS:END -->
+
+### Next moves (operator / agent)
+
+**Composer HTML packs** (task prompts + on-page **rejected** anti-patterns): **`docs/alchemist-cursor-prompts.html`** (P0–P3), **`docs/alchemist-high-efficiency-prompts.html`** (per-gate calibration breakdown; optional **`tablebaseMode: 'compete'`**), **`docs/alchemist-cpc-execution-plan.html`** (timeouts / snapshot CI / **`gate:suggest`** / selection telemetry), **`docs/alchemist-full-unblock-plan.html`** (M1–M5 pipeline). **Roles → `FIRESTARTER` §12.**
+
+**Recently shipped:** **`QWEN_BASE_URL`** wiring; **`pnpm test:real-gates`** + **`logEvent`** **`calibration_*`** (artifact **`tools/gate-calibration-output.json`** — **gitignored**); **`useTriadHealth`** + dock triad status; root **`env:check`**, **`verify:keys`**, **`check:ready`**, **`build:wasm`** — **`FIRESTARTER` §9.**
+
+**Explicit queue (no runtime threshold auto-apply; no shadow governance in `runTriad`):** partial triad **UI banner** when **`triadFullyLive === false`**; **`PANELIST_TIMEOUT_MS`** only after measured latency (**`pnpm test:real-gates`**) + **§B / §E1** doc update; **`gate:suggest`** stdout-only diagnostic; optional tablebase **compete** mode; snapshot gate CI; **`triad_candidate_selected`** **`logEvent`**; optional **`REQUIRE_WASM=1`** **`assert:wasm`** — exact file touches in the HTML packs.
 
 ### Verify loop (human checklist)
 
