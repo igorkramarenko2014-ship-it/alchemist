@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alchemist — High-Efficiency Moves</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg:      #07090c;
+    --s1:      #0e1218;
+    --s2:      #141920;
+    --border:  #1c2433;
+    --border2: #263040;
+    --teal:    #5EEAD4;
+    --teal2:   #2dd4bf;
+    --amber:   #fbbf24;
+    --red:     #f87171;
+    --green:   #4ade80;
+    --blue:    #60a5fa;
+    --purple:  #a78bfa;
+    --text:    #dde4ef;
+    --dim:     #7a8899;
+    --code:    #0b0e13;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* top bar */
+  .topbar {
+    background: var(--s1);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--teal);
+    text-transform: uppercase;
+  }
+  .topbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dim);
+  }
+  .topbar-right {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.08em;
+  }
+
+  /* main layout */
+  .main { max-width: 900px; margin: 0 auto; padding: 48px 24px 100px; }
+
+  /* hero */
+  .hero { margin-bottom: 52px; }
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .hero-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .hero-title span { color: var(--teal); }
+  .hero-desc {
+    color: var(--dim);
+    font-size: 14px;
+    max-width: 580px;
+    line-height: 1.75;
+    margin-bottom: 24px;
+  }
+
+  /* insight strip */
+  .insight-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 52px;
+  }
+  .insight {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .insight-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .insight-value {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .iv-red    { color: var(--red); }
+  .iv-amber  { color: var(--amber); }
+  .iv-green  { color: var(--green); }
+  .iv-teal   { color: var(--teal); }
+  .iv-blue   { color: var(--blue); }
+  .insight-sub {
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* prompt block */
+  .prompt-block { margin-bottom: 40px; }
+
+  .pb-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+  .pb-meta { flex: 1; }
+  .pb-tag-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    padding: 3px 9px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .tag-m1  { background: rgba(94,234,212,0.12); color: var(--teal);   border: 1px solid rgba(94,234,212,0.3); }
+  .tag-m2  { background: rgba(96,165,250,0.12); color: var(--blue);   border: 1px solid rgba(96,165,250,0.3); }
+  .tag-fire{ background: rgba(251,191,36,0.10); color: var(--amber);  border: 1px solid rgba(251,191,36,0.25); }
+
+  .effort-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 3px 9px;
+  }
+
+  .pb-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .pb-subtitle {
+    font-size: 13px;
+    color: var(--dim);
+    line-height: 1.65;
+    max-width: 600px;
+    margin-bottom: 16px;
+  }
+
+  /* why box */
+  .why-box {
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--dim);
+    line-height: 1.7;
+  }
+  .why-box strong { color: var(--text); }
+
+  /* code card */
+  .code-card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--s2);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+  }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--dim);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 14px;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .copy-btn:hover  { border-color: var(--teal); color: var(--teal); background: rgba(94,234,212,0.06); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  pre.code-body {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: #b8c4d4;
+    background: var(--code);
+    padding: 20px;
+    white-space: pre;
+    overflow-x: auto;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  pre.code-body::-webkit-scrollbar { width: 4px; height: 4px; }
+  pre.code-body::-webkit-scrollbar-track { background: transparent; }
+  pre.code-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* constraint row */
+  .constraint-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--s1);
+  }
+  .cr { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim); }
+  .cr .lbl   { color: var(--amber); }
+  .cr .ok    { color: var(--green); }
+  .cr .warn  { color: var(--amber); }
+  .cr .fire  { color: var(--teal); }
+
+  /* divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 44px 0;
+    position: relative;
+  }
+  .divider::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  /* sequence map */
+  .seq-map {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 44px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .seq-item {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 16px;
+    min-width: 160px;
+    flex-shrink: 0;
+  }
+  .seq-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+  .seq-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .seq-sub   { font-size: 11px; color: var(--dim); margin-top: 2px; }
+  .seq-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--border2);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* footer */
+  .footer {
+    margin-top: 72px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.06em;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="brand">Alchemist</span>
+    <span class="topbar-title">High-Efficiency Cursor Prompts — v2</span>
+  </div>
+  <span class="topbar-right">FIRE.md aligned · 2026-03-22</span>
+</div>
+
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Next moves</div>
+    <div class="hero-title">From <span>constraint-driven</span><br>to diagnostic + competing</div>
+    <div class="hero-desc">
+      Two unblocked, FIRE-compliant moves. No new dependencies.
+      No threshold changes. No contract violations.
+      Each has a Copy button — paste directly into a fresh Composer session.
+    </div>
+  </div>
+
+  <!-- INSIGHT STRIP -->
+  <div class="insight-strip">
+    <div class="insight">
+      <div class="insight-label">Current gap</div>
+      <div class="insight-value iv-red">No per-gate breakdown</div>
+      <div class="insight-sub">Single drop rate hides which gate is actually failing</div>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Tablebase status</div>
+      <div class="insight-value iv-amber">Hard bypass</div>
+      <div class="insight-sub">Short-circuits runTriad — good candidates may lose to stale rows</div>
+    </div>
+    <div class="insight">
+      <div class="insight-label">After both moves</div>
+      <div class="insight-value iv-teal">Diagnostics + competition</div>
+      <div class="insight-sub">Know which gate fires. Tablebase earns its place or loses.</div>
+    </div>
+  </div>
+
+  <!-- RUN ORDER -->
+  <div class="seq-map">
+    <div class="seq-item">
+      <div class="seq-num">MOVE 1</div>
+      <div class="seq-label">Per-gate diagnostics</div>
+      <div class="seq-sub">Upgrade calibration output</div>
+    </div>
+    <div class="seq-arrow">→</div>
+    <div class="seq-item">
+      <div class="seq-num">MOVE 2</div>
+      <div class="seq-label">Tablebase as competitor</div>
+      <div class="seq-sub">Scored alongside triad, not before</div>
+    </div>
+    <div class="seq-arrow">→</div>
+    <div class="seq-item">
+      <div class="seq-num">AFTER BOTH</div>
+      <div class="seq-label">Re-run calibration</div>
+      <div class="seq-sub">BASE_URL=… pnpm test:real-gates</div>
+    </div>
+    <div class="seq-arrow">→</div>
+    <div class="seq-item">
+      <div class="seq-num">OPTIONAL</div>
+      <div class="seq-label">Timeout tuning</div>
+      <div class="seq-sub">Only if data shows need</div>
+    </div>
+  </div>
+
+  <!-- MOVE 1 -->
+  <div class="prompt-block">
+    <div class="pb-header">
+      <div class="pb-meta">
+        <div class="pb-tag-row">
+          <span class="tag tag-m1">Move 1</span>
+          <span class="tag tag-fire">no contract change</span>
+          <span class="effort-badge">~2 h</span>
+        </div>
+        <div class="pb-title">Per-gate diagnostic breakdown</div>
+        <div class="pb-subtitle">
+          Upgrades <code style="font-family:monospace;color:var(--teal)">scripts/calibrate-gates.ts</code> to report
+          rejection counts per gate, per model, and cross-gate interactions.
+          Turns "drop rate" into actual diagnostics.
+        </div>
+      </div>
+    </div>
+
+    <div class="why-box">
+      <strong>Why this matters:</strong> The current calibration output has a single
+      <code style="font-family:monospace">survivalRates</code> object. If candidates are getting dropped,
+      you don't know if it's Undercover, Slavic, reasoning length, or a specific provider.
+      Per-gate + per-model breakdown tells you exactly where to look — and whether it's a
+      prompt problem or a threshold problem.
+    </div>
+
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-filename">Cursor / Composer — paste as new session</span>
+        <button class="copy-btn" onclick="copyBlock('m1', this)">Copy prompt</button>
+      </div>
+      <pre class="code-body" id="m1"># [TASK]: Upgrade calibrate-gates.ts — per-gate + per-model diagnostic output
+# [CONTEXT]: docs/FIRE.md §E3, docs/FIRESTARTER.md §5b
+# [FILE]: scripts/calibrate-gates.ts (already exists)
+# [CONSTRAINT]: observation only — do NOT change any threshold constants
+
+## Problem
+Current output has a single survivalRates object (isValid / distribution / adversarial).
+This hides WHICH gate is the bottleneck and WHICH provider is causing failures.
+We need per-gate, per-model breakdown to turn calibration into diagnostics.
+
+## What to add to calibrate-gates.ts
+
+### 1. Per-gate rejection counts (add alongside existing survivalRates)
+For each raw candidate, track which specific gate rejects it first:
+- "reasoning_length"   — reasoning.trim().length < 20
+- "score_range"        — score not in [0,1]
+- "state_missing"      — state falsy
+- "distribution"       — candidatePassesDistributionGate fails
+- "adversarial"        — candidatePassesAdversarial fails
+- "passed_all"         — survived all gates
+
+Shape to add to output JSON:
+"gateBreakdown": {
+  "reasoning_length":  { "count": 0, "rate": 0 },
+  "score_range":       { "count": 0, "rate": 0 },
+  "state_missing":     { "count": 0, "rate": 0 },
+  "distribution":      { "count": 0, "rate": 0 },
+  "adversarial":       { "count": 0, "rate": 0 },
+  "passed_all":        { "count": 0, "rate": 0 }
+}
+(rate = count / totalRawCandidates, 0–1)
+
+### 2. Per-model survival rates
+For each panelist (DEEPSEEK / LLAMA / QWEN), track:
+- rawCount: how many candidates it contributed
+- passedAll: how many survived all gates
+- survivalRate: passedAll / rawCount
+
+Shape to add:
+"perModelStats": {
+  "DEEPSEEK": { "rawCount": 0, "passedAll": 0, "survivalRate": 0 },
+  "LLAMA":    { "rawCount": 0, "passedAll": 0, "survivalRate": 0 },
+  "QWEN":     { "rawCount": 0, "passedAll": 0, "survivalRate": 0 }
+}
+
+### 3. Cross-gate interaction note (comment in output, not computed)
+Add a "calibrationNote" string field to output:
+- If gateBreakdown.distribution.rate > 0.3:
+    "WARNING: Undercover distribution gate dropping >30% — check paramArray mean/edge stats"
+- If gateBreakdown.adversarial.rate > 0.3:
+    "WARNING: Adversarial gate dropping >30% — check entropy/variance in paramStats"
+- If gateBreakdown.reasoning_length.rate > 0.05:
+    "WARNING: Reasoning length gate dropping >5% — tune system prompt min-length instruction"
+- Else:
+    "Gates healthy on this sample"
+
+### 4. Update logEvent("calibration_complete", ...) payload
+Include the new fields: gateBreakdown, perModelStats, calibrationNote
+(these appear on stderr JSON alongside existing fields)
+
+### 5. Update tools/gate-calibration-output.json schema
+Add the three new top-level keys to the written JSON file.
+
+## Constraints
+- Do NOT change AI_TIMEOUT_MS, SLAVIC_FILTER_COSINE_THRESHOLD,
+  SLAVIC_TEXT_DICE_THRESHOLD, REASONING_LEGIBILITY_MIN_CHARS,
+  or any other constant in validate.ts / score.ts / constants.ts
+- Do NOT change the existing output shape — only ADD new keys
+- pnpm verify:harsh must stay green
+- pnpm check:transparent must stay clean
+- Update docs/FIRESTARTER.md §9 calibration row: note per-gate breakdown added
+- pnpm fire:sync after green verify
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+BASE_URL=http://127.0.0.1:3002 pnpm test:real-gates
+# Check tools/gate-calibration-output.json for new gateBreakdown + perModelStats keys</pre>
+      <div class="constraint-row">
+        <span class="cr"><span class="lbl">touches:</span> scripts/calibrate-gates.ts only</span>
+        <span class="cr"><span class="ok">no shared-engine changes</span></span>
+        <span class="cr"><span class="ok">no threshold changes</span></span>
+        <span class="cr"><span class="fire">FIRE §E3 — observation only</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" data-label="independent · run in separate session">
+
+  <!-- MOVE 2 -->
+  <div class="prompt-block">
+    <div class="pb-header">
+      <div class="pb-meta">
+        <div class="pb-tag-row">
+          <span class="tag tag-m2">Move 2</span>
+          <span class="tag tag-fire">FIRE §I · opt-in only</span>
+          <span class="effort-badge">~3 h</span>
+        </div>
+        <div class="pb-title">Tablebase as scored competitor</div>
+        <div class="pb-subtitle">
+          Currently the keyword tablebase hard-bypasses <code style="font-family:monospace;color:var(--teal)">runTriad</code> entirely.
+          This makes it a scored entrant instead — tablebase candidates go through
+          <code style="font-family:monospace;color:var(--teal)">scoreCandidates</code> alongside triad output and compete on
+          <code style="font-family:monospace;color:var(--teal)">weightedScore</code>. Best candidates win regardless of source.
+        </div>
+      </div>
+    </div>
+
+    <div class="why-box">
+      <strong>Why this matters:</strong> A tablebase row that short-circuits the triad means a stale,
+      pre-validated candidate can silently win over a better live LLM candidate — with no competition.
+      Making it a scored entrant preserves its value as prior knowledge while letting the triad beat it
+      when the live output is better. Telemetry already distinguishes the source via
+      <code style="font-family:monospace">mode: "tablebase"</code> vs <code style="font-family:monospace">"fetcher"</code>.
+    </div>
+
+    <div class="code-card">
+      <div class="code-header">
+        <span class="code-filename">Cursor / Composer — fresh session after Move 1 is green</span>
+        <button class="copy-btn" onclick="copyBlock('m2', this)">Copy prompt</button>
+      </div>
+      <pre class="code-body" id="m2"># [TASK]: Tablebase as scored competitor alongside triad output
+# [CONTEXT]: docs/FIRE.md §E1 snapshot, docs/FIRESTARTER.md §5b (triad.ts, reliability/)
+# [CANONICAL]: PANELIST_WEIGHTS unchanged. No new shadow state. logEvent required.
+
+## Current behavior (triad.ts)
+When lookupTablebaseCandidate matches a prompt, runTriad short-circuits:
+returns tablebase candidates directly without calling panelist fetchers.
+Telemetry: preset_tablebase_hit + mode: "tablebase".
+
+## Problem
+A tablebase hit silently wins over any live LLM candidate — no competition.
+If the tablebase row is stale or low-quality, there is no recovery path.
+
+## New behavior (opt-in flag)
+Add optional flag to RunTriadOptions:
+  tablebaseMode?: 'shortcircuit' | 'compete'
+  Default: 'shortcircuit'  ← preserves existing behavior when flag absent
+
+When tablebaseMode === 'compete':
+1. Run tablebase lookup as normal — collect matching rows as AICandidate[]
+   Tag each with panelist: 'TABLEBASE' (or use existing tablebase panelist field
+   if already typed — check reliability/tablebase-schema.ts)
+2. ALSO run the full panelist fetcher path (all three providers, same timeout)
+3. Merge tablebase candidates + panelist candidates into one pool
+4. Run the full gate pipeline: filterValid → distribution → adversarial → slice(MAX_CANDIDATES)
+5. scoreCandidates handles Slavic dedupe + weightedScore ranking downstream (unchanged)
+6. Telemetry:
+   - preset_tablebase_hit still fires when tablebase has matches
+   - triad_run_end mode: "compete" (new mode value alongside stub/fetcher/tablebase)
+   - Add tablebaseCandidateCount + triadCandidateCount to triad_run_end payload
+
+## What to change
+
+### packages/shared-engine/triad.ts
+- Add tablebaseMode to RunTriadOptions type (default 'shortcircuit')
+- When 'compete': merge tablebase + fetcher paths before gate pipeline
+- New mode value: 'compete' in TriadRunMode type (triad-monitor.ts)
+
+### packages/shared-engine/triad-monitor.ts
+- Add 'compete' to TriadRunMode union
+- Add tablebaseCandidateCount?: number to triad_run_end payload type
+
+### packages/shared-engine/tests/
+- Add test: tablebaseMode 'compete' still applies all gates
+- Add test: tablebase candidate loses to higher-scoring triad candidate
+- Add test: tablebase candidate wins when triad returns empty
+- Existing 'shortcircuit' tests must still pass unchanged
+
+## Constraints
+- Default behavior (shortcircuit) UNCHANGED — no breaking change
+- PANELIST_WEIGHTS unchanged
+- No new imports outside shared-engine
+- No shadow state — all behavior visible in telemetry
+- pnpm check:transparent must pass
+- pnpm verify:harsh must stay green (all 60 + new tests)
+- Update docs/FIRESTARTER.md §5b triad.ts row: note tablebaseMode option
+- Update docs/FIRE.md Assessment snapshot: note compete mode available
+- pnpm fire:sync after green verify
+
+## Verify
+pnpm verify:harsh        # must be green — existing 60 tests + new tests
+pnpm check:transparent
+pnpm fire:sync</pre>
+      <div class="constraint-row">
+        <span class="cr"><span class="lbl">touches:</span> shared-engine/triad.ts · triad-monitor.ts · tests/</span>
+        <span class="cr"><span class="warn">default unchanged — opt-in only</span></span>
+        <span class="cr"><span class="ok">no weight changes</span></span>
+        <span class="cr"><span class="fire">FIRE §I — telemetry required</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Project Alchemist · FIRE.md §E–§L aligned</span>
+    <span>docs/FIRESTARTER.md §5b · 2026-03-22</span>
+  </div>
+
+</div>
+
+<script>
+function copyBlock(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy prompt'; btn.classList.remove('copied'); }, 2200);
+  });
+}
+</script>
+</body>
+</html>

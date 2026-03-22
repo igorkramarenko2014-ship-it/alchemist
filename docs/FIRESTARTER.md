@@ -377,6 +377,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`.cursorrules`** | Cursor root context |
 | **`.cursor/rules/*.mdc`** (incl. **`alchemist-quality.mdc`** — edit checklist), **`.cursor/skills/harshcheck/SKILL.md`** | Rules + harshcheck |
 | **`docs/alchemist-cursor-prompts.html`** | Open in browser: ordered **Composer** prompts (P0–P3). **P0** (OpenRouter **`QWEN_BASE_URL`**) is **shipped**; **P1** partial-mode banner optional; **P2** calibration / **P3** timeout per data |
+| **`docs/alchemist-high-efficiency-prompts.html`** | **v2** moves: per-gate calibration diagnostics (`calibrate-gates.ts`); optional **`tablebaseMode: 'compete'`** (tablebase vs triad, default unchanged). FIRE §E3 / §I aligned |
 
 **List markdown:** **`pnpm docs:list`**.
 
