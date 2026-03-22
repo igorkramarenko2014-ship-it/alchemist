@@ -4,4 +4,6 @@
  */
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
+  /** Live `/api/triad/deepseek` when non-empty; otherwise stub. */
+  deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
 } as const;

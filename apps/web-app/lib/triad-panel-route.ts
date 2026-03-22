@@ -1,3 +1,5 @@
+import { env } from "@/env";
+import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
 import { stubPanelistCandidates, validatePromptForTriad } from "@alchemist/shared-engine";
 import type { Panelist } from "@alchemist/shared-types";
 import { NextResponse } from "next/server";
@@ -26,12 +28,16 @@ export async function triadPanelPost(request: Request, panelist: Panelist) {
   }
 
   try {
-    const candidates = await stubPanelistCandidates(prompt, panelist, request.signal);
+    const useDeepSeekLive = panelist === "DEEPSEEK" && env.deepseekApiKey.length > 0;
+    const candidates = useDeepSeekLive
+      ? await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, request.signal)
+      : await stubPanelistCandidates(prompt, panelist, request.signal);
+    const mode = useDeepSeekLive ? "fetcher" : "stub";
     return NextResponse.json(
       { candidates },
       {
         headers: {
-          "x-alchemist-triad-mode": "stub",
+          "x-alchemist-triad-mode": mode,
           "x-alchemist-panelist": panelist,
         },
       }

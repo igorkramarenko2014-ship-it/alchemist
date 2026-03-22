@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { NextResponse } from "next/server";
 
 /**
@@ -13,12 +14,15 @@ export async function GET(request: Request) {
     wasm = { ok: false, status: "error" };
   }
 
+  const deepseekLive = env.deepseekApiKey.length > 0;
   return NextResponse.json({
     ok: true,
     wasm,
     triad: {
-      panelistRoutes: "stub",
-      note: "POST /api/triad/* returns stubPanelistCandidates until provider keys + real inference are wired (see docs/FIRESTARTER.md Implementation status). Client runTriad still applies gates, scoring, and AI_TIMEOUT_MS when using makeTriadFetcher.",
+      panelistRoutes: deepseekLive ? "mixed" : "stub",
+      note: deepseekLive
+        ? "POST /api/triad/deepseek uses live DeepSeek when DEEPSEEK_API_KEY is set (x-alchemist-triad-mode: fetcher). Llama and Qwen routes remain stub until wired. See docs/FIRESTARTER.md §5a."
+        : "POST /api/triad/* returns stubPanelistCandidates until provider keys are set (DeepSeek: DEEPSEEK_API_KEY). Client runTriad still applies gates, scoring, and AI_TIMEOUT_MS when using makeTriadFetcher. See docs/FIRESTARTER.md §5a.",
     },
     hardGate: {
       offsetMapPresent: true,
