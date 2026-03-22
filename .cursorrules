@@ -6,7 +6,7 @@
 
 ## Truth sources (read before big edits)
 
-- **`docs/FIRESTARTER.md`** — **recovery bible** / full orientation; **Doc logic** = FIRE vs FIRESTARTER; **Appendix A** workflow; **Appendix B** INIT. **Material** product edits land here first.
+- **`docs/FIRESTARTER.md`** — **recovery bible** / full orientation; **Doc logic** = FIRE vs FIRESTARTER; **Appendix A** workflow; **Appendix B** INIT; **Appendix C** optional agent checklist; **Appendix D** Aji notes. Under **`docs/`** only **FIRESTARTER** + **FIRE**. **Material** product edits land here first.
 - **`docs/FIRE.md`** — **lightweight** assessment / LLM surface: §E–§L, **`verify_post_summary`**. **Metrics block:** **`pnpm fire:sync`** (after green verify) or **`ALCHEMIST_FIRE_SYNC=1`** — not a substitute for FIRESTARTER for implementation detail.
 - **`.cursor/rules/alchemist-brief.mdc`** + **`alchemist-dsp-vs-ts-gates.mdc`** + **`alchemist-role-mission.mdc`** — always-on guardrails + **Lead Architect** role / **`/plan`·`/fix`·`/refactor`·`/audit`** overrides.
 - **`research/README.md`** + **`alchemist-aji-fluidic.mdc`** (scoped) — optional **Python** CV/OSC + fusion; **not** TS triad/gates.

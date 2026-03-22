@@ -2,7 +2,7 @@
 
 **Path:** `docs/FIRESTARTER.md` (repo root: **Vibe Projects**).  
 **Companion:** **`docs/FIRE.md`** — outside assessment, optimisation surface, **§E–§L** contracts (see **Doc logic** below).  
-**`docs/` policy:** **`FIRESTARTER.md`**, **`FIRE.md`**, and **`docs/README.md`** (index) hold **product / assessment** truth. **`AGENT-PLAYBOOK.md`** is an **optional** FIRE-aligned agent workflow — **not** canonical law (see **`FIRE.md`** header).  
+**`docs/` policy:** Only **`FIRESTARTER.md`** and **`FIRE.md`** live under **`docs/`**. Optional agent multi-step flow → **Appendix C** (not a second law layer vs **Doc logic**).  
 **Cursor:** **`.cursorrules`** + **`.cursor/rules/alchemist-brief.mdc`** + **`alchemist-dsp-vs-ts-gates.mdc`**.
 
 ---
@@ -320,7 +320,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`pnpm web:rebuild`** | **`clean`** + forced **`turbo run build`** for web-app |
 | **`pnpm go` / `go:fresh`** | Install + dev / fresh (root; **`vst/`** forwards) |
 | **`pnpm typecheck`** | Turbo typecheck |
-| **`pnpm check:transparent`** | Denylist scan: **`packages/shared-engine/**/*.ts`** — no shadow / KGB / amnesia-style **shipped** tokens (**`scripts/check-no-shadow-patterns.mjs`**) — optional CI / pre-commit; see **`FIRE.md` §I**, **`docs/AGENT-PLAYBOOK.md`** |
+| **`pnpm check:transparent`** | Denylist scan: **`packages/shared-engine/**/*.ts`** — no shadow / KGB / amnesia-style **shipped** tokens (**`scripts/check-no-shadow-patterns.mjs`**) — optional CI / pre-commit; see **`FIRE.md` §I**, **Appendix C** |
 | **`.fxp` in browser** | Needs **`pnpm run build:wasm`** in **`packages/fxp-encoder`** (Rust). **`pnpm harshcheck`** can pass without Rust (encoder may stub). See **§10**, **`FIRE.md` §C / §E1.17** |
 
 **Doc-synced project health:** Run **`pnpm fire:sync`** after a green **`pnpm harshcheck`** to stamp Vitest + Next versions into **`docs/FIRE.md`** (machine block). Narrative posture stays in **Assessment snapshot** above; **`fxp-encoder`** may skip without Rust — **`§10`**, **`FIRE.md` §C / §E1.17**.
@@ -353,14 +353,12 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 ## 12. Documentation index
 
-### Under `docs/` (canonical specs)
+### Under `docs/` (canonical specs — **two files only**)
 
 | File | Role |
 |------|------|
-| **FIRESTARTER.md** | This file — **comprehensive** orientation + **Doc logic** (vs FIRE) |
-| **FIRE.md** | **Outside assessment** + optimisation surface + harshcheck + **`verify_post_summary`** + §E–§G + **§H–§L** |
-| **README.md** | Index → doc split + FIRESTARTER + FIRE |
-| **AGENT-PLAYBOOK.md** | Optional **FIRE-aligned** multi-step flow (arbitration, Talent, AGL, verify) — **not** canonical law vs FIRE |
+| **FIRESTARTER.md** | This file — **comprehensive** orientation + **Doc logic** (vs FIRE) + **Appendix C** (optional agent workflow) + **Appendix D** (Aji / strategy notes) |
+| **FIRE.md** | **Outside assessment** + optimisation surface + harshcheck + **`verify_post_summary`** + §E–§G + **§H–§L**; machine metrics via **`pnpm fire:sync`** |
 
 ### Elsewhere
 
@@ -433,7 +431,7 @@ Update **`FIRE.md`** snapshot + this file together when shipping behavior change
 7. Optional: **`pnpm check:transparent`** — quick **`shared-engine`** denylist for forbidden shadow-pattern code (**`FIRE.md` §I**).  
 8. Optional: wire **`analyzeTalentMarket`** + **`logTalentMarketAnalysis`** if you maintain **`market-benchmarks.json`** (**§7c**, **`FIRE.md` §J**).  
 9. Optional: offline AGL jobs → **`mergeGreatLibraryIntoSoeSnapshot`** + **`computeSoeRecommendations`** (**§7d**, **`FIRE.md` §K**) — respect preset **licenses**; footer **`LegalDisclaimer`** notes third-party data responsibility.  
-10. Multi-step agent flow (paste hints): **`docs/AGENT-PLAYBOOK.md`** — same contracts as **§7b–§7d** + verify; **not** a replacement for reading **`FIRE.md`**.  
+10. Multi-step agent flow (paste hints): **Appendix C** — same contracts as **§7b–§7d** + verify; **not** a replacement for reading **`FIRE.md`**.  
 11. **After a material code/product change:** update **`docs/FIRESTARTER.md`** (full detail); update **`docs/FIRE.md`** **§E–§L** only if contracts moved; run **`pnpm fire:sync`** for the machine metrics block — **Doc logic** at top of this file.
 
 ---
@@ -452,7 +450,7 @@ Paste into a **new** chat. Permanent rules already in **`.cursorrules`** + **`.c
 - **Greek codenames:** ATHENA=DEEPSEEK 0.40, HERMES=LLAMA 0.35, HESTIA=QWEN 0.25 — telemetry + UI; velocity = **triad wall time**, not DAW buffer ms.
 - **Governance:** 45/35/20 on telemetry — `triad-panel-governance.ts`.
 - **Recovery:** monorepo root **or** `vst/` → `pnpm alc:doctor` (**NOT** `pnpm doctor`) → `pnpm install` (or **`node scripts/with-pnpm.mjs install`**) at root if Next won’t resolve → `pnpm dev` (= **`dev:web`**) → stale **`.next`**: `pnpm run clean` then `pnpm web:dev:fresh` or `pnpm harshcheck` → optional **`pnpm dev:turbo`**. **`with-pnpm.mjs`** if **`pnpm`** is not on PATH. **Git:** open folder with **`apps/`** + **`packages/`**; **`FIRESTARTER` §2a** if **`git status`** lists your whole home folder.
-- **Truth:** `docs/FIRESTARTER.md` (**comprehensive**) + `docs/FIRE.md` (**outside assessment / LLM optimisation surface** — update **both** after material moves; **Doc logic** at top of FIRESTARTER). Optional: `docs/AGENT-PLAYBOOK.md`; **`pnpm check:transparent`**.
+- **Truth:** `docs/FIRESTARTER.md` (**comprehensive** + **Appendix C** optional agent steps) + `docs/FIRE.md` (**outside assessment** — update **both** after material moves; **Doc logic** at top of FIRESTARTER). **`pnpm check:transparent`**.
 - **Legal / security / privacy:** `LEGAL.md`, **`PRIVACY.md`** (template), `LICENSE`, `SECURITY.md` (root); FIRESTARTER **§14**, FIRE **§G** — not legal advice.
 - **Taxonomy:** large list → **`rankTaxonomy`**; or **≤200** `AICandidate` → **`narrowTaxonomyPoolToTriadCandidates`**; FIRE **§H**, **§6** / **§13** — **`reasoning`** ≥ **20** chars (**`isValidCandidate`**); optional **`description`** on **`AICandidate`** (**`shared-types`**); no opaque **`metadata`** without schema + doc update.
 - **Arbitration (opt-in):** **`runTransparentArbitration`** — logged, deterministic, uses **`scoreCandidates`**; FIRE **§I**, **§7b**; not default in **`runTriad`**.
@@ -463,6 +461,49 @@ Paste into a **new** chat. Permanent rules already in **`.cursorrules`** + **`.c
 - **Web shell:** **`app/error.tsx`** + **`global-error.tsx`**; **`next.config.mjs`** dev polling; **`WATCHPACK_POLLING`** in **`dev-server.mjs`**; **`pnpm dev`** direct, **`dev:turbo`** optional; **`turbo.json`** **`envMode: loose`**; bad **`.next`**: **`pnpm run clean`** / **`web:rebuild`**; FIRE **§L**, FIRESTARTER **§8**.
 - **WASM / Export .fxp:** **`GET /api/health/wasm`** + **`packages/fxp-encoder`** **`build:wasm`** (Rust); stub skip removes stale **`.wasm`**; FIRE **§C**, **§E1.17**, FIRESTARTER **§10**.
 ```
+
+---
+
+## Appendix C — Optional agent workflow (transparent triad & ops)
+
+**Not** a second law layer — **`FIRE.md`** + **Doc logic** (top of this file) rule. For multi-step agents and humans who want a **checklist** beside **§7b–§7d**.
+
+**Mandate:** Auditable **`logEvent`** telemetry; **no** Slavic bypass; **no** shadow state; **no** unauditable “amnesia” or buffer wipes. See **`FIRE.md` §I–§K** and **`.cursor/skills/harshcheck/SKILL.md`**.
+
+### INIT block (paste into a coding agent)
+
+```markdown
+# [INIT]: TRANSPARENT TRIAD & OPS HINTS
+# [ROLE]: Compliant multi-step execution (TS product layer only)
+# [MANDATE]: Auditable telemetry; no Slavic bypass; no shadow state; no gate omnipotence.
+
+- **Truth:** `docs/FIRE.md`, `docs/FIRESTARTER.md` (Appendix C).
+- **Triad:** LLAMA / DEEPSEEK / QWEN; weights in `constants.ts`; routes under `/api/triad/*`.
+- **Forbidden:** Shadow kernel, KGB stacks, Symbol(VERDICT) bypasses, amnesia / stderr hiding, auto model-swap without deployer config.
+```
+
+### Steps (optional modules)
+
+1. **Talent (optional):** **`analyzeTalentMarket`** — **`talent/market-scout.ts`**. Optional **`logTalentMarketAnalysis`** → **`talent_market_analysis`**. Does **not** change routes or **`PANELIST_WEIGHTS`**. **§7c**, **`FIRE.md` §J**.
+2. **Great Library → SOE (optional, offline):** **`mergeGreatLibraryIntoSoeSnapshot`** (**`GreatLibraryContext.provenance` required**) → **`computeSoeRecommendations`**; optional **`logGreatLibraryMerge`**. **§7d**, **`FIRE.md` §K**.
+3. **Transparent arbitration (optional):** **`runTransparentArbitration`** — runs **`scoreCandidates`** first; **ALPHA** / **OMEGA** strategies; votes **deterministic** (**`djb2`**), **2-of-3**; **`arbitration_*`** on stderr via **`logEvent`**. **Not** wired inside **`runTriad`** by default. **§7b**, **`FIRE.md` §I**.
+4. **Verify:** **`pnpm verify:harsh`** before UI-facing changes; **`pnpm harshcheck`** before release. Capture **`verify_post_summary`**. With **`tools/sample_init.fxp`**: **`pnpm assert:hard-gate`** / **`pnpm validate:offsets`**. **`FIRE.md` §D**, **§9**.
+5. **Perf audit (optional):** **`pnpm perf:boss`** → **`perf_boss_*`** — **`packages/shared-engine/perf/README.md`**.
+6. **Registry hygiene:** **`pnpm check:transparent`** (= **`node scripts/check-no-shadow-patterns.mjs`**) on **`packages/shared-engine/**/*.ts`**. **`FIRE.md` §I**, **§E1** item 16.
+
+**Detail:** **`packages/shared-engine/arbitration/README.md`**, **`talent/README.md`**, **`learning/README.md`**.
+
+---
+
+## Appendix D — Strategy notes (Aji) & session capture
+
+**Purpose:** Durable notes from design threads — **not** canonical product law (**§5b** + **`FIRE.md`** are).
+
+- **Alchemist (codebase):** NL **prompt** → **triad** (LLAMA / DEEPSEEK / QWEN) → up to **8** Serum **candidates** → **gates** + **scoring** → optional **`.fxp`** (Rust→WASM; **HARD GATE** on **`serum-offset-map.ts`** + **`validate-offsets.py`**). **`packages/shared-engine`:** **`runTriad`** vs **`scoreCandidates`** — exact numbers in **§5b**. **`vst/python-bridge/bridge.py`** — JSON-RPC; **`PROTOCOL.md`**.
+- **Aji (leverage mindset):** Prefer **few stones** at **structural pivots** — recursive loops, **data bottlenecks** (where options collapse), **edge-case** paths. Framing: **win condition** → **liberties** (thresholds, timeouts, which params move) → **one change** at the intersection. In-repo **“transmutation”** = **telemetry/policy** (**`FIRE.md`** glossary), **not** hidden AU/VST DSP — **`.cursor/rules/alchemist-dsp-vs-ts-gates.mdc`**.
+- **Vision threads** (not all shipped): DAW/Serum workflows, automation, fluid mercury UI — distinct from random “jackpot” layers unless you build them explicitly.
+
+For agents, point **`AGENTS.md`** and **`.cursor/rules/`** at **`docs/FIRESTARTER.md`** + **§5b** (not scattered session files).
 
 ---
 

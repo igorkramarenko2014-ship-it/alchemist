@@ -8,9 +8,9 @@
 
 **Explicit hooks (no shadow state):** **`verify_post_summary`** + **`soeHint`** on stderr after verify; **`soe.ts`** / governance telemetry — **forbidden:** unauditable loops (**§I**, **`pnpm check:transparent`**).
 
-**Index:** **`docs/README.md`**. **Optional workflow:** **`docs/AGENT-PLAYBOOK.md`**. **Law under `docs/`:** **`FIRE.md`**, **`FIRESTARTER.md`**, **`README.md`**.
+**Index:** Under **`docs/`** only **`FIRE.md`** (this file) and **`FIRESTARTER.md`** — optional multi-step agent flow is **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`** for quick links. **Legal:** root **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
 
-**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside the sync markers).
+**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside the sync markers). **`docs/`** holds **only** **`FIRE.md`** + **`FIRESTARTER.md`**; optional agent workflow and Aji/session notes live in **FIRESTARTER Appendix C–D** and **§12**.
 
 **Contents:** **§A–C** invariants, **Assessment snapshot**, **§E** VERIFY / RISKS / SUGGEST, **§F–§L** contracts.
 
@@ -125,7 +125,7 @@ No encoder / authoritative `SerumState` / real `.fxp` work without validated **`
 13. **Talent market scout (if used):** **`analyzeTalentMarket`** + optional **`logTalentMarketAnalysis`**; editable **`market-benchmarks.json`**; **no** auto endpoint swap — see **§J** + **`FIRESTARTER` §7c`.  
 14. **Great Library / AGL (if used):** Offline jobs only; **`GreatLibraryContext.provenance`** required; **`mergeGreatLibraryIntoSoeSnapshot`** then **`computeSoeRecommendations`**; **no** vector DB client in **`web-app`** bundle — see **§K** + **`FIRESTARTER` §7d`.  
 15. **Web shell / dev (shipped):** **`next.config.mjs`** dev polling; **`dev-server.mjs`** + **`WATCHPACK_POLLING`**; **`app/error.tsx`** + **`app/global-error.tsx`**; **`LegalDisclaimer`**; root **`pnpm dev`** direct (optional **`dev:turbo`**); **`turbo.json`** **`envMode: loose`**; **`pnpm run clean`** / **`web:rebuild`** if **`.next`** corrupt — see **§L** + **`FIRESTARTER` §8**.  
-16. **Transparent compliance hygiene (optional):** **`pnpm check:transparent`** — scans **`shared-engine`** `.ts` for denylisted shadow-pattern strings (e.g. stealth verdict symbols, “amnesia” governance). **Not** a substitute for review or **`pnpm verify:harsh`**; wire into CI if desired — see **§I**, **`docs/AGENT-PLAYBOOK.md`**.  
+16. **Transparent compliance hygiene (optional):** **`pnpm check:transparent`** — scans **`shared-engine`** `.ts` for denylisted shadow-pattern strings (e.g. stealth verdict symbols, “amnesia” governance). **Not** a substitute for review or **`pnpm verify:harsh`**; wire into CI if desired — see **§I**, **`FIRESTARTER` Appendix C**.  
 17. **WASM export / health (if shipping browser `.fxp`):** **`pnpm run build:wasm`** in **`packages/fxp-encoder`** after Rust + **`wasm32-unknown-unknown`**; **`GET /api/health/wasm`** matches client prerequisites (**§C**). **`harshcheck`** green does **not** require Rust (encoder **`pnpm build`** may stub — **`FIRESTARTER` §10**).  
 18. **Toolchain PATH:** If **`pnpm`** is absent, root **`pnpm dev`** / **`pnpm harshcheck`** still work when invoked as **`npm run dev`** / **`npm run harshcheck`** at root (they call **`with-pnpm.mjs`**). **`pnpm alc:doctor`** remains **`node scripts/doctor.mjs`** — no **`pnpm`** required to run the doctor script itself.  
 19. **Triad HTTP vs gates:** **`GET /api/health`** includes **`triad.panelistRoutes`**: **`"stub"`** or **`"mixed"`** (≥1 live panelist), **`triad.livePanelists`**, **`triad.triadFullyLive`** (all three keyed), **`hardGate.pythonValidate`**, **`telemetry.logEvent`** (stderr JSON). Per route: **`fetcher`** when the matching env key is set — **`FIRESTARTER` §5a**.  

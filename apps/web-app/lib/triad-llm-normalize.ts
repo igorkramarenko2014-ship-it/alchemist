@@ -1,4 +1,4 @@
-import { isValidCandidate } from "@alchemist/shared-engine/validate";
+import { isValidCandidate } from "@alchemist/shared-engine";
 import type { AICandidate, Panelist, SerumState } from "@alchemist/shared-types";
 
 export function emptySerumState(): SerumState {

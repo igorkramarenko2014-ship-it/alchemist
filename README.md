@@ -38,15 +38,15 @@ pnpm --filter @alchemist/web-app start
 | Check | Command / note |
 |-------|----------------|
 | **Environment** | **`pnpm alc:doctor`** |
-| **Fast verify** | **`pnpm verify:harsh`** — types + **`pnpm test:engine`** (55 tests) |
+| **Fast verify** | **`pnpm verify:harsh`** — types + **`pnpm test:engine`** (60 tests) |
 | **Pre-ship** | **`pnpm harshcheck`** — adds **`next build`** web-app |
 | **Post-verify JSON** | **`verify_post_summary`** on **stderr** (after harsh/web verify) — **`soeHint`**, duration, `failedStep`; auditable ops line |
 | **Engine perf JSON** | **`pnpm perf:boss`** — stderr **`perf_boss_*`** lines |
 | **Transparent hygiene** | **`pnpm check:transparent`** — denylist scan on **`shared-engine`**.ts (**`FIRE.md` §I**) |
 | **Offset gate hint** | **`pnpm test:gate`** (needs local **`tools/sample_init.fxp`** to run Python) |
 | **Offset validate (when sample present)** | **`pnpm validate:offsets`** / **`pnpm assert:hard-gate`** — runs **`validate-offsets.py <fxp>`**; assert prints explicit OK; **`ALCHEMIST_STRICT_OFFSETS=1`** fails if sample missing |
-| **Triad HTTP** | Stub panelists until keys; truth in **`GET /api/health`** → **`triad`**, response header **`x-alchemist-triad-mode`** — **`docs/FIRESTARTER.md` §5a** |
-| **Truth docs** | **`docs/FIRESTARTER.md`**, **`docs/FIRE.md`** (+ optional **`docs/AGENT-PLAYBOOK.md`**) |
+| **Triad HTTP** | Live panelists when env keys set (DeepSeek / Qwen / Groq Llama); truth in **`GET /api/health`** → **`triad`**, header **`x-alchemist-triad-mode`** — **`docs/FIRESTARTER.md` §5a** |
+| **Truth docs** | **`docs/`** = **`FIRESTARTER.md`** + **`FIRE.md`** only; optional agent steps in **FIRESTARTER Appendix C** |
 | **Browser `.fxp` export** | Rust + **`cd packages/fxp-encoder && pnpm run build:wasm`** — UI uses **`GET /api/health/wasm`**; see **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C** |
 
 ## Legal
@@ -57,10 +57,8 @@ pnpm --filter @alchemist/web-app start
 
 | Doc | Purpose |
 |-----|---------|
-| [`docs/README.md`](./docs/README.md) | **Doc logic** (FIRE vs FIRESTARTER) + index |
-| [`docs/FIRESTARTER.md`](./docs/FIRESTARTER.md) | **Comprehensive** bible + **Doc logic** + appendices (workflow, INIT) |
-| [`docs/FIRE.md`](./docs/FIRE.md) | **Outside assessment** / LLM surface — snapshot, **harshcheck**, §E–§L, **`check:transparent`** |
-| [`docs/AGENT-PLAYBOOK.md`](./docs/AGENT-PLAYBOOK.md) | Optional FIRE-aligned multi-step flow (not law vs FIRE) |
+| [`docs/FIRESTARTER.md`](./docs/FIRESTARTER.md) | **Comprehensive** bible + **Doc logic** (vs FIRE) + **Appendix A–D** (workflow, INIT, optional agent checklist, Aji notes) |
+| [`docs/FIRE.md`](./docs/FIRE.md) | **Outside assessment** / LLM surface — snapshot, **harshcheck**, §E–§L, **`pnpm fire:sync`** metrics block |
 | [`.cursorrules`](./.cursorrules) | Root Cursor context |
 | [`apps/web-app/docs/MERCURY-BALL.md`](./apps/web-app/docs/MERCURY-BALL.md) | Mercury orb |
 | [`AGENTS.md`](./AGENTS.md) | Checklist for AI agents |

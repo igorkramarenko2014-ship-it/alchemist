@@ -1,4 +1,4 @@
-import { MAX_CANDIDATES } from "@alchemist/shared-engine/constants";
+import { MAX_CANDIDATES } from "@alchemist/shared-engine";
 import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
 import type { AICandidate } from "@alchemist/shared-types";
 
