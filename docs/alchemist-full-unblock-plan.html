@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alchemist — Full Unblock Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg:    #07090c;
+    --s1:    #0c1018;
+    --s2:    #111722;
+    --s3:    #16202e;
+    --b1:    #1e2d42;
+    --b2:    #2a3d58;
+    --teal:  #5eead4;
+    --amber: #fbbf24;
+    --red:   #f87171;
+    --green: #4ade80;
+    --blue:  #7dd3fc;
+    --purple:#c4b5fd;
+    --text:  #dce6f0;
+    --dim:   #637284;
+    --dim2:  #3d4f63;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(7,9,12,0.94); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--b1);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; height: 46px;
+  }
+  .nl { display: flex; align-items: center; gap: 20px; }
+  .brand { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.2em; color: var(--teal); text-transform: uppercase; }
+  .nlinks { display: flex; gap: 2px; }
+  .nl-a { font-size: 11px; color: var(--dim); padding: 4px 9px; border-radius: 3px; cursor: pointer; transition: color 0.12s; }
+  .nl-a:hover { color: var(--text); }
+  .nright { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--dim2); letter-spacing: 0.1em; }
+
+  /* PAGE */
+  .pg { max-width: 940px; margin: 0 auto; padding: 52px 22px 110px; }
+
+  /* HERO */
+  .hero { margin-bottom: 48px; }
+  .h-eye { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.24em; color: var(--teal); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+  .h-eye::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--b1), transparent); }
+  .h-title { font-size: 38px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 14px; }
+  .h-title em { font-style: normal; color: var(--teal); }
+  .h-sub { color: var(--dim); font-size: 14px; max-width: 580px; line-height: 1.75; margin-bottom: 24px; }
+
+  /* REJECT */
+  .rej {
+    background: rgba(248,113,113,0.05); border: 1px solid rgba(248,113,113,0.18);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 36px;
+  }
+  .rej-lbl { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.2em; color: var(--red); text-transform: uppercase; margin-bottom: 8px; }
+  .rej-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rej-item { font-size: 11px; color: #fca5a5; background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.18); border-radius: 3px; padding: 3px 9px; font-family: 'DM Mono', monospace; text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.4); }
+
+  /* GRID */
+  .grid5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 2px; margin-bottom: 52px; }
+  .gc {
+    background: var(--s1); border: 1px solid var(--b1);
+    padding: 14px 14px 12px;
+  }
+  .gc:first-child { border-radius: 8px 0 0 8px; }
+  .gc:last-child  { border-radius: 0 8px 8px 0; }
+  .gc-n { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.14em; margin-bottom: 6px; }
+  .gc-t { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .gc-s { font-size: 11px; color: var(--dim); line-height: 1.4; }
+  .gc-e { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--dim2); margin-top: 8px; }
+  .ct { color: var(--teal); } .ca { color: var(--amber); }
+  .cb { color: var(--blue); } .cg { color: var(--green); }
+  .cp2{ color: var(--purple); }
+
+  /* SECTION */
+  .sec { margin-bottom: 44px; scroll-margin-top: 58px; }
+  .sec-top { margin-bottom: 14px; }
+  .sec-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .stag { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; letter-spacing: 0.14em; padding: 3px 10px; border-radius: 3px; text-transform: uppercase; }
+  .st1 { background: rgba(94,234,212,0.1);  color: var(--teal);   border: 1px solid rgba(94,234,212,0.28); }
+  .st2 { background: rgba(251,191,36,0.09); color: var(--amber);  border: 1px solid rgba(251,191,36,0.25); }
+  .st3 { background: rgba(125,211,252,0.1); color: var(--blue);   border: 1px solid rgba(125,211,252,0.25); }
+  .st4 { background: rgba(74,222,128,0.09); color: var(--green);  border: 1px solid rgba(74,222,128,0.25); }
+  .st5 { background: rgba(196,181,253,0.1); color: var(--purple); border: 1px solid rgba(196,181,253,0.25); }
+  .fire-t { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--dim2); background: var(--s2); border: 1px solid var(--b1); border-radius: 3px; padding: 3px 8px; }
+  .eff-t { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--dim2); margin-left: auto; }
+  .sec-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .sec-desc { font-size: 13px; color: var(--dim); max-width: 640px; line-height: 1.7; margin-bottom: 12px; }
+  .why { border-left: 2px solid var(--b2); padding: 10px 16px; margin-bottom: 14px; font-size: 12px; color: var(--dim); line-height: 1.7; }
+  .why strong { color: var(--text); }
+
+  /* CODE CARD */
+  .cc { border-radius: 10px; overflow: hidden; border: 1px solid var(--b1); }
+  .cc-bar { display: flex; align-items: center; justify-content: space-between; background: var(--s2); border-bottom: 1px solid var(--b1); padding: 9px 16px; }
+  .cc-lbl { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dim); letter-spacing: 0.06em; }
+  .cpb {
+    background: transparent; border: 1px solid var(--b2); border-radius: 4px;
+    color: var(--dim); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 10px; padding: 5px 13px;
+    transition: all 0.14s; letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .cpb:hover  { border-color: var(--teal); color: var(--teal); background: rgba(94,234,212,0.05); }
+  .cpb.ok     { border-color: var(--green); color: var(--green); }
+  pre.cb {
+    font-family: 'DM Mono', monospace; font-size: 11.5px; line-height: 1.7;
+    color: #aebccc; background: #070a0f;
+    padding: 18px; white-space: pre; overflow-x: auto;
+    max-height: 440px; overflow-y: auto;
+  }
+  pre.cb::-webkit-scrollbar { width: 3px; height: 3px; }
+  pre.cb::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 2px; }
+  .cc-ft { display: flex; gap: 14px; flex-wrap: wrap; padding: 9px 16px; background: var(--s1); border-top: 1px solid var(--b1); }
+  .ft { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dim2); }
+  .ft .l { color: var(--amber); } .ft .ok { color: var(--green); }
+  .ft .w { color: var(--amber); } .ft .f { color: var(--teal); }
+
+  /* DIV */
+  hr.dr { border: none; border-top: 1px solid var(--b1); margin: 40px 0; position: relative; }
+  hr.dr::after { content: attr(data-l); position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 14px; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.16em; color: var(--dim2); text-transform: uppercase; }
+
+  /* FOOTER */
+  footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--b1); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--dim2); letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nl">
+    <span class="brand">Alchemist</span>
+    <div class="nlinks">
+      <span class="nl-a" onclick="go('s1')">M1 · Qwen/OpenRouter</span>
+      <span class="nl-a" onclick="go('s2')">M2 · UI mode</span>
+      <span class="nl-a" onclick="go('s3')">M3 · Timeouts</span>
+      <span class="nl-a" onclick="go('s4')">M4 · Calibration loop</span>
+      <span class="nl-a" onclick="go('s5')">M5 · WASM prod gate</span>
+    </div>
+  </div>
+  <span class="nright">Full unblock · FIRE.md aligned · 2026-03-22</span>
+</nav>
+
+<div class="pg">
+
+  <div class="hero">
+    <div class="h-eye">Full unblock plan</div>
+    <h1 class="h-title">Fortress → <em>Factory</em></h1>
+    <p class="h-sub">Five independent Cursor prompts. Each has a Copy button.
+    M1 is unblocked right now. M3 requires real latency data first.
+    All FIRE-compliant — no runtime mutation, no shadow state.</p>
+
+    <div class="rej">
+      <div class="rej-lbl">Rejected from AI proposals — do not implement</div>
+      <div class="rej-list">
+        <span class="rej-item">pnpm gate:apply auto-apply thresholds</span>
+        <span class="rej-item">temperature: 0.8 constant</span>
+        <span class="rej-item">console.log for telemetry</span>
+        <span class="rej-item">regex markdown fence stripping</span>
+        <span class="rej-item">GATE_PROFILES per-class cosine</span>
+        <span class="rej-item">AGENT-PLAYBOOK consolidation (already done)</span>
+        <span class="rej-item">runtime self-modifying gates</span>
+        <span class="rej-item">quorum arbitration inside runTriad</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="grid5">
+    <div class="gc"><div class="gc-n ct">Move 1</div><div class="gc-t">Qwen via OpenRouter</div><div class="gc-s">True triad — all three providers live</div><div class="gc-e">now · no data needed</div></div>
+    <div class="gc"><div class="gc-n ca">Move 2</div><div class="gc-t">UI all-or-nothing mode</div><div class="gc-s">Kill mixed mode confusion at the frontend</div><div class="gc-e">~1h · after M1</div></div>
+    <div class="gc"><div class="gc-n cb">Move 3</div><div class="gc-t">Per-provider timeouts</div><div class="gc-s">Stop false SOE signals from slow providers</div><div class="gc-e">~1h · after real latency data</div></div>
+    <div class="gc"><div class="gc-n cg">Move 4</div><div class="gc-t">Calibration loop</div><div class="gc-s">Data → human decision → commit → deploy</div><div class="gc-e">~2h · after M1 + data</div></div>
+    <div class="gc"><div class="gc-n cp2">Move 5</div><div class="gc-t">WASM prod gate</div><div class="gc-s">Production must not lie about export capability</div><div class="gc-e">~1h · independent</div></div>
+  </div>
+
+  <!-- M1 -->
+  <div class="sec" id="s1">
+    <div class="sec-top">
+      <div class="sec-row">
+        <span class="stag st1">Move 1</span>
+        <span class="fire-t">FIRE §B2 env vars · no contract change</span>
+        <span class="eff-t">unblocked now</span>
+      </div>
+      <div class="sec-title">Wire Qwen via OpenRouter</div>
+      <div class="sec-desc">
+        DashScope console is Chinese-only. OpenRouter hosts <code style="font-family:monospace;color:var(--teal)">qwen/qwen-plus</code>
+        behind an OpenAI-compatible API. This prompt wires <code style="font-family:monospace;color:var(--teal)">QWEN_BASE_URL</code>
+        support into the existing Qwen route so you point it at OpenRouter with a standard key.
+      </div>
+    </div>
+    <div class="why">
+      <strong>Precondition:</strong> Get your OpenRouter key at <strong>openrouter.ai</strong> → Keys → Create.
+      Starts with <code style="font-family:monospace">sk-or-...</code>. Free tier available.
+      After the prompt runs, add to <code style="font-family:monospace">apps/web-app/.env.local</code>:<br><br>
+      <code style="font-family:monospace">QWEN_BASE_URL=https://openrouter.ai/api/v1</code><br>
+      <code style="font-family:monospace">QWEN_API_KEY=sk-or-your-key-here</code>
+    </div>
+    <div class="cc">
+      <div class="cc-bar"><span class="cc-lbl">Cursor / Composer — new session</span><button class="cpb" onclick="cp('p1',this)">Copy prompt</button></div>
+      <pre class="cb" id="p1"># [TASK]: Support OpenRouter as Qwen endpoint
+# [CONTEXT]: docs/FIRE.md §B2 env vars, docs/FIRESTARTER.md §5
+# [CONSTRAINT]: No changes to AI_TIMEOUT_MS, PANELIST_WEIGHTS, or shared-engine gates
+
+## Problem
+QWEN_BASE_URL is currently hardcoded to DashScope.
+OpenRouter hosts qwen/qwen-plus behind an OpenAI-compatible API.
+We need QWEN_BASE_URL env support so the Qwen route can point at either.
+
+## What to change
+
+### 1. apps/web-app/env.ts
+Add:
+  export const QWEN_BASE_URL =
+    process.env.QWEN_BASE_URL ??
+    'https://dashscope.aliyuncs.com/compatible-mode/v1';
+
+### 2. apps/web-app/app/api/triad/qwen/route.ts
+- Import QWEN_BASE_URL from env.ts
+- Replace hardcoded DashScope URL with QWEN_BASE_URL
+- When QWEN_BASE_URL contains 'openrouter', use model 'qwen/qwen-plus'
+  (OpenRouter uses vendor-prefixed model names)
+  Otherwise keep existing model name 'qwen-plus'
+- ALL other logic unchanged:
+  AI_TIMEOUT_MS, AbortController, validatePromptForTriad,
+  logEvent triad_run_start + triad_panelist_end (both paths),
+  isValidCandidate filter, response headers
+
+### 3. apps/web-app/.env.local
+Add placeholder comment block only — do NOT write actual key values:
+  # OpenRouter alternative:
+  # QWEN_BASE_URL=https://openrouter.ai/api/v1
+  # QWEN_API_KEY=sk-or-...
+
+## Doc updates
+- docs/FIRESTARTER.md §5a Qwen row: note QWEN_BASE_URL env support
+- docs/FIRE.md §B2 env vars: add QWEN_BASE_URL
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+# Then: restart pnpm dev, check GET /api/health → livePanelists includes QWEN</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="l">requires:</span> QWEN_API_KEY + QWEN_BASE_URL in .env.local</span>
+        <span class="ft"><span class="ok">no shared-engine changes</span></span>
+        <span class="ft"><span class="f">FIRE §B2</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="dr" data-l="independent sessions">
+
+  <!-- M2 -->
+  <div class="sec" id="s2">
+    <div class="sec-top">
+      <div class="sec-row">
+        <span class="stag st2">Move 2</span>
+        <span class="fire-t">FIRE §E1.19 — UI only · no engine change</span>
+        <span class="eff-t">~1h · after M1</span>
+      </div>
+      <div class="sec-title">All-or-nothing UI triad mode</div>
+      <div class="sec-desc">
+        Mixed triad liveness creates unpredictable candidate counts.
+        The frontend should treat partial live as demo mode — show a clear banner,
+        disable generation, list missing keys. Truth stays in <code style="font-family:monospace;color:var(--teal)">GET /api/health</code>.
+      </div>
+    </div>
+    <div class="why">
+      <strong>Why:</strong> "Why did I get 8 candidates yesterday and 0 today?" is a product-trust killer.
+      The fix is one hook + one conditional render — no engine changes, no health route changes.
+      <code style="font-family:monospace">triadFullyLive</code> already exists in the health response.
+    </div>
+    <div class="cc">
+      <div class="cc-bar"><span class="cc-lbl">Cursor / Composer — new session</span><button class="cpb" onclick="cp('p2',this)">Copy prompt</button></div>
+      <pre class="cb" id="p2"># [TASK]: All-or-nothing UI triad mode gate
+# [CONTEXT]: docs/FIRE.md §E1.19, docs/FIRESTARTER.md §8
+# [CONSTRAINT]: No changes to /api/health route, shared-engine, or PANELIST_WEIGHTS
+# [PRECONDITION]: useTriadHealth hook already exists (apps/web-app/hooks/useTriadHealth.ts)
+
+## Behavior
+When triadFullyLive === false:
+  - Show a dismissable banner ABOVE the prompt input (not inside result branches)
+  - Banner text: "Limited mode — N of 3 AI providers configured.
+    Generation quality may vary. Set all API keys in .env.local for full output."
+  - List which providers are missing (from livePanelists field)
+  - Generation is still ALLOWED — do not disable the prompt input
+    (disabling would be too aggressive; banner is sufficient)
+
+When triadFullyLive === true:
+  - No banner. Normal UI.
+
+## What to build
+
+### Update apps/web-app/components/ui/PartialModeWarning.tsx (may already exist)
+OR create it if not present.
+
+Props:
+  triadFullyLive: boolean
+  livePanelists: string[]  (e.g. ["LLAMA"])
+
+Missing providers = ["DEEPSEEK","LLAMA","QWEN"].filter(p => !livePanelists.includes(p))
+
+Display: amber/warning tone, dark-first #111827 bg, role="alert", aria-live="polite"
+Dismiss: useState session-only (no localStorage)
+
+### Mount in PromptAudioDock
+- Use the triadFullyLive + livePanelists values already fetched by useTriadHealth
+  (no second fetch — pass props down)
+- Mount OUTSIDE any hasPresets conditional branch
+  (must be visible in both ear mode and preset mode — FIRE §A invariant)
+
+## Constraints
+- No changes to /api/health response shape
+- No changes to useTriadHealth hook
+- No changes to shared-engine
+- Do NOT disable the prompt input (banner only)
+- pnpm verify:harsh green
+- Note in docs/FIRESTARTER.md §8: all-or-nothing UI mode described
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh
+pnpm fire:sync</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="l">requires:</span> useTriadHealth hook (already exists)</span>
+        <span class="ft"><span class="ok">no engine changes</span></span>
+        <span class="ft"><span class="w">banner only — generation not disabled</span></span>
+        <span class="ft"><span class="f">FIRE §A · §E1.19</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="dr" data-l="independent sessions">
+
+  <!-- M3 -->
+  <div class="sec" id="s3">
+    <div class="sec-top">
+      <div class="sec-row">
+        <span class="stag st3">Move 3</span>
+        <span class="fire-t">FIRE §B · §E1.6 — contract change · both docs</span>
+        <span class="eff-t">~1h · after real latency data</span>
+      </div>
+      <div class="sec-title">Per-provider timeout constants</div>
+      <div class="sec-desc">
+        Single <code style="font-family:monospace;color:var(--blue)">AI_TIMEOUT_MS = 8000</code> makes a slow DeepSeek call
+        look like a model failure. Governance changes weights for the wrong reason.
+        This replaces it with per-provider values — but only after measuring real latency.
+      </div>
+    </div>
+    <div class="why">
+      <strong>Do not paste this prompt until you have real numbers.</strong>
+      Run <code style="font-family:monospace">BASE_URL=http://127.0.0.1:3002 pnpm test:real-gates</code>
+      after all three keys are set. Read <code style="font-family:monospace">tools/gate-calibration-output.json</code>
+      → <code style="font-family:monospace">runDurationMs</code> per provider. Fill in the blanks below before pasting.
+    </div>
+    <div class="cc">
+      <div class="cc-bar"><span class="cc-lbl">Cursor / Composer — new session · fill blanks first</span><button class="cpb" onclick="cp('p3',this)">Copy prompt</button></div>
+      <pre class="cb" id="p3"># [TASK]: Replace AI_TIMEOUT_MS with per-provider timeout map
+# [CONTEXT]: docs/FIRE.md §B + §E1.6, docs/FIRESTARTER.md §5b
+# [PRECONDITION]: Real latency data from pnpm test:real-gates — fill values below
+
+## Measured values (from tools/gate-calibration-output.json runDurationMs)
+# DEEPSEEK mean: ___ms  p95/max: ___ms
+# LLAMA    mean: ___ms  p95/max: ___ms
+# QWEN     mean: ___ms  p95/max: ___ms
+# Recommended per-provider: p95 + 2000ms buffer, cap 15000, floor 6000
+
+## What to change
+
+### 1. packages/shared-engine/constants.ts
+Remove:
+  export const AI_TIMEOUT_MS = 8000;
+
+Add:
+  // Calibrated YYYY-MM-DD from real provider latency data
+  export const PANELIST_TIMEOUT_MS: Readonly<Record<string, number>> = {
+    DEEPSEEK: ___,
+    LLAMA:    ___,
+    QWEN:     ___,
+  } as const;
+  export const AI_TIMEOUT_MS_DEFAULT = 10000; // fallback for unknown panelists
+
+### 2. packages/shared-engine/triad.ts
+- Replace AI_TIMEOUT_MS with PANELIST_TIMEOUT_MS[panelist] ?? AI_TIMEOUT_MS_DEFAULT
+- Pass per-panelist timeout to each AbortController
+- Log applied timeout in triad_panelist_end payload: timeoutMs: number
+
+### 3. packages/shared-engine/tests/
+- Update any test asserting AI_TIMEOUT_MS to use PANELIST_TIMEOUT_MS or DEFAULT
+- Add test: each panelist receives its own timeout value
+
+## Mandatory doc updates (contract change — BOTH required)
+
+### 4. docs/FIRE.md
+- §B: replace "8s / panelist" with "per-provider (PANELIST_TIMEOUT_MS in constants.ts)"
+- §E1 item 6: update AI_TIMEOUT_MS note
+
+### 5. docs/FIRESTARTER.md
+- §5b constants.ts row: update to PANELIST_TIMEOUT_MS
+- §5 Timeouts line: update
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="l">precondition:</span> real latency data — do not invent numbers</span>
+        <span class="ft"><span class="w">contract change — both docs + tests required</span></span>
+        <span class="ft"><span class="f">FIRE §B · §E1.6</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="dr" data-l="independent sessions">
+
+  <!-- M4 -->
+  <div class="sec" id="s4">
+    <div class="sec-top">
+      <div class="sec-row">
+        <span class="stag st4">Move 4</span>
+        <span class="fire-t">FIRE §E3 — observation only · no auto-apply</span>
+        <span class="eff-t">~2h · after real data</span>
+      </div>
+      <div class="sec-title">Human-supervised calibration loop</div>
+      <div class="sec-desc">
+        Calibration currently produces data but no path to action.
+        This adds a <code style="font-family:monospace;color:var(--green)">gate:suggest</code> script that reads calibration JSON,
+        computes per-gate sensitivity, and prints a suggestion report.
+        Operator reads it, decides, commits manually. No auto-apply. No runtime mutation.
+      </div>
+    </div>
+    <div class="why">
+      <strong>The rule:</strong> <code style="font-family:monospace">pnpm gate:apply</code> that auto-writes constants
+      is forbidden by FIRE §I (no unauditable runtime mutation).
+      The suggestion script is the correct version — it produces a human-readable diff proposal,
+      logs one <code style="font-family:monospace">gate_suggestion_report</code> event to stderr, and stops there.
+      The operator commits the change.
+    </div>
+    <div class="cc">
+      <div class="cc-bar"><span class="cc-lbl">Cursor / Composer — new session</span><button class="cpb" onclick="cp('p4',this)">Copy prompt</button></div>
+      <pre class="cb" id="p4"># [TASK]: Build gate:suggest diagnostic + human-supervised apply workflow
+# [CONTEXT]: docs/FIRE.md §E3, docs/FIRESTARTER.md §5b
+# [CONSTRAINT]: Script reads data + prints suggestions — changes NO code automatically
+
+## What to build
+
+### scripts/suggest-gate-thresholds.ts
+Reads tools/gate-calibration-output.json (exit clearly if missing).
+Reads tools/real-gate-snapshots/*.jsonl if present for richer data.
+
+Prints to stdout (human readable):
+
+═══════════════════════════════════════════════════════
+GATE THRESHOLD SUGGESTION REPORT
+Dataset: tools/gate-calibration-output.json (date)
+═══════════════════════════════════════════════════════
+
+Slavic cosine  (SLAVIC_FILTER_COSINE_THRESHOLD)
+  current:    0.92
+  suggested:  <computed>
+  at current: drop rate X%, unique candidates Y/run
+  if loosened to 0.88: est. drop rate -Z%, duplication +W%
+  if tightened to 0.95: est. drop rate +Z%, duplication -W%
+
+Reasoning length  (REASONING_LEGIBILITY_MIN_CHARS)
+  current:    20 chars
+  suggested:  <from reasoningLengths distribution>
+  median observed: X chars. p10: Y. % under 20: Z.
+
+Adversarial entropy  (ADVERSARIAL_ENTROPY_MIN)
+  current:    1.5
+  suggested:  <from paramStats.entropyMin/entropyMax>
+  observed range: [min, max]
+
+═══════════════════════════════════════════════════════
+TO APPLY A SUGGESTION:
+  1. Edit packages/shared-engine/constants.ts manually
+  2. pnpm verify:harsh
+  3. Update docs/FIRE.md §B gate values
+  4. Update docs/FIRESTARTER.md §5b constants row
+  5. pnpm fire:sync
+═══════════════════════════════════════════════════════
+
+Estimates are clearly labeled as estimates.
+No file writes. No code edits. Stdout only.
+logEvent("gate_suggestion_report", { generatedAt, dataSource }) on stderr.
+
+### Add to package.json
+"gate:suggest": "tsx scripts/suggest-gate-thresholds.ts"
+
+## Constraints
+- Script does NOT write to constants.ts or any source file
+- Script does NOT call any API or start the dev server
+- pnpm verify:harsh stays green (no shared-engine changes)
+- pnpm check:transparent passes
+- Update docs/FIRESTARTER.md §9 scripts table: add gate:suggest
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+pnpm gate:suggest  # confirm report prints correctly</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="ok">stdout only — no file writes</span></span>
+        <span class="ft"><span class="ok">no threshold auto-apply</span></span>
+        <span class="ft"><span class="l">requires:</span> tools/gate-calibration-output.json</span>
+        <span class="ft"><span class="f">FIRE §E3 — observation only</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="dr" data-l="independent sessions">
+
+  <!-- M5 -->
+  <div class="sec" id="s5">
+    <div class="sec-top">
+      <div class="sec-row">
+        <span class="stag st5">Move 5</span>
+        <span class="fire-t">FIRE §C · §D · §E1.17 — independent</span>
+        <span class="eff-t">~1h</span>
+      </div>
+      <div class="sec-title">WASM production readiness gate</div>
+      <div class="sec-desc">
+        <code style="font-family:monospace;color:var(--purple)">pnpm harshcheck</code> passes even when WASM is stubbed.
+        Production builds should fail loudly if export capability is unavailable.
+        <code style="font-family:monospace;color:var(--purple)">REQUIRE_WASM=1</code> env flag enables strict mode — dev stays permissive.
+      </div>
+    </div>
+    <div class="why">
+      <strong>Why independent:</strong> No keys needed. No latency data needed. Can run right now.
+      Adds a build-time check only — does not change the runtime health route or export logic.
+    </div>
+    <div class="cc">
+      <div class="cc-bar"><span class="cc-lbl">Cursor / Composer — new session</span><button class="cpb" onclick="cp('p5',this)">Copy prompt</button></div>
+      <pre class="cb" id="p5"># [TASK]: Add WASM production readiness check
+# [CONTEXT]: docs/FIRE.md §C + §D + §E1.17, docs/FIRESTARTER.md §10
+# [CONSTRAINT]: Dev stays permissive. Strict mode only when REQUIRE_WASM=1.
+
+## What to build
+
+### scripts/assert-wasm-available.mjs
+- Fetches GET /api/health/wasm from BASE_URL env (default http://127.0.0.1:3000)
+- If REQUIRE_WASM=1 in env AND status !== 'available':
+    console.error('[assert-wasm] WASM export not available.')
+    console.error('[assert-wasm] Run: pnpm run build:wasm in packages/fxp-encoder')
+    console.error('[assert-wasm] Requires: Rust + wasm32-unknown-unknown target')
+    process.exit(1)
+- If REQUIRE_WASM=1 AND status === 'available':
+    console.log('[assert-wasm] WASM export available. OK.')
+    process.exit(0)
+- If REQUIRE_WASM is not set:
+    console.log('[assert-wasm] REQUIRE_WASM not set — skipping (dev mode).')
+    process.exit(0)
+
+### Add to root package.json scripts
+"assert:wasm": "node scripts/assert-wasm-available.mjs"
+
+### Document usage
+In docs/FIRESTARTER.md §10 add:
+  WASM production check: REQUIRE_WASM=1 pnpm assert:wasm
+  (runs against BASE_URL, fails if /api/health/wasm returns unavailable)
+
+In .env.local add comment:
+  # Set REQUIRE_WASM=1 before a production release to enforce WASM availability
+
+## Constraints
+- Does NOT change /api/health/wasm route
+- Does NOT change packages/fxp-encoder
+- Does NOT change the export button logic
+- pnpm verify:harsh stays green
+- pnpm check:transparent passes
+- pnpm fire:sync after doc update
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+# Test strict mode (with dev server running):
+BASE_URL=http://127.0.0.1:3002 REQUIRE_WASM=1 pnpm assert:wasm</pre>
+      <div class="cc-ft">
+        <span class="ft"><span class="ok">dev stays permissive</span></span>
+        <span class="ft"><span class="ok">no route or engine changes</span></span>
+        <span class="ft"><span class="l">strict:</span> REQUIRE_WASM=1 only</span>
+        <span class="ft"><span class="f">FIRE §C · §D · §E1.17</span></span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Project Alchemist · Full Unblock Plan</span>
+    <span>FIRE.md §B §C §D §E §F aligned · 2026-03-22</span>
+  </footer>
+
+</div>
+
+<script>
+function cp(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    btn.textContent = '✓ Copied'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy prompt'; btn.classList.remove('ok'); }, 2200);
+  });
+}
+function go(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

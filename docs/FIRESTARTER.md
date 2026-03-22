@@ -379,6 +379,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`docs/alchemist-cursor-prompts.html`** | Open in browser: ordered **Composer** prompts (P0–P3). **P0** (OpenRouter **`QWEN_BASE_URL`**) is **shipped**; **P1** partial-mode banner optional; **P2** calibration / **P3** timeout per data |
 | **`docs/alchemist-high-efficiency-prompts.html`** | **v2** moves: per-gate calibration diagnostics (`calibrate-gates.ts`); optional **`tablebaseMode: 'compete'`** (tablebase vs triad, default unchanged). FIRE §E3 / §I aligned |
 | **`docs/alchemist-cpc-execution-plan.html`** | **CPC+** plan: M1 per-provider timeouts (data-driven); M2 snapshot gate CI; M3 **`gate:suggest`** read-only report; M4 **`triad_candidate_selected`** telemetry. Rejected anti-patterns listed on page |
+| **`docs/alchemist-full-unblock-plan.html`** | **Full unblock** (5 moves): OpenRouter Qwen (**M1** largely shipped), partial-mode UI banner (**M2**), per-provider timeouts (**M3**), **`gate:suggest`** loop (**M4**), **`REQUIRE_WASM` / assert:wasm** (**M5**). Master pipeline + rejected list on page |
 
 **List markdown:** **`pnpm docs:list`**.
 
