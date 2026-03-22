@@ -378,6 +378,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`.cursor/rules/*.mdc`** (incl. **`alchemist-quality.mdc`** — edit checklist), **`.cursor/skills/harshcheck/SKILL.md`** | Rules + harshcheck |
 | **`docs/alchemist-cursor-prompts.html`** | Open in browser: ordered **Composer** prompts (P0–P3). **P0** (OpenRouter **`QWEN_BASE_URL`**) is **shipped**; **P1** partial-mode banner optional; **P2** calibration / **P3** timeout per data |
 | **`docs/alchemist-high-efficiency-prompts.html`** | **v2** moves: per-gate calibration diagnostics (`calibrate-gates.ts`); optional **`tablebaseMode: 'compete'`** (tablebase vs triad, default unchanged). FIRE §E3 / §I aligned |
+| **`docs/alchemist-cpc-execution-plan.html`** | **CPC+** plan: M1 per-provider timeouts (data-driven); M2 snapshot gate CI; M3 **`gate:suggest`** read-only report; M4 **`triad_candidate_selected`** telemetry. Rejected anti-patterns listed on page |
 
 **List markdown:** **`pnpm docs:list`**.
 

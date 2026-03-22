@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alchemist — CPC+ Execution Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:     #080a0d;
+    --s1:     #0d1017;
+    --s2:     #121720;
+    --s3:     #171e28;
+    --b1:     #1a2235;
+    --b2:     #243048;
+    --teal:   #5eead4;
+    --teal2:  #99f6e4;
+    --amber:  #fbbf24;
+    --red:    #f87171;
+    --green:  #4ade80;
+    --blue:   #7dd3fc;
+    --purple: #c4b5fd;
+    --text:   #e1e8f0;
+    --dim:    #6b7a8d;
+    --dim2:   #4a5568;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ─────────────────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(8,10,13,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--b1);
+    padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 48px;
+  }
+  .nav-left { display: flex; align-items: center; gap: 24px; }
+  .nav-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.18em; color: var(--teal);
+    text-transform: uppercase;
+  }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-link {
+    font-size: 12px; color: var(--dim);
+    padding: 4px 10px; border-radius: 4px;
+    text-decoration: none; transition: color 0.15s;
+    cursor: pointer;
+  }
+  .nav-link:hover { color: var(--text); }
+  .nav-right {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--dim2);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── LAYOUT ──────────────────────────────────────────────── */
+  .page { max-width: 960px; margin: 0 auto; padding: 56px 24px 120px; }
+
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero { margin-bottom: 60px; }
+  .hero-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.22em; color: var(--teal);
+    text-transform: uppercase; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-kicker::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--b1), transparent);
+  }
+  .hero-h1 {
+    font-size: 40px; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero-h1 em { font-style: normal; color: var(--teal); }
+  .hero-sub {
+    color: var(--dim); font-size: 15px;
+    max-width: 600px; line-height: 1.75;
+    margin-bottom: 28px;
+  }
+
+  /* rejected strip */
+  .rejected-strip {
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 8px; padding: 14px 18px;
+    margin-bottom: 32px;
+  }
+  .rejected-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 0.18em; color: var(--red);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .rejected-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .rej-item {
+    font-size: 11px; color: #fca5a5;
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 4px; padding: 3px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    text-decoration: line-through; text-decoration-color: rgba(248,113,113,0.5);
+  }
+
+  /* ── PIPELINE MAP ────────────────────────────────────────── */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px; margin-bottom: 56px;
+  }
+  .pipe-step {
+    background: var(--s1);
+    border: 1px solid var(--b1);
+    padding: 14px 16px;
+    position: relative;
+  }
+  .pipe-step:first-child { border-radius: 8px 0 0 8px; }
+  .pipe-step:last-child  { border-radius: 0 8px 8px 0; }
+  .pipe-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 0.14em; margin-bottom: 6px;
+  }
+  .pipe-title { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .pipe-sub   { font-size: 11px; color: var(--dim); line-height: 1.4; }
+  .pipe-effort{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--dim2);
+    margin-top: 8px;
+  }
+  .c-teal   { color: var(--teal); }
+  .c-blue   { color: var(--blue); }
+  .c-amber  { color: var(--amber); }
+  .c-purple { color: var(--purple); }
+
+  /* ── PROMPT CARDS ────────────────────────────────────────── */
+  .prompt-section { margin-bottom: 48px; scroll-margin-top: 64px; }
+
+  .ps-header { margin-bottom: 16px; }
+  .ps-num-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .ps-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; padding: 3px 10px;
+    border-radius: 3px; text-transform: uppercase;
+  }
+  .n-teal   { background: rgba(94,234,212,0.12); color: var(--teal);   border: 1px solid rgba(94,234,212,0.3); }
+  .n-blue   { background: rgba(125,211,252,0.12); color: var(--blue);  border: 1px solid rgba(125,211,252,0.3); }
+  .n-amber  { background: rgba(251,191,36,0.10);  color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+  .n-purple { background: rgba(196,181,253,0.10); color: var(--purple);border: 1px solid rgba(196,181,253,0.25); }
+  .fire-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--dim);
+    background: var(--s2); border: 1px solid var(--b1);
+    border-radius: 3px; padding: 3px 8px;
+  }
+  .effort-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--dim2);
+    margin-left: auto;
+  }
+
+  .ps-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .ps-desc  { font-size: 13px; color: var(--dim); max-width: 640px; line-height: 1.7; margin-bottom: 14px; }
+
+  .why-row {
+    border-left: 2px solid var(--b2);
+    padding: 10px 16px; margin-bottom: 16px;
+    font-size: 12px; color: var(--dim); line-height: 1.7;
+  }
+  .why-row strong { color: var(--text); }
+
+  /* code card */
+  .code-card {
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--b1);
+  }
+  .cc-bar {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    background: var(--s2); border-bottom: 1px solid var(--b1);
+    padding: 9px 16px;
+  }
+  .cc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--dim);
+    letter-spacing: 0.06em;
+  }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--b2);
+    border-radius: 4px; color: var(--dim);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; padding: 5px 14px;
+    transition: all 0.15s; letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .copy-btn:hover  { border-color: var(--teal); color: var(--teal); background: rgba(94,234,212,0.05); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  pre.cc-body {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px; line-height: 1.72;
+    color: #b0bccf; background: #080b10;
+    padding: 20px; white-space: pre;
+    overflow-x: auto; max-height: 440px; overflow-y: auto;
+  }
+  pre.cc-body::-webkit-scrollbar { width: 3px; height: 3px; }
+  pre.cc-body::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 2px; }
+
+  .cc-footer {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    padding: 9px 16px; background: var(--s1);
+    border-top: 1px solid var(--b1);
+  }
+  .cf { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--dim2); }
+  .cf .lbl  { color: var(--amber); }
+  .cf .ok   { color: var(--green); }
+  .cf .warn { color: var(--amber); }
+  .cf .fire { color: var(--teal); }
+
+  /* divider */
+  .div-rule {
+    border: none; border-top: 1px solid var(--b1);
+    margin: 44px 0; position: relative;
+  }
+  .div-rule::after {
+    content: attr(data-label);
+    position: absolute; top: -8px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg); padding: 0 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.16em;
+    color: var(--dim2); text-transform: uppercase;
+  }
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    margin-top: 80px; padding-top: 20px;
+    border-top: 1px solid var(--b1);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--dim2); letter-spacing: 0.06em;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <span class="nav-brand">Alchemist</span>
+    <div class="nav-links">
+      <span class="nav-link" onclick="jump('m1')">M1 · Timeouts</span>
+      <span class="nav-link" onclick="jump('m2')">M2 · Snapshots</span>
+      <span class="nav-link" onclick="jump('m3')">M3 · Gate suggest</span>
+      <span class="nav-link" onclick="jump('m4')">M4 · Selection log</span>
+    </div>
+  </div>
+  <span class="nav-right">CPC+ · FIRE.md aligned · 2026-03-22</span>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-kicker">CPC+ Execution Plan</div>
+    <h1 class="hero-h1">From <em>valid</em> to <em>measurably good</em></h1>
+    <p class="hero-sub">
+      Four independent Cursor prompts. Each is FIRE-compliant, has a Copy button,
+      and can run in any order — though M1 unblocks the accuracy of M2's snapshots.
+      Read the rejected list before pasting anything.
+    </p>
+
+    <!-- REJECTED -->
+    <div class="rejected-strip">
+      <div class="rejected-label">Rejected from AI proposals — do not implement</div>
+      <div class="rejected-items">
+        <span class="rej-item">GATE_PROFILES per-class cosine/entropy</span>
+        <span class="rej-item">SystemHealthState enum replacing triadFullyLive</span>
+        <span class="rej-item">Quorum arbitration inside runTriad</span>
+        <span class="rej-item">PANELIST_TIMEOUT_MS Record without contract update</span>
+        <span class="rej-item">Auto threshold mutation at runtime</span>
+        <span class="rej-item">Shadow learning / hidden SOE loops</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num c-teal">Move 1</div>
+      <div class="pipe-title">Per-provider timeouts</div>
+      <div class="pipe-sub">Stop false SOE signals from slow providers</div>
+      <div class="pipe-effort">~1h · contract change · both docs</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num c-blue">Move 2</div>
+      <div class="pipe-title">Snapshot CI</div>
+      <div class="pipe-sub">Freeze behavioral quality; detect drift in CI</div>
+      <div class="pipe-effort">~3h · no contract change</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num c-amber">Move 3</div>
+      <div class="pipe-title">gate:suggest-thresholds</div>
+      <div class="pipe-sub">Turn calibration data into operator decisions</div>
+      <div class="pipe-effort">~2h · observation only</div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num c-purple">Move 4</div>
+      <div class="pipe-title">Selection logging</div>
+      <div class="pipe-sub">First real quality signal without violating FIRE</div>
+      <div class="pipe-effort">~2h · new logEvent only</div>
+    </div>
+  </div>
+
+  <!-- ═══ MOVE 1 ═══════════════════════════════════════════════ -->
+  <div class="prompt-section" id="m1">
+    <div class="ps-header">
+      <div class="ps-num-row">
+        <span class="ps-num n-teal">Move 1</span>
+        <span class="fire-tag">FIRE §B · §E1.6 — contract change</span>
+        <span class="effort-tag">~1h + full doc update</span>
+      </div>
+      <div class="ps-title">Per-provider timeout constants</div>
+      <div class="ps-desc">
+        Single <code style="font-family:monospace;color:var(--teal)">AI_TIMEOUT_MS = 8000</code> means a slow DeepSeek call
+        poisons SOE velocity scores with false failures.
+        This replaces it with per-provider constants after real latency data confirms the need.
+      </div>
+    </div>
+    <div class="why-row">
+      <strong>Why now:</strong> Every DeepSeek timeout that returns <code style="font-family:monospace">[]</code>
+      increments <code style="font-family:monospace">triadFailureRate</code>, which governance reads as model quality failure
+      and may trigger <code style="font-family:monospace">athena_soe_recalibration</code> at velocity &lt; 0.7.
+      The system is changing weights because of network latency, not model quality.
+      This is the most damaging active issue.
+    </div>
+    <div class="code-card">
+      <div class="cc-bar">
+        <span class="cc-label">Cursor / Composer — new session</span>
+        <button class="copy-btn" onclick="cp('m1t', this)">Copy prompt</button>
+      </div>
+      <pre class="cc-body" id="m1t"># [TASK]: Replace AI_TIMEOUT_MS with per-provider timeout constants
+# [CONTEXT]: docs/FIRE.md §B + §E1.6, docs/FIRESTARTER.md §5b
+# [PRECONDITION]: Run BASE_URL=http://127.0.0.1:3002 pnpm test:real-gates
+#   and paste measured runDurationMs.mean + max per provider BEFORE starting.
+#   Fill in the values below — do not invent numbers.
+
+## Measured values (fill in from tools/gate-calibration-output.json)
+# DEEPSEEK runDurationMs.mean: ___ms  max: ___ms
+# LLAMA    runDurationMs.mean: ___ms  max: ___ms
+# QWEN     runDurationMs.mean: ___ms  max: ___ms
+
+## Rule for new values
+# Per-provider timeout = measured p95 + 2000ms buffer
+# Cap at 15000ms. Do not go below 6000ms for any provider.
+
+## What to change
+
+### 1. packages/shared-engine/constants.ts
+Remove:
+  export const AI_TIMEOUT_MS = 8000;
+
+Add:
+  // Per-provider timeouts — calibrated YYYY-MM-DD
+  // p95 latency + 2000ms buffer. Cap: 15000ms.
+  export const PANELIST_TIMEOUT_MS: Readonly<Record<string, number>> = {
+    DEEPSEEK: ___,   // measured: ___ms p95
+    LLAMA:    ___,   // measured: ___ms p95
+    QWEN:     ___,   // measured: ___ms p95
+  } as const;
+  // Fallback for any unlisted panelist
+  export const AI_TIMEOUT_MS_DEFAULT = 10000;
+
+### 2. packages/shared-engine/triad.ts
+- Replace AI_TIMEOUT_MS with PANELIST_TIMEOUT_MS[panelist] ?? AI_TIMEOUT_MS_DEFAULT
+- Pass per-panelist timeout to AbortController
+- All other runTriad logic unchanged
+
+### 3. packages/shared-engine/tests/
+- Find all tests asserting AI_TIMEOUT_MS value
+- Update to use PANELIST_TIMEOUT_MS or AI_TIMEOUT_MS_DEFAULT as appropriate
+- Add test: each panelist gets its own timeout from PANELIST_TIMEOUT_MS
+
+## Mandatory doc updates (contract change — BOTH files required)
+
+### 4. docs/FIRE.md
+- §B: replace "8s / panelist" with "per-provider (see constants.ts PANELIST_TIMEOUT_MS)"
+- §E1 item 6: update "AI_TIMEOUT_MS ≤ 8000" to reflect new per-provider model
+- Assessment snapshot: note timeout calibration date
+
+### 5. docs/FIRESTARTER.md
+- §5b constants.ts row: replace AI_TIMEOUT_MS with PANELIST_TIMEOUT_MS
+- §5 "Timeouts:" line: update
+
+## Verify
+pnpm verify:harsh        # all tests green
+pnpm check:transparent   # no shadow patterns
+pnpm fire:sync           # refresh metrics block</pre>
+      <div class="cc-footer">
+        <span class="cf"><span class="lbl">precondition:</span> real latency data from pnpm test:real-gates</span>
+        <span class="cf"><span class="warn">contract change — both docs + tests required</span></span>
+        <span class="cf"><span class="fire">FIRE §B · §E1.6</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div-rule" data-label="independent sessions">
+
+  <!-- ═══ MOVE 2 ═══════════════════════════════════════════════ -->
+  <div class="prompt-section" id="m2">
+    <div class="ps-header">
+      <div class="ps-num-row">
+        <span class="ps-num n-blue">Move 2</span>
+        <span class="fire-tag">FIRE §E3 — no contract change</span>
+        <span class="effort-tag">~3h</span>
+      </div>
+      <div class="ps-title">Snapshot-based gate CI</div>
+      <div class="ps-desc">
+        Commits a frozen set of real LLM outputs as test fixtures.
+        CI runs gates against this snapshot and fails if drop rate drifts outside a tunable band.
+        Turns behavioral quality from "we assume it's fine" into a measurable guardrail.
+      </div>
+    </div>
+    <div class="why-row">
+      <strong>Why this matters:</strong> Current CI (60 Vitest tests) verifies types and contracts
+      but says nothing about whether gates drop 5% or 95% of real candidates.
+      A snapshot CI adds behavioral correctness without API costs in CI.
+      Run after M1 so the snapshot is captured with correct timeouts.
+    </div>
+    <div class="code-card">
+      <div class="cc-bar">
+        <span class="cc-label">Cursor / Composer — new session</span>
+        <button class="copy-btn" onclick="cp('m2t', this)">Copy prompt</button>
+      </div>
+      <pre class="cc-body" id="m2t"># [TASK]: Add snapshot-based gate CI check
+# [CONTEXT]: docs/FIRE.md §E3 + §E1.4, docs/FIRESTARTER.md §5b
+# [CONSTRAINT]: observation only — do NOT change gate thresholds
+
+## What to build
+
+### 1. Capture tool: scripts/capture-gate-snapshot.ts
+- Reads BASE_URL from env (must be set — no default)
+- Runs runTriad on 30 diverse prompts (hardcode or read from file)
+- Before scoreCandidates, captures raw merged candidates per prompt
+- Writes tools/real-gate-snapshots/snapshot-YYYY-MM-DD.jsonl
+  One line per prompt:
+  { "prompt": "...", "promptClass": "bass|lead|pad|pluck|fx", "rawCandidates": [...] }
+- logEvent("snapshot_capture_complete", { promptCount, totalCandidates, date })
+- Add to package.json: "gate:snapshot": "tsx scripts/capture-gate-snapshot.ts"
+
+### 2. CI test: packages/shared-engine/tests/gate-snapshot.test.ts
+- Reads the most recent snapshot file from tools/real-gate-snapshots/
+  (sort by filename, take last)
+- For each prompt's rawCandidates, runs the full gate pipeline:
+  isValidCandidate → candidatePassesDistributionGate → candidatePassesAdversarial
+- Asserts (configurable via env):
+  - overall survivalRate in [GATE_SNAPSHOT_MIN=0.15, GATE_SNAPSHOT_MAX=0.60]
+  - reasoningLengths.pctUnder20 === 0 (hard — no reasoning under floor)
+  - providerFailureRate per panelist < 0.25
+- If no snapshot file exists: skip test with a warning (not fail — dev env)
+- Add env vars GATE_SNAPSHOT_MIN / GATE_SNAPSHOT_MAX to docs
+
+### 3. Add to pnpm test:engine suite
+The new test file is already covered by pnpm test:engine (Vitest picks up
+all *.test.ts in packages/shared-engine/tests/).
+Confirm it runs with: pnpm test:engine
+
+### 4. Add to .gitignore
+tools/real-gate-snapshots/*.jsonl should NOT be committed
+(contains live LLM output — may have prompt data).
+Add: tools/real-gate-snapshots/*.jsonl
+
+### 5. Add tools/real-gate-snapshots/.gitkeep
+So the directory exists in the repo but files are ignored.
+
+## Constraints
+- Do NOT change AI_TIMEOUT_MS or any gate threshold
+- Do NOT commit actual snapshot .jsonl files
+- pnpm verify:harsh must stay green (snapshot test skips gracefully if no file)
+- pnpm check:transparent must pass
+- Update docs/FIRESTARTER.md §9: add gate:snapshot script row
+- Update docs/FIRE.md §E1 item 4: note snapshot test in test suite
+- pnpm fire:sync after green verify
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+# Then capture a real snapshot:
+BASE_URL=http://127.0.0.1:3002 pnpm gate:snapshot
+# Then confirm CI test runs against it:
+pnpm test:engine</pre>
+      <div class="cc-footer">
+        <span class="cf"><span class="ok">no threshold changes</span></span>
+        <span class="cf"><span class="ok">snapshot files gitignored</span></span>
+        <span class="cf"><span class="warn">run after M1 for accurate latency data</span></span>
+        <span class="cf"><span class="fire">FIRE §E3</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div-rule" data-label="independent sessions">
+
+  <!-- ═══ MOVE 3 ═══════════════════════════════════════════════ -->
+  <div class="prompt-section" id="m3">
+    <div class="ps-header">
+      <div class="ps-num-row">
+        <span class="ps-num n-amber">Move 3</span>
+        <span class="fire-tag">FIRE §E3 — observation only</span>
+        <span class="effort-tag">~2h</span>
+      </div>
+      <div class="ps-title">gate:suggest-thresholds diagnostic script</div>
+      <div class="ps-desc">
+        Reads <code style="font-family:monospace;color:var(--teal)">tools/gate-calibration-output.json</code>,
+        computes sensitivity analysis per gate, and prints a human-readable
+        suggestion table. Operator reads it, decides, commits the change manually.
+        No runtime mutation. No auto-tuning.
+      </div>
+    </div>
+    <div class="why-row">
+      <strong>Why this matters:</strong> Right now calibration produces data but no path to action.
+      This script bridges data → informed operator decision without violating the no-runtime-mutation contract.
+      The operator still commits the change — the script just removes the guesswork.
+    </div>
+    <div class="code-card">
+      <div class="cc-bar">
+        <span class="cc-label">Cursor / Composer — new session</span>
+        <button class="copy-btn" onclick="cp('m3t', this)">Copy prompt</button>
+      </div>
+      <pre class="cc-body" id="m3t"># [TASK]: Build gate:suggest-thresholds diagnostic script
+# [CONTEXT]: docs/FIRE.md §E3, docs/FIRESTARTER.md §5b
+# [CONSTRAINT]: Read-only — prints suggestions, changes NOTHING in code
+
+## What to build
+
+### scripts/suggest-gate-thresholds.ts
+Reads tools/gate-calibration-output.json (must exist — exit with clear error if not).
+Reads tools/real-gate-snapshots/ for additional distribution data if present.
+
+Computes and prints to stdout a human-readable report:
+
+─────────────────────────────────────────────────────
+GATE THRESHOLD SUGGESTION REPORT
+Dataset: tools/gate-calibration-output.json (YYYY-MM-DD)
+─────────────────────────────────────────────────────
+
+CURRENT vs SUGGESTED THRESHOLDS:
+
+Gate: Slavic cosine (SLAVIC_FILTER_COSINE_THRESHOLD)
+  Current:   0.92
+  Suggested: <computed>
+  Reasoning: drop rate at 0.92 = X%. Loosening to 0.88 → est. drop rate Y%.
+             Tightening to 0.95 → est. drop rate Z%, +N duplicates/run.
+  Effect:    [net more candidates | net fewer candidates | minimal change]
+
+Gate: Reasoning length (REASONING_LEGIBILITY_MIN_CHARS)
+  Current:   20 chars
+  Suggested: <computed from reasoningLengths distribution>
+  Reasoning: median reasoning = Xchars. Raising floor to 35 drops Y% more.
+             Lowering to 15 adds Z% borderline candidates.
+
+Gate: Adversarial entropy (ADVERSARIAL_ENTROPY_MIN)
+  Current:   1.5
+  Suggested: <computed from paramStats.entropyMin/entropyMax>
+  Reasoning: observed entropy range [min, max]. Floor of 1.5 drops X%.
+
+─────────────────────────────────────────────────────
+TO APPLY: manually edit packages/shared-engine/constants.ts
+          run pnpm verify:harsh
+          update docs/FIRE.md §B gate values
+          update docs/FIRESTARTER.md §5b constants row
+          run pnpm fire:sync
+─────────────────────────────────────────────────────
+
+The script uses ONLY the calibration JSON data — no live API calls.
+Estimates are clearly labeled as estimates, not guarantees.
+
+### Add to package.json
+"gate:suggest": "tsx scripts/suggest-gate-thresholds.ts"
+
+## Constraints
+- Script is stdout only (human readable) — no file writes, no code changes
+- logEvent("gate_suggestion_report", { generatedAt, dataSource }) on stderr
+  (auditable: operator ran the tool)
+- No changes to any threshold in validate.ts / score.ts / constants.ts
+- pnpm verify:harsh must stay green (no shared-engine changes)
+- pnpm check:transparent must pass
+- Update docs/FIRESTARTER.md §9: add gate:suggest script row
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+# Then use it:
+pnpm gate:suggest</pre>
+      <div class="cc-footer">
+        <span class="cf"><span class="ok">no code changes — stdout report only</span></span>
+        <span class="cf"><span class="ok">no threshold mutations</span></span>
+        <span class="cf"><span class="lbl">requires:</span> tools/gate-calibration-output.json</span>
+        <span class="cf"><span class="fire">FIRE §E3 — observation only</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div-rule" data-label="independent sessions">
+
+  <!-- ═══ MOVE 4 ═══════════════════════════════════════════════ -->
+  <div class="prompt-section" id="m4">
+    <div class="ps-header">
+      <div class="ps-num-row">
+        <span class="ps-num n-purple">Move 4</span>
+        <span class="fire-tag">FIRE §F telemetry — new logEvent only</span>
+        <span class="effort-tag">~2h</span>
+      </div>
+      <div class="ps-title">Selection logging — first quality signal</div>
+      <div class="ps-desc">
+        Adds a <code style="font-family:monospace;color:var(--purple)">triad_candidate_selected</code> telemetry event
+        when the user picks a preset or exports it. This is the first signal that distinguishes
+        "valid output" from "output the user actually wanted." No hidden state. No feedback loop.
+        Just auditable data for later offline analysis.
+      </div>
+    </div>
+    <div class="why-row">
+      <strong>Why this matters:</strong> Every gate ensures candidates are <em>valid</em>.
+      Nothing currently tracks which candidates are <em>chosen</em>. Without that signal,
+      you cannot know if your highest-weighted panelist (DEEPSEEK 0.40) actually produces
+      the most preferred output. This event creates that data without any runtime mutation.
+    </div>
+    <div class="code-card">
+      <div class="cc-bar">
+        <span class="cc-label">Cursor / Composer — new session</span>
+        <button class="copy-btn" onclick="cp('m4t', this)">Copy prompt</button>
+      </div>
+      <pre class="cc-body" id="m4t"># [TASK]: Add triad_candidate_selected telemetry event
+# [CONTEXT]: docs/FIRE.md §F telemetry table, docs/FIRESTARTER.md §5b (telemetry.ts)
+# [CONSTRAINT]: logEvent only — no hidden state, no feedback loop, no weight mutation
+
+## What to build
+
+### 1. packages/shared-engine/telemetry.ts
+Add typed helper function (alongside existing logTriadRunEnd etc.):
+
+  export function logCandidateSelected(payload: {
+    runId: string;
+    selectedIndex: number;        // 0-based index in the scored candidates array
+    selectedPanelist: string;     // e.g. "DEEPSEEK"
+    alchemistCodename: string;    // "ATHENA" | "HERMES" | "HESTIA"
+    selectionTrigger: 'export' | 'preview' | 'explicit';
+    weightedScore: number;        // candidate.score * PANELIST_WEIGHTS[panelist]
+    totalCandidates: number;      // how many were shown
+    promptLength: number;         // prompt.length (not the prompt itself)
+  }): void {
+    logEvent('triad_candidate_selected', payload);
+  }
+
+### 2. apps/web-app — wire the event
+Find the component(s) where:
+  a) User clicks "Export .fxp" → selectionTrigger: 'export'
+  b) User clicks a preset card to preview it → selectionTrigger: 'preview'
+
+Call logCandidateSelected with available candidate data.
+Pass runId from the triad response (if available in state) or generate one
+  as a fallback correlation ID.
+
+Do NOT log the prompt text itself — promptLength only (privacy).
+Do NOT log paramArray — weightedScore is sufficient.
+
+### 3. Update FIRE.md telemetry section
+Add triad_candidate_selected to the telemetry event list in §F / Assessment snapshot.
+
+## Constraints
+- No changes to PANELIST_WEIGHTS or any gate threshold
+- No feedback from this event back into runTriad at runtime
+- No localStorage or client-side aggregation
+- pnpm verify:harsh green
+- pnpm check:transparent clean
+- Update docs/FIRESTARTER.md §5b telemetry.ts row: note new event
+- Update docs/FIRE.md §F telemetry table: add triad_candidate_selected row
+- pnpm fire:sync after
+
+## What this enables (offline — not in this task)
+After accumulating N events, aggregate via:
+  grep '"event":"triad_candidate_selected"' dev-logs.jsonl | jq '.'
+Then feed into mergeGreatLibraryIntoSoeSnapshot (FIRE §K) with provenance.
+This is the controlled feedback loop the CPC+ assessments called for.
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync</pre>
+      <div class="cc-footer">
+        <span class="cf"><span class="ok">no weight changes</span></span>
+        <span class="cf"><span class="ok">no runtime feedback loop</span></span>
+        <span class="cf"><span class="lbl">logs:</span> promptLength not prompt text (privacy)</span>
+        <span class="cf"><span class="fire">FIRE §F — new logEvent only</span></span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Project Alchemist · CPC+ Execution Plan</span>
+    <span>FIRE.md §B §E §F aligned · 2026-03-22</span>
+  </footer>
+
+</div>
+
+<script>
+function cp(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy prompt'; btn.classList.remove('copied'); }, 2200);
+  });
+}
+function jump(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
