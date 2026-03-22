@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Live check: Groq + DeepSeek + Qwen (DashScope) from apps/web-app/.env.local — never prints key values.
+ * Live check: Groq + DeepSeek + Qwen from apps/web-app/.env.local — never prints key values.
+ * Qwen: QWEN_BASE_URL (default DashScope-compatible) + model qwen-plus or qwen/qwen-plus on OpenRouter.
  * Usage: pnpm verify:keys
  */
 import fs from "node:fs";

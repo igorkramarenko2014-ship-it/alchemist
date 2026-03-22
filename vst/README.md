@@ -17,6 +17,8 @@ Minimal Groq line:
 GROQ_API_KEY=your_key_here
 ```
 
+Optional **Qwen via OpenRouter** (same **`.env.local`**): **`QWEN_BASE_URL=https://openrouter.ai/api/v1`** and **`QWEN_API_KEY=sk-or-…`** — see **`docs/FIRESTARTER.md` §5** / **`apps/web-app/.env.example`**.
+
 Then restart **`pnpm dev`**. See comments inside **`.env.local`** for the other providers.
 
 ## Run the web app

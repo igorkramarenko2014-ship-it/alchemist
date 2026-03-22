@@ -29,7 +29,8 @@ Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first 
   pnpm dev                 # direct web dev-server — use 127.0.0.1 URL from cyan banner, not localhost
   pnpm verify:harsh        # optional sanity: types + Vitest
   pnpm check:ready         # env:check + verify:harsh (quick green before dev)
-  pnpm verify:keys         # live API check for Groq + DeepSeek + Qwen (.env.local; no keys in output)
+  pnpm verify:keys         # live API check for Groq + DeepSeek + Qwen (.env.local; Qwen uses QWEN_BASE_URL; no keys in output)
+  pnpm test:real-gates     # optional: calibration vs live routes (BASE_URL=…; writes gitignored tools/gate-calibration-output.json)
   pnpm build:wasm          # Rust → WASM for browser Export .fxp (after rustup + wasm32-unknown-unknown)
   pnpm fire:sync           # optional: refresh docs/FIRE.md metrics (runs test:engine; needs green tests)
   # optional Turbo wrapper: pnpm dev:turbo

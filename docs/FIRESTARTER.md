@@ -2,7 +2,7 @@
 
 **Path:** `docs/FIRESTARTER.md` (repo root: **Vibe Projects**).  
 **Companion:** **`docs/FIRE.md`** — outside assessment, optimisation surface, **§E–§L** contracts (see **Doc logic** below).  
-**`docs/` policy:** Only **`FIRESTARTER.md`** and **`FIRE.md`** live under **`docs/`**. Optional agent multi-step flow → **Appendix C** (not a second law layer vs **Doc logic**).  
+**`docs/` policy:** Canonical **laws** are **`FIRESTARTER.md`** + **`FIRE.md`** (Markdown only). **Composer prompt packs** (**`docs/alchemist-*.html`**) are indexed in **§12** — same folder, not a third “law” layer. Optional agent multi-step flow → **Appendix C**.  
 **Cursor:** **`.cursorrules`** + **`.cursor/rules/alchemist-brief.mdc`** + **`alchemist-dsp-vs-ts-gates.mdc`**.
 
 ---
@@ -43,7 +43,7 @@
 | `tools/` | `validate-offsets.py`, optional `sample_init.fxp` for HARD GATE |
 | `research/` | **Optional Python** experiments — **`research/README.md`** (strategic fusion PyTorch, Lava–Aji OSC). **Not** the TS preset / triad / HARD GATE path. |
 | `vst/` | Cursor slice — **`package.json`** forwards to root via **`node ../scripts/with-pnpm.mjs`** / **`doctor.mjs`** / **`run-verify-with-summary.mjs`** (not bare **`pnpm`** on PATH). **`packageManager`**: **`pnpm@9.14.2`**, **`engines.node`**: **≥20**. Parent folder **must** contain **`apps/`** + **`packages/`**. |
-| `scripts/` | **`with-pnpm.mjs`** (root **`pnpm dev`**, **`harshcheck`**, **`go`**, etc. — falls back to **`npx pnpm@9.14.2`** if **`pnpm`** missing), `go.sh`, **`doctor.mjs`** (`pnpm alc:doctor`), **`run-verify-with-summary.mjs`** ( **`verify_post_summary`**; steps use **`with-pnpm.mjs`**; optional **`ALCHEMIST_FIRE_SYNC=1`** → **`sync-fire-md.mjs`** on green), **`sync-fire-md.mjs`** (**`pnpm fire:sync`** — refresh **`docs/FIRE.md`** metrics block), **`git-save.mjs`** (**`pnpm save`** / **`pnpm git:save`** — stage + commit + push), **`github-first-push.mjs`** (**`pnpm github:first-push`** — add **`origin`** + first **`git push`**), **`recover-web-dev.mjs`**, **`check-no-shadow-patterns.mjs`**, `list-project-docs.sh`, `test-gate-hint.mjs`; **`packages/fxp-encoder/scripts/`** — **`skip-if-no-rust.cjs`**, **`clear-stub-marker.cjs`**, **`sync-maps.cjs`** |
+| `scripts/` | **`with-pnpm.mjs`** (root **`pnpm dev`**, **`harshcheck`**, **`go`** — **`npx pnpm@9.14.2`** if **`pnpm`** missing), `go.sh`, **`doctor.mjs`**, **`run-verify-with-summary.mjs`** (**`verify_post_summary`**; optional **`ALCHEMIST_FIRE_SYNC=1`** → **`fire:sync`**), **`sync-fire-md.mjs`**, **`git-save.mjs`**, **`github-first-push.mjs`**, **`recover-web-dev.mjs`**, **`check-no-shadow-patterns.mjs`**, **`calibrate-gates.ts`**, **`check-env-local.mjs`**, **`verify-provider-keys.mjs`**, `list-project-docs.sh`, `test-gate-hint.mjs`; **`packages/fxp-encoder/scripts/`** — **`skip-if-no-rust.cjs`**, **`clear-stub-marker.cjs`**, **`sync-maps.cjs`** |
 
 **Package manager:** **pnpm** workspaces. **Node ≥ 20**.
 
@@ -97,7 +97,7 @@
 
 **Timeouts:** **`AI_TIMEOUT_MS` = 8000** per panelist.
 
-**Fetcher:** **`makeTriadFetcher(false, baseUrl)`** → `POST { prompt }` to each **`/api/triad/<slug>`**; **`true`** → in-process stubs. **Live HTTP:** **`DEEPSEEK_API_KEY`** (DeepSeek), **`QWEN_API_KEY`** (DashScope Qwen), **`GROQ_API_KEY`** or **`LLAMA_API_KEY`** (Groq OpenAI-compatible Llama; optional **`LLAMA_GROQ_MODEL`**). Deployer must comply with each provider’s ToS and billing.
+**Fetcher:** **`makeTriadFetcher(false, baseUrl)`** → `POST { prompt }` to each **`/api/triad/<slug>`**; **`true`** → in-process stubs. **Live HTTP:** **`DEEPSEEK_API_KEY`** (DeepSeek), **`QWEN_API_KEY`** + optional **`QWEN_BASE_URL`** (default DashScope-compatible **`qwen-plus`**; OpenRouter **`qwen/qwen-plus`** when base URL indicates OpenRouter — **`apps/web-app/env.ts`** **`qwenBaseUrl`**, **`lib/fetch-qwen-candidates.ts`**), **`GROQ_API_KEY`** or **`LLAMA_API_KEY`** (Groq OpenAI-compatible Llama; optional **`LLAMA_GROQ_MODEL`**). Deployer must comply with each provider’s ToS and billing.
 
 **Prompt guard:** **`validatePromptForTriad`** — max **2000** chars; rejects Markdown code fences.
 
@@ -106,7 +106,7 @@
 | Layer | Reality |
 |-------|---------|
 | **`POST /api/triad/deepseek`** | **Fetcher (live, key required):** with **`DEEPSEEK_API_KEY`**, **`https://api.deepseek.com/v1/chat/completions`** (`deepseek-chat`) → JSON array → **`normalizeRawCandidateItem`** + **`isValidCandidate`**; per-route **`logEvent`** **`triad_run_start` / `triad_panelist_end`** (`mode: fetcher`); **`AI_TIMEOUT_MS`** via **`AbortController`** in **`lib/triad-panel-route.ts`**; **`export const runtime = 'nodejs'`**; headers **`x-alchemist-triad-mode: fetcher`**. Without the key: **`stub`**. |
-| **`POST /api/triad/qwen`** | **Fetcher (live, key required):** with **`QWEN_API_KEY`**, DashScope **`https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions`** (model **`qwen-plus`**) → same path (**`lib/fetch-qwen-candidates.ts`**); same telemetry + timeout + **`nodejs`** runtime. Without the key: **`stub`**. |
+| **`POST /api/triad/qwen`** | **Fetcher (live, key required):** with **`QWEN_API_KEY`**, **`QWEN_BASE_URL`** (default DashScope-compatible root) + **`/chat/completions`** — model **`qwen-plus`** or, when URL indicates OpenRouter, **`qwen/qwen-plus`** (**`lib/fetch-qwen-candidates.ts`**, route reads **`env.qwenBaseUrl`**). Same telemetry + **`AI_TIMEOUT_MS`** + **`nodejs`** runtime. Without the key: **`stub`**. |
 | **`POST /api/triad/llama`** | **Fetcher (live, key required):** with **`GROQ_API_KEY`** or **`LLAMA_API_KEY`**, Groq **`https://api.groq.com/openai/v1/chat/completions`** (default **`llama-3.3-70b-versatile`**, override **`LLAMA_GROQ_MODEL`**) → **`lib/fetch-llama-candidates.ts`**; same telemetry + timeout + **`nodejs`** runtime. Without: **`stub`**. |
 | **`runTriad` + gates** | **Real:** **`AI_TIMEOUT_MS`**, optional **keyword tablebase** (**`reliability/checkers-fusion.ts`**, **`TABLEBASE_RECORDS`** — default **empty**; HARD GATE still governs real preset rows); then **`filterValid`**, distribution + adversarial filters on optional **`paramArray`**; stubs attach synthetic **`paramArray`** so the pipeline is exercised end-to-end. Telemetry: **`preset_tablebase_hit`** on match; **`triad_run_start` / `triad_run_end`** **`mode`**: **`tablebase`** \| **`fetcher`** \| **`stub`**. |
 | **`scoreCandidates` (web)** | **Real:** **`filterValid`** (incl. **≥20** char **`reasoning`**), Slavic dedupe (**param** cosine **> 0.92**; when both sides have legible text, also **Dice(bigram) > 0.88** on **`description` || `reasoning`**), preserve score order — used from **`apps/web-app/app/page.tsx`** after triad analysis. |
@@ -292,7 +292,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **APIs:** `/api/health`, **`GET /api/health/wasm`** (JSON **`ok`**, **`status`**: **`available`** \| **`unavailable`**, **`message`** — aligns **Export .fxp** with real wasm-pack artifacts; **`force-dynamic`**), `/api/usage`, `/api/triad/*`. **`TriadStatusBadge`** on **`PromptAudioDock`** polls **`GET /api/health`** ( **`cache: no-store`**, ~30s) for **`triad.triadFullyLive`** and **`triad.livePanelists`** — UI only; does not change response shape. **Middleware:** `x-request-id` on `/api/*`.
 
-**Env:** **`apps/web-app/env.ts`** — expand with Zod/t3-env for prod.
+**Env:** **`apps/web-app/env.ts`** — secrets + **`qwenBaseUrl`** from **`QWEN_BASE_URL`** (trimmed; default DashScope-compatible root). Expand with Zod/t3-env for prod if desired.
 
 **Orb:** **`apps/web-app/docs/MERCURY-BALL.md`**.
 
@@ -323,11 +323,11 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`pnpm go` / `go:fresh`** | Install + dev / fresh (root; **`vst/`** forwards) |
 | **`pnpm typecheck`** | Turbo typecheck |
 | **`pnpm check:transparent`** | Denylist scan: **`packages/shared-engine/**/*.ts`** — no shadow / KGB / amnesia-style **shipped** tokens (**`scripts/check-no-shadow-patterns.mjs`**) — optional CI / pre-commit; see **`FIRE.md` §I**, **Appendix C** |
-| **`pnpm test:real-gates`** | **`tsx scripts/calibrate-gates.ts`** — observation-only triad + gate stats vs live routes; set **`BASE_URL`** to the dev server banner (default `http://127.0.0.1:3000`); optional **`CALIBRATION_PROMPTS_FILE`** (one prompt per line); writes **`tools/gate-calibration-output.json`**; **`logEvent`** **`calibration_start`** / **`calibration_complete`** on stderr — see **`FIRE.md` §E3** |
+| **`pnpm test:real-gates`** | **`tsx scripts/calibrate-gates.ts`** — observation-only triad + gate stats vs live routes; set **`BASE_URL`** to the dev server banner (default `http://127.0.0.1:3000`); optional **`CALIBRATION_PROMPTS_FILE`** (one prompt per line); writes **`tools/gate-calibration-output.json`** (**gitignored** — local artifact); **`logEvent`** **`calibration_start`** / **`calibration_complete`** on stderr — see **`FIRE.md` §E3** |
 | **`pnpm build:wasm`** | Rust + wasm-pack → **`packages/fxp-encoder/pkg/`** — enables browser **Export .fxp** (**`GET /api/health/wasm`**); see **§10** |
 | **`pnpm env:check`** | Validates **`apps/web-app/.env.local`** (Groq **`KEY=value`** form; catches a bare **`gsk_...`** line); bundled into **`pnpm alc:doctor`** |
 | **`pnpm check:ready`** | **`pnpm env:check`** then **`pnpm verify:harsh`** — fast “green before dev” (no **`next build`**) |
-| **`pnpm verify:keys`** | Live ping **Groq**, **DeepSeek**, **Qwen** (DashScope) using **`apps/web-app/.env.local`** — does **not** print secrets; exit **1** if any configured key fails (e.g. DeepSeek **402** insufficient balance) |
+| **`pnpm verify:keys`** | Live ping **Groq**, **DeepSeek**, **Qwen** using **`apps/web-app/.env.local`** — **Qwen** URL/model follow **`QWEN_BASE_URL`** (default DashScope; OpenRouter **`qwen/qwen-plus`** when URL indicates OpenRouter). Does **not** print secrets; exit **1** if any configured key fails (e.g. DeepSeek **402** insufficient balance) |
 | **`.fxp` in browser** | Needs **`pnpm run build:wasm`** in **`packages/fxp-encoder`** (Rust). **`pnpm harshcheck`** can pass without Rust (encoder may stub). See **§10**, **`FIRE.md` §C / §E1.17** |
 
 **Doc-synced project health:** Run **`pnpm fire:sync`** after a green **`pnpm harshcheck`** to stamp Vitest + Next versions into **`docs/FIRE.md`** (machine block). Narrative posture stays in **Assessment snapshot** above; **`fxp-encoder`** may skip without Rust — **`§10`**, **`FIRE.md` §C / §E1.17**.
@@ -360,12 +360,14 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 ## 12. Documentation index
 
-### Under `docs/` (canonical specs — **two files only**)
+### Under `docs/` (canonical **Markdown** laws)
 
 | File | Role |
 |------|------|
 | **FIRESTARTER.md** | This file — **comprehensive** orientation + **Doc logic** (vs FIRE) + **Appendix C** (optional agent workflow) + **Appendix D** (Aji / strategy notes) |
-| **FIRE.md** | **Outside assessment** + optimisation surface + harshcheck + **`verify_post_summary`** + §E–§G + **§H–§L**; machine metrics via **`pnpm fire:sync`** |
+| **FIRE.md** | **Outside assessment** + optimisation surface + harshcheck + **`verify_post_summary`** + §E–§G + **§H–§L**; machine metrics via **`pnpm fire:sync`**; **Assessment snapshot** → **next moves** + **`docs/alchemist-*.html`** |
+
+**HTML:** **`docs/alchemist-*.html`** (Composer prompt packs) — rows in **Elsewhere** below.
 
 ### Elsewhere
 

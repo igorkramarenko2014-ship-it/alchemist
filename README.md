@@ -48,8 +48,8 @@ pnpm --filter @alchemist/web-app start
 | **Transparent hygiene** | **`pnpm check:transparent`** — denylist scan on **`shared-engine`**.ts (**`FIRE.md` §I**) |
 | **Offset gate hint** | **`pnpm test:gate`** (needs local **`tools/sample_init.fxp`** to run Python) |
 | **Offset validate (when sample present)** | **`pnpm validate:offsets`** / **`pnpm assert:hard-gate`** — runs **`validate-offsets.py <fxp>`**; assert prints explicit OK; **`ALCHEMIST_STRICT_OFFSETS=1`** fails if sample missing |
-| **Triad HTTP** | Live panelists when env keys set (DeepSeek / Qwen / Groq Llama); truth in **`GET /api/health`** → **`triad`**, header **`x-alchemist-triad-mode`** — **`docs/FIRESTARTER.md` §5a** |
-| **Truth docs** | **`docs/`** = **`FIRESTARTER.md`** + **`FIRE.md`** only; optional agent steps in **FIRESTARTER Appendix C** |
+| **Triad HTTP** | Live panelists when env keys set (DeepSeek / Qwen / Groq Llama); Qwen endpoint from **`QWEN_BASE_URL`** (default DashScope-style; OpenRouter **`qwen/qwen-plus`** when URL indicates OpenRouter). Truth in **`GET /api/health`** → **`triad`** — **`docs/FIRESTARTER.md` §5a** |
+| **Truth docs** | **`docs/`** laws: **`FIRESTARTER.md`** + **`FIRE.md`**; **`docs/alchemist-*.html`** Composer packs (**§12**); optional agent steps **Appendix C** |
 | **Browser `.fxp` export** | Rust + **`cd packages/fxp-encoder && pnpm run build:wasm`** — UI uses **`GET /api/health/wasm`**; see **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C** |
 
 ## Legal
@@ -61,7 +61,8 @@ pnpm --filter @alchemist/web-app start
 | Doc | Purpose |
 |-----|---------|
 | [`docs/FIRESTARTER.md`](./docs/FIRESTARTER.md) | **Comprehensive** bible + **Doc logic** (vs FIRE) + **Appendix A–D** (workflow, INIT, optional agent checklist, Aji notes) |
-| [`docs/FIRE.md`](./docs/FIRE.md) | **Outside assessment** / LLM surface — snapshot, **harshcheck**, §E–§L, **`pnpm fire:sync`** metrics block |
+| [`docs/FIRE.md`](./docs/FIRE.md) | **Outside assessment** / LLM surface — snapshot, **next moves**, **harshcheck**, §E–§L, **`pnpm fire:sync`** metrics block |
+| `docs/alchemist-*.html` | **Composer** task packs in **`docs/`** (open in browser) — **FIRESTARTER §12** |
 | [`.cursorrules`](./.cursorrules) | Root Cursor context |
 | [`apps/web-app/docs/MERCURY-BALL.md`](./apps/web-app/docs/MERCURY-BALL.md) | Mercury orb |
 | [`AGENTS.md`](./AGENTS.md) | Checklist for AI agents |

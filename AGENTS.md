@@ -30,7 +30,8 @@ pnpm install
 pnpm alc:doctor       # NOT pnpm doctor
 pnpm env:check        # apps/web-app/.env.local Groq line format (KEY=value, not bare gsk_)
 pnpm check:ready      # env:check + verify:harsh — quick “OK to dev?” before pnpm dev
-pnpm verify:keys      # live Groq / DeepSeek / Qwen probe (reads .env.local; no secrets printed)
+pnpm verify:keys      # live Groq / DeepSeek / Qwen probe (.env.local; Qwen URL/model from QWEN_BASE_URL; no secrets printed)
+pnpm test:real-gates  # gate calibration vs live triad routes → stderr calibration_*; local tools/gate-calibration-output.json (gitignored)
 pnpm dev              # or pnpm dev:web
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
 pnpm verify:harsh     # faster: no next build
@@ -45,6 +46,10 @@ pnpm fire:sync         # after green verify: refresh docs/FIRE.md Vitest + Next 
 ```
 
 See **[`RUN.txt`](RUN.txt)** for a copy-paste one-liner.
+
+## Composer prompt packs (browser)
+
+**[`docs/alchemist-cursor-prompts.html`](docs/alchemist-cursor-prompts.html)** · **[`docs/alchemist-high-efficiency-prompts.html`](docs/alchemist-high-efficiency-prompts.html)** · **[`docs/alchemist-cpc-execution-plan.html`](docs/alchemist-cpc-execution-plan.html)** · **[`docs/alchemist-full-unblock-plan.html`](docs/alchemist-full-unblock-plan.html)** — index **`docs/FIRESTARTER.md` §12**; **next moves** summary **`docs/FIRE.md`** Assessment snapshot.
 
 ## UI / Mercury
 

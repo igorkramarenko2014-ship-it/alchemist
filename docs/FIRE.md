@@ -8,9 +8,9 @@
 
 **Explicit hooks (no shadow state):** **`verify_post_summary`** + **`soeHint`** on stderr after verify; **`soe.ts`** / governance telemetry — **forbidden:** unauditable loops (**§I**, **`pnpm check:transparent`**).
 
-**Index:** Under **`docs/`** only **`FIRE.md`** (this file) and **`FIRESTARTER.md`** — optional multi-step agent flow is **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`** for quick links. **Legal:** root **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
+**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
 
-**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside the sync markers). **`docs/`** holds **only** **`FIRE.md`** + **`FIRESTARTER.md`**; optional agent workflow and Aji/session notes live in **FIRESTARTER Appendix C–D** and **§12**.
+**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside the sync markers). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** only; **HTML** packs + agent notes → **§12**, **Appendix C–D**.
 
 **Contents:** **§A–C** invariants, **Assessment snapshot** (metrics, **next moves**, verify loop), **§E** VERIFY / RISKS / SUGGEST, **§F–§L** contracts.
 
@@ -92,7 +92,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 ## B2. Web triad handoff
 
-`makeTriadFetcher(false, …)` same-origin; `POST { prompt }` → `{ candidates }`; stubs with `true`; **`middleware.ts`** `x-request-id`; **`env.ts`** for secrets (**`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`**, **`GROQ_API_KEY`** or **`LLAMA_API_KEY`**, optional **`LLAMA_GROQ_MODEL`**).
+`makeTriadFetcher(false, …)` same-origin; `POST { prompt }` → `{ candidates }`; stubs with `true`; **`middleware.ts`** `x-request-id`; **`env.ts`** for secrets (**`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`**, optional **`QWEN_BASE_URL`** → **`qwenBaseUrl`**, **`GROQ_API_KEY`** or **`LLAMA_API_KEY`**, optional **`LLAMA_GROQ_MODEL`**).
 
 ---
 
