@@ -24,7 +24,10 @@ pnpm dev          # web app — direct dev-server (same as dev:web; no Turbo wra
 
 ```bash
 pnpm web:dev:fresh
+# or (alias):  pnpm app:repair
 ```
+
+**App shows 404 / blank / “error components” in dev?** From repo root: **`pnpm app:repair`** (full clean + dev) or **`ALCHEMIST_NEXT_HEAL=1 pnpm dev`** (deletes only `apps/web-app/.next` then starts).
 
 **Production build** (`next start`) after code changes:
 

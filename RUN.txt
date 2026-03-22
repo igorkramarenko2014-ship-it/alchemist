@@ -18,7 +18,8 @@ Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first 
   cd "/Users/igorkramarenko/Desktop/Vibe Projects"   # must be the folder with apps/ + packages/
   pnpm install
   pnpm alc:doctor          # Node, Next + workspace packages (NOT `pnpm doctor` — pnpm built-in)
-  pnpm dev:recover         # clears apps/web-app/.next/cache/webpack+swc then dev — fixes many "won't start" dev errors
+  pnpm app:repair          # same as web:dev:fresh — full clean (.next + .turbo) then dev (fixes corrupt Next cache / 404 on home)
+  pnpm dev:recover         # clears apps/web-app/.next/cache/webpack+swc then dev — lighter than app:repair
   pnpm dev                 # direct web dev-server — use 127.0.0.1 URL from cyan banner, not localhost
   pnpm verify:harsh        # optional sanity: types + Vitest
   pnpm fire:sync           # optional: refresh docs/FIRE.md metrics (runs test:engine; needs green tests)

@@ -20,6 +20,7 @@
     "go": "cd .. && chmod +x scripts/go.sh 2>/dev/null && ./scripts/go.sh",
     "go:fresh": "cd .. && node scripts/with-pnpm.mjs install && node scripts/with-pnpm.mjs run web:dev:fresh",
     "web:dev:fresh": "cd .. && node scripts/with-pnpm.mjs run web:dev:fresh",
+    "app:repair": "cd .. && node scripts/with-pnpm.mjs run app:repair",
     "dev:recover": "cd .. && node scripts/with-pnpm.mjs run dev:recover",
     "perf:boss": "cd .. && node scripts/with-pnpm.mjs --filter @alchemist/shared-engine perf:boss",
     "git:save": "cd .. && node scripts/git-save.mjs",

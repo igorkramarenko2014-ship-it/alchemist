@@ -32,6 +32,7 @@ pnpm dev              # or pnpm dev:web
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
 pnpm verify:harsh     # faster: no next build
 pnpm web:dev:fresh    # stale Next / shared-engine
+pnpm app:repair       # alias → web:dev:fresh (corrupt .next / dev 404 on /)
 pnpm web:rebuild      # before next start after package changes
 pnpm docs:list        # list first-party markdown
 pnpm perf:boss        # shared-engine perf sweep (perf_boss_* JSON on stderr)

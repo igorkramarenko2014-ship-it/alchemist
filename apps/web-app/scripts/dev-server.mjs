@@ -65,6 +65,17 @@ async function resolvePort() {
 
 const port = await resolvePort();
 
+/** Nuke entire `.next` before dev when set — fixes 404 on `/`, missing error components, corrupt traces. */
+const nextRootDir = path.join(root, ".next");
+if (process.env.ALCHEMIST_NEXT_HEAL === "1" && fs.existsSync(nextRootDir)) {
+  try {
+    fs.rmSync(nextRootDir, { recursive: true, force: true });
+    console.warn("\nRemoved apps/web-app/.next (ALCHEMIST_NEXT_HEAL=1). First compile will be slower.\n");
+  } catch (e) {
+    console.warn("\nCould not remove .next:", (e && e.message) || e, "\n");
+  }
+}
+
 /** Corrupted webpack pack cache sometimes breaks `next dev` (e.g. restore `hasStartTime` errors). */
 const webpackCacheDir = path.join(root, ".next", "cache", "webpack");
 if (process.env.ALCHEMIST_NEXT_SCRUB_WEBPACK === "1" && fs.existsSync(webpackCacheDir)) {
