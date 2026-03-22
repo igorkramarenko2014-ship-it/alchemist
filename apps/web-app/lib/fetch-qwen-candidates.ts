@@ -4,19 +4,31 @@ import { triadPanelistSystemPrompt } from "@/lib/triad-panelist-system-prompt";
 import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
 import type { AICandidate } from "@alchemist/shared-types";
 
-const QWEN_COMPAT_COMPLETIONS_URL =
-  "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+const DEFAULT_QWEN_BASE = "https://dashscope.aliyuncs.com/compatible-mode/v1";
+
+function qwenChatCompletionsUrl(baseUrl: string): string {
+  const b = baseUrl.trim().replace(/\/$/, "") || DEFAULT_QWEN_BASE;
+  return `${b}/chat/completions`;
+}
+
+function qwenModelId(baseUrl: string): string {
+  return baseUrl.toLowerCase().includes("openrouter") ? "qwen/qwen-plus" : "qwen-plus";
+}
 
 /**
- * Live Qwen via Alibaba DashScope OpenAI-compatible API.
+ * Live Qwen via an OpenAI-compatible chat API (DashScope, OpenRouter, etc.).
  */
 export async function fetchQwenCandidates(
   prompt: string,
   apiKey: string,
-  signal: AbortSignal
+  signal: AbortSignal,
+  qwenBaseUrl: string = DEFAULT_QWEN_BASE
 ): Promise<AICandidate[]> {
   const panelist = "QWEN" as const;
-  const response = await fetch(QWEN_COMPAT_COMPLETIONS_URL, {
+  const base = qwenBaseUrl.trim() || DEFAULT_QWEN_BASE;
+  const url = qwenChatCompletionsUrl(base);
+  const model = qwenModelId(base);
+  const response = await fetch(url, {
     method: "POST",
     signal,
     headers: {
@@ -24,7 +36,7 @@ export async function fetchQwenCandidates(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "qwen-plus",
+      model,
       max_tokens: 1024,
       messages: [
         { role: "system", content: triadPanelistSystemPrompt(panelist) },

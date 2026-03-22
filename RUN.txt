@@ -22,11 +22,15 @@ Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first 
 **If `pnpm dev` or `./scripts/go.sh` fails:**
   cd "/Users/igorkramarenko/Desktop/Vibe Projects"   # must be the folder with apps/ + packages/
   pnpm install
-  pnpm alc:doctor          # Node, Next + workspace packages (NOT `pnpm doctor` — pnpm built-in)
+  pnpm alc:doctor          # Node, Next + workspace packages + env:check (NOT `pnpm doctor` — pnpm built-in)
+  pnpm env:check           # .env.local Groq line format only
   pnpm app:repair          # same as web:dev:fresh — full clean (.next + .turbo) then dev (fixes corrupt Next cache / 404 on home)
   pnpm dev:recover         # clears apps/web-app/.next/cache/webpack+swc then dev — lighter than app:repair
   pnpm dev                 # direct web dev-server — use 127.0.0.1 URL from cyan banner, not localhost
   pnpm verify:harsh        # optional sanity: types + Vitest
+  pnpm check:ready         # env:check + verify:harsh (quick green before dev)
+  pnpm verify:keys         # live API check for Groq + DeepSeek + Qwen (.env.local; no keys in output)
+  pnpm build:wasm          # Rust → WASM for browser Export .fxp (after rustup + wasm32-unknown-unknown)
   pnpm fire:sync           # optional: refresh docs/FIRE.md metrics (runs test:engine; needs green tests)
   # optional Turbo wrapper: pnpm dev:turbo
 

@@ -134,6 +134,72 @@ for (const pkg of ["@alchemist/shared-engine", "@alchemist/shared-types", "@alch
   }
 }
 
+const encoderPkg = join(root, "packages", "fxp-encoder", "pkg");
+const wasmBin = join(encoderPkg, "fxp_encoder_bg.wasm");
+const wasmGlue = join(encoderPkg, "fxp_encoder.js");
+
+function wasmGlueIsStub(jsPath) {
+  try {
+    return readFileSync(jsPath, "utf8").slice(0, 4096).includes("WASM not built");
+  } catch {
+    return true;
+  }
+}
+
+const rustcProbe = spawnSync("rustc", ["-V"], { encoding: "utf8", shell: false });
+const rustOnPath = rustcProbe.status === 0 && (rustcProbe.stdout || "").trim().length > 0;
+let wasmTargetInstalled = false;
+if (rustOnPath) {
+  const ru = spawnSync("rustup", ["target", "list", "--installed"], { encoding: "utf8", shell: false });
+  wasmTargetInstalled =
+    ru.status === 0 && (ru.stdout || "").split(/\r?\n/).some((l) => l.trim() === "wasm32-unknown-unknown");
+}
+
+const wasmArtifactsOk =
+  existsSync(wasmBin) && existsSync(wasmGlue) && !wasmGlueIsStub(wasmGlue);
+
+if (wasmArtifactsOk) {
+  console.log("OK  Browser Export .fxp: WASM pkg present (packages/fxp-encoder/pkg)");
+} else {
+  if (!rustOnPath) {
+    console.warn(
+      "WARN Browser **Export .fxp** disabled — Rust not on PATH (no `rustc -V`).\n" +
+        "  Install: https://rustup.rs  then restart the terminal (or: . \"$HOME/.cargo/env\")\n" +
+        "  Then:  rustup target add wasm32-unknown-unknown\n" +
+        "  Then from repo root:  pnpm build:wasm\n" +
+        "  See docs/FIRESTARTER.md §10\n"
+    );
+  } else if (!wasmTargetInstalled) {
+    console.warn(
+      "WARN Rust is installed but **wasm32-unknown-unknown** target missing.\n" +
+        "  rustup target add wasm32-unknown-unknown\n" +
+        "  pnpm build:wasm\n"
+    );
+  } else if (!existsSync(wasmBin) || !existsSync(wasmGlue) || wasmGlueIsStub(wasmGlue)) {
+    console.warn(
+      "WARN WASM encoder not built or stubbed — **Export .fxp** stays off until pkg/ is real.\n" +
+        "  From repo root:  pnpm build:wasm\n" +
+        "  If you ran **pnpm build** without Rust first, the stub step may have removed .wasm — rebuild with the command above.\n"
+    );
+  }
+}
+
+const envCheckScript = join(here, "check-env-local.mjs");
+if (existsSync(envCheckScript)) {
+  const ec = spawnSync(process.execPath, [envCheckScript], {
+    encoding: "utf8",
+    cwd: root,
+    env: process.env,
+  });
+  if (ec.stdout) process.stdout.write(ec.stdout);
+  if (ec.stderr) process.stderr.write(ec.stderr);
+  if (ec.status !== 0 && ec.status != null) {
+    console.warn(
+      "WARN  `pnpm env:check` failed — fix **apps/web-app/.env.local** (see messages above).\n"
+    );
+  }
+}
+
 console.log(
   "\nTry:\n  cd \"" +
     root +
@@ -151,5 +217,8 @@ console.log(
 console.log("Webpack/swc dev cache only (keeps .next, faster than full clean):\n  node scripts/recover-web-dev.mjs\n  pnpm dev:recover\n");
 console.log("Full fresh Next + turbo stop:\n  pnpm web:dev:fresh\n");
 console.log("Engine perf sweep (logged JSON, FIRE-compliant):\n  pnpm perf:boss\n");
+console.log("Browser Export .fxp (Rust → WASM):\n  pnpm build:wasm\n");
+console.log("API keys format check:\n  pnpm env:check\n");
+console.log("Live Groq / DeepSeek / Qwen probe (network):\n  pnpm verify:keys\n");
 console.log("(Command is `pnpm alc:doctor` — `pnpm doctor` is pnpm's built-in.)\n");
 console.log("");

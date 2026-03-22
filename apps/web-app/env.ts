@@ -9,6 +9,13 @@ export const env = {
   /** Live `/api/triad/qwen` (DashScope OpenAI-compatible) when non-empty (`QWEN_API_KEY`). */
   qwenApiKey: process.env.QWEN_API_KEY ?? "",
   /**
+   * OpenAI-compatible API root for Qwen (no trailing slash required).
+   * Default Alibaba DashScope compatible v1; use `https://openrouter.ai/api/v1` for OpenRouter (`qwen/qwen-plus` model).
+   */
+  qwenBaseUrl:
+    (process.env.QWEN_BASE_URL ?? "").trim() ||
+    "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  /**
    * Live `/api/triad/llama` via Groq OpenAI-compatible API when non-empty.
    * `GROQ_API_KEY` (preferred) or `LLAMA_API_KEY`.
    */

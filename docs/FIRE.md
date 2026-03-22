@@ -134,7 +134,7 @@ No encoder / authoritative `SerumState` / real `.fxp` work without validated **`
 
 **E2. Assess** — #1 vs export; a11y; WASM / speech / timeout UX.
 
-**E3. Suggest** — discard telemetry; idempotent export; optional E2E.
+**E3. Suggest** — discard telemetry; idempotent export; optional E2E. **Gate calibration (observation-only):** **`pnpm test:real-gates`** with **`BASE_URL`** matching the dev banner — stderr **`calibration_*`** via **`logEvent`**; artifact **`tools/gate-calibration-output.json`** — does **not** change **`validate.ts`** / **`score.ts`** thresholds (**`FIRESTARTER` §9**).
 
 **Output:** `VERIFY:` → `RISKS:` → `SUGGEST:` → `PATCH HINTS:`.
 

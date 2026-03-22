@@ -6,6 +6,19 @@ The **Next.js app** is **`../apps/web-app`**. This folder is a thin slice so scr
 
 **Export .fxp in the browser:** needs **`packages/fxp-encoder`** built with **`pnpm run build:wasm`** (Rust). **`GET /api/health/wasm`** on the web app reflects readiness — **`docs/FIRESTARTER.md` §10**.
 
+## API keys (Groq, DeepSeek, Qwen)
+
+One file only: **`../apps/web-app/.env.local`** (gitignored).  
+From **`vst/`**, open **`vst/.env.local`** — it should be a **symlink** to that file so you never maintain two copies.
+
+Minimal Groq line:
+
+```bash
+GROQ_API_KEY=your_key_here
+```
+
+Then restart **`pnpm dev`**. See comments inside **`.env.local`** for the other providers.
+
 ## Run the web app
 
 ```bash

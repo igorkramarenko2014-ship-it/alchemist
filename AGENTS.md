@@ -28,6 +28,9 @@
 ```bash
 pnpm install
 pnpm alc:doctor       # NOT pnpm doctor
+pnpm env:check        # apps/web-app/.env.local Groq line format (KEY=value, not bare gsk_)
+pnpm check:ready      # env:check + verify:harsh — quick “OK to dev?” before pnpm dev
+pnpm verify:keys      # live Groq / DeepSeek / Qwen probe (reads .env.local; no secrets printed)
 pnpm dev              # or pnpm dev:web
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
 pnpm verify:harsh     # faster: no next build
@@ -37,6 +40,7 @@ pnpm web:rebuild      # before next start after package changes
 pnpm docs:list        # list first-party markdown
 pnpm perf:boss        # shared-engine perf sweep (perf_boss_* JSON on stderr)
 pnpm check:transparent # denylist scan: no shadow / KGB / amnesia patterns in shared-engine .ts
+pnpm build:wasm        # Rust + wasm-pack → browser Export .fxp (needs rustup + wasm32-unknown-unknown)
 pnpm fire:sync         # after green verify: refresh docs/FIRE.md Vitest + Next metrics block
 ```
 

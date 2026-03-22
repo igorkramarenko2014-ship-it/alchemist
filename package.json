@@ -34,13 +34,20 @@
     "assert:hard-gate": "node scripts/assert-hard-gate.mjs",
     "check:transparent": "node scripts/check-no-shadow-patterns.mjs",
     "alc:doctor": "node scripts/doctor.mjs",
+    "env:check": "node scripts/check-env-local.mjs",
+    "check:ready": "pnpm env:check && pnpm verify:harsh",
+    "verify:keys": "node scripts/verify-provider-keys.mjs",
     "perf:boss": "pnpm --filter @alchemist/shared-engine perf:boss",
     "git:save": "node scripts/git-save.mjs",
     "save": "node scripts/git-save.mjs",
     "fire:sync": "node scripts/sync-fire-md.mjs",
-    "github:first-push": "node scripts/github-first-push.mjs"
+    "github:first-push": "node scripts/github-first-push.mjs",
+    "test:real-gates": "tsx scripts/calibrate-gates.ts",
+    "build:wasm": "pnpm --filter @alchemist/fxp-encoder build:wasm"
   },
   "devDependencies": {
+    "@alchemist/shared-engine": "workspace:*",
+    "tsx": "^4.19.2",
     "turbo": "^2.3.0"
   },
   "packageManager": "pnpm@9.14.2",

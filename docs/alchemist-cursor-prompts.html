@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alchemist — Cursor Prompts</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg:       #0a0c0f;
+    --surface:  #111418;
+    --border:   #1e2530;
+    --border2:  #2a3344;
+    --teal:     #5EEAD4;
+    --teal-dim: #2d7a6e;
+    --amber:    #f59e0b;
+    --red:      #ef4444;
+    --green:    #22c55e;
+    --muted:    #4a5568;
+    --text:     #e2e8f0;
+    --text-dim: #8892a4;
+    --code-bg:  #0d1117;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 24px 80px;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+  .header-top {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .logo {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--teal);
+    text-transform: uppercase;
+  }
+  .title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .status-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .dot-amber  { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .dot-red    { background: var(--red); }
+  .dot-teal   { background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .section-desc {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 20px;
+    max-width: 640px;
+    line-height: 1.7;
+  }
+
+  /* Prompt card */
+  .prompt-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: border-color 0.15s;
+  }
+  .prompt-card:hover { border-color: var(--border2); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: #0f1318;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .tag-p0 { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .tag-p1 { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .tag-p2 { background: rgba(94,234,212,0.12); color: var(--teal); border: 1px solid rgba(94,234,212,0.25); }
+  .tag-p3 { background: rgba(100,116,139,0.15); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .card-effort {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+    background: rgba(94,234,212,0.05);
+  }
+  .copy-btn.copied {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .card-body {
+    padding: 0;
+  }
+  .prompt-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    color: #c9d1d9;
+    background: var(--code-bg);
+    padding: 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: none;
+    display: block;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .prompt-text::-webkit-scrollbar { width: 4px; }
+  .prompt-text::-webkit-scrollbar-track { background: transparent; }
+  .prompt-text::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* Syntax tint */
+  .prompt-text .comment { color: #6e7681; }
+  .prompt-text .heading { color: var(--teal); font-weight: 600; }
+  .prompt-text .key     { color: #79c0ff; }
+  .prompt-text .val     { color: #a5d6ff; }
+
+  .card-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .constraint {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .constraint .c-label { color: var(--amber); }
+  .constraint .c-ok    { color: var(--green); }
+  .constraint .c-warn  { color: var(--amber); }
+
+  /* Warning box */
+  .warn-box {
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: #fcd34d;
+    line-height: 1.6;
+  }
+  .warn-box strong { color: var(--amber); }
+
+  .done-box {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.28);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: #86efac;
+    line-height: 1.65;
+  }
+  .done-box strong { color: var(--green); }
+  .done-box code { font-family: 'IBM Plex Mono', monospace; color: var(--teal); }
+
+  /* Order guide */
+  .order-strip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 32px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .order-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    white-space: nowrap;
+  }
+  .order-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--teal);
+  }
+  .order-label { font-size: 12px; color: var(--text-dim); }
+  .order-arrow {
+    color: var(--border2);
+    font-size: 16px;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  /* Footer */
+  .footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <span class="logo">Project Alchemist</span>
+    </div>
+    <div class="title">Quick-Fix Cursor Prompts</div>
+    <div class="subtitle">Paste each into a fresh Composer session. P0 OpenRouter/Qwen is <strong style="color:var(--green)">shipped</strong> — start at P1 or P2 as needed.</div>
+    <div class="status-row">
+      <span class="status-pill"><span class="dot dot-green"></span>60 tests · pnpm harshcheck green</span>
+      <span class="status-pill"><span class="dot dot-teal"></span>P0: QWEN_BASE_URL + OpenRouter model</span>
+      <span class="status-pill"><span class="dot dot-amber"></span>Triad: often partial until DeepSeek billed + keys</span>
+      <span class="status-pill"><span class="dot dot-green"></span>WASM: pnpm build:wasm (when Rust installed)</span>
+      <span class="status-pill"><span class="dot dot-teal"></span>pnpm verify:keys · pnpm fire:sync</span>
+    </div>
+  </div>
+
+  <!-- ORDER GUIDE -->
+  <div class="section">
+    <div class="section-label">Run order</div>
+    <div class="order-strip">
+      <div class="order-item"><span class="order-num">P0</span><span class="order-label">OpenRouter/Qwen route ✓</span></div>
+      <span class="order-arrow">→</span>
+      <div class="order-item"><span class="order-num">P1</span><span class="order-label">Partial-mode warning banner</span></div>
+      <span class="order-arrow">→</span>
+      <div class="order-item"><span class="order-num">P2</span><span class="order-label">Re-run calibration (after all keys)</span></div>
+      <span class="order-arrow">→</span>
+      <div class="order-item"><span class="order-num">P3</span><span class="order-label">Timeout adjustment (if data says so)</span></div>
+    </div>
+  </div>
+
+  <!-- P0 -->
+  <div class="section">
+    <div class="section-label">P0 · Shipped in repo</div>
+    <div class="section-title">OpenRouter endpoint for Qwen route</div>
+    <div class="section-desc">
+      Qwen's DashScope console is Chinese-only. OpenRouter.ai hosts Qwen models behind an OpenAI-compatible API.
+      <code style="font-family:monospace;color:var(--teal)">QWEN_BASE_URL</code> is wired as <code style="font-family:monospace;color:var(--teal)">env.qwenBaseUrl</code> (default DashScope root); <code style="font-family:monospace;color:var(--teal)">fetch-qwen-candidates.ts</code> appends <code style="font-family:monospace;color:var(--teal)">/chat/completions</code> and uses model <code style="font-family:monospace;color:var(--teal)">qwen/qwen-plus</code> when the base URL contains <code style="font-family:monospace">openrouter</code>.
+    </div>
+
+    <div class="done-box">
+      <strong>Implemented:</strong> <code>apps/web-app/env.ts</code> (<code>qwenBaseUrl</code>), <code>lib/fetch-qwen-candidates.ts</code>, <code>lib/triad-panel-route.ts</code>, <code>app/api/triad/qwen/route.ts</code> (reads <code>env.qwenBaseUrl</code>), <code>scripts/verify-provider-keys.mjs</code>. Configure <code>apps/web-app/.env.local</code>: <code>QWEN_BASE_URL=https://openrouter.ai/api/v1</code> + <code>QWEN_API_KEY=sk-or-…</code>. Probe: <code>pnpm verify:keys</code>.
+    </div>
+
+    <div class="warn-box">
+      <strong>Before pasting:</strong> Make sure you have your OpenRouter key ready (<code style="font-family:monospace">sk-or-...</code> from openrouter.ai → Keys).
+      After the prompt runs, add to <code style="font-family:monospace">apps/web-app/.env.local</code>:<br><br>
+      <code style="font-family:monospace">QWEN_BASE_URL=https://openrouter.ai/api/v1</code><br>
+      <code style="font-family:monospace">QWEN_API_KEY=sk-or-your-key-here</code>
+    </div>
+
+    <div class="prompt-card" id="card-p0">
+      <div class="card-header">
+        <div class="card-meta">
+          <span class="card-tag tag-p2" style="background:rgba(34,197,94,0.15);color:#86efac;border-color:rgba(34,197,94,0.35)">DONE</span>
+          <span class="card-title">OpenRouter/Qwen endpoint support (reference prompt)</span>
+          <span class="card-effort">archived spec</span>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('p0', this)">Copy prompt</button>
+      </div>
+      <div class="card-body">
+        <pre class="prompt-text" id="p0"># [REFERENCE — already implemented in repo]
+# Canonical: env.qwenBaseUrl + fetchQwenCandidates fourth arg.
+# ---
+# [TASK]: Support OpenRouter as Qwen endpoint
+# [CONTEXT]: docs/FIRE.md §E–§L, docs/FIRESTARTER.md §5b
+# [CANONICAL]: PANELIST_WEIGHTS and AI_TIMEOUT_MS unchanged
+
+## Problem
+apps/web-app/.env.local has QWEN_API_KEY set but DashScope URL
+is unreachable (Chinese console). OpenRouter hosts qwen/qwen-plus
+behind an OpenAI-compatible endpoint. We need QWEN_BASE_URL support.
+
+## What to change
+
+### 1. apps/web-app/env.ts
+Add qwenBaseUrl on env object (implemented as):
+  qwenBaseUrl: (process.env.QWEN_BASE_URL ?? "").trim() ||
+    "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+### 2. apps/web-app/app/api/triad/qwen/route.ts
+- Import env; read env.qwenBaseUrl (see readQwenBaseUrlFromEnv in route)
+- fetch layer uses base URL + /chat/completions
+- When QWEN_BASE_URL includes 'openrouter', use model
+  'qwen/qwen-plus' instead of 'qwen-plus'
+  (OpenRouter uses vendor-prefixed model names)
+- All other logic unchanged: AI_TIMEOUT_MS, AbortController,
+  logEvent telemetry, isValidCandidate filter, response headers
+
+### 3. apps/web-app/.env.local (add placeholder comment only)
+# OpenRouter alternative for Qwen:
+# QWEN_BASE_URL=https://openrouter.ai/api/v1
+
+## Constraints
+- No changes to packages/shared-engine
+- No changes to AI_TIMEOUT_MS or PANELIST_WEIGHTS
+- logEvent calls (triad_run_start, triad_panelist_end) unchanged
+- pnpm verify:harsh must stay green
+- pnpm check:transparent must stay clean
+- Update docs/FIRESTARTER.md §5a Qwen row: note QWEN_BASE_URL
+- Update docs/FIRE.md §B2 env vars: add QWEN_BASE_URL
+- pnpm fire:sync after green verify
+
+## Verify
+pnpm verify:harsh
+pnpm check:transparent
+pnpm fire:sync
+# Then: restart pnpm dev, check GET /api/health → livePanelists</pre>
+      </div>
+      <div class="card-footer">
+        <span class="constraint"><span class="c-label">requires:</span> QWEN_API_KEY + QWEN_BASE_URL in .env.local</span>
+        <span class="constraint"><span class="c-label">verify:</span> pnpm verify:harsh · pnpm check:transparent</span>
+        <span class="constraint"><span class="c-ok">no shared-engine changes</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- P1 -->
+  <div class="section">
+    <div class="section-label">P1 · After P0 + restart</div>
+    <div class="section-title">Partial-mode warning banner</div>
+    <div class="section-desc">
+      The health badge shows live/partial/stub but is small. When the triad is only partially live,
+      users may get inconsistent candidate counts without knowing why. This adds a dismissable
+      banner that only appears in partial mode — not full live, not full stub.
+    </div>
+
+    <div class="prompt-card" id="card-p1">
+      <div class="card-header">
+        <div class="card-meta">
+          <span class="card-tag tag-p1">P1</span>
+          <span class="card-title">Partial-mode warning banner</span>
+          <span class="card-effort">~1 hour</span>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('p1', this)">Copy prompt</button>
+      </div>
+      <div class="card-body">
+        <pre class="prompt-text" id="p1"># [TASK]: Partial-mode warning banner
+# [CONTEXT]: docs/FIRE.md §A (dock invariants), §E1.19
+# [CANONICAL]: Do not break hasPresets / EarModeController / orb remount
+
+## Context
+GET /api/health returns triad.triadFullyLive (bool) and
+triad.livePanelists (string[]). useTriadHealth hook already
+exists at apps/web-app/hooks/useTriadHealth.ts.
+
+TriadStatusBadge already mounted in PromptAudioDock.
+
+## What to build
+
+### PartialModeWarning component
+File: apps/web-app/components/ui/PartialModeWarning.tsx
+
+Show ONLY when:
+  triadFullyLive === false
+  AND livePanelists.length > 0
+  (i.e. partial — not full stub, not full live)
+
+Content (concise):
+  "Running in limited mode — N of 3 AI providers active.
+   Candidate quality may vary."
+  [Dismiss] button — dismissed state stored in useState
+  (session only, no localStorage)
+
+Design: dark-first, amber/warning tone, consistent with
+existing #111827 bg + #5EEAD4 accent palette.
+role="alert", aria-live="polite".
+
+### Placement
+Mount in PromptAudioDock, above the badge row,
+outside any hasPresets conditional branch.
+Reuse useTriadHealth() already called at dock root
+(pass props down — do not create a second fetch).
+
+## Constraints
+- No new dependencies
+- No changes to packages/shared-engine
+- No changes to /api/health response shape
+- No changes to useTriadHealth hook
+- pnpm verify:harsh green
+- Brief note in docs/FIRESTARTER.md §8 about warning banner
+- pnpm fire:sync after
+
+## Verify
+pnpm verify:harsh
+pnpm fire:sync</pre>
+      </div>
+      <div class="card-footer">
+        <span class="constraint"><span class="c-label">requires:</span> useTriadHealth already exists (P2 from prev session)</span>
+        <span class="constraint"><span class="c-label">verify:</span> pnpm verify:harsh</span>
+        <span class="constraint"><span class="c-warn">only shows in partial mode — not full live or full stub</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- P2 -->
+  <div class="section">
+    <div class="section-label">P2 · After all three keys set</div>
+    <div class="section-title">Re-run gate calibration with live data</div>
+    <div class="section-desc">
+      Not a code change — a terminal command. The previous calibration ran against stubs.
+      Once all three keys are live, run this to get real LLM output distributions.
+      The numbers will tell you if any gate threshold needs attention.
+    </div>
+
+    <div class="prompt-card" id="card-p2">
+      <div class="card-header">
+        <div class="card-meta">
+          <span class="card-tag tag-p2">P2</span>
+          <span class="card-title">Real gate calibration run</span>
+          <span class="card-effort">Terminal only — no code</span>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('p2', this)">Copy prompt</button>
+      </div>
+      <div class="card-body">
+        <pre class="prompt-text" id="p2"># [TASK]: Run gate calibration against live providers
+# [CONTEXT]: docs/FIRE.md §E3, scripts/calibrate-gates.ts
+# [PRECONDITION]: All three keys set, pnpm dev running on port 3002
+
+## Run this in terminal (not a code change)
+
+BASE_URL=http://127.0.0.1:3002 pnpm test:real-gates
+
+## What to look at in tools/gate-calibration-output.json
+
+survivalRates.isValid
+  > 0.7 = good  |  0.3–0.7 = investigate  |  < 0.3 = STOP, reasoning prompt needs fix
+
+survivalRates.distribution (Undercover gate)
+  > 0.7 = good  |  < 0.5 = paramArray distribution too extreme, tune system prompt
+
+survivalRates.adversarial
+  > 0.7 = good  |  < 0.5 = entropy/variance too low, tune system prompt
+
+slavicDedupe.uniqueAfterDedupe / validCandidatesIn
+  0.3–0.5 = healthy (expected overlap between panelists)
+  < 0.2 = panelists producing near-identical output
+
+providerFailureRate per panelist
+  0 = good  |  > 0.2 = timeout or parse failures, check latency
+
+reasoningLengths.pctUnder20
+  0 = good  |  > 0 = some candidates silently dropped
+
+runDurationMs.mean
+  < 3000 = fast  |  3000–7000 = normal  |  > 7000 = close to timeout wall
+
+## If survivalRates are all > 0.7
+You have a working triad. Proceed to P3 threshold review (optional).
+
+## If any survivalRate < 0.3
+Do NOT change gate constants yet. First:
+1. Look at raw calibration output for patterns
+2. Adjust the system prompt in the affected route
+3. Re-run calibration
+4. Only change constants.ts thresholds if prompt tuning fails,
+   and only after updating both FIRE.md + FIRESTARTER.md + tests</pre>
+      </div>
+      <div class="card-footer">
+        <span class="constraint"><span class="c-label">requires:</span> all 3 keys in .env.local + pnpm dev running</span>
+        <span class="constraint"><span class="c-ok">no code changes — terminal only</span></span>
+        <span class="constraint"><span class="c-warn">check tools/gate-calibration-output.json after run</span></span>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- P3 -->
+  <div class="section">
+    <div class="section-label">P3 · Only if P2 shows timeout pressure</div>
+    <div class="section-title">Timeout adjustment (data-gated)</div>
+    <div class="section-desc">
+      Only run this prompt if P2 calibration shows <code style="font-family:monospace;color:var(--amber)">runDurationMs.mean > 6000</code>
+      or <code style="font-family:monospace;color:var(--amber)">providerFailureRate > 0.2</code> for any panelist.
+      This is a contract change — it requires updating both docs and tests.
+    </div>
+
+    <div class="prompt-card" id="card-p3">
+      <div class="card-header">
+        <div class="card-meta">
+          <span class="card-tag tag-p3">P3</span>
+          <span class="card-title">Raise AI_TIMEOUT_MS (if data warrants)</span>
+          <span class="card-effort">1 h + full doc update</span>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('p3', this)">Copy prompt</button>
+      </div>
+      <div class="card-body">
+        <pre class="prompt-text" id="p3"># [TASK]: Adjust AI_TIMEOUT_MS based on real latency data
+# [CONTEXT]: docs/FIRE.md §B + §E1.6, docs/FIRESTARTER.md §5b
+# [PRECONDITION]: P2 calibration run complete with live keys
+# [DATA REQUIRED]: Fill in measured values before running this prompt
+
+## Measured values from tools/gate-calibration-output.json
+# runDurationMs.mean:  ___ms
+# runDurationMs.max:   ___ms
+# providerFailureRate: DEEPSEEK ___ / LLAMA ___ / QWEN ___
+# Recommended new AI_TIMEOUT_MS: ___ ms
+# (suggest: runDurationMs.max + 2000ms buffer, max 15000)
+
+## What to change
+
+### 1. packages/shared-engine/constants.ts
+- Update AI_TIMEOUT_MS to new value
+- Add comment: // Calibrated YYYY-MM-DD, p95 latency ___ms
+
+### 2. packages/shared-engine/tests/
+- Find any test asserting AI_TIMEOUT_MS value
+- Update expected value to match
+
+## Mandatory doc updates (contract change — both files required)
+
+### 3. docs/FIRE.md
+- §B: update "8s / panelist" to new value
+- §E1 item 6: update "AI_TIMEOUT_MS ≤ 8000" to new value
+
+### 4. docs/FIRESTARTER.md
+- §5b constants.ts row: update AI_TIMEOUT_MS value
+- §5 "Timeouts:" line: update value
+
+## Verify
+pnpm verify:harsh   # must stay green
+pnpm check:transparent
+pnpm fire:sync
+
+## Hard constraints
+- Do NOT split into per-provider timeouts in this task
+  (separate product decision requiring its own contract cycle)
+- Do NOT raise above 15000ms
+- Do NOT run this prompt without filling in the measured values above</pre>
+      </div>
+      <div class="card-footer">
+        <span class="constraint"><span class="c-label">requires:</span> real latency data from P2 calibration</span>
+        <span class="constraint"><span class="c-warn">contract change — both docs + tests must update</span></span>
+        <span class="constraint"><span class="c-label">verify:</span> pnpm verify:harsh · pnpm fire:sync</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Project Alchemist · <a href="FIRE.md" style="color:var(--teal)">FIRE.md</a> · copy in-repo: docs/alchemist-cursor-prompts.html</span>
+    <span>Canonical: docs/FIRE.md §E–§L · docs/FIRESTARTER.md §5b</span>
+  </div>
+
+</div>
+
+<script>
+function copyPrompt(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy prompt';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>

@@ -15,6 +15,8 @@ import { MercuryBallShell } from './MercuryBallShell';
 import { TriadSamplePlayer } from './TriadSamplePlayer';
 import { MERCURY_ORB_FRAME_CLASS } from '../../lib/mercury-orb-frame';
 import { playPresetChime, type ChimeHandle } from '../../lib/preset-preview-chime';
+import { useTriadHealth } from '../../hooks/useTriadHealth';
+import { TriadStatusBadge } from './TriadStatusBadge';
 
 export type WasmHealthStatus = 'loading' | 'available' | 'unavailable';
 
@@ -40,6 +42,7 @@ export function PromptAudioDock({
   canExportTopPreset,
   wasmStatus,
 }: PromptAudioDockProps) {
+  const triadHealth = useTriadHealth();
   const midi = useWebMidi();
   const mercuryTier = useResolvedMercuryTier(hasPresets);
 
@@ -98,6 +101,9 @@ export function PromptAudioDock({
 
     return (
       <div className="relative z-20 mt-10">
+        <div className="mb-3 flex justify-start">
+          <TriadStatusBadge {...triadHealth} />
+        </div>
         {wasmStatus === 'unavailable' && (
           <p className="mb-3 text-left text-[11px] text-amber-200/80">
             Export unavailable · WASM encoder not built
@@ -178,6 +184,9 @@ export function PromptAudioDock({
 
   return (
     <div className="relative z-20 mt-10">
+      <div className="mb-3 flex justify-start">
+        <TriadStatusBadge {...triadHealth} />
+      </div>
       <EarModeController
         compact
         showChromeCopy={false}

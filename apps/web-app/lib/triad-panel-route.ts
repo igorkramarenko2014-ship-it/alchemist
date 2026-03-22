@@ -108,7 +108,12 @@ export async function triadPanelPost(request: Request, panelist: Panelist) {
       if (useDeepSeekLive) {
         candidates = await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, signal);
       } else if (useQwenLive) {
-        candidates = await fetchQwenCandidates(prompt, env.qwenApiKey, signal);
+        candidates = await fetchQwenCandidates(
+          prompt,
+          env.qwenApiKey,
+          signal,
+          env.qwenBaseUrl
+        );
       } else {
         candidates = await fetchLlamaCandidates(
           prompt,

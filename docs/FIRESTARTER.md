@@ -290,7 +290,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **One-liners (root):** **`pnpm go`**, **`pnpm go:fresh`**, **`./scripts/go.sh`**. From **`vst/`**: **`pnpm go`** / **`go:fresh`** forward to root (via **`with-pnpm.mjs`**).
 
-**APIs:** `/api/health`, **`GET /api/health/wasm`** (JSON **`ok`**, **`status`**: **`available`** \| **`unavailable`**, **`message`** — aligns **Export .fxp** with real wasm-pack artifacts; **`force-dynamic`**), `/api/usage`, `/api/triad/*`. **Middleware:** `x-request-id` on `/api/*`.
+**APIs:** `/api/health`, **`GET /api/health/wasm`** (JSON **`ok`**, **`status`**: **`available`** \| **`unavailable`**, **`message`** — aligns **Export .fxp** with real wasm-pack artifacts; **`force-dynamic`**), `/api/usage`, `/api/triad/*`. **`TriadStatusBadge`** on **`PromptAudioDock`** polls **`GET /api/health`** ( **`cache: no-store`**, ~30s) for **`triad.triadFullyLive`** and **`triad.livePanelists`** — UI only; does not change response shape. **Middleware:** `x-request-id` on `/api/*`.
 
 **Env:** **`apps/web-app/env.ts`** — expand with Zod/t3-env for prod.
 
@@ -323,6 +323,11 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`pnpm go` / `go:fresh`** | Install + dev / fresh (root; **`vst/`** forwards) |
 | **`pnpm typecheck`** | Turbo typecheck |
 | **`pnpm check:transparent`** | Denylist scan: **`packages/shared-engine/**/*.ts`** — no shadow / KGB / amnesia-style **shipped** tokens (**`scripts/check-no-shadow-patterns.mjs`**) — optional CI / pre-commit; see **`FIRE.md` §I**, **Appendix C** |
+| **`pnpm test:real-gates`** | **`tsx scripts/calibrate-gates.ts`** — observation-only triad + gate stats vs live routes; set **`BASE_URL`** to the dev server banner (default `http://127.0.0.1:3000`); optional **`CALIBRATION_PROMPTS_FILE`** (one prompt per line); writes **`tools/gate-calibration-output.json`**; **`logEvent`** **`calibration_start`** / **`calibration_complete`** on stderr — see **`FIRE.md` §E3** |
+| **`pnpm build:wasm`** | Rust + wasm-pack → **`packages/fxp-encoder/pkg/`** — enables browser **Export .fxp** (**`GET /api/health/wasm`**); see **§10** |
+| **`pnpm env:check`** | Validates **`apps/web-app/.env.local`** (Groq **`KEY=value`** form; catches a bare **`gsk_...`** line); bundled into **`pnpm alc:doctor`** |
+| **`pnpm check:ready`** | **`pnpm env:check`** then **`pnpm verify:harsh`** — fast “green before dev” (no **`next build`**) |
+| **`pnpm verify:keys`** | Live ping **Groq**, **DeepSeek**, **Qwen** (DashScope) using **`apps/web-app/.env.local`** — does **not** print secrets; exit **1** if any configured key fails (e.g. DeepSeek **402** insufficient balance) |
 | **`.fxp` in browser** | Needs **`pnpm run build:wasm`** in **`packages/fxp-encoder`** (Rust). **`pnpm harshcheck`** can pass without Rust (encoder may stub). See **§10**, **`FIRE.md` §C / §E1.17** |
 
 **Doc-synced project health:** Run **`pnpm fire:sync`** after a green **`pnpm harshcheck`** to stamp Vitest + Next versions into **`docs/FIRE.md`** (machine block). Narrative posture stays in **Assessment snapshot** above; **`fxp-encoder`** may skip without Rust — **`§10`**, **`FIRE.md` §C / §E1.17**.
@@ -341,7 +346,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **Turbo / `pnpm build` (no Rust):** **`packages/fxp-encoder`** runs **`scripts/skip-if-no-rust.cjs`** — writes stub **`fxp_encoder.js`**, **`pkg/.skip`**, and removes stale **`fxp_encoder_bg.wasm`** (avoids “old WASM + stub JS” mismatch).
 
-**Real WASM:** Install Rust (**https://rustup.rs**), **`rustup target add wasm32-unknown-unknown`**, then from **`packages/fxp-encoder`**: **`pnpm run build:wasm`** (wasm-pack → **`pkg/`**; **`scripts/clear-stub-marker.cjs`** removes **`pkg/.skip`** on success).
+**Real WASM:** Install Rust (**https://rustup.rs**), **`rustup target add wasm32-unknown-unknown`**, then **`pnpm build:wasm`** from **repo root** (same as **`pnpm --filter @alchemist/fxp-encoder build:wasm`**) or **`pnpm run build:wasm`** inside **`packages/fxp-encoder`** — wasm-pack → **`pkg/`**; **`scripts/clear-stub-marker.cjs`** removes **`pkg/.skip`** on success. **`pnpm alc:doctor`** reports whether **`pkg/`** is ready.
 
 **HARD GATE** (authoritative bytes): still **`serum-offset-map.ts`** + **`validate-offsets.py`** — **`packages/fxp-encoder/README.md`**, **`FIRE.md` §D**.
 
@@ -371,6 +376,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **Root `README.md`**, **`AGENTS.md`**, **`RUN.txt`** | Quick start, agents, one-liner |
 | **`.cursorrules`** | Cursor root context |
 | **`.cursor/rules/*.mdc`** (incl. **`alchemist-quality.mdc`** — edit checklist), **`.cursor/skills/harshcheck/SKILL.md`** | Rules + harshcheck |
+| **`docs/alchemist-cursor-prompts.html`** | Open in browser: ordered **Composer** prompts (P0–P3). **P0** (OpenRouter **`QWEN_BASE_URL`**) is **shipped**; **P1** partial-mode banner optional; **P2** calibration / **P3** timeout per data |
 
 **List markdown:** **`pnpm docs:list`**.
 
