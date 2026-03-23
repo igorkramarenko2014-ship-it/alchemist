@@ -108,6 +108,7 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 
 ## 9. Optional advanced modules (not required for MVP understanding)
 
+- **SOE (`soe.ts`):** `computeSoeRecommendations(snapshot)` — heuristic hints from **`meanPanelistMs`**, failure/drop rates, optional **`triadStubRunFraction`**. Returns **`fusionHintCodes`** + **`fusionHintLines`** (`soe_fusion:` prefix): deterministic **ops** text aligned with **security posture** + **inner-circle** collaboration habits — **not** chat transcripts, **not** DSP.
 - **Arbitration:** `runTransparentArbitration` — see `FIRE.md` §I, `packages/shared-engine/arbitration/`.
 - **Talent market scout:** `talent/` — §J.
 - **Great Library / AGL:** offline provenance merges into SOE snapshot — §K, `learning/great-library.ts`.

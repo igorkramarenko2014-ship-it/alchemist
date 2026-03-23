@@ -113,7 +113,7 @@ function soeHint(exitCode, durationMs, mode) {
   if (mode === "verify-harsh") {
     return "verify_harsh_green: run pnpm harshcheck before release (adds next build)";
   }
-  return "verify_web_green: optional pnpm fire:sync (or ALCHEMIST_FIRE_SYNC=1) to refresh docs/FIRE.md metrics; wire triad_run_* + gate metrics into computeSoeRecommendations for live SOE";
+  return "verify_web_green: optional pnpm fire:sync (or ALCHEMIST_FIRE_SYNC=1) to refresh docs/FIRE.md metrics; wire triad_run_* + gate metrics into computeSoeRecommendations — read fusionHintCodes / soe_fusion lines for agent-skill–aligned ops hints";
 }
 
 function runPipeline(root, mode) {

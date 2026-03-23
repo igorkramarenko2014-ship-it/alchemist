@@ -137,7 +137,11 @@ export type { TablebaseRecord } from "./reliability/tablebase-schema";
 export { isTablebaseRecord } from "./reliability/tablebase-schema";
 export { TABLEBASE_RECORDS } from "./reliability/tablebase-db";
 export { computeSoeRecommendations } from "./soe";
-export type { SoeRecommendations, SoeTriadSnapshot } from "./soe";
+export type {
+  SoeFusionHintCode,
+  SoeRecommendations,
+  SoeTriadSnapshot,
+} from "./soe";
 export {
   ALT_TRIAD_GOVERNANCE_WEIGHTS_EFFICIENCY,
   ATHENA_SOE_RECALIBRATION_LINE,

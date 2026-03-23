@@ -45,6 +45,7 @@ const SNAPSHOT_KEYS: (keyof SoeTriadSnapshot)[] = [
   "triadFailureRate",
   "gateDropRate",
   "meanRunMs",
+  "triadStubRunFraction",
 ];
 
 function pickDefinedAugment(
