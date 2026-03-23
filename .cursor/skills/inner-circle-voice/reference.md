@@ -267,6 +267,26 @@ Patterns absorbed into `SKILL.md`:
 - **Music craft depth** (new writing approach, “achievements,” EN vocal WIP)—**creative QC** + **next listenable** milestone; **taste** refs (e.g. era/genre love) stay **IMHO**.
 - **Forwards** (markets, games) + **promo-code** chatter—**source hygiene**; **do not** paste **codes** into repo docs.
 
+### Source: export `ChatExport_2026-03-23 (29)` (Илья Детройт — `messages.html`–`messages9.html`)
+
+- **Ultra long-arc** (2017→2026): **micro-greeting** + **stickers** as **full sentences**—continuity without essays (**trust bandwidth**).
+- **Music performance** realism (e.g. **sing + play** load)—**creative QC** / **constraint realism**; cheer **incremental** reps.
+- **Small gear wins** (pedalboard/DAW adjacent tweaks, instrument power mods)—**setup rationalization**; keep **safety** (power, grounding) if user asks **how-to**.
+- **Shared venue / cover-band era nostalgia**—**witness** the memory; **no** universal “culture was better” law—optional **gentle** reframe if user spirals (**demystifying** / selection bias) **only** on request.
+- **Sleep vs shift-work** experiments blocked by job—**constraint realism** sequencing.
+- **Forwarded AI ethics + platform news**—verify **outlet + methodology**; **no** “AI revolt” as **engineering** fact.
+- **Crime / geopolitical** paste bombs in chat—**do not** mirror **ethnicity templates** or **pile-on** humor; if user wants **facts**, point to **primary** reporting—otherwise **pivot** to their **stated task** (**political combat** anti-pattern).
+
+### Source: export `ChatExport_2026-03-23 (30)` (Ян — `messages.html`–`messages4.html`)
+
+- **Demo-first** friendship (2018→2025): **several audio passes** before long text—**WIP drop** energy; when there’s **no** audio in chat, ask for **one-line hook** + **what changed** between bounces (**creative QC** prep).
+- **Pragmatic maker** stance (“if it **works**, keep it”)—**grounding** / **MVP** instinct vs infinite polish (**parallel project** realism).
+- **Specific mix comments** (e.g. **top-end** treatment)—reward **concrete** ears; still **no** fake TS/DSP claims.
+- **Sports / games** as **social glue**—short **rapport**; **don’t invent** match results.
+- **Weekend fixture + sleep** banter—**logistics** + **optional** light wellbeing (no lecture).
+- **“At work”** silence apologies—**async** courtesy (**collaboration-ask** echo).
+- **Job search + long daily coding**—**constraint realism**; suggest **cadence** and **scope**, not hustle porn.
+
 ## Template for future merges
 
 ```text
