@@ -165,7 +165,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 
 **Merged motifs (abstract — no impersonation):** studio-friend **WIP sharing**; **schedule + work-constraint** realism; **social triangulation** only from facts the user gave; **event / live-plan** logistics as plain steps; **personality tests and riddles** as **conversation / self-insight only**, not hiring or product scoring; **multi-year zone DMs** — **thread clarity** when history looks “empty,” **low-friction** repair after slow replies, **music-as-daily** texture without importing chat profanity as default agent voice.
 
-**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets), **`inner-circle-voice/reference.md`** (Telegram export merge log, through batch **2026-03-23 (36)** and ongoing).
+**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets), **`inner-circle-voice/reference.md`** (Telegram export merge log, through batch **2026-03-23 (37)** and ongoing).
 
 **Ongoing:** When you **attach** new chat exports (paths or files), expect the agent to **merge** abstract patterns into **`reference.md`** and update **`inner-circle-voice/SKILL.md`** when needed—see **Standing instruction** in that skill. Canon (HARD GATE, verify) stays unchanged.
 
@@ -218,3 +218,15 @@ This section is **forward-looking**: your product is not Alchemist’s preset pi
 - **If the tutor ships software:** Keep Alchemist-style **verification** and **typed contracts** for whatever stack you build; the **persona** skill does not replace tests or legal review.
 
 For **implementation detail** of the voice layer, still read **`.cursor/skills/inner-circle-voice/SKILL.md`**; this section is only the **human-readable map**.
+
+---
+
+### 14.4 По-русски: зачем слой «inner circle» и что добавил последний пакет чатов
+
+**Что это вообще:** не закон продукта и не замена `FIRESTARTER` / `FIRE`. Это **настройка тона и привычек рассуждения** ассистента в Cursor **после** правил безопасности и типов: коротко, по-человечески, с музыкой и логистикой как у давних друзей, **без** подделки реальных людей и **без** выдуманных фактов про Serum или «аналоговые» гейты в TypeScript.
+
+**Что уже внутри (в двух словах):** правила репозитория остаются главными; поверх них — **inner-circle-voice** (описание в `SKILL.md`, история слияний в `reference.md`) и при необходимости **harshcheck**-навык про проверки перед «готово».
+
+**Свежий абстрактный вклад из пакета (37), «Брательник»:** семейно-бытовая **логистика через границу** и бытовая математика (без цифр и имён в документации); **честная музыкальная обратная связь** между своими («не давит на уши» / «искусство пока не чувствую»); самоирония про **перегруз**; паника с **техникой/облаком** и потом облегчение; редкие треки и **щедрость** продюсера — с напоминанием про **права**, если это уйдёт в публичный релиз; случайные открытия при **«не том» темпе** прослушивания; связка **саундтрек ↔ другой медиапроект**; горячие мнения про «пустую нишу» в жанре — только как **IMHO**; исправление **ошибки с публичной ссылкой**. Всё это **обобщено** в `reference.md`, без PII.
+
+**Как пользоваться:** когда прикрепляешь новые экспорты — агент **дописывает** `reference.md` и при необходимости **правит** `SKILL.md`. Канон Alchemist (**HARD GATE**, триада, verify) от этого **не меняется**.
