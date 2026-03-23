@@ -1,0 +1,1912 @@
+[
+  {
+    "id": "llama-3.2-1b-q8",
+    "name": "Llama 3.2 1B",
+    "params_b": 1.24,
+    "quantization": "Q8_0",
+    "weight_gb": 1.32,
+    "kv_per_1k_gb": 0.031,
+    "max_context_k": 128,
+    "layers": 16,
+    "mmlu_score": 49.3,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "16 layers, 8 KV heads, head_dim 64. GGUF Q8_0 file size."
+  },
+  {
+    "id": "llama-3.2-1b-q4",
+    "name": "Llama 3.2 1B",
+    "params_b": 1.24,
+    "quantization": "Q4_K_M",
+    "weight_gb": 0.81,
+    "kv_per_1k_gb": 0.031,
+    "max_context_k": 128,
+    "layers": 16,
+    "mmlu_score": 49.3,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "16 layers, 8 KV heads, head_dim 64. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "llama-3.2-3b-fp16",
+    "name": "Llama 3.2 3B",
+    "params_b": 3.21,
+    "quantization": "fp16",
+    "weight_gb": 6.43,
+    "kv_per_1k_gb": 0.107,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 63.4,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "28 layers, 8 KV heads, head_dim 128. GGUF fp16 file size."
+  },
+  {
+    "id": "llama-3.2-3b-q8",
+    "name": "Llama 3.2 3B",
+    "params_b": 3.21,
+    "quantization": "Q8_0",
+    "weight_gb": 3.42,
+    "kv_per_1k_gb": 0.107,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 63.4,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "28 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "llama-3.2-3b-q4",
+    "name": "Llama 3.2 3B",
+    "params_b": 3.21,
+    "quantization": "Q4_K_M",
+    "weight_gb": 2.02,
+    "kv_per_1k_gb": 0.107,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 63.4,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "28 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "llama-3.1-8b-fp16",
+    "name": "Llama 3.1 8B",
+    "params_b": 8.03,
+    "quantization": "fp16",
+    "weight_gb": 16.05,
+    "kv_per_1k_gb": 0.122,
+    "max_context_k": 128,
+    "layers": 32,
+    "mmlu_score": 69.4,
+    "swe_bench_score": 6.2,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "32 layers, 8 KV heads, head_dim 128. Estimated from GGUF f32 file size (32.1 GB) / 2."
+  },
+  {
+    "id": "llama-3.1-8b-q8",
+    "name": "Llama 3.1 8B",
+    "params_b": 8.03,
+    "quantization": "Q8_0",
+    "weight_gb": 8.54,
+    "kv_per_1k_gb": 0.122,
+    "max_context_k": 128,
+    "layers": 32,
+    "mmlu_score": 69.4,
+    "swe_bench_score": 6.2,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "32 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "llama-3.1-8b-q4",
+    "name": "Llama 3.1 8B",
+    "params_b": 8.03,
+    "quantization": "Q4_K_M",
+    "weight_gb": 4.92,
+    "kv_per_1k_gb": 0.122,
+    "max_context_k": 128,
+    "layers": 32,
+    "mmlu_score": 69.4,
+    "swe_bench_score": 6.2,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "32 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "llama-3.2-11b-vision-q8",
+    "name": "Llama 3.2 Vision 11B",
+    "params_b": 10.6,
+    "quantization": "Q8_0",
+    "weight_gb": 10.4,
+    "kv_per_1k_gb": 0.122,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 73,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Multimodal (vision adapter on Llama 3.1 8B). 40 layers (32 self-attn + 8 cross-attn), 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "llama-3.2-11b-vision-q4",
+    "name": "Llama 3.2 Vision 11B",
+    "params_b": 10.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 5.96,
+    "kv_per_1k_gb": 0.122,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 73,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Multimodal (vision adapter on Llama 3.1 8B). 40 layers (32 self-attn + 8 cross-attn), 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "llama-3.3-70b-q8",
+    "name": "Llama 3.3 70B",
+    "params_b": 70.6,
+    "quantization": "Q8_0",
+    "weight_gb": 74.98,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 86,
+    "swe_bench_score": 24.8,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "80 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "llama-3.3-70b-q4",
+    "name": "Llama 3.3 70B",
+    "params_b": 70.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 42.52,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 86,
+    "swe_bench_score": 24.8,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "80 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "llama-4-scout-q8",
+    "name": "Llama 4 Scout",
+    "params_b": 109,
+    "quantization": "Q8_0",
+    "weight_gb": 115,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 79.6,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "MoE: 109B total, 17B active (16 experts). 48 layers, 8 KV heads, head_dim 128, hybrid attention (12 global + 36 local, chunk=8192). GGUF Q8_0 file size."
+  },
+  {
+    "id": "llama-4-scout-q4",
+    "name": "Llama 4 Scout",
+    "params_b": 109,
+    "quantization": "Q4_K_M",
+    "weight_gb": 65.4,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 79.6,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "MoE: 109B total, 17B active (16 experts). 48 layers, 8 KV heads, head_dim 128, hybrid attention (12 global + 36 local, chunk=8192). GGUF Q4_K_M file size."
+  },
+  {
+    "id": "llama-4-maverick-q8",
+    "name": "Llama 4 Maverick",
+    "params_b": 400,
+    "quantization": "Q8_0",
+    "weight_gb": 426,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 85.5,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "MoE: 400B total, 17B active (128 experts). 48 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "llama-4-maverick-q4",
+    "name": "Llama 4 Maverick",
+    "params_b": 400,
+    "quantization": "Q4_K_M",
+    "weight_gb": 243,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 85.5,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "MoE: 400B total, 17B active (128 experts). 48 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-3b-q8",
+    "name": "Qwen 2.5 3B",
+    "params_b": 3.09,
+    "quantization": "Q8_0",
+    "weight_gb": 3.29,
+    "kv_per_1k_gb": 0.034,
+    "max_context_k": 32,
+    "layers": 36,
+    "mmlu_score": 65.6,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "36 layers, 2 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-3b-q4",
+    "name": "Qwen 2.5 3B",
+    "params_b": 3.09,
+    "quantization": "Q4_K_M",
+    "weight_gb": 1.93,
+    "kv_per_1k_gb": 0.034,
+    "max_context_k": 32,
+    "layers": 36,
+    "mmlu_score": 65.6,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "36 layers, 2 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-7b-q8",
+    "name": "Qwen 2.5 7B",
+    "params_b": 7.62,
+    "quantization": "Q8_0",
+    "weight_gb": 8.1,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 74.2,
+    "swe_bench_score": 11.6,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "28 layers, 4 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-7b-q4",
+    "name": "Qwen 2.5 7B",
+    "params_b": 7.62,
+    "quantization": "Q4_K_M",
+    "weight_gb": 4.68,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 74.2,
+    "swe_bench_score": 11.6,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "28 layers, 4 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-14b-q8",
+    "name": "Qwen 2.5 14B",
+    "params_b": 14.7,
+    "quantization": "Q8_0",
+    "weight_gb": 15.7,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 79.9,
+    "swe_bench_score": 17.8,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "48 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-14b-q4",
+    "name": "Qwen 2.5 14B",
+    "params_b": 14.7,
+    "quantization": "Q4_K_M",
+    "weight_gb": 8.99,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 79.9,
+    "swe_bench_score": 17.8,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "48 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-32b-q8",
+    "name": "Qwen 2.5 32B",
+    "params_b": 32.5,
+    "quantization": "Q8_0",
+    "weight_gb": 34.82,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 83.3,
+    "swe_bench_score": 24.2,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "64 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-32b-q4",
+    "name": "Qwen 2.5 32B",
+    "params_b": 32.5,
+    "quantization": "Q4_K_M",
+    "weight_gb": 19.85,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 83.3,
+    "swe_bench_score": 24.2,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "64 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-72b-q8",
+    "name": "Qwen 2.5 72B",
+    "params_b": 72.7,
+    "quantization": "Q8_0",
+    "weight_gb": 77.26,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 86.1,
+    "swe_bench_score": 28.4,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "80 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-72b-q4",
+    "name": "Qwen 2.5 72B",
+    "params_b": 72.7,
+    "quantization": "Q4_K_M",
+    "weight_gb": 47.42,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 86.1,
+    "swe_bench_score": 28.4,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "80 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-vl-3b-q8",
+    "name": "Qwen 2.5 VL 3B",
+    "params_b": 3.09,
+    "quantization": "Q8_0",
+    "weight_gb": 3.29,
+    "kv_per_1k_gb": 0.034,
+    "max_context_k": 128,
+    "layers": 36,
+    "mmlu_score": 65.6,
+    "swe_bench_score": null,
+    "features": [
+      "vision"
+    ],
+    "notes": "Vision-language model. Same text backbone as Qwen 2.5 3B. 36 layers, 2 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-vl-3b-q4",
+    "name": "Qwen 2.5 VL 3B",
+    "params_b": 3.09,
+    "quantization": "Q4_K_M",
+    "weight_gb": 1.93,
+    "kv_per_1k_gb": 0.034,
+    "max_context_k": 128,
+    "layers": 36,
+    "mmlu_score": 65.6,
+    "swe_bench_score": null,
+    "features": [
+      "vision"
+    ],
+    "notes": "Vision-language model. Same text backbone as Qwen 2.5 3B. 36 layers, 2 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-vl-7b-q8",
+    "name": "Qwen 2.5 VL 7B",
+    "params_b": 7.62,
+    "quantization": "Q8_0",
+    "weight_gb": 8.1,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 74.2,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Vision-language model. Same text backbone as Qwen 2.5 7B. 28 layers, 4 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-vl-7b-q4",
+    "name": "Qwen 2.5 VL 7B",
+    "params_b": 7.62,
+    "quantization": "Q4_K_M",
+    "weight_gb": 4.68,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 74.2,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Vision-language model. Same text backbone as Qwen 2.5 7B. 28 layers, 4 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-vl-72b-q8",
+    "name": "Qwen 2.5 VL 72B",
+    "params_b": 72.7,
+    "quantization": "Q8_0",
+    "weight_gb": 77.3,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 86.1,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Vision-language model. Same text backbone as Qwen 2.5 72B. 80 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-vl-72b-q4",
+    "name": "Qwen 2.5 VL 72B",
+    "params_b": 72.7,
+    "quantization": "Q4_K_M",
+    "weight_gb": 47.4,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 86.1,
+    "swe_bench_score": null,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Vision-language model. Same text backbone as Qwen 2.5 72B. 80 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen3-8b-q8",
+    "name": "Qwen3 8B",
+    "params_b": 8.2,
+    "quantization": "Q8_0",
+    "weight_gb": 8.71,
+    "kv_per_1k_gb": 0.137,
+    "max_context_k": 128,
+    "layers": 36,
+    "mmlu_score": 79,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Reasoning model (thinking/non-thinking modes). 36 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen3-8b-q4",
+    "name": "Qwen3 8B",
+    "params_b": 8.2,
+    "quantization": "Q4_K_M",
+    "weight_gb": 5.03,
+    "kv_per_1k_gb": 0.137,
+    "max_context_k": 128,
+    "layers": 36,
+    "mmlu_score": 79,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Reasoning model (thinking/non-thinking modes). 36 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen3-32b-q8",
+    "name": "Qwen3 32B",
+    "params_b": 32.8,
+    "quantization": "Q8_0",
+    "weight_gb": 34.8,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 85,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Reasoning model (thinking/non-thinking modes). 64 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen3-32b-q4",
+    "name": "Qwen3 32B",
+    "params_b": 32.8,
+    "quantization": "Q4_K_M",
+    "weight_gb": 19.8,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 85,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Reasoning model (thinking/non-thinking modes). 64 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen3-coder-30b-a3b-q8",
+    "name": "Qwen3 Coder 30B-A3B",
+    "params_b": 30.5,
+    "quantization": "Q8_0",
+    "weight_gb": 32.5,
+    "kv_per_1k_gb": 0.092,
+    "max_context_k": 256,
+    "layers": 48,
+    "mmlu_score": 81,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "MoE: 30.5B total, 3.3B active (128 experts, 8 active). Coding-specialized, non-thinking mode only. 48 layers, 4 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen3-coder-30b-a3b-q4",
+    "name": "Qwen3 Coder 30B-A3B",
+    "params_b": 30.5,
+    "quantization": "Q4_K_M",
+    "weight_gb": 18.6,
+    "kv_per_1k_gb": 0.092,
+    "max_context_k": 256,
+    "layers": 48,
+    "mmlu_score": 81,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "MoE: 30.5B total, 3.3B active (128 experts, 8 active). Coding-specialized, non-thinking mode only. 48 layers, 4 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen3-next-80b-a3b-q8",
+    "name": "Qwen3 Next 80B-A3B",
+    "params_b": 80,
+    "quantization": "Q8_0",
+    "weight_gb": 84.8,
+    "kv_per_1k_gb": 0.023,
+    "max_context_k": 256,
+    "layers": 48,
+    "mmlu_score": 90,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "MoE: 80B total, 3B active (512 experts). Hybrid architecture (Gated DeltaNet + Gated Attention). Only 12 of 48 layers use attention (2 KV heads, head_dim 256). KV estimate covers attention layers only; DeltaNet layers use fixed-size recurrent state. Instruct-only (no thinking mode). GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen3-next-80b-a3b-q4",
+    "name": "Qwen3 Next 80B-A3B",
+    "params_b": 80,
+    "quantization": "Q4_K_M",
+    "weight_gb": 48.4,
+    "kv_per_1k_gb": 0.023,
+    "max_context_k": 256,
+    "layers": 48,
+    "mmlu_score": 90,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "MoE: 80B total, 3B active (512 experts). Hybrid architecture (Gated DeltaNet + Gated Attention). Only 12 of 48 layers use attention (2 KV heads, head_dim 256). KV estimate covers attention layers only; DeltaNet layers use fixed-size recurrent state. Instruct-only (no thinking mode). GGUF Q4_K_M file size."
+  },
+  {
+    "id": "deepseek-r1-distill-qwen-7b-q8",
+    "name": "DeepSeek R1 Distill Qwen 7B",
+    "params_b": 7.62,
+    "quantization": "Q8_0",
+    "weight_gb": 8.1,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 58,
+    "swe_bench_score": 12.2,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Qwen 2.5 Math 7B. 28 layers, 4 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "deepseek-r1-distill-qwen-7b-q4",
+    "name": "DeepSeek R1 Distill Qwen 7B",
+    "params_b": 7.62,
+    "quantization": "Q4_K_M",
+    "weight_gb": 4.68,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 58,
+    "swe_bench_score": 12.2,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Qwen 2.5 Math 7B. 28 layers, 4 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "deepseek-r1-distill-qwen-14b-q8",
+    "name": "DeepSeek R1 Distill Qwen 14B",
+    "params_b": 14.7,
+    "quantization": "Q8_0",
+    "weight_gb": 15.7,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 72,
+    "swe_bench_score": 20.4,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Qwen 2.5 14B. 48 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "deepseek-r1-distill-qwen-14b-q4",
+    "name": "DeepSeek R1 Distill Qwen 14B",
+    "params_b": 14.7,
+    "quantization": "Q4_K_M",
+    "weight_gb": 8.99,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 72,
+    "swe_bench_score": 20.4,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Qwen 2.5 14B. 48 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "deepseek-r1-distill-qwen-32b-q8",
+    "name": "DeepSeek R1 Distill Qwen 32B",
+    "params_b": 32.5,
+    "quantization": "Q8_0",
+    "weight_gb": 34.82,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 80,
+    "swe_bench_score": 30.6,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Qwen 2.5 32B. 64 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "deepseek-r1-distill-qwen-32b-q4",
+    "name": "DeepSeek R1 Distill Qwen 32B",
+    "params_b": 32.5,
+    "quantization": "Q4_K_M",
+    "weight_gb": 19.85,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 80,
+    "swe_bench_score": 30.6,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Qwen 2.5 32B. 64 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "deepseek-r1-distill-llama-70b-q8",
+    "name": "DeepSeek R1 Distill Llama 70B",
+    "params_b": 70.6,
+    "quantization": "Q8_0",
+    "weight_gb": 74.98,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 84,
+    "swe_bench_score": 27.2,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Llama 3.3 70B. 80 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "deepseek-r1-distill-llama-70b-q4",
+    "name": "DeepSeek R1 Distill Llama 70B",
+    "params_b": 70.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 42.52,
+    "kv_per_1k_gb": 0.305,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 84,
+    "swe_bench_score": 27.2,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model (distilled from R1). Based on Llama 3.3 70B. 80 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwq-32b-q8",
+    "name": "QwQ 32B",
+    "params_b": 32.5,
+    "quantization": "Q8_0",
+    "weight_gb": 34.9,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 83,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Reasoning model. Based on Qwen 2.5 32B. 64 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwq-32b-q4",
+    "name": "QwQ 32B",
+    "params_b": 32.5,
+    "quantization": "Q4_K_M",
+    "weight_gb": 19.9,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 83,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Reasoning model. Based on Qwen 2.5 32B. 64 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "phi-4-mini-3.8b-q8",
+    "name": "Phi-4 Mini 3.8B",
+    "params_b": 3.84,
+    "quantization": "Q8_0",
+    "weight_gb": 4.08,
+    "kv_per_1k_gb": 0.122,
+    "max_context_k": 128,
+    "layers": 32,
+    "mmlu_score": 70,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "32 layers, 8 KV heads, head_dim 128. 200K vocabulary. GGUF Q8_0 file size."
+  },
+  {
+    "id": "phi-4-mini-3.8b-q4",
+    "name": "Phi-4 Mini 3.8B",
+    "params_b": 3.84,
+    "quantization": "Q4_K_M",
+    "weight_gb": 2.49,
+    "kv_per_1k_gb": 0.122,
+    "max_context_k": 128,
+    "layers": 32,
+    "mmlu_score": 70,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "32 layers, 8 KV heads, head_dim 128. 200K vocabulary. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "phi-4-14b-q8",
+    "name": "Phi-4 14B",
+    "params_b": 14.7,
+    "quantization": "Q8_0",
+    "weight_gb": 15.58,
+    "kv_per_1k_gb": 0.191,
+    "max_context_k": 16,
+    "layers": 40,
+    "mmlu_score": 84.8,
+    "swe_bench_score": 18.6,
+    "features": [],
+    "notes": "40 layers, 10 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "phi-4-14b-q4",
+    "name": "Phi-4 14B",
+    "params_b": 14.7,
+    "quantization": "Q4_K_M",
+    "weight_gb": 9.06,
+    "kv_per_1k_gb": 0.191,
+    "max_context_k": 16,
+    "layers": 40,
+    "mmlu_score": 84.8,
+    "swe_bench_score": 18.6,
+    "features": [],
+    "notes": "40 layers, 10 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "mistral-nemo-12b-q8",
+    "name": "Mistral Nemo 12B",
+    "params_b": 12.2,
+    "quantization": "Q8_0",
+    "weight_gb": 13.1,
+    "kv_per_1k_gb": 0.191,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 68,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "Co-developed with NVIDIA. 40 layers, 8 KV heads, head_dim 160. GGUF Q8_0 file size."
+  },
+  {
+    "id": "mistral-nemo-12b-q4",
+    "name": "Mistral Nemo 12B",
+    "params_b": 12.2,
+    "quantization": "Q4_K_M",
+    "weight_gb": 7.6,
+    "kv_per_1k_gb": 0.191,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 68,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "Co-developed with NVIDIA. 40 layers, 8 KV heads, head_dim 160. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "mistral-small-3.1-24b-q8",
+    "name": "Mistral Small 3.1 24B",
+    "params_b": 23.6,
+    "quantization": "Q8_0",
+    "weight_gb": 25.05,
+    "kv_per_1k_gb": 0.153,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 81,
+    "swe_bench_score": 20.8,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "40 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "mistral-small-3.1-24b-q4",
+    "name": "Mistral Small 3.1 24B",
+    "params_b": 23.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 14.33,
+    "kv_per_1k_gb": 0.153,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 81,
+    "swe_bench_score": 20.8,
+    "features": [
+      "vision",
+      "tool_use"
+    ],
+    "notes": "40 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "gemma-2-9b-q8",
+    "name": "Gemma 2 9B",
+    "params_b": 9.24,
+    "quantization": "Q8_0",
+    "weight_gb": 9.83,
+    "kv_per_1k_gb": 0.321,
+    "max_context_k": 8,
+    "layers": 42,
+    "mmlu_score": 71.3,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "42 layers, 8 KV heads, head_dim 256. GGUF Q8_0 file size."
+  },
+  {
+    "id": "gemma-2-9b-q4",
+    "name": "Gemma 2 9B",
+    "params_b": 9.24,
+    "quantization": "Q4_K_M",
+    "weight_gb": 5.76,
+    "kv_per_1k_gb": 0.321,
+    "max_context_k": 8,
+    "layers": 42,
+    "mmlu_score": 71.3,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "42 layers, 8 KV heads, head_dim 256. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "gemma-2-27b-q8",
+    "name": "Gemma 2 27B",
+    "params_b": 27.2,
+    "quantization": "Q8_0",
+    "weight_gb": 28.94,
+    "kv_per_1k_gb": 0.351,
+    "max_context_k": 8,
+    "layers": 46,
+    "mmlu_score": 75.2,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "46 layers, 16 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "gemma-2-27b-q4",
+    "name": "Gemma 2 27B",
+    "params_b": 27.2,
+    "quantization": "Q4_K_M",
+    "weight_gb": 16.65,
+    "kv_per_1k_gb": 0.351,
+    "max_context_k": 8,
+    "layers": 46,
+    "mmlu_score": 75.2,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "46 layers, 16 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "gemma-3-4b-q8",
+    "name": "Gemma 3 4B",
+    "params_b": 3.88,
+    "quantization": "Q8_0",
+    "weight_gb": 4.13,
+    "kv_per_1k_gb": 0.147,
+    "max_context_k": 128,
+    "layers": 34,
+    "mmlu_score": 63,
+    "swe_bench_score": null,
+    "features": [
+      "vision"
+    ],
+    "notes": "34 layers (5:1 local:global, sw=1024), head_dim 256. KV estimate from Gemma 3 tech report. GGUF Q8_0 file size."
+  },
+  {
+    "id": "gemma-3-4b-q4",
+    "name": "Gemma 3 4B",
+    "params_b": 3.88,
+    "quantization": "Q4_K_M",
+    "weight_gb": 2.49,
+    "kv_per_1k_gb": 0.147,
+    "max_context_k": 128,
+    "layers": 34,
+    "mmlu_score": 63,
+    "swe_bench_score": null,
+    "features": [
+      "vision"
+    ],
+    "notes": "34 layers (5:1 local:global, sw=1024), head_dim 256. KV estimate from Gemma 3 tech report. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "gemma-3-12b-q8",
+    "name": "Gemma 3 12B",
+    "params_b": 11.8,
+    "quantization": "Q8_0",
+    "weight_gb": 12.51,
+    "kv_per_1k_gb": 0.466,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 74,
+    "swe_bench_score": 12.8,
+    "features": [
+      "vision"
+    ],
+    "notes": "48 layers (5:1 local:global, sw=1024), head_dim 256. KV estimate from Gemma 3 tech report. GGUF Q8_0 file size."
+  },
+  {
+    "id": "gemma-3-12b-q4",
+    "name": "Gemma 3 12B",
+    "params_b": 11.8,
+    "quantization": "Q4_K_M",
+    "weight_gb": 7.3,
+    "kv_per_1k_gb": 0.466,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 74,
+    "swe_bench_score": 12.8,
+    "features": [
+      "vision"
+    ],
+    "notes": "48 layers (5:1 local:global, sw=1024), head_dim 256. KV estimate from Gemma 3 tech report. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "gemma-3-27b-q8",
+    "name": "Gemma 3 27B",
+    "params_b": 27,
+    "quantization": "Q8_0",
+    "weight_gb": 28.71,
+    "kv_per_1k_gb": 0.584,
+    "max_context_k": 128,
+    "layers": 62,
+    "mmlu_score": 78,
+    "swe_bench_score": 17.4,
+    "features": [
+      "vision"
+    ],
+    "notes": "62 layers (5:1 local:global, sw=1024), head_dim 256. KV estimate from Gemma 3 tech report. GGUF Q8_0 file size."
+  },
+  {
+    "id": "gemma-3-27b-q4",
+    "name": "Gemma 3 27B",
+    "params_b": 27,
+    "quantization": "Q4_K_M",
+    "weight_gb": 16.55,
+    "kv_per_1k_gb": 0.584,
+    "max_context_k": 128,
+    "layers": 62,
+    "mmlu_score": 78,
+    "swe_bench_score": 17.4,
+    "features": [
+      "vision"
+    ],
+    "notes": "62 layers (5:1 local:global, sw=1024), head_dim 256. KV estimate from Gemma 3 tech report. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "glm-4.7-flash-q8",
+    "name": "GLM-4.7 Flash",
+    "params_b": 31,
+    "quantization": "Q8_0",
+    "weight_gb": 31.8,
+    "kv_per_1k_gb": 0.05,
+    "max_context_k": 128,
+    "layers": 47,
+    "mmlu_score": 82,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 30B total, 3B active (64 experts, 4 active). 47 layers, uses MLA (kv_lora_rank=512). KV estimate is for compressed MLA cache. GGUF Q8_0 file size."
+  },
+  {
+    "id": "glm-4.7-flash-q4",
+    "name": "GLM-4.7 Flash",
+    "params_b": 31,
+    "quantization": "Q4_K_M",
+    "weight_gb": 18.3,
+    "kv_per_1k_gb": 0.05,
+    "max_context_k": 128,
+    "layers": 47,
+    "mmlu_score": 82,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 30B total, 3B active (64 experts, 4 active). 47 layers, uses MLA (kv_lora_rank=512). KV estimate is for compressed MLA cache. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "nemotron-nano-12b-q8",
+    "name": "Nemotron Nano 12B",
+    "params_b": 12.6,
+    "quantization": "Q8_0",
+    "weight_gb": 13.09,
+    "kv_per_1k_gb": 0.023,
+    "max_context_k": 128,
+    "layers": 62,
+    "mmlu_score": 76,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Hybrid Mamba-Transformer (6 attention + 56 Mamba-2 layers). 8 KV heads, head_dim 128 on attention layers only. KV estimate covers attention layers; Mamba layers use fixed-size state (~140 MB). GGUF Q8_0 file size."
+  },
+  {
+    "id": "nemotron-nano-12b-q4",
+    "name": "Nemotron Nano 12B",
+    "params_b": 12.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 7.37,
+    "kv_per_1k_gb": 0.023,
+    "max_context_k": 128,
+    "layers": 62,
+    "mmlu_score": 76,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "Hybrid Mamba-Transformer (6 attention + 56 Mamba-2 layers). 8 KV heads, head_dim 128 on attention layers only. KV estimate covers attention layers; Mamba layers use fixed-size state (~140 MB). GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-coder-7b-q8",
+    "name": "Qwen 2.5 Coder 7B",
+    "params_b": 7.62,
+    "quantization": "Q8_0",
+    "weight_gb": 8.1,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 68,
+    "swe_bench_score": 14.8,
+    "features": [],
+    "notes": "Code model. Based on Qwen 2.5 7B. 28 layers, 4 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-coder-7b-q4",
+    "name": "Qwen 2.5 Coder 7B",
+    "params_b": 7.62,
+    "quantization": "Q4_K_M",
+    "weight_gb": 4.68,
+    "kv_per_1k_gb": 0.053,
+    "max_context_k": 128,
+    "layers": 28,
+    "mmlu_score": 68,
+    "swe_bench_score": 14.8,
+    "features": [],
+    "notes": "Code model. Based on Qwen 2.5 7B. 28 layers, 4 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-coder-14b-q8",
+    "name": "Qwen 2.5 Coder 14B",
+    "params_b": 14.7,
+    "quantization": "Q8_0",
+    "weight_gb": 15.7,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 74,
+    "swe_bench_score": 22.6,
+    "features": [],
+    "notes": "Code model. Based on Qwen 2.5 14B. 48 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-coder-14b-q4",
+    "name": "Qwen 2.5 Coder 14B",
+    "params_b": 14.7,
+    "quantization": "Q4_K_M",
+    "weight_gb": 8.99,
+    "kv_per_1k_gb": 0.183,
+    "max_context_k": 128,
+    "layers": 48,
+    "mmlu_score": 74,
+    "swe_bench_score": 22.6,
+    "features": [],
+    "notes": "Code model. Based on Qwen 2.5 14B. 48 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen-2.5-coder-32b-q8",
+    "name": "Qwen 2.5 Coder 32B",
+    "params_b": 32.5,
+    "quantization": "Q8_0",
+    "weight_gb": 34.82,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 79,
+    "swe_bench_score": 33.4,
+    "features": [],
+    "notes": "Code model. Based on Qwen 2.5 32B. 64 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "qwen-2.5-coder-32b-q4",
+    "name": "Qwen 2.5 Coder 32B",
+    "params_b": 32.5,
+    "quantization": "Q4_K_M",
+    "weight_gb": 19.85,
+    "kv_per_1k_gb": 0.244,
+    "max_context_k": 128,
+    "layers": 64,
+    "mmlu_score": 79,
+    "swe_bench_score": 33.4,
+    "features": [],
+    "notes": "Code model. Based on Qwen 2.5 32B. 64 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "codestral-22b-q8",
+    "name": "Codestral 22B",
+    "params_b": 22.2,
+    "quantization": "Q8_0",
+    "weight_gb": 23.64,
+    "kv_per_1k_gb": 0.214,
+    "max_context_k": 32,
+    "layers": 56,
+    "mmlu_score": 62,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "Code model. Mistral architecture. 56 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "codestral-22b-q4",
+    "name": "Codestral 22B",
+    "params_b": 22.2,
+    "quantization": "Q4_K_M",
+    "weight_gb": 13.3,
+    "kv_per_1k_gb": 0.214,
+    "max_context_k": 32,
+    "layers": 56,
+    "mmlu_score": 62,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "Code model. Mistral architecture. 56 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "starcoder2-15b-q8",
+    "name": "StarCoder2 15B",
+    "params_b": 15.6,
+    "quantization": "Q8_0",
+    "weight_gb": 17,
+    "kv_per_1k_gb": 0.076,
+    "max_context_k": 16,
+    "layers": 40,
+    "mmlu_score": 51.4,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "Code model. BigCode. 40 layers, 4 KV heads, head_dim 128. Trained on 600+ languages. GGUF Q8_0 file size."
+  },
+  {
+    "id": "starcoder2-15b-q4",
+    "name": "StarCoder2 15B",
+    "params_b": 15.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 9.86,
+    "kv_per_1k_gb": 0.076,
+    "max_context_k": 16,
+    "layers": 40,
+    "mmlu_score": 51.4,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "Code model. BigCode. 40 layers, 4 KV heads, head_dim 128. Trained on 600+ languages. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "phi-3-mini-3.8b-q8",
+    "name": "Phi-3 Mini 3.8B",
+    "params_b": 3.82,
+    "quantization": "Q8_0",
+    "weight_gb": 4.06,
+    "kv_per_1k_gb": 0.366,
+    "max_context_k": 128,
+    "layers": 32,
+    "mmlu_score": 70.9,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "32 layers, 32 KV heads (full MHA), head_dim 96. GGUF Q8_0 file size."
+  },
+  {
+    "id": "phi-3-mini-3.8b-q4",
+    "name": "Phi-3 Mini 3.8B",
+    "params_b": 3.82,
+    "quantization": "Q4_K_M",
+    "weight_gb": 2.39,
+    "kv_per_1k_gb": 0.366,
+    "max_context_k": 128,
+    "layers": 32,
+    "mmlu_score": 70.9,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "32 layers, 32 KV heads (full MHA), head_dim 96. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "deepseek-coder-6.7b-q8",
+    "name": "DeepSeek Coder 6.7B",
+    "params_b": 6.74,
+    "quantization": "Q8_0",
+    "weight_gb": 7.16,
+    "kv_per_1k_gb": 0.488,
+    "max_context_k": 16,
+    "layers": 32,
+    "mmlu_score": 50,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "Code model. Llama architecture. 32 layers, 32 KV heads (full MHA), head_dim 128. 16K context. GGUF Q8_0 file size."
+  },
+  {
+    "id": "deepseek-coder-6.7b-q4",
+    "name": "DeepSeek Coder 6.7B",
+    "params_b": 6.74,
+    "quantization": "Q4_K_M",
+    "weight_gb": 4.08,
+    "kv_per_1k_gb": 0.488,
+    "max_context_k": 16,
+    "layers": 32,
+    "mmlu_score": 50,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "Code model. Llama architecture. 32 layers, 32 KV heads (full MHA), head_dim 128. 16K context. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "smallthinker-3b-q8",
+    "name": "SmallThinker 3B",
+    "params_b": 3.09,
+    "quantization": "Q8_0",
+    "weight_gb": 3.29,
+    "kv_per_1k_gb": 0.034,
+    "max_context_k": 32,
+    "layers": 36,
+    "mmlu_score": 65,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model. Fine-tuned from Qwen 2.5 3B Instruct. 36 layers, 2 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "smallthinker-3b-q4",
+    "name": "SmallThinker 3B",
+    "params_b": 3.09,
+    "quantization": "Q4_K_M",
+    "weight_gb": 1.93,
+    "kv_per_1k_gb": 0.034,
+    "max_context_k": 32,
+    "layers": 36,
+    "mmlu_score": 65,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning"
+    ],
+    "notes": "Reasoning model. Fine-tuned from Qwen 2.5 3B Instruct. 36 layers, 2 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "ministral-8b-q8",
+    "name": "Ministral 8B",
+    "params_b": 8.02,
+    "quantization": "Q8_0",
+    "weight_gb": 8.53,
+    "kv_per_1k_gb": 0.137,
+    "max_context_k": 128,
+    "layers": 36,
+    "mmlu_score": 65,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "Mistral edge model. 36 layers, 8 KV heads, head_dim 128. Interleaved sliding-window attention. GGUF Q8_0 file size."
+  },
+  {
+    "id": "ministral-8b-q4",
+    "name": "Ministral 8B",
+    "params_b": 8.02,
+    "quantization": "Q4_K_M",
+    "weight_gb": 5.07,
+    "kv_per_1k_gb": 0.137,
+    "max_context_k": 128,
+    "layers": 36,
+    "mmlu_score": 65,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "Mistral edge model. 36 layers, 8 KV heads, head_dim 128. Interleaved sliding-window attention. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "devstral-small-24b-q8",
+    "name": "Devstral Small 24B",
+    "params_b": 23.6,
+    "quantization": "Q8_0",
+    "weight_gb": 25.05,
+    "kv_per_1k_gb": 0.153,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 72,
+    "swe_bench_score": 46.8,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "Code model. Fine-tuned from Mistral Small 3.1 (vision encoder removed). 40 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "devstral-small-24b-q4",
+    "name": "Devstral Small 24B",
+    "params_b": 23.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 14.33,
+    "kv_per_1k_gb": 0.153,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 72,
+    "swe_bench_score": 46.8,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "Code model. Fine-tuned from Mistral Small 3.1 (vision encoder removed). 40 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "magistral-small-24b-q8",
+    "name": "Magistral Small 24B",
+    "params_b": 23.6,
+    "quantization": "Q8_0",
+    "weight_gb": 25.05,
+    "kv_per_1k_gb": 0.153,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 82,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Reasoning model (Magistral 1.2). Based on Mistral Small 3.2. 40 layers, 8 KV heads, head_dim 128. GGUF Q8_0 file size."
+  },
+  {
+    "id": "magistral-small-24b-q4",
+    "name": "Magistral Small 24B",
+    "params_b": 23.6,
+    "quantization": "Q4_K_M",
+    "weight_gb": 14.33,
+    "kv_per_1k_gb": 0.153,
+    "max_context_k": 128,
+    "layers": 40,
+    "mmlu_score": 82,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "vision",
+      "tool_use"
+    ],
+    "notes": "Reasoning model (Magistral 1.2). Based on Mistral Small 3.2. 40 layers, 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "gpt-oss-20b-q8",
+    "name": "GPT-OSS 20B",
+    "params_b": 21,
+    "quantization": "Q8_0",
+    "weight_gb": 12.1,
+    "kv_per_1k_gb": 0.046,
+    "max_context_k": 128,
+    "layers": 24,
+    "mmlu_score": 75,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 21B total, 3.6B active (32 experts, 4 per token). OpenAI open-weight model. 24 layers, 8 KV heads, head_dim 64. FFN weights stored as MXFP4. GGUF Q8_0 file size."
+  },
+  {
+    "id": "gpt-oss-20b-q4",
+    "name": "GPT-OSS 20B",
+    "params_b": 21,
+    "quantization": "Q4_K_M",
+    "weight_gb": 11.67,
+    "kv_per_1k_gb": 0.046,
+    "max_context_k": 128,
+    "layers": 24,
+    "mmlu_score": 75,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 21B total, 3.6B active (32 experts, 4 per token). OpenAI open-weight model. 24 layers, 8 KV heads, head_dim 64. FFN weights stored as MXFP4. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "minimax-m2.1-q8",
+    "name": "MiniMax M2.1",
+    "params_b": 229,
+    "quantization": "Q8_0",
+    "weight_gb": 243,
+    "kv_per_1k_gb": 0.077,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 88,
+    "swe_bench_score": 74,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 229B total, ~10B active (128 experts, 2 per token). Hybrid lightning/softmax attention. KV estimate covers softmax attention layers only. GGUF Q8_0 file size."
+  },
+  {
+    "id": "minimax-m2.1-q4",
+    "name": "MiniMax M2.1",
+    "params_b": 229,
+    "quantization": "Q4_K_M",
+    "weight_gb": 138,
+    "kv_per_1k_gb": 0.077,
+    "max_context_k": 128,
+    "layers": 80,
+    "mmlu_score": 88,
+    "swe_bench_score": 74,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 229B total, ~10B active (128 experts, 2 per token). Hybrid lightning/softmax attention. KV estimate covers softmax attention layers only. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "step-3.5-flash-q8",
+    "name": "Step 3.5 Flash",
+    "params_b": 197,
+    "quantization": "Q8_0",
+    "weight_gb": 209,
+    "kv_per_1k_gb": 0.172,
+    "max_context_k": 256,
+    "layers": 45,
+    "mmlu_score": 84,
+    "swe_bench_score": 74.4,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 197B total, 11B active (288 experts, Top-8). 45 layers, 3:1 SWA ratio. KV estimate based on estimated 8 KV heads, head_dim 128. GGUF Q8_0 file size (estimated)."
+  },
+  {
+    "id": "step-3.5-flash-q4",
+    "name": "Step 3.5 Flash",
+    "params_b": 197,
+    "quantization": "Q4_K_M",
+    "weight_gb": 119,
+    "kv_per_1k_gb": 0.172,
+    "max_context_k": 256,
+    "layers": 45,
+    "mmlu_score": 84,
+    "swe_bench_score": 74.4,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 197B total, 11B active (288 experts, Top-8). 45 layers, 3:1 SWA ratio. KV estimate based on estimated 8 KV heads, head_dim 128. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "glm-4.6-q8",
+    "name": "GLM-4.6",
+    "params_b": 357,
+    "quantization": "Q8_0",
+    "weight_gb": 379,
+    "kv_per_1k_gb": 0.067,
+    "max_context_k": 200,
+    "layers": 62,
+    "mmlu_score": 87,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 357B total. Expanded context to 200K from GLM-4.5. Uses MLA. KV estimate is for compressed MLA cache. GGUF Q8_0 file size."
+  },
+  {
+    "id": "glm-4.6-q4",
+    "name": "GLM-4.6",
+    "params_b": 357,
+    "quantization": "Q4_K_M",
+    "weight_gb": 216,
+    "kv_per_1k_gb": 0.067,
+    "max_context_k": 200,
+    "layers": 62,
+    "mmlu_score": 87,
+    "swe_bench_score": null,
+    "features": [
+      "reasoning",
+      "tool_use"
+    ],
+    "notes": "MoE: 357B total. Expanded context to 200K from GLM-4.5. Uses MLA. KV estimate is for compressed MLA cache. GGUF Q4_K_M file size."
+  },
+  {
+    "id": "qwen3.5-0.8b-q8",
+    "name": "Qwen3.5 0.8B",
+    "params_b": 0.8,
+    "quantization": "Q8_0",
+    "weight_gb": 0.76,
+    "kv_per_1k_gb": 0.02,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 42,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Qwen3.5-0.8B-Q8_0.gguf."
+  },
+  {
+    "id": "qwen3.5-2b-q8",
+    "name": "Qwen3.5 2B",
+    "params_b": 2,
+    "quantization": "Q8_0",
+    "weight_gb": 1.87,
+    "kv_per_1k_gb": 0.04,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 52,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Qwen3.5-2B-Q8_0.gguf."
+  },
+  {
+    "id": "qwen3.5-4b-q8",
+    "name": "Qwen3.5 4B",
+    "params_b": 4,
+    "quantization": "Q8_0",
+    "weight_gb": 4.17,
+    "kv_per_1k_gb": 0.08,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 62,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Qwen3.5-4B-Q8_0.gguf."
+  },
+  {
+    "id": "qwen3.5-9b-q8",
+    "name": "Qwen3.5 9B",
+    "params_b": 9,
+    "quantization": "Q8_0",
+    "weight_gb": 8.87,
+    "kv_per_1k_gb": 0.16,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 72,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Qwen3.5-9B-Q8_0.gguf."
+  },
+  {
+    "id": "qwen3.5-27b-q8",
+    "name": "Qwen3.5 27B",
+    "params_b": 27,
+    "quantization": "Q8_0",
+    "weight_gb": 26.63,
+    "kv_per_1k_gb": 0.48,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 80,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Qwen3.5-27B-Q8_0.gguf."
+  },
+  {
+    "id": "qwen3.5-35b-a3b-q8",
+    "name": "Qwen3.5 35B A3B",
+    "params_b": 35,
+    "quantization": "Q8_0",
+    "weight_gb": 34.37,
+    "kv_per_1k_gb": 0.62,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 78,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Qwen3.5-35B-A3B-Q8_0.gguf."
+  },
+  {
+    "id": "qwen3.5-0.8b-q4",
+    "name": "Qwen3.5 0.8B",
+    "params_b": 0.8,
+    "quantization": "Q4_K_M",
+    "weight_gb": 0.5,
+    "kv_per_1k_gb": 0.02,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 42,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Qwen3.5-0.8B-Q4_K_M.gguf."
+  },
+  {
+    "id": "qwen3.5-2b-q4",
+    "name": "Qwen3.5 2B",
+    "params_b": 2,
+    "quantization": "Q4_K_M",
+    "weight_gb": 1.19,
+    "kv_per_1k_gb": 0.04,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 52,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Qwen3.5-2B-Q4_K_M.gguf."
+  },
+  {
+    "id": "qwen3.5-4b-q4",
+    "name": "Qwen3.5 4B",
+    "params_b": 4,
+    "quantization": "Q4_K_M",
+    "weight_gb": 2.55,
+    "kv_per_1k_gb": 0.08,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 62,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Qwen3.5-4B-Q4_K_M.gguf."
+  },
+  {
+    "id": "qwen3.5-9b-q4",
+    "name": "Qwen3.5 9B",
+    "params_b": 9,
+    "quantization": "Q4_K_M",
+    "weight_gb": 5.29,
+    "kv_per_1k_gb": 0.16,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 72,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Qwen3.5-9B-Q4_K_M.gguf."
+  },
+  {
+    "id": "qwen3.5-27b-q4",
+    "name": "Qwen3.5 27B",
+    "params_b": 27,
+    "quantization": "Q4_K_M",
+    "weight_gb": 15.59,
+    "kv_per_1k_gb": 0.48,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 80,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Qwen3.5-27B-Q4_K_M.gguf."
+  },
+  {
+    "id": "qwen3.5-35b-a3b-q4",
+    "name": "Qwen3.5 35B A3B",
+    "params_b": 35,
+    "quantization": "Q4_K_M",
+    "weight_gb": 20.5,
+    "kv_per_1k_gb": 0.62,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 78,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Qwen3.5-35B-A3B-Q4_K_M.gguf."
+  },
+  {
+    "id": "qwen3.5-122b-a10b-q8",
+    "name": "Qwen3.5 122B A10B",
+    "params_b": 122,
+    "quantization": "Q8_0",
+    "weight_gb": 46.39,
+    "kv_per_1k_gb": 0.84,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 85,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Q8_0/Qwen3.5-122B-A10B-Q8_0-00003-of-00004.gguf."
+  },
+  {
+    "id": "qwen3.5-122b-a10b-q4",
+    "name": "Qwen3.5 122B A10B",
+    "params_b": 122,
+    "quantization": "Q4_K_M",
+    "weight_gb": 23.27,
+    "kv_per_1k_gb": 0.84,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 85,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Q4_K_M/Qwen3.5-122B-A10B-Q4_K_M-00002-of-00003.gguf."
+  },
+  {
+    "id": "qwen3.5-397b-a17b-q8",
+    "name": "Qwen3.5 397B A17B",
+    "params_b": 397,
+    "quantization": "Q8_0",
+    "weight_gb": 45.59,
+    "kv_per_1k_gb": 1.56,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 87,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q8_0 file size from Q8_0/Qwen3.5-397B-A17B-Q8_0-00005-of-00010.gguf."
+  },
+  {
+    "id": "qwen3.5-397b-a17b-q4",
+    "name": "Qwen3.5 397B A17B",
+    "params_b": 397,
+    "quantization": "Q4_K_M",
+    "weight_gb": 22.95,
+    "kv_per_1k_gb": 1.56,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 87,
+    "swe_bench_score": null,
+    "features": [],
+    "notes": "GGUF Q4_K_M file size from Q4_K_M/Qwen3.5-397B-A17B-Q4_K_M-00004-of-00006.gguf."
+  },
+  {
+    "id": "minimax-m2.5-q8",
+    "name": "MiniMax M2.5",
+    "params_b": 56.85,
+    "quantization": "Q8_0",
+    "weight_gb": 46.05,
+    "kv_per_1k_gb": 0.88,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 82,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "GGUF Q8_0 file size from Q8_0/MiniMax-M2.5-Q8_0-00002-of-00006.gguf."
+  },
+  {
+    "id": "minimax-m2.5-q4",
+    "name": "MiniMax M2.5",
+    "params_b": 56.85,
+    "quantization": "Q4_K_M",
+    "weight_gb": 23.1,
+    "kv_per_1k_gb": 0.88,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 82,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "GGUF Q4_K_M file size from Q4_K_M/MiniMax-M2.5-Q4_K_M-00003-of-00004.gguf."
+  },
+  {
+    "id": "glm-5-q8",
+    "name": "GLM 5",
+    "params_b": 56.41,
+    "quantization": "Q8_0",
+    "weight_gb": 45.69,
+    "kv_per_1k_gb": 0.86,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 83,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "GGUF Q8_0 file size from Q8_0/GLM-5-Q8_0-00006-of-00018.gguf."
+  },
+  {
+    "id": "glm-5-q4",
+    "name": "GLM 5",
+    "params_b": 56.41,
+    "quantization": "Q4_K_M",
+    "weight_gb": 22.9,
+    "kv_per_1k_gb": 0.86,
+    "max_context_k": 128,
+    "layers": null,
+    "mmlu_score": 83,
+    "swe_bench_score": null,
+    "features": [
+      "tool_use"
+    ],
+    "notes": "GGUF Q4_K_M file size from Q4_K_M/GLM-5-Q4_K_M-00002-of-00011.gguf."
+  }
+]

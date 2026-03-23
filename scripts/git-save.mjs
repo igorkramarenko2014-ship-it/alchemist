@@ -57,8 +57,13 @@ if (!root) {
   process.exit(1);
 }
 
+/** pnpm may pass a lone `--` before the message; strip those tokens. */
+function messageFromArgv() {
+  return process.argv.slice(2).filter((a) => a !== "--").join(" ").trim();
+}
+
 const msg =
-  process.argv.slice(2).join(" ").trim() ||
+  messageFromArgv() ||
   `checkpoint: ${new Date().toISOString().replace(/T/, " ").slice(0, 19)}`;
 
 console.log("\n=== git-save ===\nRoot:", root, "\n");

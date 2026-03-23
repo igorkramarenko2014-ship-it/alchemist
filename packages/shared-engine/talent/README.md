@@ -14,6 +14,7 @@
 |------|------|
 | **`market-benchmarks.json`** | Editable comparative scores + `meta.disclaimer` |
 | **`market-scout.ts`** | `analyzeTalentMarket`, `logTalentMarketAnalysis`, `parseMarketBenchmarksDocument` |
+| **`vendor/whatmodels/`** | MIT snapshot from [BenD10/whatmodels](https://github.com/BenD10/whatmodels) (`models.json`, `gpus.json`). Refresh: **`pnpm talent:sync-whatmodels`**. See **`vendor/whatmodels/README.md`**. |
 
 ## Usage
 

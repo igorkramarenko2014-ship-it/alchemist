@@ -1,0 +1,17 @@
+{
+  "upstream": {
+    "name": "BenD10/whatmodels",
+    "license": "MIT",
+    "licenseUrl": "https://raw.githubusercontent.com/BenD10/whatmodels/main/LICENSE.md",
+    "site": "https://whatmodelscanirun.com/",
+    "repo": "https://github.com/BenD10/whatmodels",
+    "branch": "main",
+    "modelsPath": "src/lib/data/models.json",
+    "gpusPath": "src/lib/data/gpus.json",
+    "modelsUrl": "https://raw.githubusercontent.com/BenD10/whatmodels/main/src/lib/data/models.json",
+    "gpusUrl": "https://raw.githubusercontent.com/BenD10/whatmodels/main/src/lib/data/gpus.json"
+  },
+  "fetchedAt": "2026-03-23T17:28:01.232Z",
+  "modelCount": 122,
+  "gpuCount": 115
+}
