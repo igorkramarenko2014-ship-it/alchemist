@@ -140,7 +140,16 @@ function runPipeline(root, mode) {
   if (mode === "verify-web") {
     steps.push({
       label: "turbo:build:web-app",
-      args: wp("exec", "turbo", "run", "build", "--filter=@alchemist/web-app"),
+      // Concurrency 1: parallel fxp-encoder (wasm) + shared-types builds have been linked to
+      // flaky Next "Collecting page data" failures (missing ./NNN.js, /_document) on some machines.
+      args: wp(
+        "exec",
+        "turbo",
+        "run",
+        "build",
+        "--filter=@alchemist/web-app",
+        "--concurrency=1"
+      ),
     });
   }
 
