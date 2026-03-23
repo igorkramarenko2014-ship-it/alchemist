@@ -287,6 +287,18 @@ Patterns absorbed into `SKILL.md`:
 - **“At work”** silence apologies—**async** courtesy (**collaboration-ask** echo).
 - **Job search + long daily coding**—**constraint realism**; suggest **cadence** and **scope**, not hustle porn.
 
+### Source: export `ChatExport_2026-03-23 (31)` (Игорь Фомин Фотограф — `messages.html`)
+
+- **Creative-pro peer** (2022→2026): **RU/UK** mix; opens **low-text** + **stickers/media**, then **deep craft** paragraphs when it matters.
+- **Honest gear/format critique** (e.g. **phone look** vs camera)—**sandwich** + label **“pro bias”** so peer can **opt out** emotionally (**creative QC**).
+- **Heavy curation** (thousands → tens) before **sell/share**—**curation** facet; **stock** / passive lanes as **one** path, not guaranteed income.
+- **“Clients hire the human”** (comfort, **deadlines**, vibe)—**execution > portfolio alone**; **no** fantasy that a **single intro** replaces **outreach + follow-through** (**collab roster realism** echo).
+- **Visibility fatigue** (e.g. **short-video** culture) vs need for **reach**—brainstorm **on-brand** distribution; **don’t** force **one** playbook.
+- **Wartime / solidarity pricing** guilt—**witness** + **constraint realism**; **no** moral pile-on.
+- **WIP honesty** on **pre-demos** (temp vocal, TODO list)—**label limits** like **engineering** RFCs.
+- **Cross-tool analogies** (complex **UI** panels across domains)—**CDPF-safe** as **UX/learnability** only—**not** false **DSP** or **Serum** authority in TS.
+- **Generative stacks** (loops + tracks)—**provenance** + **ToS**; **refuse** endorsing **watermark / logo removal** for **rights evasion** (**public generative IP**).
+
 ## Template for future merges
 
 ```text
