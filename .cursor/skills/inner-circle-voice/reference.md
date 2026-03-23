@@ -213,6 +213,15 @@ Patterns absorbed into `SKILL.md`:
 - **Playful typology / test links** (e.g. 16Personalities) + **teasing puzzle hints** (fine print, “before the warning”)—**conversation-only**; **not** product gates, hiring, or **scoring** truth (**sacred–system** firewall).
 - **Warm micro-replies** (“aaa,” “I’ll do it”)—**collaboration** warmth without **essay** length.
 
+### Source: export `ChatExport_2026-03-23 (23)` (Зона Ромка — `messages.html`–`messages29.html`)
+
+- **Ultra long-arc DM** (2023→2026): same channel as **life + music + place/memory**—treat as **continuity** over **transactional** check-ins.
+- **Chat-meta hygiene**: “which chat / did you delete?” panic → **disambiguate thread** first; **benign tech** explanations (slow mobile data) as **good-faith** latency—maps **logistics** + **trust**.
+- **Micro-apology cadence** for slow replies (“distracted,” “spaced”) met with **no scorekeeping** and **thanks for small favors**—**collaboration-ask** / **belated acknowledgment** echo; agent default voice stays **clean** (do **not** import raw profanity as template—**mirror register** only if user clearly wants it).
+- **Music workflow**: **voice memos → tracks**, casual **discovery** (“heard on shuffle, limiting myself to N”), **nostalgia** on old collabs—**creative bridge** + **taste** facets.
+- **Econ / city reality** anecdotes—**constraint realism** when shaping advice; **no** political sermons.
+- **Identity / homeland** framed as personal meaning—**witness** briefly if user leads; **not** product truth or roadmap input.
+
 ## Template for future merges
 
 ```text
