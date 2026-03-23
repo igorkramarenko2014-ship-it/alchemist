@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  /** Local escape hatch if ESLint blocks `next build` (CI should not set this). */
+  eslint: {
+    ignoreDuringBuilds: process.env.ALCHEMIST_NEXT_SKIP_ESLINT === '1',
+  },
   // Tree-shake barrel imports from R3F stack (smaller client bundles).
   experimental: {
     optimizePackageImports: ['@react-three/fiber', '@react-three/drei'],

@@ -215,6 +215,19 @@ console.log(
     "  See RUN.txt\n"
 );
 console.log("Webpack/swc dev cache only (keeps .next, faster than full clean):\n  node scripts/recover-web-dev.mjs\n  pnpm dev:recover\n");
+console.log(
+  "Next production build errors (e.g. Cannot find module './627.js', harshcheck fails):\n" +
+    "  Run from **repo root** (folder with `apps/`):  pnpm web:next-force\n" +
+    "  Not from `~` — `cd` to Vibe Projects first. Full clean + dev:  pnpm web:dev:fresh\n"
+);
+console.log(
+  "Turbo says `@alchemist/web-app#build` failed but you do not see why:\n" +
+    "  Scroll **up** in the terminal for the first `Error:` / `ELIFECYCLE` / `Failed to compile` line.\n" +
+    "  Or run a direct build (full Next log):  pnpm web:next-build\n" +
+    "  ESLint-only block:  ALCHEMIST_NEXT_SKIP_ESLINT=1 pnpm web:next-build  (local only; fix lint after)\n" +
+    "  8 GB RAM Mac: if the process vanishes during “Collecting build traces”, close heavy apps or try:\n" +
+    "    NODE_OPTIONS=--max-old-space-size=6144 pnpm web:next-build\n"
+);
 console.log("Full fresh Next + turbo stop:\n  pnpm web:dev:fresh\n");
 console.log("Engine perf sweep (logged JSON, FIRE-compliant):\n  pnpm perf:boss\n");
 console.log("Browser Export .fxp (Rust → WASM):\n  pnpm build:wasm\n");

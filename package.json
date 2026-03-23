@@ -20,6 +20,8 @@
     "docs:list": "bash scripts/list-project-docs.sh",
     "clean": "rm -rf apps/web-app/.next apps/mobile-app/.expo .turbo && node scripts/with-pnpm.mjs exec turbo daemon stop 2>/dev/null || true",
     "web:rebuild": "node scripts/with-pnpm.mjs run clean && node scripts/with-pnpm.mjs exec turbo run build --filter=@alchemist/web-app --force",
+    "web:next-force": "rm -rf apps/web-app/.next .turbo && node scripts/with-pnpm.mjs exec turbo run build --filter=@alchemist/web-app --force",
+    "web:next-build": "pnpm --filter @alchemist/web-app run build",
     "web:dev:fresh": "node scripts/with-pnpm.mjs run clean && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
     "app:repair": "node scripts/with-pnpm.mjs run web:dev:fresh",
     "fix": "node scripts/with-pnpm.mjs run app:repair",
