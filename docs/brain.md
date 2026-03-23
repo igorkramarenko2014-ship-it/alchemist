@@ -165,6 +165,56 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 
 **Merged motifs (abstract — no impersonation):** studio-friend **WIP sharing**; **schedule + work-constraint** realism; **social triangulation** only from facts the user gave; **event / live-plan** logistics as plain steps; **personality tests and riddles** as **conversation / self-insight only**, not hiring or product scoring; **multi-year zone DMs** — **thread clarity** when history looks “empty,” **low-friction** repair after slow replies, **music-as-daily** texture without importing chat profanity as default agent voice.
 
-**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + facets), **`inner-circle-voice/reference.md`** (export merge log, incl. batch **2026-03-23 (19)–(22)**).
+**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets), **`inner-circle-voice/reference.md`** (Telegram export merge log, through batch **2026-03-23 (36)** and ongoing).
 
 **Ongoing:** When you **attach** new chat exports (paths or files), expect the agent to **merge** abstract patterns into **`reference.md`** and update **`inner-circle-voice/SKILL.md`** when needed—see **Standing instruction** in that skill. Canon (HARD GATE, verify) stays unchanged.
+
+---
+
+### 14.1 Plain language: what this coding agent is “carrying”
+
+This is about **Cursor + this repo**, not a button inside the shipped Alchemist web app. Think of three layers:
+
+| Layer | What it does (non-technical) |
+|--------|------------------------------|
+| **Always-on project rules** | Keeps answers aligned with what Alchemist actually builds, what must never be invented (Serum file bytes), and how to check work before it ships. Stops “sounds smart but wrong” claims about audio plugins versus the real TypeScript gates. |
+| **Inner circle voice** (optional skill) | Shapes **tone and collaboration habits**: direct, warm, honest about unfinished work, careful with other people’s stories, strong on creative feedback without turning into therapy or gossip. |
+| **Harshcheck skill** (optional skill) | Nudges the assistant to run the right **verify** commands so types and tests stay green before suggesting a UI or pipeline change is “done.” |
+
+**Optional “habit bundle” inside inner-circle voice** (summary of what the long skill file encodes—still **not** product law):
+
+- Say what you mean; skip corporate padding when the user wants a peer.
+- When numbers or promises disagree, pause and reconcile before building more.
+- Before a harsh critique, one line of human context when the topic is heavy (optional).
+- Product sparring: name what feels generic, say why, keep encouragement and next steps.
+- **Language:** Russian for rapport, English for precise API or international handoffs; if the user writes Ukrainian, don’t “correct” them into Russian.
+- Creative feedback (music, writing, UI copy): pacing, repetition, context (headphones vs speakers)—without pretending TypeScript is an analog synth.
+- Collaboration: clear ask, realistic timing, honest rain checks instead of ghosting.
+- Big releases: patience for the right moment, but not procrastination on defined engineering tasks.
+- Spirituality, quizzes, or “matrix” talk: fine in chat; **never** used to score code, hires, or gate logic.
+- Privacy: don’t paste other people’s DMs into prompts or docs without consent; don’t store card numbers or addresses from exports.
+- Automation ethics: help with boring, legal, consented workflows; refuse outrage-for-profit or harassment machinery.
+
+---
+
+### 14.2 Why that helps the Alchemist project
+
+- **Truth over vibe:** The assistant is less likely to “invent” Serum internals or confuse statistical gates with audio DSP—protects your real architecture story.
+- **Faster safe shipping:** Harshcheck-style discipline reduces “looks fine in chat, breaks in CI” loops.
+- **Better brainstorms:** Inner-circle habits keep naming, UX, and creative arguments **specific** without turning triad telemetry into fake mysticism.
+- **Cleaner docs and handoffs:** Logistics, promise cadence, and “admit what’s stubbed” match how you actually run a serious monorepo.
+
+---
+
+### 14.3 Why that helps your next build: a multilingual, very witty, tutor-style agent
+
+This section is **forward-looking**: your product is not Alchemist’s preset pipeline, but the **same assistant habits** transfer well if you implement a separate tutor.
+
+- **Multilingual wit:** The inner-circle **bilingual** habit supports natural code-switching and register (informal vs respectful) without flattening everyone into one English voice—good raw material for a tutor that feels local, not translated.
+- **Wit without cruelty:** The skill rewards **dry humor** and sharp insight but **rejects** slurs, pile-on humor, and body gossip as default—so “wittiest on Earth” can mean **clever and kind**, not mean-spirited.
+- **Teaching shape:** Habits like **step-by-step micro-steps**, **one critical trick**, and **“know what to ask”** meta-learning match tutoring that builds confidence instead of drowning the learner in jargon.
+- **Honest limits:** Treating the model as a **tool** (not a soul) and separating **sacred chat** from **grading truth** helps you design a tutor that won’t pose as a clinician, lawyer, or infallible oracle—especially important across languages and jurisdictions.
+- **Consent and safety:** Private-story and channel-hygiene instincts map to **tutor products**: no mining friends’ chats for “personalization,” no pushing intimate disclosure in group settings.
+- **If the tutor ships software:** Keep Alchemist-style **verification** and **typed contracts** for whatever stack you build; the **persona** skill does not replace tests or legal review.
+
+For **implementation detail** of the voice layer, still read **`.cursor/skills/inner-circle-voice/SKILL.md`**; this section is only the **human-readable map**.
