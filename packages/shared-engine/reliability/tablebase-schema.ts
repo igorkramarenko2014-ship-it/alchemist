@@ -15,6 +15,11 @@ export interface TablebaseRecord {
   keywords: readonly string[];
   /** Full triad candidate shape — same gates as live panelists. */
   candidate: AICandidate;
+  /**
+   * Optional short-circuit confidence in (0, 1]. Omitted = 1.
+   * Hits with confidence ≤ 0.85 do not bypass the live triad (FIRE §E tablebase).
+   */
+  confidence?: number;
 }
 
 export function isTablebaseRecord(x: unknown): x is TablebaseRecord {
@@ -34,6 +39,9 @@ export function isTablebaseRecord(x: unknown): x is TablebaseRecord {
   if (ac.paramArray != null) {
     if (!Array.isArray(ac.paramArray) || !ac.paramArray.every((n) => typeof n === "number"))
       return false;
+  }
+  if (o.confidence != null) {
+    if (typeof o.confidence !== "number" || o.confidence <= 0 || o.confidence > 1) return false;
   }
   return true;
 }

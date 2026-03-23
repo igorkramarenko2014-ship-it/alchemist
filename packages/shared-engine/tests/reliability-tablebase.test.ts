@@ -39,4 +39,17 @@ describe("isTablebaseRecord", () => {
     expect(isTablebaseRecord({})).toBe(false);
     expect(isTablebaseRecord({ id: "", keywords: ["a"], candidate: sample.candidate })).toBe(false);
   });
+
+  it("rejects out-of-range confidence", () => {
+    expect(
+      isTablebaseRecord({ ...sample, confidence: 1.1 })
+    ).toBe(false);
+    expect(
+      isTablebaseRecord({ ...sample, confidence: 0 })
+    ).toBe(false);
+  });
+
+  it("accepts optional confidence in (0, 1]", () => {
+    expect(isTablebaseRecord({ ...sample, confidence: 0.9 })).toBe(true);
+  });
 });

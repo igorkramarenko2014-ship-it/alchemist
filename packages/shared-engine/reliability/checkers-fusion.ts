@@ -4,6 +4,7 @@
  */
 import type { AICandidate } from "@alchemist/shared-types";
 import { logEvent } from "../telemetry";
+import { fingerprintPromptNormalized } from "./prompt-fingerprint";
 import type { TablebaseRecord } from "./tablebase-schema";
 import { TABLEBASE_RECORDS } from "./tablebase-db";
 
@@ -33,12 +34,20 @@ export function findTablebaseRecordForPrompt(
  * Emits structured telemetry on hit (FIRE / auditable stderr JSON lines).
  */
 export function lookupTablebaseCandidate(prompt: string, runId?: string): AICandidate | null {
+  const n = normalizePrompt(prompt);
+  if (!n) return null;
   const hit = findTablebaseRecordForPrompt(prompt, TABLEBASE_RECORDS);
   if (!hit) return null;
+  const confidence = hit.confidence ?? 1;
+  if (!(confidence > 0.85)) return null;
+  const promptHash = fingerprintPromptNormalized(n);
   logEvent("preset_tablebase_hit", {
     runId,
     tablebaseId: hit.id,
     panelist: hit.candidate.panelist,
+    promptHash,
+    confidence,
+    mode: "tablebase",
   });
   return structuredClone(hit.candidate);
 }

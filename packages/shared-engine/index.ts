@@ -66,6 +66,7 @@ export {
   findTablebaseRecordForPrompt,
   lookupTablebaseCandidate,
 } from "./reliability/checkers-fusion";
+export { fingerprintPromptNormalized } from "./reliability/prompt-fingerprint";
 export type { TablebaseRecord } from "./reliability/tablebase-schema";
 export { isTablebaseRecord } from "./reliability/tablebase-schema";
 export { TABLEBASE_RECORDS } from "./reliability/tablebase-db";

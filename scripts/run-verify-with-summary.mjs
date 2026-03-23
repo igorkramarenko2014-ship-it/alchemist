@@ -6,6 +6,10 @@
  * Usage (from repo root):
  *   node scripts/run-verify-with-summary.mjs verify-harsh
  *   node scripts/run-verify-with-summary.mjs verify-web
+ *
+ * Opt-in faster Vitest (local only): `ALCHEMIST_SELECTIVE_VERIFY=1` skips packages whose
+ * paths did not change vs `git merge-base HEAD origin/main` (fallback `HEAD~1`). **Never**
+ * used when `CI` is set — CI always runs the full `test:engine` chain.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -38,6 +42,65 @@ function logSummary(payload) {
     ...payload,
   });
   process.stderr.write(`${line}\n`);
+}
+
+function getChangedPathsFromGit(root) {
+  const mb = spawnSync("git", ["merge-base", "HEAD", "origin/main"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  let base = null;
+  if (mb.status === 0 && mb.stdout.trim()) {
+    base = mb.stdout.trim();
+  } else {
+    const h1 = spawnSync("git", ["rev-parse", "HEAD~1"], { cwd: root, encoding: "utf8" });
+    if (h1.status !== 0 || !h1.stdout.trim()) return null;
+    base = h1.stdout.trim();
+  }
+  const d = spawnSync("git", ["diff", "--name-only", `${base}...HEAD`], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (d.status !== 0) return null;
+  return d.stdout.split(/\r?\n/).filter(Boolean);
+}
+
+function runSelectiveEngineTests(root, withPnpm) {
+  const wp = (...args) => [process.execPath, withPnpm, ...args];
+  const runWp = (argv) => {
+    const r = spawnSync(argv[0], argv.slice(1), {
+      cwd: root,
+      stdio: "inherit",
+      env: { ...process.env, ALCHEMIST_PNPM_FALLBACK_QUIET: "1" },
+      shell: false,
+    });
+    return r.status === null ? 1 : r.status;
+  };
+  const changed = getChangedPathsFromGit(root);
+  if (!changed || changed.length === 0) {
+    process.stderr.write(
+      "[alchemist] selective verify: no git diff range — running full test:engine\n"
+    );
+    return runWp(wp("test:engine"));
+  }
+  const needEngine = changed.some(
+    (f) => f.startsWith("packages/shared-engine/") || f.startsWith("packages/shared-types/")
+  );
+  const needSerum2 = changed.some((f) => f.startsWith("packages/serum2-encoder/"));
+  if (!needEngine && !needSerum2) {
+    process.stderr.write(
+      "[alchemist] selective verify: skipping Vitest — no changes under shared-engine, shared-types, or serum2-encoder\n"
+    );
+    return 0;
+  }
+  if (needEngine) {
+    const c = runWp(wp("--filter", "@alchemist/shared-engine", "test"));
+    if (c !== 0) return c;
+  }
+  if (needSerum2) {
+    return runWp(wp("--filter", "@alchemist/serum2-encoder", "test"));
+  }
+  return 0;
 }
 
 function soeHint(exitCode, durationMs, mode) {
@@ -81,7 +144,17 @@ function runPipeline(root, mode) {
     });
   }
 
+  const selective =
+    process.env.ALCHEMIST_SELECTIVE_VERIFY === "1" && !process.env.CI;
+
   for (const { label, args } of steps) {
+    if (label === "test:engine" && selective) {
+      const code = runSelectiveEngineTests(root, withPnpm);
+      if (code !== 0) {
+        return { exitCode: code, failedStep: label };
+      }
+      continue;
+    }
     const r = spawnSync(args[0], args.slice(1), {
       cwd: root,
       stdio: "inherit",
@@ -122,6 +195,8 @@ logSummary({
   durationMs,
   failedStep,
   monorepoRoot: root,
+  selectiveVerify:
+    process.env.ALCHEMIST_SELECTIVE_VERIFY === "1" && !process.env.CI ? true : undefined,
   soeHint: soeHint(exitCode, durationMs, mode),
   note:
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
