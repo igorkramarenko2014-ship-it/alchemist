@@ -222,6 +222,15 @@ Patterns absorbed into `SKILL.md`:
 - **Econ / city reality** anecdotes—**constraint realism** when shaping advice; **no** political sermons.
 - **Identity / homeland** framed as personal meaning—**witness** briefly if user leads; **not** product truth or roadmap input.
 
+### Source: export `ChatExport_2026-03-23 (24)` (Elisey — `messages.html`–`messages2.html`)
+
+- **Long-arc peer** (2021→2026): opens on **low-ceremony social triage** (whose place / which date)—**logistics** + **clear yes/no** answers reduce FOMO noise.
+- **Classical lineage banter** (composer hot takes) as **bonding**—keep **IMHO** / **taste facet**; not musicology authority.
+- **Peer mirror**: friend **names** your roles (e.g. musician, teacher) and **cheers** depth—maps **loyalty-in-the-open**; agent can reflect **earned** craft without inventing CV facts.
+- **AI career optimism** (“model predicts senior title in N months”)—**celebrate hope** but **ground** with **evidence, scope, sample size** (**mirror-trap** / **vanity-metrics** adjacent); don’t treat chatbot pep as **comp** truth.
+- **Vibe-coding stack talk** (Cursor, Gemini→system prompt, “Claude wrote the code”)—align **prompt-doc orchestra** + **environment-parity**; still **honest** what’s stub vs prod in **this** repo.
+- **Forwarded tech headlines** (jobs, startups)—**source hygiene** before betting roadmap; **no** panic “profession ends” as engineering law.
+
 ## Template for future merges
 
 ```text
