@@ -11,10 +11,11 @@
 5. **[`.cursor/rules/alchemist-dsp-vs-ts-gates.mdc`](.cursor/rules/alchemist-dsp-vs-ts-gates.mdc)** — Undercover/Slavic = TS gates, not VST DSP  
 6. **[`.cursor/rules/alchemist-quality.mdc`](.cursor/rules/alchemist-quality.mdc)** — scoped edit checklist (HARD GATE, triad, scripts)  
 7. **[`.cursor/rules/alchemist-role-mission.mdc`](.cursor/rules/alchemist-role-mission.mdc)** — always-on **Lead Architect** role, mission, **`/plan` / `/fix` / `/refactor` / `/audit`** overrides (align with Cursor user rules)  
-8. **[`.cursor/rules/alchemist-aji-fluidic.mdc`](.cursor/rules/alchemist-aji-fluidic.mdc)** — optional **OpenCV + OSC** “Lava–Aji” bridge (**`research/lava-aji-bridge/`**) — **not** TS triad/gates; see **`alchemist-dsp-vs-ts-gates.mdc`**  
-9. **[`LEGAL.md`](LEGAL.md)** — not legal advice; trademarks (Serum / Xfer), AI provider ToS, telemetry, warranty, consumer-product gaps  
-10. **[`PRIVACY.md`](PRIVACY.md)** — draft privacy template (fill before public beta)  
-11. **[`SECURITY.md`](SECURITY.md)** — vulnerability reporting (no public disclosure for active issues)  
+8. **[`docs/brain.md` §14](docs/brain.md)** + **[`docs/brain-plus.md`](docs/brain-plus.md)** — optional **agent thinking** (trusted-peer tone merge); detail in **`.cursor/skills/inner-circle-voice/`** — **not** HARD GATE / verify / gate facts  
+9. **[`.cursor/rules/alchemist-aji-fluidic.mdc`](.cursor/rules/alchemist-aji-fluidic.mdc)** — optional **OpenCV + OSC** “Lava–Aji” bridge (**`research/lava-aji-bridge/`**) — **not** TS triad/gates; see **`alchemist-dsp-vs-ts-gates.mdc`**  
+10. **[`LEGAL.md`](LEGAL.md)** — not legal advice; trademarks (Serum / Xfer), AI provider ToS, telemetry, warranty, consumer-product gaps  
+11. **[`PRIVACY.md`](PRIVACY.md)** — draft privacy template (fill before public beta)  
+12. **[`SECURITY.md`](SECURITY.md)** — vulnerability reporting (no public disclosure for active issues)  
 
 ## Hard rules
 

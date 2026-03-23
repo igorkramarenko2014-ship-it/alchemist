@@ -44,6 +44,8 @@
     "perf:boss": "pnpm --filter @alchemist/shared-engine perf:boss",
     "git:save": "node scripts/git-save.mjs",
     "save": "node scripts/git-save.mjs",
+    "cmt": "node scripts/git-save.mjs",
+    "psh": "node scripts/git-save.mjs",
     "fire:sync": "node scripts/sync-fire-md.mjs",
     "github:first-push": "node scripts/github-first-push.mjs",
     "test:real-gates": "tsx scripts/calibrate-gates.ts",

@@ -8,9 +8,9 @@
 
 **Explicit hooks (no shadow state):** **`verify_post_summary`** + **`soeHint`** on stderr after verify; **`soe.ts`** / governance telemetry — **forbidden:** unauditable loops (**§I**, **`pnpm check:transparent`**).
 
-**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
+**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain), **`brain-plus.md`** (minimal outside-assessment shell; metrics synced with **`pnpm fire:sync`**). **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
 
-**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside the sync markers). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** only; **HTML** packs + agent notes → **§12**, **Appendix C–D**.
+**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside **`ALCHEMIST:FIRE_METRICS`** or **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** + optional **`brain.md`** / **`brain-plus.md`**; **HTML** packs + agent notes → **§12**, **Appendix C–D**.
 
 **Contents:** **§A–C** invariants, **Assessment snapshot** (metrics, **next moves**, verify loop), **§E** VERIFY / RISKS / SUGGEST, **§F–§L** contracts.
 

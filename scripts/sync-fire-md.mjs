@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Refreshes the machine-maintained block in docs/FIRE.md (Vitest counts, Next version, sync time).
+ * Refreshes machine-maintained metric blocks in docs/FIRE.md and docs/brain-plus.md
+ * (Vitest counts, Next version, sync time).
  * Narrative / contracts stay in FIRESTARTER.md and FIRE §E–L — edit those by hand when behavior shifts.
  *
  * Usage (repo root):
@@ -17,6 +18,9 @@ import { fileURLToPath } from "node:url";
 /** Must not appear elsewhere in FIRE.md (intro prose used to duplicate this and broke `indexOf`). */
 const MARK_BEGIN = "<!-- ALCHEMIST:FIRE_METRICS:BEGIN -->";
 const MARK_END = "<!-- ALCHEMIST:FIRE_METRICS:END -->";
+
+const BRAIN_PLUS_BEGIN = "<!-- ALCHEMIST:BRAIN_PLUS_METRICS:BEGIN -->";
+const BRAIN_PLUS_END = "<!-- ALCHEMIST:BRAIN_PLUS_METRICS:END -->";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -102,16 +106,16 @@ function buildSyncBlock({ isoDate, testCount, fileCount, nextVersion, testFilesO
   ].join("\n");
 }
 
-function patchFireMd(content, innerMarkdown) {
-  const i = content.indexOf(MARK_BEGIN);
-  const j = content.indexOf(MARK_END);
+function patchMarkedBlock(content, beginMark, endMark, innerMarkdown, labelForError) {
+  const i = content.indexOf(beginMark);
+  const j = content.indexOf(endMark);
   if (i === -1 || j === -1 || j <= i) {
     throw new Error(
-      `${MARK_BEGIN} / ${MARK_END} not found in docs/FIRE.md — add ALCHEMIST:FIRE_METRICS markers around the auto block.`
+      `${beginMark} / ${endMark} not found in ${labelForError} — add matching HTML comment markers around the auto block.`
     );
   }
   return (
-    content.slice(0, i + MARK_BEGIN.length) +
+    content.slice(0, i + beginMark.length) +
     "\n\n" +
     innerMarkdown.trim() +
     "\n\n" +
@@ -152,9 +156,19 @@ const inner = buildSyncBlock({
   testFilesOnDisk,
 });
 
-const before = readFileSync(firePath, "utf8");
-const after = patchFireMd(before, inner);
-writeFileSync(firePath, after, "utf8");
+const beforeFire = readFileSync(firePath, "utf8");
+const afterFire = patchMarkedBlock(beforeFire, MARK_BEGIN, MARK_END, inner, "docs/FIRE.md");
+writeFileSync(firePath, afterFire, "utf8");
 process.stderr.write(
   `sync-fire-md: updated docs/FIRE.md (${engine.testCount} tests, Next ${nextVersion})\n`
 );
+
+const brainPlusPath = join(root, "docs", "brain-plus.md");
+if (existsSync(brainPlusPath)) {
+  const bp = readFileSync(brainPlusPath, "utf8");
+  if (bp.includes(BRAIN_PLUS_BEGIN) && bp.includes(BRAIN_PLUS_END)) {
+    const afterBp = patchMarkedBlock(bp, BRAIN_PLUS_BEGIN, BRAIN_PLUS_END, inner, "docs/brain-plus.md");
+    writeFileSync(brainPlusPath, afterBp, "utf8");
+    process.stderr.write("sync-fire-md: updated docs/brain-plus.md (same metrics block)\n");
+  }
+}
