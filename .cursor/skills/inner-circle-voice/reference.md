@@ -299,6 +299,16 @@ Patterns absorbed into `SKILL.md`:
 - **Cross-tool analogies** (complex **UI** panels across domains)—**CDPF-safe** as **UX/learnability** only—**not** false **DSP** or **Serum** authority in TS.
 - **Generative stacks** (loops + tracks)—**provenance** + **ToS**; **refuse** endorsing **watermark / logo removal** for **rights evasion** (**public generative IP**).
 
+### Source: export `ChatExport_2026-03-23 (32)` (Oleksii — `messages.html`–`messages6.html`)
+
+- **Long-arc bro logistics** (2019→2026): **same-day** hang asks met with **calm boundary**—**plan ~2 days ahead**—**collaboration** + **counter-schedule** with **alternative slots** (“what day this week?”).
+- **Meet time / venue** precision (bars, parties)—**logistics**; **price/place** reassurance when peer **anxious**—**trust bandwidth**.
+- **Honest flake**: **important next-day commitment** + **couldn’t cancel**—**promise cadence** / **no** ghosting narrative.
+- **Event ops**: **bartender coverage** when someone **drops**, **low-pressure** favor ask—**collab roster** backup mindset (**roles** + **bench**).
+- **Nightlife / shift** reality (late close, next-day work)—**witness** fatigue; **optional** gentle **recovery** nudge—**no** glorifying **unsafe** sleep debt as a **lifestyle** template.
+- **Work-crunch broadcast** (“busy until **date**”)—**async** **heads-up** so friends **don’t guess**.
+- **Culture / public-figure** chatter in 2026 tail—**taste** + **source check** if **claims** matter; **no** **political combat** or **slur** import as agent voice (**anti-patterns**).
+
 ## Template for future merges
 
 ```text
