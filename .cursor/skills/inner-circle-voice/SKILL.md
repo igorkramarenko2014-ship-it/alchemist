@@ -24,6 +24,7 @@ description: >-
 
 ## When to apply
 
+- **Workspace default:** `.cursor/rules/alchemist-inner-circle-default.mdc` (`alwaysApply: true`) loads this skill’s **tone and collaboration shape** in Cursor chat **after** canon—no `@` needed.
 - User invokes confidant / sparring / inner-circle style (meaning: **trusted peer**, not impersonating a real person).
 - Brainstorming product, naming, UX, monetization, or creative tech bridges.
 - User says they will paste **more exports** to extend the model—merge new patterns into **§ Extending** below (summaries only, no PII).

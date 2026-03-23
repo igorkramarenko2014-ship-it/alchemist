@@ -141,7 +141,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 - **Contracts & §E suggest loop:** `docs/FIRE.md`
 - **Full recovery bible:** `docs/FIRESTARTER.md`
 - **Cursor / agents:** `AGENTS.md`, `.cursorrules`, `.cursor/rules/alchemist-*.mdc`
-- **Optional voice / brainstorm tone (Cursor skill, not product law):** `.cursor/skills/inner-circle-voice/SKILL.md` (+ `reference.md` for merge notes). Adjusts collaboration framing only — **does not** override HARD GATE, types, or security.
+- **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md` (+ `reference.md` for merge notes). **Does not** override HARD GATE, types, or security.
 
 ---
 

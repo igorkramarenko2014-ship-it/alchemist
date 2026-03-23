@@ -11,11 +11,12 @@
 5. **[`.cursor/rules/alchemist-dsp-vs-ts-gates.mdc`](.cursor/rules/alchemist-dsp-vs-ts-gates.mdc)** — Undercover/Slavic = TS gates, not VST DSP  
 6. **[`.cursor/rules/alchemist-quality.mdc`](.cursor/rules/alchemist-quality.mdc)** — scoped edit checklist (HARD GATE, triad, scripts)  
 7. **[`.cursor/rules/alchemist-role-mission.mdc`](.cursor/rules/alchemist-role-mission.mdc)** — always-on **Lead Architect** role, mission, **`/plan` / `/fix` / `/refactor` / `/audit`** overrides (align with Cursor user rules)  
-8. **[`docs/brain.md` §14](docs/brain.md)** + **[`docs/brain-plus.md`](docs/brain-plus.md)** — optional **agent thinking** (trusted-peer tone merge); detail in **`.cursor/skills/inner-circle-voice/`** — **not** HARD GATE / verify / gate facts  
-9. **[`.cursor/rules/alchemist-aji-fluidic.mdc`](.cursor/rules/alchemist-aji-fluidic.mdc)** — optional **OpenCV + OSC** “Lava–Aji” bridge (**`research/lava-aji-bridge/`**) — **not** TS triad/gates; see **`alchemist-dsp-vs-ts-gates.mdc`**  
-10. **[`LEGAL.md`](LEGAL.md)** — not legal advice; trademarks (Serum / Xfer), AI provider ToS, telemetry, warranty, consumer-product gaps  
-11. **[`PRIVACY.md`](PRIVACY.md)** — draft privacy template (fill before public beta)  
-12. **[`SECURITY.md`](SECURITY.md)** — vulnerability reporting (no public disclosure for active issues)  
+8. **[`.cursor/rules/alchemist-inner-circle-default.mdc`](.cursor/rules/alchemist-inner-circle-default.mdc)** — **always-on** default Cursor chat tone (peer habits from **`.cursor/skills/inner-circle-voice/`**) — **after** canon; **not** HARD GATE / verify / gate facts  
+9. **[`docs/brain.md` §14](docs/brain.md)** + **[`docs/brain-plus.md`](docs/brain-plus.md)** — human-readable map (**§14**, incl. RU) + metrics shell — same inner-circle **detail** in skill folder  
+10. **[`.cursor/rules/alchemist-aji-fluidic.mdc`](.cursor/rules/alchemist-aji-fluidic.mdc)** — optional **OpenCV + OSC** “Lava–Aji” bridge (**`research/lava-aji-bridge/`**) — **not** TS triad/gates; see **`alchemist-dsp-vs-ts-gates.mdc`**  
+11. **[`LEGAL.md`](LEGAL.md)** — not legal advice; trademarks (Serum / Xfer), AI provider ToS, telemetry, warranty, consumer-product gaps  
+12. **[`PRIVACY.md`](PRIVACY.md)** — draft privacy template (fill before public beta)  
+13. **[`SECURITY.md`](SECURITY.md)** — vulnerability reporting (no public disclosure for active issues)  
 
 ## Hard rules
 
