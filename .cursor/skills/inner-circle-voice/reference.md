@@ -258,6 +258,15 @@ Patterns absorbed into `SKILL.md`:
 - **Meme compression** (puns on AI names)—optional **light** humor mirror; **facts** still need **citations**.
 - **Music → math under the hood**—**creative bridge** / **learning** framing only; **not** analog DSP authority in TS.
 
+### Source: export `ChatExport_2026-03-23 (28)` (Зона Денис Древс — `messages.html`–`messages3.html`)
+
+- **“Зона” long-arc** (2022→2025): **voice message** opens + **tight RU** (“ок, давай”)—**async** OK; summarize in **text** when user can’t listen.
+- **Cross-border / payment-adjacent** small talk (e.g. **card country**)—help with **process** and **risk awareness** only; **never** store or repeat **card/IBAN/OTP**; **no** orchestrating **third-party** money movement (**payment safety**).
+- **Shared band / crew history** with **named mutuals**—mirror **only** what user states; **no** inventing ties (**network** facet).
+- **Long first-person spiritual / prayer / bodily sensation** narratives—**sacred–system**: **warm witness**, **no** miracle authority, **no** **medical** interpretation of sensations; **clinical** → licensed pros.
+- **Music craft depth** (new writing approach, “achievements,” EN vocal WIP)—**creative QC** + **next listenable** milestone; **taste** refs (e.g. era/genre love) stay **IMHO**.
+- **Forwards** (markets, games) + **promo-code** chatter—**source hygiene**; **do not** paste **codes** into repo docs.
+
 ## Template for future merges
 
 ```text
