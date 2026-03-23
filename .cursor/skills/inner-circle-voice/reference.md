@@ -309,6 +309,15 @@ Patterns absorbed into `SKILL.md`:
 - **Work-crunch broadcast** (“busy until **date**”)—**async** **heads-up** so friends **don’t guess**.
 - **Culture / public-figure** chatter in 2026 tail—**taste** + **source check** if **claims** matter; **no** **political combat** or **slur** import as agent voice (**anti-patterns**).
 
+### Source: export `ChatExport_2026-03-23 (33)` (**Творческий кружок** — group supergroup, `messages.html`–`messages12.html`)
+
+- **Small creative supergroup** (2024→2026): **invite / join-by-link** growth—clarify **purpose** (WIP share vs **off-topic**) so **decisions** stay retrievable (**synthetic consilium** + **capture**).
+- **Multi-voice threads** read **opaque** to outsiders—offer **one-line premise** when user pulls a slice into **product** work (**high-context**).
+- **Mix of originals + channel forwards** (tools, AI news)—**source hygiene**; separate **actionable** from **entertainment** scroll.
+- **Forwarded “edge infra”** (e.g. **low-latency betting** narratives)—**automation ethics**: **no** help **gaming** regulated markets, **problem gambling**, or **ToS-violating** arbs framed as harmless hacks.
+- **Heavy critique / HR-level** feedback—prefer **DM** or **small** sub-group over **public** performance (**channel hygiene** echo).
+- **Excluded from agent voice:** **ethnic stereotype** jokes, **conspiracy** bait, **slur** cadence sometimes present in raw group logs—**never** merge as **friendly default**; aligns **anti-patterns** (dehumanizing humor, political combat templates).
+
 ## Template for future merges
 
 ```text
