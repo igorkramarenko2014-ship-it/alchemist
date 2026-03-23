@@ -4,6 +4,7 @@
  * Consensus Validator: check FxCk param array against Serum physical limits (0–1).
  */
 import type { AICandidate } from "@alchemist/shared-types";
+import { getSegmentEntropyFloor, inferGateSegment } from "./gates";
 
 /** Undercover legibility: agents must explain choices (FIRE — auditable, not empty slogans). */
 export const REASONING_LEGIBILITY_MIN_CHARS = 15;
@@ -97,7 +98,8 @@ export function consensusValidateCandidate(candidate: AICandidate): ConsensusVal
 
 /** Reject degenerate param arrays (FIRE / FIRESTARTER adversarial gate). */
 export const ADVERSARIAL_VARIANCE_MIN = 0.002;
-export const ADVERSARIAL_ENTROPY_MIN = 1.5;
+/** Default segment floor when no prompt context (`gates.ts` DEFAULT). */
+export const ADVERSARIAL_ENTROPY_MIN = getSegmentEntropyFloor("DEFAULT");
 
 // ─── Undercover CAI — distribution gate (FIRESTARTER §3a Layer 1) ────────────
 
@@ -124,13 +126,10 @@ export function candidatePassesDistributionGate(c: AICandidate): boolean {
 // ─── Slavic — contextual entropy threshold (FIRESTARTER §3a Layer 2) ─────────
 
 /**
- * Intent-aware minimum entropy for `passesAdversarialSanity` (focus vs complexity).
+ * Intent-aware minimum entropy for `passesAdversarialSanity` (segmented calibration).
  */
 export function getContextualEntropyThreshold(prompt: string): number {
-  const p = prompt.toLowerCase();
-  if (/\b(bass|lead|pluck|key)\b/.test(p)) return 1.2;
-  if (/\b(fx|texture|ambient|pad|atmo)\b/.test(p)) return 1.8;
-  return ADVERSARIAL_ENTROPY_MIN;
+  return getSegmentEntropyFloor(inferGateSegment(prompt));
 }
 
 /** Population variance of normalised params. */
@@ -182,7 +181,7 @@ export function candidatePassesAdversarial(c: AICandidate, prompt?: string): boo
   const entropyMin =
     prompt != null && prompt.trim().length > 0
       ? getContextualEntropyThreshold(prompt)
-      : ADVERSARIAL_ENTROPY_MIN;
+      : getSegmentEntropyFloor("DEFAULT");
   return passesAdversarialSanity(c.paramArray, entropyMin);
 }
 

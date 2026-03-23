@@ -8,6 +8,7 @@ import {
   encodeFxp,
   type AICandidate,
 } from "@alchemist/shared-engine";
+import { TriadHealth } from "@/components/TriadHealth";
 import { PromptAudioDock, type WasmHealthStatus } from "@/components/ui/PromptAudioDock";
 import { TokenUsageIndicator } from "@/components/ui/TokenUsageIndicator";
 import { formatPanelistDisplayName } from "@/lib/panelist-ui";
@@ -90,7 +91,7 @@ export default function Home() {
         signal,
       });
       if (signal.aborted || triadGenRef.current !== gen) return;
-      const sorted = scoreCandidates(analysis.candidates);
+      const sorted = scoreCandidates(analysis.candidates, text);
       setRanked(sorted);
       if (sorted.length === 0 && !analysis.validationSummary) {
         setError(
@@ -144,7 +145,10 @@ export default function Home() {
         <h1 className="min-w-0 flex-1 pt-0.5 text-2xl font-bold leading-none tracking-tight text-[#5EEAD4] drop-shadow-[0_0_14px_rgba(94,234,212,0.4)]">
           Alchemist
         </h1>
-        <TokenUsageIndicator variant="inline" className="mt-0.5 self-start sm:shrink-0" />
+        <div className="flex w-full flex-col items-stretch gap-2 sm:mt-0.5 sm:w-auto sm:items-end">
+          <TriadHealth />
+          <TokenUsageIndicator variant="inline" className="self-end sm:shrink-0" />
+        </div>
       </header>
 
       <section className="space-y-2" aria-busy={loading}>

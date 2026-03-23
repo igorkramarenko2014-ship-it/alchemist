@@ -14,7 +14,7 @@ const envPath = join(root, "apps", "web-app", ".env.local");
 console.log("\n=== env check (.env.local) ===\n");
 
 if (!existsSync(envPath)) {
-  console.warn("WARN: No .env.local yet — triad stays stub until you add keys.");
+  console.warn("WARN: No .env.local yet — triad API routes return 503 until keys are set.");
   console.warn("  cp apps/web-app/.env.example apps/web-app/.env.local   then edit GROQ_API_KEY=...\n");
   process.exit(0);
 }
@@ -51,7 +51,7 @@ if (bareGskLine > 0) {
 
 const hasLlama = groq.length > 0 || llama.length > 0;
 if (!hasLlama) {
-  console.warn("WARN: GROQ_API_KEY and LLAMA_API_KEY are empty — /api/triad/llama stays stub.\n");
+  console.warn("WARN: GROQ_API_KEY and LLAMA_API_KEY are empty — /api/triad/llama returns 503 triad_unconfigured.\n");
   process.exit(0);
 }
 

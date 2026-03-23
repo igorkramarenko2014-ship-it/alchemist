@@ -67,17 +67,17 @@ describe("Undercover CAI — distribution gate", () => {
   });
 });
 
-describe("Slavic — contextual entropy", () => {
-  it("lowers floor for bass/lead family", () => {
-    expect(getContextualEntropyThreshold("heavy bass")).toBe(1.2);
-    expect(getContextualEntropyThreshold("pluck lead")).toBe(1.2);
+describe("Slavic — contextual entropy (segmented gates)", () => {
+  it("BASS segment floor", () => {
+    expect(getContextualEntropyThreshold("heavy bass")).toBe(1.1);
   });
-  it("raises floor for texture family", () => {
-    expect(getContextualEntropyThreshold("ambient pad texture")).toBe(1.8);
-    expect(getContextualEntropyThreshold("dark atmo fx")).toBe(1.8);
+  it("LEAD segment floor", () => {
+    expect(getContextualEntropyThreshold("pluck lead")).toBe(1.6);
   });
-  it("default 1.5", () => {
-    expect(getContextualEntropyThreshold("something else")).toBe(1.5);
+  it("DEFAULT segment for non-matching prompts", () => {
+    expect(getContextualEntropyThreshold("ambient pad texture")).toBe(1.4);
+    expect(getContextualEntropyThreshold("dark atmo fx")).toBe(1.4);
+    expect(getContextualEntropyThreshold("something else")).toBe(1.4);
   });
 });
 
@@ -112,7 +112,7 @@ describe("Slavic — cosine dedup", () => {
     const out = scoreCandidates(list);
     expect(out.length).toBe(2);
     expect(weightedScore(out[0])).toBeGreaterThanOrEqual(weightedScore(out[1]));
-    expect(SLAVIC_FILTER_COSINE_THRESHOLD).toBe(0.8);
+    expect(SLAVIC_FILTER_COSINE_THRESHOLD).toBe(0.85);
   });
 });
 

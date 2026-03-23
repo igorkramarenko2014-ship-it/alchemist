@@ -17,7 +17,7 @@ export function newTriadRunId(): string {
   return `triad_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export type TriadRunMode = "fetcher" | "stub" | "tablebase";
+export type TriadRunMode = "fetcher" | "stub" | "tablebase" | "unconfigured";
 
 export function logTriadRunStart(
   runId: string,

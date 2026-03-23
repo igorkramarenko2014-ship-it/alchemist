@@ -1,4 +1,5 @@
 import { logEvent, MAX_CANDIDATES } from "@alchemist/shared-engine";
+import { parseAssistantJsonArray } from "@/lib/parse-assistant-json-array";
 import { readOpenAiAssistantText } from "@/lib/openai-compatible-chat";
 import { triadPanelistSystemPrompt } from "@/lib/triad-panelist-system-prompt";
 import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
@@ -106,14 +107,9 @@ export async function fetchLlamaCandidates(
 
   logEvent("llama_raw_response_debug", { raw: content.slice(0, 500), runId: rid });
 
-  const stripped = content
-    .replace(/```json\n?/gi, "")
-    .replace(/```\n?/g, "")
-    .trim();
-
   let raw: unknown;
   try {
-    raw = JSON.parse(stripped);
+    raw = parseAssistantJsonArray(content);
   } catch (err) {
     logEvent("llama_parse_error", {
       error: err instanceof Error ? err.message : String(err),

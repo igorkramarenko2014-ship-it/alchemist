@@ -1,4 +1,5 @@
 import { MAX_CANDIDATES } from "@alchemist/shared-engine";
+import { parseAssistantJsonArray } from "@/lib/parse-assistant-json-array";
 import { readOpenAiAssistantText } from "@/lib/openai-compatible-chat";
 import { triadPanelistSystemPrompt } from "@/lib/triad-panelist-system-prompt";
 import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
@@ -8,7 +9,7 @@ const DEEPSEEK_CHAT_URL = "https://api.deepseek.com/v1/chat/completions";
 
 /**
  * Live DeepSeek chat completion → `AICandidate[]`.
- * Outer `AbortSignal` must enforce `AI_TIMEOUT_MS` (see `triad-panel-route.ts`).
+ * Outer `AbortSignal` must enforce the route upstream timeout (see `triad-panel-route.ts`).
  */
 export async function fetchDeepSeekCandidates(
   prompt: string,
@@ -45,7 +46,7 @@ export async function fetchDeepSeekCandidates(
 
   let raw: unknown;
   try {
-    raw = JSON.parse(content.trim());
+    raw = parseAssistantJsonArray(content);
   } catch {
     throw new Error("DeepSeek: response not valid JSON");
   }

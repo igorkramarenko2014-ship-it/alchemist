@@ -23,6 +23,13 @@ export {
   weightedScore,
 } from "./score";
 export {
+  getSegmentCosineThreshold,
+  getSegmentEntropyFloor,
+  inferGateSegment,
+  slavicCosineThresholdForPrompt,
+} from "./gates";
+export type { GateSegment } from "./gates";
+export {
   ADVERSARIAL_ENTROPY_MIN,
   ADVERSARIAL_VARIANCE_MIN,
   buildValidationSummary,

@@ -7,6 +7,7 @@
  */
 import type { AICandidate } from "@alchemist/shared-types";
 import { PANELIST_WEIGHTS } from "./constants";
+import { getSegmentCosineThreshold, slavicCosineThresholdForPrompt } from "./gates";
 import { filterValid, REASONING_LEGIBILITY_MIN_CHARS } from "./validate";
 
 export function weightedScore(c: AICandidate): number {
@@ -30,8 +31,8 @@ export function cosineSimilarityParamArrays(a: number[], b: number[]): number {
   return d === 0 ? 0 : dot / d;
 }
 
-/** FIRESTARTER / FIRE — drop near-duplicate presets after scoring order. */
-export const SLAVIC_FILTER_COSINE_THRESHOLD = 0.8;
+/** FIRESTARTER / FIRE — DEFAULT segment cosine floor (use `slavicCosineThresholdForPrompt` when prompt known). */
+export const SLAVIC_FILTER_COSINE_THRESHOLD = getSegmentCosineThreshold("DEFAULT");
 
 /**
  * When legibility text exists on both candidates, require this Dice(bigram) floor to count as duplicate.
@@ -83,7 +84,8 @@ function slavicTextSimilarityFromStrings(sa: string, sb: string): number | null 
  * almost identical to an already kept one (no paramArray → always kept).
  * With legible text on both sides, param similarity alone is insufficient — text must align too.
  */
-export function slavicFilterDedupe(candidates: AICandidate[]): AICandidate[] {
+export function slavicFilterDedupe(candidates: AICandidate[], prompt?: string): AICandidate[] {
+  const cosineThreshold = slavicCosineThresholdForPrompt(prompt);
   const scored = [...candidates].sort((a, b) => weightedScore(b) - weightedScore(a));
   const legibility = new Map<AICandidate, string>();
   for (const c of scored) {
@@ -99,7 +101,7 @@ export function slavicFilterDedupe(candidates: AICandidate[]): AICandidate[] {
     const isDup = kept.some((k) => {
       const pk = k.paramArray;
       if (pk == null || !Array.isArray(pk) || pk.length === 0) return false;
-      const paramClose = cosineSimilarityParamArrays(pa, pk) > SLAVIC_FILTER_COSINE_THRESHOLD;
+      const paramClose = cosineSimilarityParamArrays(pa, pk) > cosineThreshold;
       if (!paramClose) return false;
       const ts = slavicTextSimilarityFromStrings(legibility.get(c)!, legibility.get(k)!);
       if (ts === null) return true;
@@ -111,8 +113,8 @@ export function slavicFilterDedupe(candidates: AICandidate[]): AICandidate[] {
 }
 
 /** Sort candidates by weighted score descending; invalid removed; Slavic cosine dedup applied. */
-export function scoreCandidates(candidates: AICandidate[]): AICandidate[] {
+export function scoreCandidates(candidates: AICandidate[], prompt?: string): AICandidate[] {
   const valid = filterValid(candidates);
   // `slavicFilterDedupe` preserves descending weighted-score order (subsequence of sorted input).
-  return slavicFilterDedupe(valid);
+  return slavicFilterDedupe(valid, prompt);
 }

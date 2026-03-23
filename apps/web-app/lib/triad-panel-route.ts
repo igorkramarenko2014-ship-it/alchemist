@@ -6,16 +6,21 @@ import {
 } from "@/lib/fetch-llama-candidates";
 import { fetchQwenCandidates } from "@/lib/fetch-qwen-candidates";
 import {
-  AI_TIMEOUT_MS,
   isValidCandidate,
   logEvent,
   newTriadRunId,
   PANELIST_ALCHEMIST_CODENAME,
-  stubPanelistCandidates,
   validatePromptForTriad,
 } from "@alchemist/shared-engine";
 import type { AICandidate, Panelist } from "@alchemist/shared-types";
 import { NextResponse } from "next/server";
+
+/** Upstream provider budget per panelist (server-side). */
+const PANELIST_UPSTREAM_TIMEOUT_MS: Record<Panelist, number> = {
+  DEEPSEEK: 12_000,
+  LLAMA: 5_000,
+  QWEN: 12_000,
+};
 
 function nowMs(): number {
   if (typeof performance !== "undefined" && typeof performance.now === "function") {
@@ -24,7 +29,7 @@ function nowMs(): number {
   return Date.now();
 }
 
-/** Merge client abort with route timeout (default `AI_TIMEOUT_MS`; Qwen uses 16s to match `TRIAD_PANELIST_CLIENT_TIMEOUT_MS` on the client). */
+/** Merge client abort with route timeout (per panelist upstream budget). */
 function mergeAiTimeoutSignal(
   timeoutMs: number,
   requestSignal: AbortSignal
@@ -53,7 +58,10 @@ function mergeAiTimeoutSignal(
   };
 }
 
-function triadResponseHeaders(panelist: Panelist, mode: "fetcher" | "stub"): Record<string, string> {
+function triadResponseHeaders(
+  panelist: Panelist,
+  mode: "fetcher" | "unconfigured"
+): Record<string, string> {
   return {
     "x-alchemist-triad-mode": mode,
     "x-alchemist-panelist": panelist,
@@ -61,7 +69,7 @@ function triadResponseHeaders(panelist: Panelist, mode: "fetcher" | "stub"): Rec
 }
 
 export type TriadPanelPostOptions = {
-  /** Per-route override; default `AI_TIMEOUT_MS` (e.g. Qwen/OpenRouter may need more). */
+  /** Per-route override of default upstream timeout. */
   timeoutMs?: number;
 };
 
@@ -102,57 +110,27 @@ export async function triadPanelPost(
   const llamaModel =
     env.llamaGroqModel.length > 0 ? env.llamaGroqModel : DEFAULT_LLAMA_GROQ_MODEL;
 
-  if (useDeepSeekLive || useQwenLive || useLlamaLive) {
+  if (!(useDeepSeekLive || useQwenLive || useLlamaLive)) {
     logEvent("triad_run_start", {
       runId,
       panelist,
       promptLength,
-      mode: "fetcher",
+      mode: "unconfigured",
     });
-    const t0 = nowMs();
-    const timeoutMs = options?.timeoutMs ?? AI_TIMEOUT_MS;
-    const { signal, dispose } = mergeAiTimeoutSignal(timeoutMs, request.signal);
-    let candidates: AICandidate[] = [];
-    let error: string | undefined;
-    try {
-      if (useDeepSeekLive) {
-        candidates = await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, signal);
-      } else if (useQwenLive) {
-        candidates = await fetchQwenCandidates(
-          prompt,
-          env.qwenApiKey,
-          signal,
-          env.qwenBaseUrl
-        );
-      } else {
-        candidates = await fetchLlamaCandidates(
-          prompt,
-          env.llamaApiKey,
-          signal,
-          llamaModel,
-          runId
-        );
-      }
-      candidates = candidates.filter(isValidCandidate);
-    } catch (e) {
-      error = e instanceof Error ? e.message : String(e);
-      candidates = [];
-    } finally {
-      dispose();
-    }
-    const durationMs = Math.round(nowMs() - t0);
+    const detail =
+      "Set DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope or OpenRouter base URL), and GROQ_API_KEY or LLAMA_API_KEY for Groq. Stub responses are disabled.";
     logEvent("triad_panelist_end", {
       runId,
       panelist,
       alchemistCodename,
-      candidateCount: candidates.length,
-      durationMs,
-      mode: "fetcher",
-      ...(error !== undefined ? { error } : {}),
+      candidateCount: 0,
+      durationMs: 0,
+      mode: "unconfigured",
+      error: "triad_unconfigured",
     });
     return NextResponse.json(
-      { candidates },
-      { headers: triadResponseHeaders(panelist, "fetcher") }
+      { error: "triad_unconfigured", message: detail, candidates: [] },
+      { status: 503, headers: triadResponseHeaders(panelist, "unconfigured") }
     );
   }
 
@@ -160,29 +138,38 @@ export async function triadPanelPost(
     runId,
     panelist,
     promptLength,
-    mode: "stub",
+    mode: "fetcher",
   });
   const t0 = nowMs();
-  let candidates: AICandidate[];
+  const timeoutMs = options?.timeoutMs ?? PANELIST_UPSTREAM_TIMEOUT_MS[panelist];
+  const { signal, dispose } = mergeAiTimeoutSignal(timeoutMs, request.signal);
+  let candidates: AICandidate[] = [];
+  let error: string | undefined;
   try {
-    candidates = await stubPanelistCandidates(prompt, panelist, request.signal);
+    if (useDeepSeekLive) {
+      candidates = await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, signal);
+    } else if (useQwenLive) {
+      candidates = await fetchQwenCandidates(
+        prompt,
+        env.qwenApiKey,
+        signal,
+        env.qwenBaseUrl
+      );
+    } else {
+      candidates = await fetchLlamaCandidates(
+        prompt,
+        env.llamaApiKey,
+        signal,
+        llamaModel,
+        runId
+      );
+    }
     candidates = candidates.filter(isValidCandidate);
   } catch (e) {
-    const durationMs = Math.round(nowMs() - t0);
-    const errMsg = e instanceof Error ? e.message : String(e);
-    logEvent("triad_panelist_end", {
-      runId,
-      panelist,
-      alchemistCodename,
-      candidateCount: 0,
-      durationMs,
-      mode: "stub",
-      error: errMsg,
-    });
-    return NextResponse.json(
-      { candidates: [] },
-      { headers: triadResponseHeaders(panelist, "stub") }
-    );
+    error = e instanceof Error ? e.message : String(e);
+    candidates = [];
+  } finally {
+    dispose();
   }
   const durationMs = Math.round(nowMs() - t0);
   logEvent("triad_panelist_end", {
@@ -191,10 +178,11 @@ export async function triadPanelPost(
     alchemistCodename,
     candidateCount: candidates.length,
     durationMs,
-    mode: "stub",
+    mode: "fetcher",
+    ...(error !== undefined ? { error } : {}),
   });
   return NextResponse.json(
     { candidates },
-    { headers: triadResponseHeaders(panelist, "stub") }
+    { headers: triadResponseHeaders(panelist, "fetcher") }
   );
 }

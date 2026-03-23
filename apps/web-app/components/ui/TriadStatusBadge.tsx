@@ -80,11 +80,11 @@ export function TriadStatusBadge({
     <div
       role="status"
       aria-live="polite"
-      className={`${base} border-gray-700 bg-[#111827] text-gray-400`}
-      title="Provider API keys not set — triad routes use stubs"
+      className={`${base} border-red-900/40 bg-[#111827] text-red-200/90`}
+      title="Provider keys missing — POST /api/triad/* returns 503 triad_unconfigured"
     >
-      <span className="h-2 w-2 shrink-0 rounded-full bg-gray-600" aria-hidden />
-      <span>Stub</span>
+      <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" aria-hidden />
+      <span>DEGRADED (0/3)</span>
     </div>
   );
 }

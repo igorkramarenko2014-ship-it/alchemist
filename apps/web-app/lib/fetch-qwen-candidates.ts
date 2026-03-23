@@ -1,4 +1,5 @@
 import { MAX_CANDIDATES } from "@alchemist/shared-engine";
+import { parseAssistantJsonArray } from "@/lib/parse-assistant-json-array";
 import { readOpenAiAssistantText } from "@/lib/openai-compatible-chat";
 import { triadPanelistSystemPrompt } from "@/lib/triad-panelist-system-prompt";
 import { normalizeRawCandidateItem } from "@/lib/triad-llm-normalize";
@@ -60,7 +61,7 @@ export async function fetchQwenCandidates(
 
   let raw: unknown;
   try {
-    raw = JSON.parse(content.trim());
+    raw = parseAssistantJsonArray(content);
   } catch {
     throw new Error("Qwen: response not valid JSON");
   }

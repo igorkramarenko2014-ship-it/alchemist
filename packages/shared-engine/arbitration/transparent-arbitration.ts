@@ -36,9 +36,10 @@ function deterministicVote(seed: string): ArbitrationStrategyId {
 
 function orderForStrategy(
   candidates: AICandidate[],
-  strategy: ArbitrationStrategyId
+  strategy: ArbitrationStrategyId,
+  prompt: string
 ): AICandidate[] {
-  const scored = scoreCandidates(candidates);
+  const scored = scoreCandidates(candidates, prompt);
   if (strategy === "ALPHA") {
     return scored;
   }
@@ -126,7 +127,7 @@ export function runTransparentArbitration(
     votes: voteList,
   });
 
-  const orderedCandidates = orderForStrategy(candidates, winner);
+  const orderedCandidates = orderForStrategy(candidates, winner, prompt);
 
   return {
     winner,

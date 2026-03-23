@@ -1,7 +1,7 @@
 /**
  * AI Triad: internal IDs `LLAMA` / `DEEPSEEK` / `QWEN` with blend weights in `constants`.
  * **Alchemist codenames** (Athena / Hermes / Hestia) are for UI + telemetry only.
- * 8 candidates; default 8s client fetch budget per panelist (Qwen 18s — see `TRIAD_PANELIST_CLIENT_TIMEOUT_MS`).
+ * 8 candidates; client fetch budget per panelist — see `TRIAD_PANELIST_CLIENT_TIMEOUT_MS` (≥ server upstream).
  */
 import type { AICandidate, AIAnalysis, Panelist, SerumState } from "@alchemist/shared-types";
 import { MAX_CANDIDATES, TRIAD_PANELIST_CLIENT_TIMEOUT_MS } from "./constants";
@@ -63,8 +63,8 @@ const STUB_PARAM_ARRAY_B: number[] = Array.from(
 );
 
 /**
- * Stub candidates for a single panelist (used by `/api/triad/*` routes and `makeTriadFetcher(true)`).
- * Replace with real inference when API keys are wired.
+ * Stub candidates for a single panelist (`makeTriadFetcher(true)` / Storybook only).
+ * API routes use live providers or 503 `triad_unconfigured` when keys are missing.
  */
 export async function stubPanelistCandidates(
   _prompt: string,
