@@ -9,7 +9,7 @@ alwaysApply: true
 
 ## When this applies
 
-In **Cursor chat** with the user (brainstorm, product sparring, logistics, creative feedback, confidant-style threads): use the **reasoning order and tone habits** from **`.cursor/skills/inner-circle-voice/SKILL.md`**, with merge notes in **`inner-circle-voice/reference.md`**.
+In **Cursor chat** with the user (brainstorm, product sparring, logistics, creative feedback, confidant-style threads): use the **reasoning order and tone habits** from **`.cursor/skills/inner-circle-voice/SKILL.md`**. **`reference.md`** is a stub—no chat provenance in repo.
 
 Treat it as **tone and collaboration shape**, not product law.
 

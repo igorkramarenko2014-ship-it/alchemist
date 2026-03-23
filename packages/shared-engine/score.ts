@@ -6,9 +6,17 @@
  * without pulling in external embedding models (transparent TS only).
  */
 import type { AICandidate } from "@alchemist/shared-types";
+import type { GameChanger } from "./aji-logic";
+import { runAjiCrystallization } from "./aji-logic";
 import { PANELIST_WEIGHTS } from "./constants";
+import { generateEntropy } from "./entropy";
 import { getSegmentCosineThreshold, slavicCosineThresholdForPrompt } from "./gates";
-import { filterValid, REASONING_LEGIBILITY_MIN_CHARS } from "./validate";
+import {
+  filterValid,
+  isTelemetryPureFromCandidates,
+  REASONING_LEGIBILITY_MIN_CHARS,
+  STATUS_NOISY,
+} from "./validate";
 
 export function weightedScore(c: AICandidate): number {
   const w = PANELIST_WEIGHTS[c.panelist] ?? 0;
@@ -112,9 +120,75 @@ export function slavicFilterDedupe(candidates: AICandidate[], prompt?: string): 
   return kept;
 }
 
-/** Sort candidates by weighted score descending; invalid removed; Slavic cosine dedup applied. */
-export function scoreCandidates(candidates: AICandidate[], prompt?: string): AICandidate[] {
+export type ScoreCandidatesGateStatus = "OK" | typeof STATUS_NOISY;
+
+/** Optional Aji-style residue when the scored batch is a dead end (gate fail or empty after filters). */
+export type CreativePivot = GameChanger;
+
+export interface ScoreCandidatesGatedResult {
+  status: ScoreCandidatesGateStatus;
+  candidates: AICandidate[];
+  /** Present only when scoring produced no usable candidates but the caller offered a non-empty batch, or the gate rejected telemetry. */
+  creativePivot?: CreativePivot;
+}
+
+function deadEndEntropySeed(prompt?: string): number {
+  if (prompt == null || prompt.trim().length === 0) return 0xa11ce15;
+  let h = 0xa11ce15;
+  for (let i = 0; i < prompt.length; i++) {
+    h = Math.imul(h, 31) + prompt.charCodeAt(i);
+    h |= 0;
+  }
+  return h;
+}
+
+function buildCreativePivotForDeadEnd(prompt?: string): CreativePivot {
+  const mess = generateEntropy(15, deadEndEntropySeed(prompt));
+  const p = prompt?.trim();
+  if (p) mess.push(p.slice(0, 120));
+  return runAjiCrystallization(mess);
+}
+
+/**
+ * Same pipeline as `scoreCandidates`, but surfaces **`STATUS_NOISY`** when the Gatekeeper
+ * rejects the batch: scores (IQR + rolling Z) and, when provided, parallel **`durationMs`**
+ * (floor + same stats). **`durationMs` is not mutated or attached** to candidates.
+ */
+export function scoreCandidatesWithGate(
+  candidates: AICandidate[],
+  prompt?: string,
+  durationMs?: number[]
+): ScoreCandidatesGatedResult {
+  if (candidates.length === 0) {
+    return { status: "OK", candidates: [] };
+  }
+  if (!isTelemetryPureFromCandidates(candidates, durationMs)) {
+    return {
+      status: STATUS_NOISY,
+      candidates: [],
+      creativePivot: buildCreativePivotForDeadEnd(prompt),
+    };
+  }
   const valid = filterValid(candidates);
-  // `slavicFilterDedupe` preserves descending weighted-score order (subsequence of sorted input).
-  return slavicFilterDedupe(valid, prompt);
+  const deduped = slavicFilterDedupe(valid, prompt);
+  if (deduped.length === 0) {
+    return {
+      status: "OK",
+      candidates: [],
+      creativePivot: buildCreativePivotForDeadEnd(prompt),
+    };
+  }
+  return {
+    status: "OK",
+    candidates: deduped,
+  };
+}
+
+/** Sort candidates by weighted score descending; invalid removed; Slavic cosine dedup applied. */
+export function scoreCandidates(
+  candidates: AICandidate[],
+  prompt?: string,
+  durationMs?: number[]
+): AICandidate[] {
+  return scoreCandidatesWithGate(candidates, prompt, durationMs).candidates;
 }

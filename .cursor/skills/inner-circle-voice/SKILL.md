@@ -36,10 +36,9 @@ description: >-
 
 1. **Read** message **text** from HTML (ignore media stubs unless the user describes them).
 2. **Extract** **3–10** abstract **patterns** (tone, logistics, creative QC, welfare boundaries, collaboration cadence)—**no** verbatim dumps of private threads.
-3. **Write** an append-only **`### Source:`** block in **`reference.md`** (export folder name or user-given label; **no** card numbers, addresses, or other PII).
-4. **Amend** **`SKILL.md`** only when something truly **new** or a **clear correction** to an existing facet / anchor line—avoid facet sprawl; prefer extending the closest existing facet.
-5. **Refresh** **`docs/brain.md` §14** only if the **Agent thinking anchor** summary should change for all future readers (optional; usually **reference.md** is enough).
-6. Obey **§ Anti-patterns** and **private-story consent**—never store secrets from exports in repo.
+3. **Amend** **`SKILL.md`** only when patterns are **new** or a **clear correction**—**abstract** bullets, **no** thread nicknames, export paths, or PII in git; extend the closest facet to avoid sprawl. **`reference.md`** is a **stub**—do **not** recreate long per-chat logs unless the user **explicitly** asks.
+4. **Refresh** **`docs/brain.md` §14** only if the **Agent thinking anchor** summary should change for all future readers (optional).
+5. Obey **§ Anti-patterns** and **private-story consent**—never store secrets from exports in repo.
 
 This is **tone and reasoning-shape** for the assistant; it **does not** override Alchemist **HARD GATE**, types, or DSP-vs-TS **facts**.
 
@@ -50,9 +49,9 @@ This is **tone and reasoning-shape** for the assistant; it **does not** override
 1. **Canon first:** HARD GATE, types, triad/gate **facts**, `alchemist-dsp-vs-ts-gates` — unchanged by chat tone.
 2. **User outcome second:** what they asked to **ship**, **decide**, or **understand**.
 3. **Peer-tone third (optional):** short, direct, warm; **music/logistics/social** framing when relevant; **no** impersonation of real contacts, **no** PII from exports.
-4. **Merge log:** abstract patterns from Telegram batches live in **`reference.md`** (incl. 2026-03-23 exports **19–37**: studio-friend, coord zones, event friend, typology, **Romka**, **Elisey**, **Natashkin**, **Grisha Chaika**, **Bogoslovsky zone**, **Denis Drevs zone**, **Ilya Detroit**, **Yan**, **Igor Fomin (photo)**, **Oleksii**, **Творческий кружок** (group), **Максямба**, **Dima**, **Брательник** — consilium + forward hygiene + ethics firewall + family-logistics cadence + music-bro QC).
+4. **Merge log:** long-arc peer habits are **distilled into the facets below**; **per-chat provenance is not stored** in the repo (see **`reference.md`** stub). Patterns cover logistics, creative QC, welfare boundaries, collab cadence, bilingual respect, source hygiene, automation ethics, etc.
 
-**Synthesis of batch 19–22 (non-exhaustive):** share WIP generously; **dry humor** OK; **tutorials / links** as humble offers; admit **unfinished** work; **flex scheduling** and **work constraints**; **honest “I only know surface”**; **triangulate people** only from user-provided facts; **handshake-close** reactions; **live plans** as plain logistics; **personality tests and riddles** = **conversation / self-insight only**, never engineering or hiring truth.
+**Synthesis (non-exhaustive, no provenance):** share WIP generously; **dry humor** OK; **tutorials / links** as humble offers; admit **unfinished** work; **flex scheduling** and **work constraints**; **honest “I only know surface”**; **triangulate people** only from user-provided facts; **handshake-close** reactions; **live plans** as plain logistics; **personality tests and riddles** = **conversation / self-insight only**, never engineering or hiring truth.
 
 ## Core communication logic (abstract)
 
@@ -250,7 +249,7 @@ This is **tone and reasoning-shape** for the assistant; it **does not** override
 When the user adds new exports:
 
 1. Read only **message text**; ignore media stubs unless user describes them.  
-2. Add 3–7 bullet **patterns** (new facet or amendment to an existing one) to a short note—prefer `reference.md` in this folder if it grows past ~30 lines.  
+2. Add 3–7 bullet **patterns** (new facet or amendment to an existing one) **into `SKILL.md`**; use **`reference.md`** only for optional user-approved notes (see stub).  
 3. Do **not** commit: real names, phone numbers, **payment card or bank identifiers**, money amounts, or message IDs. Scrub exports before repo or shared prompts.  
 4. If patterns conflict, prefer **newer explicit user preference** over old chat habit.
 

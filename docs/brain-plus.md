@@ -67,7 +67,7 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 
 ## Agent thinking (optional tone layer)
 
-**Not a contract.** Long-horizon **trusted-peer** patterns (creative shares, logistics, event planning, light typology banter) are merged into assistant **reasoning order** via **`docs/brain.md` §14** and **`.cursor/skills/inner-circle-voice/`** (`SKILL.md` + `reference.md`). **Canon first** (HARD GATE, verify, gate facts); **tone second** when the user wants peer-style collaboration—**never** as a substitute for engineering truth.
+**Not a contract.** Long-horizon **trusted-peer** patterns are merged into assistant **reasoning order** via **`docs/brain.md` §14** and **`.cursor/skills/inner-circle-voice/SKILL.md`** (`reference.md` is a stub—no chat provenance in git). **Canon first** (HARD GATE, verify, gate facts); **tone second** when the user wants peer-style collaboration—**never** as a substitute for engineering truth.
 
 ---
 

@@ -141,7 +141,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 - **Contracts & §E suggest loop:** `docs/FIRE.md`
 - **Full recovery bible:** `docs/FIRESTARTER.md`
 - **Cursor / agents:** `AGENTS.md`, `.cursorrules`, `.cursor/rules/alchemist-*.mdc` (incl. **`alchemist-security-posture.mdc`** — HARD GATE, keys, triad/WASM parity, LLM boundaries, verify chain)
-- **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md` (+ `reference.md` for merge notes); **English** default for assistant replies unless the user writes RU/UA. **Does not** override HARD GATE, types, or security.
+- **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md`; **English** default for assistant replies unless the user writes RU/UA. **Does not** override HARD GATE, types, or security.
 - **Commit/push after meta edits:** `.cursor/rules/alchemist-git-save-after-meta.mdc` — use `node scripts/git-save.mjs` from root; for **other** repos see **`docs/cursor-universal-habits.md`** (User Rules template).
 
 ---
@@ -166,9 +166,9 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 
 **Merged motifs (abstract — no impersonation):** studio-friend **WIP sharing**; **schedule + work-constraint** realism; **social triangulation** only from facts the user gave; **event / live-plan** logistics as plain steps; **personality tests and riddles** as **conversation / self-insight only**, not hiring or product scoring; **multi-year zone DMs** — **thread clarity** when history looks “empty,” **low-friction** repair after slow replies, **music-as-daily** texture without importing chat profanity as default agent voice.
 
-**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets), **`inner-circle-voice/reference.md`** (Telegram export merge log, through batch **2026-03-23 (37)** and ongoing).
+**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets) — canonical behavior. **`reference.md`** is a **stub** (no chat provenance stored in git).
 
-**Ongoing:** When you **attach** new chat exports (paths or files), expect the agent to **merge** abstract patterns into **`reference.md`** and update **`inner-circle-voice/SKILL.md`** when needed—see **Standing instruction** in that skill. Canon (HARD GATE, verify) stays unchanged.
+**Ongoing:** When you **attach** new exports, expect **abstract** merges **into `SKILL.md` only** unless you explicitly ask for a labeled appendix—see **Standing instruction** in that skill. Canon (HARD GATE, verify) stays unchanged.
 
 ---
 
@@ -222,12 +222,10 @@ For **implementation detail** of the voice layer, still read **`.cursor/skills/i
 
 ---
 
-### 14.4 По-русски: зачем слой «inner circle» и что добавил последний пакет чатов
+### 14.4 По-русски: зачем слой «inner circle»
 
-**Что это вообще:** не закон продукта и не замена `FIRESTARTER` / `FIRE`. Это **настройка тона и привычек рассуждения** ассистента в Cursor **после** правил безопасности и типов: коротко, по-человечески, с музыкой и логистикой как у давних друзей, **без** подделки реальных людей и **без** выдуманных фактов про Serum или «аналоговые» гейты в TypeScript.
+**Что это вообще:** не закон продукта и не замена `FIRESTARTER` / `FIRE`. Это **настройка тона и привычек рассуждения** ассистента в Cursor **после** правил безопасности и типов: коротко, по-человечески, с музыкой и логистикой в стиле «свой человек», **без** подделки реальных людей и **без** выдуманных фактов про Serum или «аналоговые» гейты в TypeScript.
 
-**Что уже внутри (в двух словах):** правила репозитория остаются главными; поверх них — **inner-circle-voice** (описание в `SKILL.md`, история слияний в `reference.md`) и при необходимости **harshcheck**-навык про проверки перед «готово».
+**Где логика:** всё в **`SKILL.md`**. **`reference.md`** — заглушка: **история чатов и привязка к экспортам в git не хранятся** (удалено намеренно).
 
-**Свежий абстрактный вклад из пакета (37), «Брательник»:** семейно-бытовая **логистика через границу** и бытовая математика (без цифр и имён в документации); **честная музыкальная обратная связь** между своими («не давит на уши» / «искусство пока не чувствую»); самоирония про **перегруз**; паника с **техникой/облаком** и потом облегчение; редкие треки и **щедрость** продюсера — с напоминанием про **права**, если это уйдёт в публичный релиз; случайные открытия при **«не том» темпе** прослушивания; связка **саундтрек ↔ другой медиапроект**; горячие мнения про «пустую нишу» в жанре — только как **IMHO**; исправление **ошибки с публичной ссылкой**. Всё это **обобщено** в `reference.md`, без PII.
-
-**Как пользоваться:** когда прикрепляешь новые экспорты — агент **дописывает** `reference.md` и при необходимости **правит** `SKILL.md`. Канон Alchemist (**HARD GATE**, триада, verify) от этого **не меняется**.
+**Как пользоваться:** если снова пришлёшь экспорты — агент вносит **только абстрактные** паттерны в **`SKILL.md`**, без имён и без длинного журнала источников, пока ты явно не попросишь иное. Канон Alchemist (**HARD GATE**, триада, verify) **не меняется**.

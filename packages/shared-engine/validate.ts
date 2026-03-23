@@ -193,6 +193,128 @@ export function isValidCandidate(c: AICandidate): boolean {
   return true;
 }
 
+// ─── Gatekeeper — telemetry (score stream before Slavic / weighting) ─────────
+
+/** Returned by `scoreCandidatesWithGate` when the batch is statistically unusable. */
+export const STATUS_NOISY = "STATUS_NOISY" as const;
+
+/** Need this many finite scores before IQR / sliding-Z apply (short triad lists stay unblocked). */
+export const GATEKEEPER_MIN_SAMPLES = 5;
+
+/** Baseline window − 1 = points used to estimate μ, σ for the next score. */
+export const GATEKEEPER_WINDOW = 5;
+
+/** Max |z| vs rolling baseline; above → outlier spike. */
+export const GATEKEEPER_Z_MAX = 3.5;
+
+/** Tukey fence multiplier on IQR (global pass). */
+export const GATEKEEPER_IQR_K = 1.5;
+
+/** Reject bot-like / impossible panelist wall-clock samples (ms). Not API latency budgets. */
+export const GATEKEEPER_MIN_DURATION_MS = 200;
+
+function mean(xs: number[]): number {
+  if (xs.length === 0) return 0;
+  return xs.reduce((a, b) => a + b, 0) / xs.length;
+}
+
+/** Population σ (cheap; n is tiny). */
+function stdDevPop(xs: number[]): number {
+  if (xs.length < 2) return 0;
+  const m = mean(xs);
+  return Math.sqrt(xs.reduce((s, x) => s + (x - m) ** 2, 0) / xs.length);
+}
+
+function sortedCopy(xs: number[]): number[] {
+  return [...xs].sort((a, b) => a - b);
+}
+
+/** Linear-interpolated quantile on sorted array, q ∈ [0,1]. */
+function quantileSorted(sorted: number[], q: number): number {
+  if (sorted.length === 0) return 0;
+  const pos = (sorted.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  const lo = sorted[base];
+  const hi = sorted[Math.min(base + 1, sorted.length - 1)];
+  return lo + rest * (hi - lo);
+}
+
+/** True if any point falls outside Tukey fences (global outlier). */
+function hasTukeyOutlier(values: number[], k: number): boolean {
+  const s = sortedCopy(values);
+  const q1 = quantileSorted(s, 0.25);
+  const q3 = quantileSorted(s, 0.75);
+  const iqr = q3 - q1;
+  if (iqr <= 1e-12) return false;
+  const lo = q1 - k * iqr;
+  const hi = q3 + k * iqr;
+  return values.some((x) => x < lo || x > hi);
+}
+
+/**
+ * Sliding-window spike: compare each point (from index window−1 onward) to μ,σ of the
+ * preceding window−1 scores. Catches local telemetry glitches IQR may miss when bulk is tame.
+ */
+function hasRollingZSpike(values: number[], window: number, zMax: number): boolean {
+  if (values.length < window || window < 2) return false;
+  for (let i = window - 1; i < values.length; i++) {
+    const baseline = values.slice(i - window + 1, i);
+    const x = values[i];
+    const sd = stdDevPop(baseline);
+    if (sd < 1e-9) continue;
+    const m = mean(baseline);
+    if (Math.abs(x - m) / sd > zMax) return true;
+  }
+  return false;
+}
+
+/**
+ * Statistical purity of a numeric telemetry series (here: panelist scores in arrival order).
+ * Too few samples → pass (no false blocks on tiny batches).
+ */
+export function isTelemetryScoreSeriesPure(scores: number[]): boolean {
+  const finite = scores.filter((x) => Number.isFinite(x));
+  if (finite.length < GATEKEEPER_MIN_SAMPLES) return true;
+  if (finite.length !== scores.length) return false; // caller should pre-check; kept for safety
+  if (hasTukeyOutlier(finite, GATEKEEPER_IQR_K)) return false;
+  if (hasRollingZSpike(finite, GATEKEEPER_WINDOW, GATEKEEPER_Z_MAX)) return false;
+  return true;
+}
+
+/**
+ * Temporal pacing for parallel `durationMs[]` (same order as candidates). Empty → pass.
+ * Hard floor `GATEKEEPER_MIN_DURATION_MS`, then same IQR + rolling-Z machinery as scores.
+ */
+export function isTemporalFlowPure(durations: number[]): boolean {
+  if (durations.length === 0) return true;
+  if (!durations.every((d) => Number.isFinite(d))) return false;
+  if (durations.some((d) => d < GATEKEEPER_MIN_DURATION_MS)) return false;
+  if (durations.length < GATEKEEPER_MIN_SAMPLES) return true;
+  if (hasTukeyOutlier(durations, GATEKEEPER_IQR_K)) return false;
+  if (hasRollingZSpike(durations, GATEKEEPER_WINDOW, GATEKEEPER_Z_MAX)) return false;
+  return true;
+}
+
+/**
+ * Gatekeeper entry: score stream from candidates; optional **`durationMs`** (same length, same order).
+ * Durations are never written onto `AICandidate` — caller supplies a parallel array.
+ */
+export function isTelemetryPureFromCandidates(
+  candidates: AICandidate[],
+  durationMs?: number[]
+): boolean {
+  const scores = candidates.map((c) => c.score);
+  if (!scores.every(Number.isFinite)) return false;
+  if (!isTelemetryScoreSeriesPure(scores)) return false;
+  if (durationMs == null || durationMs.length === 0) return true;
+  if (durationMs.length !== candidates.length) return false;
+  return isTemporalFlowPure(durationMs);
+}
+
+/** Sprint alias — same as `isTelemetryPureFromCandidates`. */
+export const isDataPure = isTelemetryPureFromCandidates;
+
 /** Filter to valid candidates only (basic checks; does not run consensus param validation). */
 export function filterValid(candidates: AICandidate[]): AICandidate[] {
   return candidates.filter(isValidCandidate);

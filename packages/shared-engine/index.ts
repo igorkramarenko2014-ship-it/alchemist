@@ -10,18 +10,43 @@ export type {
 } from "@alchemist/shared-types";
 
 export {
+  flattenTriadChunksWithDurations,
   makeTriadFetcher,
   runTriad,
   stubPanelistCandidates,
   TRIAD_PANELISTS,
 } from "./triad";
+export type { TriadPanelistChunk } from "./triad";
 export {
   cosineSimilarityParamArrays,
   scoreCandidates,
+  scoreCandidatesWithGate,
   SLAVIC_FILTER_COSINE_THRESHOLD,
   slavicFilterDedupe,
   weightedScore,
 } from "./score";
+export type {
+  CreativePivot,
+  ScoreCandidatesGatedResult,
+  ScoreCandidatesGateStatus,
+} from "./score";
+export {
+  adminWipeMess,
+  ajiCompressionRatio,
+  conceptualDensity,
+  extractInferredCore,
+  runAjiCrystallization,
+  thresholdLimitExceeded,
+  tokenizeWords,
+} from "./aji-logic";
+export type { GameChanger } from "./aji-logic";
+export {
+  ENTROPY_MESS_MAX_CHARS,
+  ENTROPY_MESS_MAX_LINES,
+  ENTROPY_POOL,
+  generateEntropy,
+  mulberry32,
+} from "./entropy";
 export {
   getSegmentCosineThreshold,
   getSegmentEntropyFloor,
@@ -39,14 +64,48 @@ export {
   entropyParamArray,
   filterConsensusValid,
   filterValid,
+  GATEKEEPER_IQR_K,
+  GATEKEEPER_MIN_DURATION_MS,
+  GATEKEEPER_MIN_SAMPLES,
+  GATEKEEPER_WINDOW,
+  GATEKEEPER_Z_MAX,
   getContextualEntropyThreshold,
+  isDataPure,
+  isTemporalFlowPure,
+  isTelemetryPureFromCandidates,
+  isTelemetryScoreSeriesPure,
   isValidCandidate,
   passesAdversarialSanity,
   passesDistributionGate,
+  STATUS_NOISY,
   validateSerumParamArray,
   varianceParamArray,
 } from "./validate";
 export type { ConsensusValidationResult, ParamViolation } from "./validate";
+export {
+  getIntegrityHealthSnapshot,
+  logDegradedFallback,
+  logHonestCapabilityGap,
+  logIntegrityEvent,
+  logSprintComplete,
+  resetIntegrityMetricsForTests,
+} from "./integrity";
+export type {
+  IntegrityHealthSnapshot,
+  IntegrityLogPayload,
+  IntegrityOutcome,
+} from "./integrity";
+export {
+  computeExistentialWeight,
+  concludeModuleSprint,
+  Polarity,
+  SCHISM_DEFAULT_GROWTH_THRESHOLD,
+  SCHISM_MODULE_GATEKEEPER,
+  SCHISM_TENSION_BAND,
+  triggerGatekeeperSchism,
+  triggerSchism,
+} from "./schism";
+export type { ExistentialChoice, ModuleState } from "./schism";
 export { encodeFxp } from "./encoder";
 export {
   AI_TIMEOUT_MS,

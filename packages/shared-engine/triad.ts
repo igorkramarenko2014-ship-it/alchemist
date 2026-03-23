@@ -24,11 +24,60 @@ import {
   candidatePassesDistributionGate,
   consensusValidateCandidate,
   filterConsensusValid,
-  filterValid,
 } from "./validate";
+import { logDegradedFallback } from "./integrity";
 import { lookupTablebaseCandidate } from "./reliability/checkers-fusion";
+import { scoreCandidatesWithGate } from "./score";
+import { STATUS_NOISY } from "./validate";
 
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
+
+/** Panelist chunks from `withTriadPanelistTiming`: each candidate inherits that call's `durationMs`. */
+export type TriadPanelistChunk = { value: AICandidate[]; durationMs: number };
+
+/**
+ * Flatten triad panel results preserving order (LLAMA → DEEPSEEK → QWEN) and align per-candidate
+ * `durationMs` without mutating `AICandidate` (parallel array for `scoreCandidatesWithGate`).
+ */
+export function flattenTriadChunksWithDurations(chunks: readonly TriadPanelistChunk[]): {
+  candidates: AICandidate[];
+  panelDurationsMs: number[];
+} {
+  const candidates = chunks.flatMap((c) => c.value);
+  const panelDurationsMs = chunks.flatMap((c) => c.value.map(() => c.durationMs));
+  return { candidates, panelDurationsMs };
+}
+
+/**
+ * Gatekeeper + Slavic scoring. Temporal array must match `raw.length` or it is ignored (score-only).
+ * If temporal gate yields `STATUS_NOISY`, retry once score-only (stubs & sub-200ms panelists).
+ */
+function scoreGatedTriadPool(
+  raw: AICandidate[],
+  prompt: string,
+  panelDurationsMs: number[] | undefined
+): AICandidate[] {
+  if (raw.length === 0) return [];
+  const useTemporal =
+    panelDurationsMs != null &&
+    panelDurationsMs.length === raw.length &&
+    panelDurationsMs.length > 0;
+
+  const first = scoreCandidatesWithGate(
+    raw,
+    prompt,
+    useTemporal ? panelDurationsMs : undefined
+  );
+  if (first.status !== STATUS_NOISY) return first.candidates;
+  if (useTemporal) {
+    logDegradedFallback("temporal_gate_noisy_retry_score_only", {
+      module: "triad.scoreGatedTriadPool",
+      rawCount: raw.length,
+    });
+    return scoreCandidatesWithGate(raw, prompt, undefined).candidates;
+  }
+  return [];
+}
 
 function emptyState(): SerumState {
   return {
@@ -188,11 +237,14 @@ export async function runTriad(
   let candidates: AICandidate[];
   let meanPanelistMs = 0;
   let triadFailureRate = 0;
+  /** Parallel to `candidates` when built from panelist chunks; omitted for tablebase. */
+  let panelDurationsMs: number[] | undefined;
 
   if (tablebaseCandidate) {
     candidates = [tablebaseCandidate];
     meanPanelistMs = 0;
     triadFailureRate = 0;
+    panelDurationsMs = undefined;
   } else if (fetcher) {
     const chunks = await Promise.all(
       TRIAD_PANELISTS.map(async (panelist) => {
@@ -214,7 +266,9 @@ export async function runTriad(
         }
       })
     );
-    candidates = chunks.flatMap((c) => c.value);
+    const flat = flattenTriadChunksWithDurations(chunks);
+    candidates = flat.candidates;
+    panelDurationsMs = flat.panelDurationsMs;
     meanPanelistMs =
       chunks.reduce((a, c) => a + c.durationMs, 0) / Math.max(chunks.length, 1);
     triadFailureRate =
@@ -227,13 +281,17 @@ export async function runTriad(
         )
       )
     );
-    candidates = chunks.flatMap((c) => c.value);
+    const flat = flattenTriadChunksWithDurations(chunks);
+    candidates = flat.candidates;
+    panelDurationsMs = flat.panelDurationsMs;
     meanPanelistMs =
       chunks.reduce((a, c) => a + c.durationMs, 0) / Math.max(chunks.length, 1);
     triadFailureRate = 0;
   }
 
-  let valid = filterValid(candidates)
+  const scored = scoreGatedTriadPool(candidates, prompt, panelDurationsMs);
+
+  let valid = scored
     .filter(candidatePassesDistributionGate)
     .filter((c) => candidatePassesAdversarial(c, prompt))
     .slice(0, MAX_CANDIDATES);
