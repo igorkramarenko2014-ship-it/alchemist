@@ -1,5 +1,6 @@
 'use client';
 
+import type { AgentAjiChatFusion } from '@alchemist/shared-engine';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface TriadHealthState {
@@ -8,15 +9,33 @@ export interface TriadHealthState {
   triadFullyLive: boolean;
   livePanelists: string[];
   panelistRoutes: string;
+  /** From GET /api/health `agentAjiChatFusion` — operator hints only. */
+  agentAjiChatFusion: AgentAjiChatFusion | null;
 }
 
 function isRecord(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null && !Array.isArray(x);
 }
 
+function parseAgentAjiChatFusion(data: unknown): AgentAjiChatFusion | null {
+  if (!isRecord(data)) return null;
+  const f = data.agentAjiChatFusion;
+  if (!isRecord(f)) return null;
+  const lines = f.fusionLines;
+  const codes = f.fusionCodes;
+  if (!Array.isArray(lines) || !lines.every((x): x is string => typeof x === 'string')) {
+    return null;
+  }
+  const fusionCodes =
+    Array.isArray(codes) && codes.every((x): x is string => typeof x === 'string')
+      ? codes
+      : [];
+  return { fusionCodes, fusionLines: lines };
+}
+
 function parseTriadFromHealth(data: unknown): Pick<
   TriadHealthState,
-  'triadFullyLive' | 'livePanelists' | 'panelistRoutes'
+  'triadFullyLive' | 'livePanelists' | 'panelistRoutes' | 'agentAjiChatFusion'
 > | null {
   if (!isRecord(data)) return null;
   const triad = data.triad;
@@ -26,7 +45,8 @@ function parseTriadFromHealth(data: unknown): Pick<
     ? triad.livePanelists.filter((x): x is string => typeof x === 'string')
     : [];
   const panelistRoutes = typeof triad.panelistRoutes === 'string' ? triad.panelistRoutes : '';
-  return { triadFullyLive, livePanelists, panelistRoutes };
+  const agentAjiChatFusion = parseAgentAjiChatFusion(data);
+  return { triadFullyLive, livePanelists, panelistRoutes, agentAjiChatFusion };
 }
 
 const POLL_MS = 30_000;
@@ -37,6 +57,7 @@ export function useTriadHealth(): TriadHealthState {
   const [triadFullyLive, setTriadFullyLive] = useState(false);
   const [livePanelists, setLivePanelists] = useState<string[]>([]);
   const [panelistRoutes, setPanelistRoutes] = useState('');
+  const [agentAjiChatFusion, setAgentAjiChatFusion] = useState<AgentAjiChatFusion | null>(null);
   const mounted = useRef(true);
 
   const fetchHealth = useCallback(async (signal?: AbortSignal) => {
@@ -45,6 +66,7 @@ export function useTriadHealth(): TriadHealthState {
       if (!res.ok) {
         if (!mounted.current) return;
         setError(true);
+        setAgentAjiChatFusion(null);
         setLoading(false);
         return;
       }
@@ -53,18 +75,21 @@ export function useTriadHealth(): TriadHealthState {
       if (!mounted.current) return;
       if (!parsed) {
         setError(true);
+        setAgentAjiChatFusion(null);
         setLoading(false);
         return;
       }
       setTriadFullyLive(parsed.triadFullyLive);
       setLivePanelists(parsed.livePanelists);
       setPanelistRoutes(parsed.panelistRoutes);
+      setAgentAjiChatFusion(parsed.agentAjiChatFusion);
       setError(false);
       setLoading(false);
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       if (!mounted.current) return;
       setError(true);
+      setAgentAjiChatFusion(null);
       setLoading(false);
     }
   }, []);
@@ -83,5 +108,5 @@ export function useTriadHealth(): TriadHealthState {
     };
   }, [fetchHealth]);
 
-  return { loading, error, triadFullyLive, livePanelists, panelistRoutes };
+  return { loading, error, triadFullyLive, livePanelists, panelistRoutes, agentAjiChatFusion };
 }

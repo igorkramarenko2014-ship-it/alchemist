@@ -8,8 +8,10 @@
  * **Forbidden:** omnipotent weight rewrites, hidden “intuition” without source,
  * Slavic bypass, amnesia / silent history wipe — every bridge is **`logEvent`**-able.
  */
+import { mergeSoeWithAjiChat } from "../agent-fusion";
+import type { AgentAjiChatFusion } from "../agent-fusion";
+import { computeSoeRecommendations, type SoeTriadSnapshot } from "../soe";
 import { logEvent } from "../telemetry";
-import type { SoeTriadSnapshot } from "../soe";
 
 /** Context produced **outside** `shared-engine` (ETL, research notebook, batch job). */
 export interface GreatLibraryContext {
@@ -86,17 +88,36 @@ export function mergeGreatLibraryIntoSoeSnapshot(
   };
 }
 
+/** SOE + agent-aji chat lines after an AGL merge (audit-friendly provenance echo). */
+export function computeGreatLibraryAgentAjiChatFusion(
+  result: GreatLibraryMergeResult
+): AgentAjiChatFusion {
+  const soe = computeSoeRecommendations(result.snapshot);
+  const merged = mergeSoeWithAjiChat(soe);
+  const prov =
+    result.provenance.length > 140 ? `${result.provenance.slice(0, 137)}…` : result.provenance;
+  return {
+    fusionCodes: [...merged.fusionCodes, "AGL_PROVENANCE"],
+    fusionLines: [
+      ...merged.fusionLines,
+      `aji_fusion: AGL merge keys [${result.appliedAugmentKeys.join(",")}] — provenance "${prov}"`,
+    ],
+  };
+}
+
 /** Structured line for pipelines — same pattern as triad / talent / verify summary. */
 export function logGreatLibraryMerge(
   result: GreatLibraryMergeResult,
   runId?: string
 ): void {
+  const agentAjiChatFusion = computeGreatLibraryAgentAjiChatFusion(result);
   logEvent("great_library_soe_merge", {
     runId,
     provenance: result.provenance,
     collectedAt: result.collectedAt,
     jobRunId: result.jobRunId,
     appliedAugmentKeys: result.appliedAugmentKeys,
+    agentAjiFusionLines: agentAjiChatFusion.fusionLines,
     note:
       "Offline AGL context merged into SoeTriadSnapshot — no hidden intuition; inspect provenance.",
   });

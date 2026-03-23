@@ -6,6 +6,7 @@ export type {
   AIAnalysis,
   Panelist,
   SerumState,
+  TriadRunTelemetry,
   UserMode,
 } from "@alchemist/shared-types";
 
@@ -143,6 +144,16 @@ export type {
   SoeTriadSnapshot,
 } from "./soe";
 export {
+  ARBITRATION_AGENT_AJI_FUSION_LINES,
+  computeAgentAjiChatFusionFromTriadTelemetry,
+  computeHealthAgentAjiChatFusion,
+  computeMobileShellAgentAjiChatFusion,
+  computeTalentAgentAjiChatFusion,
+  mergeSoeWithAjiChat,
+  taxonomyPoolTooLargeAgentFusion,
+} from "./agent-fusion";
+export type { AgentAjiChatFusion } from "./agent-fusion";
+export {
   ALT_TRIAD_GOVERNANCE_WEIGHTS_EFFICIENCY,
   ATHENA_SOE_RECALIBRATION_LINE,
   computeTriadGovernance,
@@ -193,6 +204,7 @@ export type {
   TalentMarketAnalysisResult,
 } from "./talent/market-scout";
 export {
+  computeGreatLibraryAgentAjiChatFusion,
   logGreatLibraryMerge,
   mergeGreatLibraryIntoSoeSnapshot,
 } from "./learning/great-library";

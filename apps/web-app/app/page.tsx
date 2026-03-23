@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  computeAgentAjiChatFusionFromTriadTelemetry,
+  encodeFxp,
   makeTriadFetcher,
   runTriad,
   scoreCandidates,
-  encodeFxp,
   type AICandidate,
 } from "@alchemist/shared-engine";
 import { TriadHealth } from "@/components/TriadHealth";
@@ -20,6 +21,7 @@ export default function Home() {
   const [ranked, setRanked] = useState<AICandidate[]>([]);
   const [validationSummary, setValidationSummary] = useState<string | null>(null);
   const [wasmStatus, setWasmStatus] = useState<WasmHealthStatus>("loading");
+  const [postRunAgentFusionLine, setPostRunAgentFusionLine] = useState<string | null>(null);
   const triadAbortRef = useRef<AbortController | null>(null);
   /** Prevents a superseded triad from clearing `loading` while a newer run is active. */
   const triadGenRef = useRef(0);
@@ -81,6 +83,7 @@ export default function Home() {
     setError(null);
     setRanked([]);
     setValidationSummary(null);
+    setPostRunAgentFusionLine(null);
     try {
       const analysis = await runTriad(text, {
         /** Server routes: `app/api/triad/{llama,deepseek,qwen}` (FIRE §B2). */
@@ -102,6 +105,10 @@ export default function Home() {
         window.dispatchEvent(new Event("alchemist:usage-update"));
       }
       if (analysis.validationSummary) setValidationSummary(analysis.validationSummary);
+      if (analysis.triadRunTelemetry) {
+        const fusion = computeAgentAjiChatFusionFromTriadTelemetry(analysis.triadRunTelemetry);
+        setPostRunAgentFusionLine(fusion.fusionLines[0] ?? null);
+      }
     } catch (e) {
       if (signal.aborted || triadGenRef.current !== gen) return;
       const msg = e instanceof Error ? e.message : String(e);
@@ -222,6 +229,15 @@ export default function Home() {
           <pre className="mt-2 whitespace-pre-wrap font-sans text-xs">{validationSummary}</pre>
         </div>
       )}
+
+      {postRunAgentFusionLine ? (
+        <p
+          className="mt-4 text-[10px] leading-snug text-gray-500 line-clamp-3"
+          title={postRunAgentFusionLine}
+        >
+          {postRunAgentFusionLine}
+        </p>
+      ) : null}
 
     </main>
   );

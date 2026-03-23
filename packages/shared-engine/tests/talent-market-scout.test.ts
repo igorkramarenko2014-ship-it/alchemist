@@ -35,6 +35,7 @@ describe("talent market scout", () => {
     const r = analyzeTalentMarket({ benchmarks: miniDoc });
     expect(r.operatorReviewSuggested).toBe(false);
     expect(r.reason).toMatch(/Insufficient data/);
+    expect(r.agentAjiChatFusion.fusionLines[0]).toMatch(/^aji_fusion:/);
   });
 
   it("flags operator review when gap >= default threshold (panelist path)", () => {
@@ -86,5 +87,6 @@ describe("talent market scout", () => {
     expect(line).toContain('"event":"talent_market_analysis"');
     expect(line).toContain("run_test");
     expect(line).toContain("operatorReviewSuggested");
+    expect(line).toContain("agentAjiFusionLines");
   });
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import type { TriadHealthState } from '@/hooks/useTriadHealth';
+import type { ReactNode } from 'react';
 
 export type TriadStatusBadgeProps = TriadHealthState;
 
@@ -13,10 +14,27 @@ export function TriadStatusBadge({
   triadFullyLive,
   livePanelists,
   panelistRoutes,
+  agentAjiChatFusion,
 }: TriadStatusBadgeProps) {
 
   const base =
     'inline-flex max-w-full items-center gap-2 rounded-lg border px-2.5 py-1 text-left text-[11px] leading-tight';
+  const fusionLine =
+    !triadFullyLive && !loading && !error
+      ? agentAjiChatFusion?.fusionLines?.[0]?.trim() ?? null
+      : null;
+
+  const withFusion = (node: ReactNode) =>
+    fusionLine ? (
+      <div className="max-w-full space-y-1">
+        {node}
+        <p className="text-[10px] leading-snug text-gray-500 line-clamp-2" title={fusionLine}>
+          {fusionLine}
+        </p>
+      </div>
+    ) : (
+      node
+    );
 
   if (loading) {
     return (
@@ -61,7 +79,7 @@ export function TriadStatusBadge({
 
   if (livePanelists.length > 0) {
     const n = livePanelists.length;
-    return (
+    return withFusion(
       <div
         role="status"
         aria-live="polite"
@@ -72,11 +90,11 @@ export function TriadStatusBadge({
         <span>
           Partial ({n}/3)
         </span>
-      </div>
+      </div>,
     );
   }
 
-  return (
+  return withFusion(
     <div
       role="status"
       aria-live="polite"
@@ -85,6 +103,6 @@ export function TriadStatusBadge({
     >
       <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" aria-hidden />
       <span>DEGRADED (0/3)</span>
-    </div>
+    </div>,
   );
 }

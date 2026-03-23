@@ -84,8 +84,21 @@ export interface AICandidate {
   paramArray?: number[];
 }
 
+/** Single-run triad metrics attached to `AIAnalysis` for SOE / agent-aji chat fusion on the client. */
+export interface TriadRunTelemetry {
+  meanPanelistMs: number;
+  triadFailureRate: number;
+  gateDropRate: number;
+  /** Satisfied without `unconfigured` — that case throws before a successful `AIAnalysis`. */
+  triadRunMode: "tablebase" | "fetcher" | "stub";
+  rawCandidateCount: number;
+  afterGateCount: number;
+}
+
 export interface AIAnalysis {
   candidates: AICandidate[];
   /** Human-readable summary of consensus validation (which candidates invalid, which offsets violated). */
   validationSummary?: string;
+  /** Optional: wall-time + gate stats from this run for dashboards and `computeAgentAjiChatFusionFromTriadTelemetry`. */
+  triadRunTelemetry?: TriadRunTelemetry;
 }

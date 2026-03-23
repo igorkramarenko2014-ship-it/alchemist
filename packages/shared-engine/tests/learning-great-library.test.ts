@@ -51,5 +51,6 @@ describe("Great Library (AGL) SOE bridge", () => {
     expect(line).toContain('"event":"great_library_soe_merge"');
     expect(line).toContain("audit-trail");
     expect(line).toContain("run_gl");
+    expect(line).toContain("agentAjiFusionLines");
   });
 });

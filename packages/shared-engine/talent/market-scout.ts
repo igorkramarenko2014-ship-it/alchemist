@@ -6,6 +6,7 @@
  * **no** “amnesia” or silent state purge. Deployers change env & routes explicitly.
  */
 import type { Panelist } from "@alchemist/shared-types";
+import { computeTalentAgentAjiChatFusion, type AgentAjiChatFusion } from "../agent-fusion";
 import { logEvent } from "../telemetry";
 import marketBenchmarksJson from "./market-benchmarks.json";
 
@@ -115,6 +116,8 @@ export interface TalentMarketAnalysisResult {
   reason: string;
   /** Matching market row for weakest panelist role when identifiable. */
   suggestedMarketTalent?: MarketTalentRow;
+  /** Deterministic agent-aji chat fusion lines (hints only). */
+  agentAjiChatFusion: AgentAjiChatFusion;
 }
 
 function topMarketTalent(doc: MarketBenchmarksDocument): MarketTalentRow {
@@ -168,6 +171,12 @@ export function analyzeTalentMarket(
       operatorReviewSuggested: false,
       reason:
         "Insufficient data: pass panelistHealth and/or triadHealthScore for market comparison.",
+      agentAjiChatFusion: computeTalentAgentAjiChatFusion({
+        insufficientData: true,
+        operatorReviewSuggested: false,
+        gap: 0,
+        weakestPanelist: null,
+      }),
     };
   }
 
@@ -196,6 +205,12 @@ export function analyzeTalentMarket(
     operatorReviewSuggested,
     reason,
     suggestedMarketTalent,
+    agentAjiChatFusion: computeTalentAgentAjiChatFusion({
+      insufficientData: false,
+      operatorReviewSuggested,
+      gap,
+      weakestPanelist,
+    }),
   };
 }
 
@@ -212,6 +227,7 @@ export function logTalentMarketAnalysis(
     topMarketScore: result.topMarketScore,
     gap: result.gap,
     operatorReviewSuggested: result.operatorReviewSuggested,
+    agentAjiFusionLines: result.agentAjiChatFusion.fusionLines,
     note: "Hint only — no automatic model swap; deployer updates configuration.",
   });
 }

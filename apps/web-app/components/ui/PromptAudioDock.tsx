@@ -105,9 +105,17 @@ export function PromptAudioDock({
           <TriadStatusBadge {...triadHealth} />
         </div>
         {wasmStatus === 'unavailable' && (
-          <p className="mb-3 text-left text-[11px] text-amber-200/80">
-            Export unavailable · WASM encoder not built
-          </p>
+          <div className="mb-3 text-left">
+            <p className="text-[11px] text-amber-200/80">Export unavailable · WASM encoder not built</p>
+            {triadHealth.agentAjiChatFusion?.fusionLines?.[0] ? (
+              <p
+                className="mt-1 text-[10px] leading-snug text-gray-500 line-clamp-2"
+                title={triadHealth.agentAjiChatFusion.fusionLines[0]}
+              >
+                {triadHealth.agentAjiChatFusion.fusionLines[0]}
+              </p>
+            ) : null}
+          </div>
         )}
 
         <div className="relative w-full">

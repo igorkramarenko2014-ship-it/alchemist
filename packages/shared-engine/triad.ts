@@ -331,6 +331,14 @@ export async function runTriad(
 
   return {
     candidates: valid,
+    triadRunTelemetry: {
+      meanPanelistMs,
+      triadFailureRate,
+      gateDropRate,
+      triadRunMode,
+      rawCandidateCount: candidates.length,
+      afterGateCount: valid.length,
+    },
     ...(validationSummary !== undefined && { validationSummary }),
   };
 }

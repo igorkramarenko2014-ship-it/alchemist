@@ -12,6 +12,7 @@
  * - skip `scoreCandidates` — you lose `filterValid` + weighted sort (Slavic alone is not the full gate path)
  */
 import type { AICandidate } from "@alchemist/shared-types";
+import { taxonomyPoolTooLargeAgentFusion } from "../agent-fusion";
 import { MAX_CANDIDATES } from "../constants";
 import { scoreCandidates } from "../score";
 
@@ -32,6 +33,9 @@ export interface NarrowTaxonomyOptions {
 export const TAXONOMY_PRE_SLAVIC_POOL_MAX = 200;
 
 export class TaxonomyPoolTooLargeError extends Error {
+  /** Agent-aji chat fusion lines for operators / UI (same semantics as `taxonomyPoolTooLargeAgentFusion`). */
+  public readonly fusionHintLines: readonly string[];
+
   constructor(
     public readonly size: number,
     public readonly max: number
@@ -41,6 +45,7 @@ export class TaxonomyPoolTooLargeError extends Error {
         `Narrow offline before narrowTaxonomyPoolToTriadCandidates. See taxonomy/README.md.`
     );
     this.name = "TaxonomyPoolTooLargeError";
+    this.fusionHintLines = taxonomyPoolTooLargeAgentFusion(size, max).fusionLines;
   }
 }
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { AICandidate, SerumState } from "@alchemist/shared-types";
 import { runTransparentArbitration } from "../arbitration/transparent-arbitration";
 import { weightedScore } from "../score";
@@ -28,6 +28,7 @@ function cand(
 
 describe("transparent-arbitration", () => {
   it("returns three votes, tally, and majority winner", () => {
+    const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
     const pool = [
       cand("DEEPSEEK", 0.9, "alpha line — transparent arbitration test reasoning."),
       cand("LLAMA", 0.5, "beta line — transparent arbitration test reasoning."),
@@ -37,6 +38,10 @@ describe("transparent-arbitration", () => {
       prompt: "test prompt",
       runId: "arb_test_1",
     });
+    const stderr = spy.mock.calls.map((c) => String(c[0])).join("");
+    spy.mockRestore();
+    expect(stderr).toContain("agentAjiFusionLines");
+    expect(stderr).toContain("aji_fusion:");
     expect(r.votes).toHaveLength(3);
     expect(r.votes[0].stage).toBe(1);
     expect(r.votes[0].awareness).toEqual([]);

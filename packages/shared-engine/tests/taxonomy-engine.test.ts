@@ -46,6 +46,21 @@ describe("taxonomy/engine — narrowTaxonomyPoolToTriadCandidates", () => {
     );
   });
 
+  it("TaxonomyPoolTooLargeError exposes agent fusion lines", () => {
+    const pool = Array.from({ length: TAXONOMY_PRE_SLAVIC_POOL_MAX + 1 }, (_, i) =>
+      cand("LLAMA", 0.5 + i * 0.0001)
+    );
+    try {
+      narrowTaxonomyPoolToTriadCandidates(pool);
+      expect.fail("expected throw");
+    } catch (e) {
+      expect(e).toBeInstanceOf(TaxonomyPoolTooLargeError);
+      const err = e as TaxonomyPoolTooLargeError;
+      expect(err.fusionHintLines.length).toBeGreaterThan(0);
+      expect(err.fusionHintLines[0]).toMatch(/^aji_fusion:/);
+    }
+  });
+
   it("returns at most MAX_CANDIDATES after scoreCandidates pipeline", () => {
     const spread = Array.from({ length: 32 }, (_, i) => ((i * 17) % 100) / 100);
     const pool: AICandidate[] = [];

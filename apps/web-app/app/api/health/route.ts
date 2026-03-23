@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { computeHealthAgentAjiChatFusion } from "@alchemist/shared-engine";
 import { NextResponse } from "next/server";
 
 /**
@@ -24,6 +25,16 @@ export async function GET(request: Request) {
     qwenLive ? "qwen" : null,
     llamaLive ? "llama" : null,
   ].filter(Boolean);
+  const wasmRec =
+    typeof wasm === "object" && wasm !== null ? (wasm as Record<string, unknown>) : null;
+  const wasmOk =
+    wasmRec?.ok === true &&
+    wasmRec?.status === "available";
+  const agentAjiChatFusion = computeHealthAgentAjiChatFusion({
+    wasmOk,
+    triadFullyLive: allLive,
+    anyLive,
+  });
   return NextResponse.json({
     ok: true,
     wasm,
@@ -46,6 +57,7 @@ export async function GET(request: Request) {
     telemetry: {
       logEvent: "stderr JSON lines (packages/shared-engine/telemetry.ts) — not dev-only console spam",
     },
+    agentAjiChatFusion,
     generatedAtMs: Date.now(),
     nodeEnv: process.env.NODE_ENV ?? "development",
   });

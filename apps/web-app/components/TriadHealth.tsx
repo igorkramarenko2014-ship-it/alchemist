@@ -14,9 +14,11 @@ export function TriadStatusBar(props: {
   loading: boolean;
   error: boolean;
   livePanelists: string[];
+  /** First line from GET /api/health agent fusion when triad not 3/3. */
+  agentAjiFusionCaption?: string | null;
   className?: string;
 }) {
-  const { loading, error, livePanelists, className = "" } = props;
+  const { loading, error, livePanelists, agentAjiFusionCaption, className = "" } = props;
   const n = livePanelists.length;
   const status = quorumFromLiveCount(n);
 
@@ -62,11 +64,30 @@ export function TriadStatusBar(props: {
           </>
         )}
       </div>
+      {!loading && !error && agentAjiFusionCaption ? (
+        <p
+          className="relative mt-1 max-w-[14rem] text-[10px] leading-snug text-gray-500 line-clamp-2 sm:max-w-xs"
+          title={agentAjiFusionCaption}
+        >
+          {agentAjiFusionCaption}
+        </p>
+      ) : null}
     </div>
   );
 }
 
 export function TriadHealth() {
-  const { loading, error, livePanelists } = useTriadHealth();
-  return <TriadStatusBar loading={loading} error={error} livePanelists={livePanelists} />;
+  const { loading, error, livePanelists, triadFullyLive, agentAjiChatFusion } = useTriadHealth();
+  const agentAjiFusionCaption =
+    !triadFullyLive && agentAjiChatFusion?.fusionLines?.[0]
+      ? agentAjiChatFusion.fusionLines[0].trim()
+      : null;
+  return (
+    <TriadStatusBar
+      loading={loading}
+      error={error}
+      livePanelists={livePanelists}
+      agentAjiFusionCaption={agentAjiFusionCaption}
+    />
+  );
 }
