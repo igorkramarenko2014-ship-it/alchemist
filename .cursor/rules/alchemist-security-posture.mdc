@@ -1,0 +1,96 @@
+---
+description: >-
+  Full Alchemist security posture — HARD GATE, env keys, triad stub/prod parity,
+  WASM integrity, LLM trust boundaries, verification chain, thinking order.
+alwaysApply: true
+---
+
+# Alchemist — security posture (always)
+
+Apply the full posture below **before** writing, suggesting, or reviewing any code, config, or docs.
+
+## HARD GATE (encoder / Serum bytes)
+
+**NEVER** invent, approximate, or stub Serum byte offsets. Any `.fxp` generation or `serum-offset-map.ts` edit requires:
+
+1. `packages/fxp-encoder/serum-offset-map.ts` present and internally consistent.
+2. `tools/validate-offsets.py` run against a **real** Serum init `.fxp`.
+3. `pnpm validate:offsets` + `pnpm assert:hard-gate` both green.
+
+If `ALCHEMIST_STRICT_OFFSETS=1` and the sample `.fxp` is absent → **hard stop**, no workaround. This gate is **non-negotiable** and overrides any “just stub it for now” request.
+
+## API keys / env secrets
+
+Never hardcode, log, or echo secrets. Required env vars:
+
+- `DEEPSEEK_API_KEY`, `QWEN_API_KEY`, `GROQ_API_KEY` (or `LLAMA_API_KEY`)
+- Optional: `QWEN_BASE_URL`, `LLAMA_GROQ_MODEL`
+
+Rules:
+
+- All keys live in `apps/web-app/.env.local` (gitignored). Never in source.
+- `pnpm env:check` must pass before any triad route runs.
+- `pnpm verify:keys` smoke-tests key presence **without** logging values.
+- If a key is missing → stub path activates silently. Flag this as a **security/parity risk** in any review comment; never treat stub as prod.
+- Never add secrets to `brain.md`, `brain-plus.md`, `FIRE.md`, or any doc that could be committed — even as placeholders.
+
+## Triad stub vs prod parity
+
+The triad fetcher diverges from stub in non-obvious ways. Treat any stub → prod delta as a **security surface**:
+
+- Stub panelists return deterministic fixtures; prod hits external LLM endpoints with real latency and token spend — never conflate them in gate logic or telemetry assertions.
+- Undercover CAI and Slavic filter must behave **identically** in both modes. Any gate that reads stub output differently from live output is a **bug**.
+- `pnpm test:real-gates` (local, gitignored artifact) is the way to verify production gate behavior; CI alone is insufficient.
+- When reviewing `/api/triad/*` routes: confirm the live fetcher timeout (default **8 s** per panelist; Qwen path longer — see `FIRESTARTER` §5b) is enforced and not silently bypassed in error branches.
+- Log `triad_run_*` and `triad_panelist_end` telemetry on **stderr** for every run. Missing telemetry in a branch = **untrusted** branch.
+
+## WASM / encoder integrity
+
+Browser `.fxp` export is only valid when:
+
+1. `pnpm build:wasm` completed successfully in `packages/fxp-encoder`.
+2. `GET /api/health/wasm` returns `{ "status": "available" }` (or equivalent **available** contract per code).
+3. The WASM binary in `pkg/` was built from the same `serum-offset-map.ts` that passed `validate:offsets` — no stale builds.
+
+Security rules:
+
+- Never enable the export UI button from a local variable or flag alone; **`/api/health/wasm`** is the authoritative gate.
+- If WASM is unavailable, the UI must clearly communicate export unavailable — silent degradation that produces corrupt `.fxp` is worse than a visible error.
+- CI can pass without Rust/WASM (stub path). Do not mistake a green `harshcheck` for WASM integrity — they are orthogonal.
+- Any PR touching `fxp-encoder/` must re-run `validate:offsets` against a real `.fxp` before merge. Document the run in the PR description.
+
+## Agent / LLM trust boundaries
+
+This repo uses LLM calls in the hot path (triad) and in dev tooling (Cursor, brain docs). Treat LLM output as **untrusted** at every boundary:
+
+- `/api/triad/*` responses are parsed through `filterValid` and typed schemas (`shared-types`). Never pass raw LLM JSON to gate logic without validation.
+- Panelist **blend** weights (DEEPSEEK **0.40** / LLAMA **0.35** / QWEN **0.25**) are fixed in code (`constants.ts` / triad contract — see `alchemist-brief.mdc`). Never accept weight overrides from LLM output or user prompt fields.
+- **Prompt injection:** user NL input passes through `validatePromptForTriad` before hitting the triad. That function is a security gate — any relaxation (max length, no markdown fences) requires explicit sign-off and a new Vitest case.
+- Greek codename mapping (ATHENA=DEEPSEEK, HERMES=LLAMA, HESTIA=QWEN) is internal only. Never expose wire IDs (model strings, base URLs) in client-facing logs, UI, or error messages.
+- `brain.md` / `brain-plus.md` influence agent reasoning order (§14). These files must not contain secrets, real user data, or PII. The inner-circle-voice skill similarly: **abstract patterns only**, no raw DMs, no names, no card/address data from exports.
+- `verify_post_summary` JSON (stderr, end of harshcheck) is the audit trail. If your SIEM or log pipeline does not capture stderr, that is a gap — flag it.
+
+## Verification chain (do not skip steps)
+
+| Goal | Command |
+|------|---------|
+| Fast loop | `pnpm verify:harsh` (types + shared-engine Vitest, no Next build) |
+| Pre-ship | `pnpm harshcheck` (above + next build + `verify_post_summary`) |
+| Keys | `pnpm verify:keys` |
+| Offsets | `pnpm validate:offsets` + `pnpm assert:hard-gate` |
+| Env | `pnpm alc:doctor` + `pnpm env:check` |
+| Real gates | `pnpm test:real-gates` (local only, gitignored) |
+| Denylist | `pnpm check:transparent` |
+| Sync docs | `pnpm fire:sync` (only after green `verify:harsh`) |
+
+A PR is not “done” until `harshcheck` passes and `verify_post_summary` is captured. WASM-touching PRs additionally need `validate:offsets` documented.
+
+## Thinking order
+
+1. **Security / HARD GATE** — does this touch offsets, keys, or triad routes?
+2. **Verification** — which commands confirm correctness?
+3. **Parity** — does this behave identically in stub and prod (for gates)?
+4. **Task** — write the code / spec / diagnosis.
+5. **Tone** — peer-style only after 1–4 are satisfied (`alchemist-inner-circle-default.mdc`).
+
+This file **does not** relax **`alchemist-brief.mdc`**, **`alchemist-dsp-vs-ts-gates.mdc`**, or **`SECURITY.md`** — it **amplifies** them for reviews and edits.

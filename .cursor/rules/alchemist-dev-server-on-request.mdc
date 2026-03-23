@@ -1,0 +1,26 @@
+---
+description: >-
+  When the user asks to run/start the dev server, Next.js, or "pnpm dev" for the web app
+  (phrases like run server, start server, start dev, launch web).
+alwaysApply: false
+---
+
+# Alchemist — start web dev server from chat
+
+## When this applies
+
+The user wants the **Alchemist web app** running locally (not a one-off script, not harshcheck).
+
+## How
+
+1. **Working directory:** monorepo root — the directory that contains **`apps/`** and **`packages/`** (same root as `pnpm alc:doctor`). If the Cursor workspace is only a subfolder (e.g. `vst/`), **`cd` up** to that root before running pnpm.
+2. **Command:** run **`pnpm dev`** (root script → `@alchemist/web-app` → `scripts/dev-server.mjs`).
+3. **Tooling:** start it as a **background** terminal task; request **network** (and **`all`** if the sandbox blocks the dev server).
+4. **URL:** do not assume **:3000**. Read the **terminal banner** — if 3000 is busy, the app uses **3000–3120** (often **3001**). Tell the user to open the **`http://127.0.0.1:PORT`** line from the banner.
+5. **If it fails or looks stuck:** suggest **`pnpm web:dev:fresh`** or **`pnpm dev:recover`** from the same root, then **`pnpm alc:doctor`**.
+
+## Interaction with `/shell`
+
+If the user invokes **`/shell`** with a **literal** command, follow the **Run Shell Commands** user skill: run that string **as-is** (do not substitute `pnpm dev` unless they typed it). They are responsible for **`cd`** if their shell cwd is not the monorepo root.
+
+For normal chat (“run the server”, “start dev”) **without** `/shell`, use this rule and **`pnpm dev`** from the monorepo root as above.

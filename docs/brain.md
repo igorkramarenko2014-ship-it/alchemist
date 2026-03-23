@@ -140,7 +140,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 - **Outside assessment shell (minimal + auto metrics):** `docs/brain-plus.md`
 - **Contracts & §E suggest loop:** `docs/FIRE.md`
 - **Full recovery bible:** `docs/FIRESTARTER.md`
-- **Cursor / agents:** `AGENTS.md`, `.cursorrules`, `.cursor/rules/alchemist-*.mdc`
+- **Cursor / agents:** `AGENTS.md`, `.cursorrules`, `.cursor/rules/alchemist-*.mdc` (incl. **`alchemist-security-posture.mdc`** — HARD GATE, keys, triad/WASM parity, LLM boundaries, verify chain)
 - **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md` (+ `reference.md` for merge notes); **English** default for assistant replies unless the user writes RU/UA. **Does not** override HARD GATE, types, or security.
 - **Commit/push after meta edits:** `.cursor/rules/alchemist-git-save-after-meta.mdc` — use `node scripts/git-save.mjs` from root; for **other** repos see **`docs/cursor-universal-habits.md`** (User Rules template).
 
