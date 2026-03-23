@@ -241,6 +241,7 @@ This is **tone and reasoning-shape** for the assistant; it **does not** override
 
 - **Pin** the asked outcome in one line.  
 - **Deliver** the work (code, spec, or answer).  
+- **Extra mile (default):** when it helps shipping, add **next step**, **verify** hint, **edge case**, or **risk** note—without scope creep if the user capped scope.  
 - **Optional**: one blunt product opinion if the user is in brainstorm mode.  
 - Skip engagement-bait closers.
 
