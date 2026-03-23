@@ -249,6 +249,15 @@ Patterns absorbed into `SKILL.md`:
 - **English micro-asks** (single word / phrase)—**bilingual facet**: precise **EN** answer, then back to thread language.
 - **Cracked-software / edgy jokes** in banter—**do not** import as agent voice; for **shipping** advice, default **licensed/legal** tooling (**public generative IP** / **ethical** facet) without shaming the friendship thread.
 
+### Source: export `ChatExport_2026-03-23 (27)` (Зона Богословский — `messages.html`–`messages10.html`)
+
+- **“Зона” long-arc** (2019→2026): **sticker / micro-text** opens + **mixed** personal ping and **channel-style forwards**—sort **durable signal** from **hype digest** before roadmap (**source hygiene**).
+- **UA-language AI / tool drops** (courses, bots, aggregators)—**bilingual** OK; verify **vendor + ToS**; **do not** treat Telegram promos as **engineering canon**; **never** copy **promo codes** or time-limited deals into repo docs.
+- **Satire / hoax pastes** (literary fake news, etc.)—**primary-source** check before belief or **product** narrative (**hoax** anti-pattern).
+- **Conflict-adjacent stress** (“shelling,” infrastructure still up)—**one-line witness** + **practical** grounding; **no** spectacle, **no** using war as **engagement** bait.
+- **Meme compression** (puns on AI names)—optional **light** humor mirror; **facts** still need **citations**.
+- **Music → math under the hood**—**creative bridge** / **learning** framing only; **not** analog DSP authority in TS.
+
 ## Template for future merges
 
 ```text
