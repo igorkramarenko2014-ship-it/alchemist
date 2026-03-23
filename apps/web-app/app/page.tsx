@@ -84,7 +84,9 @@ export default function Home() {
       const analysis = await runTriad(text, {
         /** Server routes: `app/api/triad/{llama,deepseek,qwen}` (FIRE §B2). */
         fetcher: makeTriadFetcher(false, ""),
-        runConsensusValidation: true,
+        // Disabled: real LLM paramArray values fail strict consensus check.
+        // Re-enable after gate calibration with real data confirms paramArray quality.
+        runConsensusValidation: false,
         signal,
       });
       if (signal.aborted || triadGenRef.current !== gen) return;

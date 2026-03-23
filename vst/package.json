@@ -18,6 +18,7 @@
     "build": "cd .. && node scripts/with-pnpm.mjs exec turbo run build --filter=@alchemist/web-app",
     "verify:web": "cd .. && node scripts/run-verify-with-summary.mjs verify-web",
     "harshcheck": "cd .. && node scripts/with-pnpm.mjs verify:web",
+    "harshchek": "cd .. && pnpm harshchek",
     "verify:harsh": "cd .. && node scripts/run-verify-with-summary.mjs verify-harsh",
     "typecheck": "cd .. && node scripts/with-pnpm.mjs exec turbo run typecheck --filter='!@alchemist/mobile-app'",
     "go": "cd .. && chmod +x scripts/go.sh 2>/dev/null && ./scripts/go.sh",

@@ -336,7 +336,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **Doc-synced project health:** Run **`pnpm fire:sync`** after a green **`pnpm harshcheck`** to stamp Vitest + Next versions into **`docs/FIRE.md`** (machine block). Narrative posture stays in **Assessment snapshot** above; **`fxp-encoder`** may skip without Rust — **`§10`**, **`FIRE.md` §C / §E1.17**.
 
-**Typo note:** **`harshcheck`** — not `harshchek`.
+**Typo note:** Canonical script is **`harshcheck`**. Root **`package.json`** also defines **`pnpm harshchek`** as the same **`verify:web`** pipeline (alias); prefer **`harshcheck`** in docs and CI.
 
 **Skill:** **`.cursor/skills/harshcheck/SKILL.md`**.
 

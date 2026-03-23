@@ -5,7 +5,9 @@
   "type": "module",
   "main": "./index.ts",
   "types": "./index.ts",
-  "exports": { ".": "./index.ts" },
+  "exports": {
+    ".": "./index.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -13,7 +15,8 @@
     "perf:boss": "vitest run tests/compliant-perf-boss.test.ts"
   },
   "dependencies": {
-    "@alchemist/shared-types": "workspace:*"
+    "@alchemist/shared-types": "workspace:*",
+    "fzstd": "^0.1.1"
   },
   "optionalDependencies": {
     "@alchemist/fxp-encoder": "workspace:*"

@@ -26,7 +26,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 | Signal | Value |
 |--------|-------|
-| **Synced (UTC)** | **2026-03-22** |
+| **Synced (UTC)** | **2026-03-23** |
 | **Vitest** (`@alchemist/shared-engine`) | **60** tests passed, **11** files (runner) · **11** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
@@ -44,7 +44,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 ### Verify loop (human checklist)
 
-- **`pnpm harshcheck`** (= **`verify:web`**) → `shared-types` build → typecheck (no mobile) → **`shared-engine` Vitest** → **`next build`** via **`scripts/run-verify-with-summary.mjs`** — stderr **`verify_post_summary`** (**§E1**). Typo guard: **`harshcheck`**, not `harshchek`.
+- **`pnpm harshcheck`** (= **`verify:web`**) → `shared-types` build → typecheck (no mobile) → **`shared-engine` Vitest** → **`next build`** via **`scripts/run-verify-with-summary.mjs`** — stderr **`verify_post_summary`** (**§E1**). Canonical name: **`harshcheck`**; root also ships **`pnpm harshchek`** as the same script (typo alias).
 - **`pnpm verify:harsh`** — same without **`next build`**. Scripts use **`node scripts/with-pnpm.mjs`** (**`npx pnpm@9.14.2`** fallback if **`pnpm`** missing).
 - **Ship vs verify:** green verify **≠** browser **`.fxp`** — encoder may be **stubbed** without Rust (**§E1.17**, **`FIRESTARTER` §10**). **`@alchemist/fxp-encoder`:** **`skip-if-no-rust.cjs`** when no Rust.
 - **Web dev / recovery:** **`§L`** + **`FIRESTARTER` §8** — **`dev-server.mjs`**, **`pnpm save`**, **`vst/`** slice.

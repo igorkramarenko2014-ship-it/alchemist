@@ -12,7 +12,9 @@ function qwenChatCompletionsUrl(baseUrl: string): string {
 }
 
 function qwenModelId(baseUrl: string): string {
-  return baseUrl.toLowerCase().includes("openrouter") ? "qwen/qwen-plus" : "qwen-plus";
+  return baseUrl.toLowerCase().includes("openrouter")
+    ? "qwen/qwen2.5-7b-instruct"
+    : "qwen-plus";
 }
 
 /**
@@ -34,6 +36,7 @@ export async function fetchQwenCandidates(
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://alchemist.local",
     },
     body: JSON.stringify({
       model,

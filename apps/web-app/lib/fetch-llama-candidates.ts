@@ -30,7 +30,7 @@ export async function fetchLlamaCandidates(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [
         { role: "system", content: triadPanelistSystemPrompt(panelist) },
         { role: "user", content: prompt },

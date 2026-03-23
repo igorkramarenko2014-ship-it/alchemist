@@ -25,10 +25,11 @@
     "fix": "node scripts/with-pnpm.mjs run app:repair",
     "ix": "node scripts/with-pnpm.mjs run app:repair",
     "dev:recover": "node scripts/recover-web-dev.mjs && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
-    "test:engine": "pnpm --filter @alchemist/shared-engine test",
+    "test:engine": "pnpm --filter @alchemist/shared-engine test && pnpm --filter @alchemist/serum2-encoder test",
     "verify:harsh": "node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:web": "node scripts/run-verify-with-summary.mjs verify-web",
     "harshcheck": "node scripts/with-pnpm.mjs verify:web",
+    "harshchek": "node scripts/with-pnpm.mjs verify:web",
     "test:gate": "node scripts/test-gate-hint.mjs",
     "validate:offsets": "node scripts/validate-offsets-if-sample.mjs",
     "assert:hard-gate": "node scripts/assert-hard-gate.mjs",
@@ -43,7 +44,8 @@
     "fire:sync": "node scripts/sync-fire-md.mjs",
     "github:first-push": "node scripts/github-first-push.mjs",
     "test:real-gates": "tsx scripts/calibrate-gates.ts",
-    "build:wasm": "pnpm --filter @alchemist/fxp-encoder build:wasm"
+    "build:wasm": "pnpm --filter @alchemist/fxp-encoder build:wasm",
+    "analyze:serum2": "node scripts/analyze-serum2-format.mjs"
   },
   "devDependencies": {
     "@alchemist/shared-engine": "workspace:*",
