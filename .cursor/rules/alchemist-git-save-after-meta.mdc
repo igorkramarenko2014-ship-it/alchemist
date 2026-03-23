@@ -31,6 +31,8 @@ node scripts/git-save.mjs "type(scope): short English summary"
 pnpm git:agent -- "type(scope): short English summary"
 ```
 
+(`git-save`, `git:agent`, and `cmt` strip a lone `--` from argv so pnpm does not leak it into the commit subject.)
+
 **Split:** **`pnpm cmt -- "msg"`** = stage + commit only; **`pnpm psh`** = push current branch (no new commit). Pair them when you want the same effect as `git:save` in two commands.
 
 Use a **conventional**-style message, e.g. `chore(cursor): …`, `docs(brain): …`, `docs(skills): …`. Prefer **English** messages (user default).
