@@ -222,9 +222,11 @@ ${cyan}${bold}┌─────────────────────
 │  ALCHEMIST WEB — open this URL in your browser:          │
 │  ${reset}${bold}${url}${reset}${cyan}${bold}                         │
 ${localhostHint}${bindExplain}│  Port ${port} · scans 3000–3120 when PORT is busy.           │
+│  Browser: use ONLY the URL above — another :3000 tab may be a different app. │
 │  Stuck / webpack errors?  pnpm dev:recover  ·  web:dev:fresh          │
 │  404 / “error components” on /?  pnpm run clean  (repo root) → dev   │
 │  Missing Next / workspace?  pnpm alc:doctor  (monorepo root)         │
+│  Need :3000 every time?     pnpm dev:3000  ·  stale .next → fresh:3000   │
 └─────────────────────────────────────────────────────────┘${reset}
 `);
 

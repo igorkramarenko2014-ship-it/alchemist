@@ -1,0 +1,26 @@
+---
+description: >-
+  Do not nag about the web dev server, localhost, or “the app not running” unless the user
+  explicitly asks about dev, the browser, UI, or a live runtime error.
+alwaysApply: true
+---
+
+# Alchemist — no unsolicited “app isn’t running” talk
+
+## Default assumption
+
+The user manages **local** `pnpm dev` themselves. Routine work is validated with **`pnpm verify:harsh`** or **`pnpm harshcheck`** when checks are relevant. That is **enough** for most tasks — **do not** add reminders to open a browser or confirm the site loads.
+
+## Do **not** say (unless the user clearly asked)
+
+- That the dev server **is not** / **may not be** running  
+- To **start** / **restart** the app “to verify” a change  
+- To open **localhost** / **127.0.0.1** “to make sure it works” after TS/API edits  
+
+## Do troubleshoot dev **only when** the user asks
+
+Examples: “won’t run”, “404”, “500”, “port in use”, “run server”, “pnpm dev fails”, “need 3000”. Then use **`pnpm dev:3000`** (auto-kill listener + bind 3000), **`pnpm fresh:3000`** (same + wipe web `.next`), **`pnpm dev`**, **`pnpm fresh`**, or **`pnpm dev:recover`** from the monorepo root and follow **`alchemist-dev-server-on-request.mdc`**.
+
+## One-shot “make it run clean” (for the user, not for you to repeat every chat)
+
+From repo root: **`pnpm fresh`** (alias for **`pnpm web:dev:fresh`**: clean `.next` + dev). Use the **exact** `http://127.0.0.1:PORT` line from the **cyan banner** — not a random `:3000` tab.

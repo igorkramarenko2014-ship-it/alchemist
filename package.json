@@ -9,6 +9,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "dev:3000": "node scripts/dev-alchemist-port.mjs 3000",
+    "fresh:3000": "node scripts/dev-alchemist-port.mjs 3000 --fresh",
     "dev:turbo": "node scripts/with-pnpm.mjs exec turbo run dev --filter=@alchemist/web-app",
     "dev:web": "node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
     "dev:all": "turbo run dev",
@@ -23,6 +25,7 @@
     "web:next-force": "rm -rf apps/web-app/.next .turbo && node scripts/with-pnpm.mjs exec turbo run build --filter=@alchemist/web-app --force",
     "web:next-build": "pnpm --filter @alchemist/web-app run build",
     "web:dev:fresh": "node scripts/with-pnpm.mjs run clean && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
+    "fresh": "node scripts/with-pnpm.mjs run web:dev:fresh",
     "app:repair": "node scripts/with-pnpm.mjs run web:dev:fresh",
     "fix": "node scripts/with-pnpm.mjs run app:repair",
     "ix": "node scripts/with-pnpm.mjs run app:repair",

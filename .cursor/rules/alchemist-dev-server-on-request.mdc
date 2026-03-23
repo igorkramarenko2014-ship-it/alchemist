@@ -14,10 +14,10 @@ The user wants the **Alchemist web app** running locally (not a one-off script, 
 ## How
 
 1. **Working directory:** monorepo root — the directory that contains **`apps/`** and **`packages/`** (same root as `pnpm alc:doctor`). If the Cursor workspace is only a subfolder (e.g. `vst/`), **`cd` up** to that root before running pnpm.
-2. **Command:** run **`pnpm dev`** (root script → `@alchemist/web-app` → `scripts/dev-server.mjs`).
+2. **Command:** run **`pnpm dev`** (root script → `@alchemist/web-app` → `scripts/dev-server.mjs`). If they insist on **port 3000** or something is stuck on 3000, use **`pnpm dev:3000`** (frees the port then binds 3000) or **`pnpm fresh:3000`** (also deletes `apps/web-app/.next`).
 3. **Tooling:** start it as a **background** terminal task; request **network** (and **`all`** if the sandbox blocks the dev server).
 4. **URL:** do not assume **:3000**. Read the **terminal banner** — if 3000 is busy, the app uses **3000–3120** (often **3001**). Tell the user to open the **`http://127.0.0.1:PORT`** line from the banner.
-5. **If it fails or looks stuck:** suggest **`pnpm web:dev:fresh`** or **`pnpm dev:recover`** from the same root, then **`pnpm alc:doctor`**.
+5. **If it fails or looks stuck:** suggest **`pnpm fresh`** (same as **`pnpm web:dev:fresh`**) or **`pnpm dev:recover`** from the same root, then **`pnpm alc:doctor`**.
 
 ## Interaction with `/shell`
 
