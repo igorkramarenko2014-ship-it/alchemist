@@ -143,6 +143,7 @@ export type {
   SoeRecommendations,
   SoeTriadSnapshot,
 } from "./soe";
+export { BRAIN_FUSION_CALIBRATION_VERSION } from "./brain-fusion-calibration.gen";
 export {
   ARBITRATION_AGENT_AJI_FUSION_LINES,
   computeAgentAjiChatFusionFromTriadTelemetry,

@@ -97,6 +97,7 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 | Pre-ship (+ `next build`) | **`pnpm harshcheck`** |
 | Env / workspace doctor | **`pnpm alc:doctor`** |
 | Refresh **FIRE.md** + **brain-plus** metrics block | **`pnpm fire:sync`** (requires green **`shared-engine`** Vitest) |
+| Regenerate **brain fusion** TypeScript after editing **§9a** JSON | **`pnpm brain:sync`** |
 | Optional auto-sync metrics after green verify | **`ALCHEMIST_FIRE_SYNC=1`** with harsh verify |
 | Triad key smoke | **`pnpm verify:keys`** |
 | Gate calibration vs live routes | **`pnpm test:real-gates`** (local artifact gitignored) |
@@ -108,13 +109,95 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 
 ## 9. Optional advanced modules (not required for MVP understanding)
 
-- **SOE (`soe.ts`):** `computeSoeRecommendations(snapshot)` — heuristic hints from **`meanPanelistMs`**, failure/drop rates, optional **`triadStubRunFraction`**. Returns **`fusionHintCodes`** + **`fusionHintLines`** (`soe_fusion:` prefix): deterministic **ops** text aligned with **security posture** + **inner-circle** collaboration habits — **not** chat transcripts, **not** DSP.
+- **SOE (`soe.ts`):** `computeSoeRecommendations(snapshot)` — heuristic hints from **`meanPanelistMs`**, failure/drop rates, optional **`triadStubRunFraction`**. Returns **`fusionHintCodes`** + **`fusionHintLines`** (`soe_fusion:` prefix). **Strings and thresholds:** **`§9a`** JSON block → **`pnpm brain:sync`** → **`brain-fusion-calibration.gen.ts`** — **not** chat transcripts, **not** DSP.
 - **Arbitration:** `runTransparentArbitration` — see `FIRE.md` §I, `packages/shared-engine/arbitration/`.
 - **Talent market scout:** `talent/` — §J.
 - **Great Library / AGL:** offline provenance merges into SOE snapshot — §K, `learning/great-library.ts`.
 - **Taxonomy:** sparse rank + pool size limits — `taxonomy/`, `FIRESTARTER` §13 notes.
 
 All stay **explicit** and **auditable** — no shadow governance.
+
+---
+
+## 9a. Brain fusion calibration (machine block — SOE + agent-aji)
+
+**Canon for operator strings:** `soe_fusion:` / `aji_fusion:` copy and SOE numeric thresholds used across **`shared-engine`** (health API, triad telemetry fusion, talent, taxonomy, arbitration, mobile shell, Great Library, `computeSoeRecommendations`) are generated from the JSON below.
+
+**Workflow:** edit **only** the JSON inside the fenced block (keep valid JSON). Then run **`pnpm brain:sync`** from the repo root to regenerate **`packages/shared-engine/brain-fusion-calibration.gen.ts`**. **`pnpm verify:harsh`** / **`pnpm harshcheck`** run a **`--check`** first and fail if the generated file is out of date — run **`brain:sync`** and commit both **`docs/brain.md`** and **`.gen.ts`**.
+
+**Optional (like `fire:sync`):** after a green verify, set **`ALCHEMIST_BRAIN_SYNC=1`** to auto-regenerate the `.gen.ts` file.
+
+<!-- ALCHEMIST:BRAIN_FUSION_CALIBRATION:BEGIN -->
+```json
+{
+  "version": 1,
+  "ajiChatBridge": "aji_fusion: chat layer — NL contrast is exercised through Undercover/Slavic TS gates; CV/OSC Aji bridge stays research-only (alchemist-aji-fluidic), not web preset bytes",
+  "health": {
+    "HEALTH_WASM": "aji_fusion: browser export off — build packages/fxp-encoder wasm; GET /api/health/wasm should be available before promising .fxp",
+    "HEALTH_TRIAD_OFF": "aji_fusion: triad routes unconfigured — set provider keys; stub fetcher preserves gate identity but is not production sound",
+    "HEALTH_TRIAD_PARTIAL": "aji_fusion: partial triad — Hermes velocity is API wall time only; complete 3/3 for full governance blend",
+    "HEALTH_NOMINAL": "aji_fusion: health nominal — extra mile: verify:harsh after triad/export edits; parity stub===fetcher for gates"
+  },
+  "talent": {
+    "TALENT_INSUFFICIENT_DATA": "aji_fusion: talent scout needs panelistHealth or triadHealthScore — benchmarks are operator-maintained; no auto model swap",
+    "TALENT_GAP_TEMPLATE": "aji_fusion: market gap flagged (Δ {{gap}}) — review {{weakest}} routing manually; deployer-owned configuration",
+    "TALENT_NOMINAL": "aji_fusion: talent nominal — market rows are hints; triad weights stay canonical until product changes"
+  },
+  "taxonomy": {
+    "poolBoundTemplate": "aji_fusion: taxonomy pool {{size}} > {{max}} — narrow offline before Slavic path; keep pre-Slavic n bounded (scoreCandidates cost)"
+  },
+  "arbitration": {
+    "lines": [
+      "aji_fusion: transparent arbitration — 2-of-3 deterministic stages, full logEvent trail; no Slavic bypass"
+    ]
+  },
+  "mobile": {
+    "MOBILE_SHELL": "aji_fusion: mobile shell — triad and WASM export live on web-app; this surface is operator stance until API parity ships"
+  },
+  "greatLibrary": {
+    "aglProvenanceTemplate": "aji_fusion: AGL merge keys [{{appliedKeys}}] — provenance \"{{provenance}}\""
+  },
+  "soe": {
+    "thresholds": {
+      "stubHeavyFusion": 0.35,
+      "triadFailureForKeysHint": 0.2,
+      "triadFailureForRelax": 0.25,
+      "gateDropForTighten": 0.55,
+      "triadFailureCeilingForTighten": 0.15,
+      "dualStressFailure": 0.25,
+      "dualStressGateDrop": 0.55,
+      "meanPanelistMsLatency": 6500,
+      "meanRunMsLatency": 20000,
+      "defaultPromptMax": 2000,
+      "latencySuggestedPromptMax": 1200
+    },
+    "recommendationMessages": {
+      "nominal": "soe: nominal — within heuristic bands",
+      "elevatedFailure": "soe: elevated triad failure rate — check provider health, timeouts, keys; consider relaxing entropy floor if results are empty",
+      "heavyGateDrop": "soe: heavy post-gate drop — Undercover/Slavic/adversarial stripping most candidates; review model or gate thresholds",
+      "highLatency": "soe: high latency — consider shorter prompts (suggested max chars lowered) or faster providers",
+      "stressed": "soe: stressed — high failures and high gate drop; triage API errors before tuning gates"
+    },
+    "hints": {
+      "STUB_PROD_PARITY": "soe_fusion: stub-heavy telemetry — parity risk: verify:keys, test:real-gates; never treat stub as prod (security posture; gate identity stub===fetcher)",
+      "KEYS_AND_TIMEOUTS": "soe_fusion: triad failures — check keys, provider health, 8s / Qwen timeouts before retuning gates (degraded-infra + clear inputs)",
+      "GATE_SOURCE_QC": "soe_fusion: heavy gate drop — review prompt specificity + model output; source-hygiene for the pipeline, not silent Slavic/Undercover bypass",
+      "STRESSED_DUAL": "soe_fusion: dual stress — high failures + high gate drop; triage API/keys before tuning entropy or gates (matches SOE stressed message)",
+      "API_CONSTRAINT_ENTROPY": "soe_fusion: API strain — entropy relax is ops-only after empty-run proof; Undercover/Slavic must behave identically stub vs fetcher",
+      "LATENCY_PROMPT_UX": "soe_fusion: latency — shorter prompts + honest UI wait state (async expectation; not fake instant triad)",
+      "GOVERNANCE_VELOCITY": "soe_fusion: governance velocity stress — read wall time vs gate-drop together; ATHENA SOE path is telemetry governance, not buffer DSP",
+      "NOMINAL_VERIFY_MILE": "soe_fusion: nominal — extra mile: harshcheck on triad touches; document WASM + offset validation in PRs; agent tone after canon"
+    }
+  }
+}
+```
+<!-- ALCHEMIST:BRAIN_FUSION_CALIBRATION:END -->
+
+### 9b. Golden rule — fused chat as the project soul (ethos, not law)
+
+**For humans and assistants:** Treat the **brain-fusion / agent-aji chat calibration** path (§9a → **`pnpm brain:sync`** → **`brain-fusion-calibration.gen.ts`**, plus SOE + health + talent + taxonomy + arbitration + AGL + mobile hints) as the **soul** of Alchemist in this monorepo — the **missing “gods” part** in the sense of *coherent intention*: one auditable voice that says what the system *means* to operators while staying honest about stubs, keys, WASM, and gates.
+
+**Hard boundaries (still canon):** This “soul” is **TypeScript + markdown + `logEvent` lines** — not audio DSP, not a hidden governor, not a substitute for **`FIRESTARTER`**, **`FIRE.md`**, the encoder **HARD GATE**, or **`alchemist-dsp-vs-ts-gates`**. Metaphor guides tone and priority; **law and types still win.**
 
 ---
 
@@ -151,6 +234,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 
 - **`brain-plus.md` machine block:** never hand-edit between **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers — **`pnpm fire:sync`** (§8).
 - **`brain-plus.md` § Human deltas:** edit manually per release or before external review.
+- **`brain.md` §9a fusion JSON:** edit the fenced JSON between **`ALCHEMIST:BRAIN_FUSION_CALIBRATION:BEGIN`** / **`END`**, then **`pnpm brain:sync`** — see §9a.
 - **This file (`brain.md`):** narrative orientation only; law stays **`FIRESTARTER.md`** / **`FIRE.md`**.
 
 ---

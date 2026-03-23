@@ -3,7 +3,7 @@
  * All stages emit **`logEvent`** — no hidden kernel, no Slavic bypass, no module-cache tricks.
  */
 import type { AICandidate } from "@alchemist/shared-types";
-import { ARBITRATION_AGENT_AJI_FUSION_LINES } from "../agent-fusion";
+import { BRAIN_ARBITRATION_AGENT_AJI_FUSION_LINES } from "../brain-fusion-calibration.gen";
 import { logEvent } from "../telemetry";
 import { scoreCandidates, weightedScore } from "../score";
 import type {
@@ -126,7 +126,7 @@ export function runTransparentArbitration(
     tallyAlpha: tally.ALPHA,
     tallyOmega: tally.OMEGA,
     votes: voteList,
-    agentAjiFusionLines: [...ARBITRATION_AGENT_AJI_FUSION_LINES],
+    agentAjiFusionLines: [...BRAIN_ARBITRATION_AGENT_AJI_FUSION_LINES],
   });
 
   const orderedCandidates = orderForStrategy(candidates, winner, prompt);

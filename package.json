@@ -51,6 +51,7 @@
     "cmt": "node scripts/git-commit-only.mjs",
     "psh": "node scripts/git-push-only.mjs",
     "fire:sync": "node scripts/sync-fire-md.mjs",
+    "brain:sync": "node scripts/sync-brain-fusion.mjs",
     "github:first-push": "node scripts/github-first-push.mjs",
     "test:real-gates": "tsx scripts/calibrate-gates.ts",
     "build:wasm": "pnpm --filter @alchemist/fxp-encoder build:wasm",

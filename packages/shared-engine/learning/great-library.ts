@@ -10,6 +10,7 @@
  */
 import { mergeSoeWithAjiChat } from "../agent-fusion";
 import type { AgentAjiChatFusion } from "../agent-fusion";
+import { formatBrainGreatLibraryAglLine } from "../brain-fusion-calibration.gen";
 import { computeSoeRecommendations, type SoeTriadSnapshot } from "../soe";
 import { logEvent } from "../telemetry";
 
@@ -100,7 +101,7 @@ export function computeGreatLibraryAgentAjiChatFusion(
     fusionCodes: [...merged.fusionCodes, "AGL_PROVENANCE"],
     fusionLines: [
       ...merged.fusionLines,
-      `aji_fusion: AGL merge keys [${result.appliedAugmentKeys.join(",")}] — provenance "${prov}"`,
+      formatBrainGreatLibraryAglLine(result.appliedAugmentKeys.join(","), prov),
     ],
   };
 }

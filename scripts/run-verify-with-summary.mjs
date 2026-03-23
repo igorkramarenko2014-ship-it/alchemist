@@ -7,6 +7,10 @@
  *   node scripts/run-verify-with-summary.mjs verify-harsh
  *   node scripts/run-verify-with-summary.mjs verify-web
  *
+ * Brain fusion: `docs/brain.md` §9a JSON block → `packages/shared-engine/brain-fusion-calibration.gen.ts`.
+ * First step runs `sync-brain-fusion.mjs --check` (run `pnpm brain:sync` after editing §9a).
+ * Optional after green verify: `ALCHEMIST_BRAIN_SYNC=1` regenerates `.gen.ts` (like `ALCHEMIST_FIRE_SYNC`).
+ *
  * Opt-in faster Vitest (local only): `ALCHEMIST_SELECTIVE_VERIFY=1` skips packages whose
  * paths did not change vs `git merge-base HEAD origin/main` (fallback `HEAD~1`). **Never**
  * used when `CI` is set — CI always runs the full `test:engine` chain.
@@ -124,6 +128,10 @@ function runPipeline(root, mode) {
 
   const steps = [
     {
+      label: "brain:fusion-sync",
+      args: [process.execPath, join(root, "scripts", "sync-brain-fusion.mjs"), "--check"],
+    },
+    {
       label: "shared-types:build",
       args: wp("--filter", "@alchemist/shared-types", "build"),
     },
@@ -223,6 +231,22 @@ if (process.env.ALCHEMIST_FIRE_SYNC === "1" && exitCode === 0) {
   if (sc !== 0) {
     process.stderr.write(
       "[alchemist] ALCHEMIST_FIRE_SYNC=1: sync-fire-md.mjs failed — docs/FIRE.md metrics not updated\n"
+    );
+  }
+}
+
+if (process.env.ALCHEMIST_BRAIN_SYNC === "1" && exitCode === 0) {
+  const brainScript = join(root, "scripts", "sync-brain-fusion.mjs");
+  const br = spawnSync(process.execPath, [brainScript], {
+    cwd: root,
+    stdio: "inherit",
+    env: { ...process.env },
+    shell: false,
+  });
+  const bc = br.status === null ? 1 : br.status;
+  if (bc !== 0) {
+    process.stderr.write(
+      "[alchemist] ALCHEMIST_BRAIN_SYNC=1: sync-brain-fusion.mjs failed — brain-fusion-calibration.gen.ts not updated\n"
     );
   }
 }

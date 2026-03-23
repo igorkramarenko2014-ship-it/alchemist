@@ -8,10 +8,16 @@
  * Wire real aggregates from your log pipeline (`triad_run_*` JSON lines) into
  * `computeSoeRecommendations`.
  *
- * **Fusion hints (`soe_fusion:*`):** deterministic operator lines aligned with repo **agent
- * skills** (inner-circle collaboration stance, **alchemist-security-posture**, extra-mile
- * verify). **No** chat transcripts, **no** PII, **no** DSP — hints only.
+ * **Fusion hints (`soe_fusion:*`):** copy + numeric thresholds from **`docs/brain.md` §9a** via
+ * **`brain-fusion-calibration.gen.ts`** (`pnpm brain:sync`). Aligned with **agent skills**
+ * (inner-circle, **alchemist-security-posture**, extra-mile verify). **No** chat transcripts,
+ * **no** PII, **no** DSP — hints only.
  */
+import {
+  BRAIN_SOE_FUSION_HINTS,
+  BRAIN_SOE_RECOMMENDATION_MESSAGES,
+  BRAIN_SOE_THRESHOLDS,
+} from "./brain-fusion-calibration.gen";
 import {
   ATHENA_SOE_RECALIBRATION_LINE,
   computeTriadGovernance,
@@ -68,9 +74,6 @@ export interface SoeRecommendations {
   fusionHintLines: string[];
 }
 
-const DEFAULT_PROMPT_MAX = 2000;
-const STUB_HEAVY_FUSION = 0.35;
-
 function buildSoeFusionHints(
   s: SoeTriadSnapshot,
   o: {
@@ -80,69 +83,63 @@ function buildSoeFusionHints(
     athenaSoeRecalibrationRecommended: boolean;
   }
 ): { fusionHintCodes: SoeFusionHintCode[]; fusionHintLines: string[] } {
+  const th = BRAIN_SOE_THRESHOLDS;
+  const hint = BRAIN_SOE_FUSION_HINTS;
   const rows: { code: SoeFusionHintCode; line: string }[] = [];
 
-  if (s.triadStubRunFraction != null && s.triadStubRunFraction > STUB_HEAVY_FUSION) {
+  if (s.triadStubRunFraction != null && s.triadStubRunFraction > th.stubHeavyFusion) {
     rows.push({
       code: "STUB_PROD_PARITY",
-      line:
-        "soe_fusion: stub-heavy telemetry — parity risk: verify:keys, test:real-gates; never treat stub as prod (security posture; gate identity stub===fetcher)",
+      line: hint.STUB_PROD_PARITY,
     });
   }
 
-  if (s.triadFailureRate > 0.2) {
+  if (s.triadFailureRate > th.triadFailureForKeysHint) {
     rows.push({
       code: "KEYS_AND_TIMEOUTS",
-      line:
-        "soe_fusion: triad failures — check keys, provider health, 8s / Qwen timeouts before retuning gates (degraded-infra + clear inputs)",
+      line: hint.KEYS_AND_TIMEOUTS,
     });
   }
 
   if (o.tightenGates) {
     rows.push({
       code: "GATE_SOURCE_QC",
-      line:
-        "soe_fusion: heavy gate drop — review prompt specificity + model output; source-hygiene for the pipeline, not silent Slavic/Undercover bypass",
+      line: hint.GATE_SOURCE_QC,
     });
   }
 
-  if (s.triadFailureRate > 0.25 && s.gateDropRate > 0.55) {
+  if (s.triadFailureRate > th.dualStressFailure && s.gateDropRate > th.dualStressGateDrop) {
     rows.push({
       code: "STRESSED_DUAL",
-      line:
-        "soe_fusion: dual stress — high failures + high gate drop; triage API/keys before tuning entropy or gates (matches SOE stressed message)",
+      line: hint.STRESSED_DUAL,
     });
   }
 
   if (o.relaxAdversarialEntropy) {
     rows.push({
       code: "API_CONSTRAINT_ENTROPY",
-      line:
-        "soe_fusion: API strain — entropy relax is ops-only after empty-run proof; Undercover/Slavic must behave identically stub vs fetcher",
+      line: hint.API_CONSTRAINT_ENTROPY,
     });
   }
 
   if (o.suggestedPromptMaxChars != null) {
     rows.push({
       code: "LATENCY_PROMPT_UX",
-      line:
-        "soe_fusion: latency — shorter prompts + honest UI wait state (async expectation; not fake instant triad)",
+      line: hint.LATENCY_PROMPT_UX,
     });
   }
 
   if (o.athenaSoeRecalibrationRecommended) {
     rows.push({
       code: "GOVERNANCE_VELOCITY",
-      line:
-        "soe_fusion: governance velocity stress — read wall time vs gate-drop together; ATHENA SOE path is telemetry governance, not buffer DSP",
+      line: hint.GOVERNANCE_VELOCITY,
     });
   }
 
   if (rows.length === 0) {
     rows.push({
       code: "NOMINAL_VERIFY_MILE",
-      line:
-        "soe_fusion: nominal — extra mile: harshcheck on triad touches; document WASM + offset validation in PRs; agent tone after canon",
+      line: hint.NOMINAL_VERIFY_MILE,
     });
   }
 
@@ -163,36 +160,41 @@ function buildSoeFusionHints(
  */
 export function computeSoeRecommendations(s: SoeTriadSnapshot): SoeRecommendations {
   const { meanPanelistMs, triadFailureRate, gateDropRate, meanRunMs } = s;
+  const th = BRAIN_SOE_THRESHOLDS;
+  const msg = BRAIN_SOE_RECOMMENDATION_MESSAGES;
 
   let relaxAdversarialEntropy = false;
   let tightenGates = false;
-  let message = "soe: nominal — within heuristic bands";
+  let message: string = msg.nominal;
   let suggestedPromptMaxChars: number | undefined;
 
+  // Order matches historical `soe.ts`: independent `if` blocks; later branches overwrite `message`.
   // High API pain: back off validation aggressiveness slightly (ops choice to apply).
-  if (triadFailureRate > 0.25) {
+  if (triadFailureRate > th.triadFailureForRelax) {
     relaxAdversarialEntropy = true;
-    message =
-      "soe: elevated triad failure rate — check provider health, timeouts, keys; consider relaxing entropy floor if results are empty";
+    message = msg.elevatedFailure;
   }
 
   // Models spew junk that gates catch: don't relax; investigate prompts/models.
-  if (gateDropRate > 0.55 && triadFailureRate < 0.15) {
+  if (
+    gateDropRate > th.gateDropForTighten &&
+    triadFailureRate < th.triadFailureCeilingForTighten
+  ) {
     tightenGates = true;
-    message =
-      "soe: heavy post-gate drop — Undercover/Slavic/adversarial stripping most candidates; review model or gate thresholds";
+    message = msg.heavyGateDrop;
   }
 
   // Latency: shorter prompts reduce tokens (financial + wall clock).
-  if (meanPanelistMs > 6500 || (meanRunMs != null && meanRunMs > 20_000)) {
-    suggestedPromptMaxChars = Math.min(DEFAULT_PROMPT_MAX, 1200);
-    message =
-      "soe: high latency — consider shorter prompts (suggested max chars lowered) or faster providers";
+  if (
+    meanPanelistMs > th.meanPanelistMsLatency ||
+    (meanRunMs != null && meanRunMs > th.meanRunMsLatency)
+  ) {
+    suggestedPromptMaxChars = Math.min(th.defaultPromptMax, th.latencySuggestedPromptMax);
+    message = msg.highLatency;
   }
 
-  if (triadFailureRate > 0.25 && gateDropRate > 0.55) {
-    message =
-      "soe: stressed — high failures and high gate drop; triage API errors before tuning gates";
+  if (triadFailureRate > th.dualStressFailure && gateDropRate > th.dualStressGateDrop) {
+    message = msg.stressed;
   }
 
   const governance = computeTriadGovernance({
