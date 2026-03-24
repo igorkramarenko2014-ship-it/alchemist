@@ -3,7 +3,9 @@
  * Local `harshcheck`: same as verify:web, but git-diff–aware Vitest when not in CI.
  * Sets `ALCHEMIST_SELECTIVE_VERIFY=1` so `run-verify-with-summary.mjs` skips full
  * `test:engine` for unchanged packages (vs `git merge-base HEAD origin/main`).
- * CI always runs the full suite (`ALCHEMIST_SELECTIVE_VERIFY` ignored when `CI` is set).
+ * When `shared-engine` sources change, IOM power-cell hints may run a **subset** of Vitest
+ * files (fallback: full engine suite). CI always runs the full suite (`ALCHEMIST_SELECTIVE_VERIFY`
+ * ignored when `CI` is set).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";

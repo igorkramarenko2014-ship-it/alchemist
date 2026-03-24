@@ -17,6 +17,9 @@
  * Opt-in faster Vitest (local only): `ALCHEMIST_SELECTIVE_VERIFY=1` skips packages whose
  * paths did not change vs `git merge-base HEAD origin/main` (fallback `HEAD~1`). **Never**
  * used when `CI` is set — CI always runs the full `test:engine` chain.
+ *
+ * When `shared-engine` sources changed, **IOM cell hints** (`igor-power-cells.json`) map
+ * touched artifacts → Vitest files; unmatched `.ts` changes fall back to the full engine suite.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -72,6 +75,99 @@ function getChangedPathsFromGit(root) {
   return d.stdout.split(/\r?\n/).filter(Boolean);
 }
 
+/** Power cell id → Vitest paths under `packages/shared-engine/` (maintain when cells/tests shift). */
+const IOM_CELL_VITEST_FILES = {
+  triad: ["tests/triad-pulse-alignment.test.ts"],
+  gatekeeper: ["tests/gatekeeper-telemetry.test.ts"],
+  undercover_adversarial: ["tests/undercover-slavic.test.ts"],
+  slavic_score: ["tests/undercover-slavic.test.ts"],
+  soe: ["tests/soe.test.ts"],
+  agent_fusion: ["tests/agent-fusion.test.ts"],
+  integrity: ["tests/integrity.test.ts"],
+  aji_entropy: ["tests/aji-entropy.test.ts"],
+  schism: ["tests/schism.test.ts"],
+  triad_governance: ["tests/triad-panel-governance.test.ts"],
+  arbitration: ["tests/transparent-arbitration.test.ts"],
+  taxonomy: ["tests/taxonomy-engine.test.ts", "tests/taxonomy-sparse-rank.test.ts"],
+  talent_market: ["tests/talent-market-scout.test.ts"],
+  tablebase: ["tests/reliability-tablebase.test.ts", "tests/tablebase-shortcircuit.test.ts"],
+  perf_boss: ["tests/compliant-perf-boss.test.ts"],
+  prompt_guard: ["tests/engine-harsh.test.ts"],
+};
+
+function loadIgorPowerCells(root) {
+  const p = join(root, "packages", "shared-engine", "igor-power-cells.json");
+  if (!existsSync(p)) return null;
+  try {
+    const cells = JSON.parse(readFileSync(p, "utf8"));
+    return Array.isArray(cells) ? cells : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * @returns {{ kind: "full" } | { kind: "partial"; vitestArgs: string[] }}
+ */
+function iomSelectiveVitestPlan(root, changed) {
+  const enginePrefix = "packages/shared-engine/";
+  const tsUnderEngine = changed.filter(
+    (f) =>
+      f.startsWith(enginePrefix) &&
+      f.endsWith(".ts") &&
+      !f.endsWith(".test.ts") &&
+      !f.endsWith(".gen.ts") &&
+      !f.includes("/tests/")
+  );
+  const relSources = tsUnderEngine.map((f) => f.slice(enginePrefix.length).split("\\").join("/"));
+
+  if (relSources.length === 0) {
+    return { kind: "full" };
+  }
+
+  const cells = loadIgorPowerCells(root);
+  if (!cells) {
+    return { kind: "full" };
+  }
+
+  const matchedIds = new Set();
+  for (const rel of relSources) {
+    for (const cell of cells) {
+      if (!cell || typeof cell !== "object" || typeof cell.id !== "string") continue;
+      const arts = cell.artifacts;
+      if (!Array.isArray(arts)) continue;
+      if (arts.some((a) => typeof a === "string" && a.split("\\").join("/") === rel)) {
+        matchedIds.add(cell.id);
+      }
+    }
+  }
+
+  if (matchedIds.size === 0) {
+    return { kind: "full" };
+  }
+
+  const vitestRel = new Set(["tests/igor-orchestrator-layer.test.ts"]);
+  for (const id of matchedIds) {
+    const files = IOM_CELL_VITEST_FILES[id];
+    if (!files || files.length === 0) {
+      return { kind: "full" };
+    }
+    for (const t of files) vitestRel.add(t);
+  }
+
+  const engineRoot = join(root, "packages", "shared-engine");
+  const vitestArgs = [];
+  for (const rel of vitestRel) {
+    const abs = join(engineRoot, ...rel.split("/"));
+    if (!existsSync(abs)) {
+      return { kind: "full" };
+    }
+    vitestArgs.push(rel);
+  }
+  vitestArgs.sort();
+  return { kind: "partial", vitestArgs };
+}
+
 function runSelectiveEngineTests(root, withPnpm) {
   const wp = (...args) => [process.execPath, withPnpm, ...args];
   const runWp = (argv) => {
@@ -101,8 +197,29 @@ function runSelectiveEngineTests(root, withPnpm) {
     return 0;
   }
   if (needEngine) {
-    const c = runWp(wp("--filter", "@alchemist/shared-engine", "test"));
-    if (c !== 0) return c;
+    const plan = iomSelectiveVitestPlan(root, changed);
+    if (plan.kind === "partial") {
+      process.stderr.write(
+        `[alchemist] selective verify: IOM-targeted Vitest (${plan.vitestArgs.length} files)\n`
+      );
+      const c = runWp([
+        process.execPath,
+        withPnpm,
+        "--filter",
+        "@alchemist/shared-engine",
+        "exec",
+        "vitest",
+        "run",
+        ...plan.vitestArgs,
+      ]);
+      if (c !== 0) return c;
+    } else {
+      process.stderr.write(
+        "[alchemist] selective verify: full shared-engine Vitest (no IOM cell match or unmapped cell)\n"
+      );
+      const c = runWp(wp("--filter", "@alchemist/shared-engine", "test"));
+      if (c !== 0) return c;
+    }
   }
   if (needSerum2) {
     return runWp(wp("--filter", "@alchemist/serum2-encoder", "test"));

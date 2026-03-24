@@ -54,6 +54,7 @@
     "fire:sync": "node scripts/sync-fire-md.mjs",
     "brain:sync": "node scripts/sync-brain-fusion.mjs",
     "igor:sync": "node scripts/sync-igor-orchestrator.mjs",
+    "igor:heal": "node scripts/igor-self-heal.mjs",
     "github:first-push": "node scripts/github-first-push.mjs",
     "test:real-gates": "tsx scripts/calibrate-gates.ts",
     "build:wasm": "pnpm --filter @alchemist/fxp-encoder build:wasm",
