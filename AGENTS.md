@@ -17,6 +17,7 @@
 8b. **[`.cursor/rules/alchemist-git-save-after-meta.mdc`](.cursor/rules/alchemist-git-save-after-meta.mdc)** — **always-on** commit+push after **`.cursor/`** / brain / `AGENTS` edits or when user says **cmt/psh** (`node scripts/git-save.mjs`); **never** commit secrets  
 8c. **[`docs/cursor-universal-habits.md`](docs/cursor-universal-habits.md)** — copy-paste for **Cursor User Rules** (same habits on **all** projects)  
 8d. **[`.cursor/rules/alchemist-apex-orchestrator.mdc`](.cursor/rules/alchemist-apex-orchestrator.mdc)** — **§9c** Digital Igor / Apex Alchemist mercury-engine stance; **after** brief / security / dsp-vs-ts / inner-circle  
+8d2. **[`.cursor/rules/alchemist-engine-fusion-communication.mdc`](.cursor/rules/alchemist-engine-fusion-communication.mdc)** + **[`.cursor/skills/alchemist-engine-fusion/SKILL.md`](.cursor/skills/alchemist-engine-fusion/SKILL.md)** — triad-angle + SOE-style status in chat (after canon); **not** runtime triad execution  
 8e. **`igor-orchestrator-layer.ts`** + **`igor-orchestrator-meta.json`** + **`igor-power-cells.json`** → **`pnpm igor:sync`** writes **`igor-orchestrator-packages.gen.ts`** + **`igor-orchestrator-cells.gen.ts`**; **`getIgorOrchestratorManifest()`**; **`GET /api/health`** → **`igorOrchestrator`** (map only — not gate law)  
 8f. **[`docs/iom.md`](docs/iom.md)** + **[`.cursor/rules/alchemist-iom.mdc`](.cursor/rules/alchemist-iom.mdc)** — **IOM** (Igor Orchestration Module): **§9c + §9d** under one name, canon firewall, growth protocol; sync script enforces **`IOM_CELL_MAX`** + artifact paths on disk  
 9. **[`docs/brain.md`](docs/brain.md)** — opening **Doc map** table; **§14** human-readable map (incl. RU); **§9a–§9c** (**brain-fusion** + soul + Apex / IOM). **[`docs/brain-plus.md`](docs/brain-plus.md)** — metrics shell for external review  
@@ -38,6 +39,7 @@
 pnpm install
 pnpm alc:doctor       # NOT pnpm doctor
 pnpm env:check        # apps/web-app/.env.local Groq line format (KEY=value, not bare gsk_)
+# Optional SOE → GET /api/health iomPulse: ALCHEMIST_SOE_MEAN_PANELIST_MS + ALCHEMIST_SOE_TRIAD_FAILURE_RATE + ALCHEMIST_SOE_GATE_DROP_RATE (0–1); optional ALCHEMIST_SOE_MEAN_RUN_MS, ALCHEMIST_SOE_STUB_RUN_FRACTION — see apps/web-app/lib/soe-snapshot-from-env.ts
 pnpm check:ready      # env:check + verify:harsh — quick “OK to dev?” before pnpm dev
 pnpm verify:keys      # live Groq / DeepSeek / Qwen probe (.env.local; Qwen URL/model from QWEN_BASE_URL; no secrets printed)
 pnpm test:real-gates  # gate calibration vs live triad routes → stderr calibration_*; local tools/gate-calibration-output.json (gitignored)

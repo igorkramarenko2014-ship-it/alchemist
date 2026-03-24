@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { getOptionalSoeTriadSnapshotFromEnv } from "@/lib/soe-snapshot-from-env";
 import {
   computeHealthAgentAjiChatFusion,
   getIgorOrchestratorManifest,
@@ -39,6 +40,7 @@ export async function GET(request: Request) {
     triadFullyLive: allLive,
     anyLive,
   });
+  const soeSnapshot = getOptionalSoeTriadSnapshotFromEnv();
   return NextResponse.json({
     ok: true,
     wasm,
@@ -75,7 +77,9 @@ export async function GET(request: Request) {
         livePanelists: liveList as string[],
       },
       wasmOk: wasmOk,
+      ...(soeSnapshot !== undefined && { soeSnapshot }),
     }),
+    soeSnapshotInjected: soeSnapshot !== undefined,
     agentAjiChatFusion,
     generatedAtMs: Date.now(),
     nodeEnv: process.env.NODE_ENV ?? "development",

@@ -103,6 +103,8 @@
 
 **Prompt guard:** **`validatePromptForTriad`** — max **2000** chars; rejects Markdown code fences.
 
+**Panelist DNA:** **`triadPanelistSystemPrompt`** (**`apps/web-app/lib/triad-panelist-system-prompt.ts`**) adds a **distinct emphasis line** per wire id (**DEEPSEEK / LLAMA / QWEN**) so fetchers explore different angles on the same user prompt; output schema and TS gates are unchanged.
+
 ### 5a. Implementation status (honesty)
 
 | Layer | Reality |
@@ -114,7 +116,7 @@
 | **`scoreCandidates` (web)** | **Real:** **`filterValid`** (incl. **≥15** char **`reasoning`**), Slavic dedupe (**param** cosine **> 0.80**; when both sides have legible text, also **Dice(bigram) > 0.75** on **`description` || `reasoning`**), preserve score order — used from **`apps/web-app/app/page.tsx`** after triad analysis. |
 | **Telemetry** | **`logEvent`** → **stderr JSON** lines (`packages/shared-engine/telemetry.ts`), not dev-only `console.log` for those events. |
 | **HARD GATE** | **`serum-offset-map.ts`** + **`validate-offsets.py`** ship in-repo; full Python validation requires a **local** **`tools/sample_init.fxp`** (often gitignored). Use **`pnpm validate:offsets`** / **`pnpm test:gate`**. |
-| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, **`igorOrchestrator`** (Igor manifest), **`iomPulse`** (**`getIOMHealthPulse`** — manifest digest + **`schisms[]`** + optional SOE trim), **`agentAjiChatFusion`**, plus **`hardGate`**, **`telemetry`**, **`ops`** (paths: **`/api/health/iom`**, **`/api/iom/dashboard`**, **`/api/metrics/iom`** — Prometheus text with **`ALCHEMIST_OPS_TOKEN`** + **`X-Ops-Token`**). |
+| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, **`igorOrchestrator`** (Igor manifest), **`iomPulse`** (**`getIOMHealthPulse`** — manifest digest + **`schisms[]`** + optional **`SoeTriadSnapshot`** from env **`ALCHEMIST_SOE_*`** when all required vars set — **`soeSnapshotInjected`**), **`agentAjiChatFusion`**, plus **`hardGate`**, **`telemetry`**, **`ops`** (paths: **`/api/health/iom`**, **`/api/iom/dashboard`**, **`/api/metrics/iom`** — Prometheus text with **`ALCHEMIST_OPS_TOKEN`** + **`X-Ops-Token`**). |
 
 ### 5b. Shared-engine — implementation truth (crucial & sane)
 

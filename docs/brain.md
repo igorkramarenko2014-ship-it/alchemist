@@ -53,7 +53,7 @@ Web dev “won’t start” ladder: **`FIRE.md` §L** subsection *Web app not ru
 ## 3. End-to-end data flow (web)
 
 1. User prompt → **`validatePromptForTriad`** (max length, no markdown fences).
-2. **Triad:** parallel calls to **`/api/triad/llama`**, **`deepseek`**, **`qwen`** (live **fetcher** when API keys set; else **stub**). Optional **keyword tablebase** can short-circuit fetches.
+2. **Triad:** parallel calls to **`/api/triad/llama`**, **`deepseek`**, **`qwen`** (live **fetcher** when API keys set; else **stub**). Each route uses **`triadPanelistSystemPrompt`** — includes **Panelist DNA** (distinct emphasis per **DEEPSEEK / LLAMA / QWEN**). Optional **keyword tablebase** can short-circuit fetches.
 3. **`runTriad`** merges panelists → **`filterValid`** → **Undercover**-style distribution / adversarial checks → up to **8** candidates (cosine dedupe is **not** here; see below).
 4. Client **`scoreCandidates`:** **`filterValid`** (e.g. **reasoning** length ≥ **15** chars) → **Slavic** dedupe (param cosine **> 0.80**; with legible text also **Dice(bigram) > 0.75** on `description` || `reasoning`) → weighted order.
 5. UI: Mercury / dock; **export** via **`encodeFxp`** when **`GET /api/health/wasm`** reports **`available`**.

@@ -29,7 +29,7 @@ IOM never overrides types, security posture, or engineering truth.
 
 **Assistant fast-path protocol (three moves):** **`docs/brain.md` §9c.1** — self-heal **proposal** (`logIomSelfHealProposal` / event **`iom_self_heal_proposal`**), selective Vitest grep (**`pnpm test:engine:grep`**), schism/degradation surfacing (**`triad_*`** + **`constants.ts`**). **IOM** = Igor Orchestration Module here, not “input-output mapping.”
 
-**IOM pulse (diagnostic):** **`packages/shared-engine/iom-pulse.ts`** — **`getIOMHealthPulse`**, **`detectSchisms`**; **`GET /api/health` → `iomPulse`** merges manifest digest with live triad/WASM and optional log-derived **`SoeTriadSnapshot`**; explicit **`schisms[]`** only — **no** shadow governance.
+**IOM pulse (diagnostic):** **`packages/shared-engine/iom-pulse.ts`** — **`getIOMHealthPulse`**, **`detectSchisms`**; **`GET /api/health` → `iomPulse`** merges manifest digest with live triad/WASM and optional **`SoeTriadSnapshot`** (from your log pipeline **or** env **`ALCHEMIST_SOE_MEAN_PANELIST_MS`** + **`ALCHEMIST_SOE_TRIAD_FAILURE_RATE`** + **`ALCHEMIST_SOE_GATE_DROP_RATE`** — see **`apps/web-app/lib/soe-snapshot-from-env.ts`**); response includes **`soeSnapshotInjected: true`** when set. Explicit **`schisms[]`** only — **no** shadow governance.
 
 **Self-heal workflow:** **`pnpm igor:heal`** writes **`tools/iom-proposals.jsonl`** (gitignored; one **`iom_ghost_cell`** JSON line per proposal). **`pnpm igor:apply`** prompts **y/n** per line and appends accepted cells to **`igor-power-cells.json`** — **no** agent-only mutation.
 

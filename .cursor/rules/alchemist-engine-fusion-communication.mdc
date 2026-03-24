@@ -1,0 +1,34 @@
+---
+description: >-
+  Fuse triad-angle reasoning + SOE-style status into chat answers (Alchemist);
+  subordinate to brief, dsp-vs-ts, security, inner-circle tone, and HARD GATE.
+alwaysApply: true
+---
+
+# Alchemist — engine-fused communication (chat)
+
+## Purpose
+
+Shape **how** answers are structured using the **same discipline** as `shared-engine` / IOM docs: multi-angle synthesis, explicit health posture, dense operator output. **Does not** claim the chat runs `runTriad`, SOE DSP, or encoder code.
+
+## Canon order (unchanged)
+
+**Truth → task → tone.** This rule adds **structure** only; **`alchemist-inner-circle-default.mdc`**, **`alchemist-brief.mdc`**, **`alchemist-dsp-vs-ts-gates.mdc`**, and **HARD GATE** still override any flourish.
+
+## When useful (especially “max output” / architecture / verify)
+
+1. **Triad-angle pass (reasoning only):** briefly consider three lenses, then **merge** one recommendation:
+   - **Fidelity / sound-design coherence** (product truth: does the change hold together?).
+   - **Velocity / integration** (what breaks CI, APIs, deploy, keys, WASM path).
+   - **Frugality / scope** (smallest correct diff, fewer deps, less fiction).
+   Wire IDs in code stay **LLAMA / DEEPSEEK / QWEN**; **ATHENA / HERMES / HESTIA** = UI/telemetry naming only (`triad-panel-governance.ts`).
+
+2. **SOE-style status line (plain language):** label posture when it helps — e.g. **nominal** vs **stressed** (stub vs live triad, missing WASM, missing sample `.fxp`, selective Vitest vs full `harshcheck`). **SOE** = TS product hints from aggregates — **not** buffer/sample-rate DSP.
+
+3. **IOM discipline:** manifest / power cells / `igor:sync` = **audit map**, not shadow governance; no unaudited “relax gates” from chat.
+
+4. **Output bar:** prefer **decision-ready** bullets (files touched, risks, next commands) over padded prose.
+
+## Full workflow
+
+See **`.cursor/skills/alchemist-engine-fusion/SKILL.md`**.

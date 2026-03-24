@@ -44,7 +44,8 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 
 ## Verify (what “green” means here)
 
-- **`pnpm verify:ci`** — **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`** (GitHub **`Verify`** workflow; sample **`.fxp`** optional unless **`ALCHEMIST_STRICT_OFFSETS=1`**).
+- **`pnpm verify:ci`** — **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`** + **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** (GitHub **`Verify`** workflow; sample **`.fxp`** optional unless **`ALCHEMIST_STRICT_OFFSETS=1`**).
+- **`pnpm harshcheck:wasm`** / **`pnpm verify:harsh:wasm`** — same verify chain + **`REQUIRE_WASM=1 assert:wasm`** (real **`fxp-encoder/pkg/`**; run **`pnpm build:wasm`** first).
 - **`pnpm verify:harsh`** — types + **`shared-engine`** Vitest (no production Next build).
 - **`pnpm harshcheck`** — above + **`next build`**; ends with stderr **`verify_post_summary`**.
 - **Browser export** additionally needs WASM build + **`GET /api/health/wasm`** → **`available`**; deploy helper **`pnpm predeploy`** runs **`build:wasm`** then strict **`assert:wasm`**.
@@ -78,9 +79,9 @@ _Update this block when outsiders need new context._
 
 | Field | Value (you edit) |
 |-------|-------------------|
-| **Top risk today** | WASM stub vs real **`pkg/`**; triad stub vs fetcher parity; HARD GATE sample **`.fxp`** is local/CI-secret; circuit breaker is **library-only** until explicitly wired to routes. |
-| **What we want from reviewers** | **`tools/sample_init.fxp.README.md`** + **`§M`** CI story; optional **`TriadCircuitBreaker`** composition (no default **`/api/triad`** hook); **`pnpm soe:migrate`** for archived hints only. |
-| **Last manual refresh (date)** | **2026-03-24** — sample **`.fxp`** doc; **`circuit-breaker.ts`** + tests; **`soe-hint-structured`** + **`soe:migrate`** |
+| **Top risk today** | WASM stub vs real **`pkg/`** (use **`harshcheck:wasm`** before browser export); triad stub vs fetcher parity; HARD GATE sample **`.fxp`** local/CI-secret; taxonomy pools **>200** still need **`rankTaxonomy`** or **`oversizeKeywordFallback`** — not silent by default. |
+| **What we want from reviewers** | **`igor:ci`** in CI (ghost **`shared-engine`** files); optional **`ALCHEMIST_SOE_*`** env on **`GET /api/health`** for **`iomPulse` + SOE** schisms; Panelist **DNA** lines in **`triad-panelist-system-prompt.ts`**. |
+| **Last manual refresh (date)** | **2026-03-24** — roadmap sync: WASM chain, IOM CI, taxonomy fallback, IOM+SOE schisms, health SOE injection, triad DNA prompts |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---

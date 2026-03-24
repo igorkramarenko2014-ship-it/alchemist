@@ -28,3 +28,7 @@ export const env = {
    */
   alchemistOpsToken: (process.env.ALCHEMIST_OPS_TOKEN ?? "").trim(),
 } as const;
+
+/* Optional SOE rollup for GET /api/health → iomPulse: lib/soe-snapshot-from-env.ts
+ * ALCHEMIST_SOE_MEAN_PANELIST_MS + ALCHEMIST_SOE_TRIAD_FAILURE_RATE + ALCHEMIST_SOE_GATE_DROP_RATE (0–1);
+ * optional ALCHEMIST_SOE_MEAN_RUN_MS, ALCHEMIST_SOE_STUB_RUN_FRACTION (0–1). */
