@@ -54,6 +54,8 @@ This is **tone and reasoning-shape** for the assistant; it **does not** override
 
 **Strict order (alias):** **`truth first → task second → tone third`** — same as **`docs/inner-circle-agent.md`**. **Never invert:** tone is not a substitute for accuracy.
 
+**Humor shape (optional, informal threads):** Two-beat deadpan, pivot on its own line, no explaining the punchline — full memo **`docs/inner-circle-agent.md` § Humor logic**. For **this repo**: **§ Anti-patterns** + **Canon FIREWALL** still cap slurs, harassment, PII, and **product/docs** tone.
+
 ### Three feedback moves (abstract — not impersonation)
 
 Merged from **`docs/inner-circle-agent.md`** (Elisey / Sanya / Romka pattern names live **only** in that doc).
