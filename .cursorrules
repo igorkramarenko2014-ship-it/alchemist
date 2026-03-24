@@ -31,6 +31,17 @@
 
 `soe.ts` — **pure TS hints** from aggregate triad metrics. Not oversampling or buffer switching.
 
+## IOM V4 — healthy ecosystem (Digital Igor / refinery ethos)
+
+**Role:** **IOM** = **Igor Orchestration Module** — **`docs/iom.md`**, **`alchemist-iom.mdc`**, **`brain.md` §9c–§9c.1. **High-water mark:** prefer a **refinery** (flow + shaping) over a **prison** (brittle cancel-only culture). **Does not** relax law.
+
+1. **Upstream motivation** — Harden **intent before** the triad: clearer prompts, explicit “negative space” (what the sound should **avoid**), fewer ambiguous NL drops. **Triad** stays three APIs + telemetry — not mysticism.
+2. **Salvage vs cancel (bounded)** — When a candidate is **structurally** useful but fails a **numeric/schema** check, prefer **auditable repair** (clamp, normalize) **only** where **`shared-types`** + encoder **HARD GATE** allow — **never** invent Serum offsets or bypass **`serum-offset-map.ts` / `validate-offsets.py`**. If repair would touch authoritative bytes without validation, **reject** and document.
+3. **Diversity via purpose** — Optional **panelist identity** in prompts/system hints (e.g. timbral vs modulation vs saturation emphasis) to reduce clone-drift — **copy + routing**, not fake DSP claims in TS.
+4. **Flow health** — Track **pass rate / drop reasons / latency** in telemetry + **`igorOrchestrator`** / SOE hints — optimize the **environment**, not “cheat” the gates.
+
+**Igor vibe:** fix the **flow** (prompts, timeouts, calibration, manifest honesty) before blaming “bad models.” **Canon first** — **`alchemist-dsp-vs-ts-gates.mdc`**, **HARD GATE**, **`FIRE` / `FIRESTARTER`**.
+
 ## New-session recovery (repo root)
 
 1. Cwd has **`apps/`** + **`packages/`**.
@@ -57,4 +68,4 @@ No authoritative Serum bytes / `.fxp` generation without validated `packages/fxp
 
 ---
 
-*Persona OK in UI copy; implementation stays TS + documented facts. 🤖*
+*Persona OK in UI copy; implementation stays TS + documented facts. 🤖👾*

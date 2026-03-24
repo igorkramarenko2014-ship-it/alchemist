@@ -246,6 +246,8 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Emoji:** 🤖👾 only as a **rare seal** on a structural pivot — **`.cursor/rules/alchemist-apex-orchestrator.mdc`**.
 
+**IOM V4 (refinery ethos):** Prefer **upstream motivation** (clearer prompts, negative-space intent) and **bounded salvage** (schema-safe nudges) over pure cancel culture — see **`docs/iom.md` *IOM high-water mark*** and root **`.cursorrules`**. **HARD GATE** and **TS gate law** are not negotiable; “repair” never means invented Serum offsets.
+
 **Full inner-circle peer prompt (voice + Alchemist Canon FIREWALL):** **`docs/inner-circle-agent.md`** — **`truth first → task second → tone third`**; distilled operational habits remain in **`.cursor/skills/inner-circle-voice/SKILL.md`**.
 
 **Cursor skills = what you teach “Igor” in chat (§9c, not §9d):** When you extend **`.cursor/skills/`** (e.g. **`inner-circle-voice`**, **`harshcheck`**), **`docs/inner-circle-agent.md`**, or the always-on **`.cursor/rules/alchemist-inner-circle-default.mdc`** / **`alchemist-apex-orchestrator.mdc`**, you are training the **assistant’s orchestration ethos** — Digital Igor / Apex: dense execution, peer tone, verify discipline, Canon FIREWALL. **`shared-engine` does not `import` skill files**; they are **Cursor-side**. **`brain.md` §14** is the human map of that layer.

@@ -120,6 +120,23 @@ iom(test): <what changed>     # tests for existing cell
 
 ---
 
+## IOM high-water mark (V4 — refinery, not prison)
+
+**Metaphor:** A **refinery** channels raw material toward **Serum-shaped** output; a **prison** only says “no.” High cancellation entropy (reject without shaping upstream) is a **smell** — fix **prompts, intent, timeouts, and calibration** first.
+
+| Layer | “Motivation” stance (product + assistant) | Hard law (unchanged) |
+|--------|-------------------------------------------|----------------------|
+| **Upstream** | **`intent-hardener`** pattern (future module): Socratic / negative-space NL before triad — reduce ambiguity so models explore **valid** territory. | **HARD GATE:** no invented Serum bytes; triad = **LLAMA / DEEPSEEK / QWEN** APIs + weights. |
+| **Midstream** | **`surgical-repair`** pattern (future): if a candidate is **salvageable** under **`shared-types`**, prefer **nudge/clamp** over drop — **auditable**, tested, logged. | Repairs that need **authoritative** `.fxp` / offset semantics **require** validated **`serum-offset-map.ts`** + **`validate-offsets.py`** — otherwise **reject**, don’t guess. |
+| **Panelist DNA** | **`panelist-identity`** pattern (future): primacy seeds in **prompts** (e.g. timbral vs modulation vs saturation emphasis) so panelists **diversify** instead of cloning. | **Undercover / Slavic** remain **TS statistics** — not analog DSP namesakes. |
+| **Telemetry** | Prefer **flow health** (pass rate, drop codes, latency) in **SOE** + **`igorOrchestrator`** narrative — “environment” debugging. | **No shadow governance** — no unaudited auto-relax of gates. |
+
+**Cursor / rules:** root **`.cursorrules`** — **IOM V4 — healthy ecosystem**. **Assistant:** **`brain.md` §9c.1** fast-path moves still apply.
+
+**Not shipped in-repo yet:** `intent-hardener.ts`, `surgical-repair.ts`, `panelist-identity.ts` — spec above; implement only with **`/plan` → GO**, schema hooks, and tests. **Shall we draft `surgical-repair.ts`?** Only after a written contract: which fields are clampable under **`AICandidate` / `SerumState`**, and which failures stay **hard reject**.
+
+---
+
 ## Why IOM and not only “Igor orchestrator”
 
 “Igor orchestrator” names the **health/manifest pipeline**. **IOM** names the **discipline** that ties **§9c** (how the assistant works) and **§9d** (what the engine declares) under the same canon firewall.
