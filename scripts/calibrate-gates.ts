@@ -14,10 +14,13 @@ import {
   AI_TIMEOUT_MS,
   candidatePassesAdversarial,
   candidatePassesDistributionGate,
+  computeSoeRecommendations,
   entropyParamArray,
   filterValid,
+  getIOMHealthPulse,
   isValidCandidate,
   logEvent,
+  logSoeHintWithIomContext,
   makeTriadFetcher,
   newTriadRunId,
   slavicFilterDedupe,
@@ -264,6 +267,39 @@ async function main(): Promise<void> {
     runDurationMs: output.runDurationMs,
     outputPath: OUTPUT_PATH,
   });
+
+  const meanProviderFailure =
+    (providerFailureRate.DEEPSEEK + providerFailureRate.LLAMA + providerFailureRate.QWEN) / 3;
+  const gateDropApprox =
+    slavicValidIn > 0 ? Math.min(1, Math.max(0, 1 - slavicAfter / slavicValidIn)) : 0;
+  const iomPulse = getIOMHealthPulse({
+    soeSnapshot: {
+      meanPanelistMs: output.runDurationMs.mean,
+      triadFailureRate: meanProviderFailure,
+      gateDropRate: gateDropApprox,
+    },
+  });
+  logEvent("iom_soe_fusion", {
+    phase: "calibration_complete",
+    runId,
+    iomSchismCodes: iomPulse.schisms.map((s) => s.code),
+    iomFusionHintCodes: iomPulse.soe?.fusionHintCodes ?? [],
+    iomPulseVersion: iomPulse.pulseVersion,
+    calibrationGateDropApprox: gateDropApprox,
+    calibrationMeanProviderFailure: meanProviderFailure,
+    note:
+      "Calibration-derived SOE snapshot run through IOM pulse for schism context — offline diagnostic only.",
+  });
+
+  const soeForIomLog = computeSoeRecommendations(
+    {
+      meanPanelistMs: output.runDurationMs.mean,
+      triadFailureRate: meanProviderFailure,
+      gateDropRate: gateDropApprox,
+    },
+    { iomSchismCodes: iomPulse.schisms.map((s) => s.code) },
+  );
+  logSoeHintWithIomContext(soeForIomLog, { runId, phase: "calibration_complete" });
 
   console.error(`[calibrate-gates] wrote ${OUTPUT_PATH}`);
 }

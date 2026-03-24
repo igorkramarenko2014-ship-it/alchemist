@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
  * Reads **`tools/iom-proposals.jsonl`** (from **`pnpm igor:heal`**) and offers to append
- * one ghost cell at a time to **`packages/shared-engine/igor-power-cells.json`** after **y** confirmation.
- * Does **not** run **`pnpm igor:sync`** — operator runs that after review.
+ * ghost cells to **`packages/shared-engine/igor-power-cells.json`** after **y** confirmation.
+ * **`--auto`**: apply all non-conflicting proposals without prompts (CI / scripted runs — you still commit).
+ * Accepted rows are archived under **`tools/iom-accepted-proposals/`** (gitignored).
  */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
@@ -47,13 +48,59 @@ function parseProposalLines(raw) {
         artifacts: o.artifacts.map((a) => String(a)),
         provenance: o.provenance ?? "igor-apply-proposal.mjs",
         scanTs: o.scanTs,
+        suggestedHealthCheck:
+          typeof o.suggestedHealthCheck === "string" ? o.suggestedHealthCheck : undefined,
+        confidence: typeof o.confidence === "number" ? o.confidence : undefined,
+        tuningNotes: typeof o.tuningNotes === "string" ? o.tuningNotes : undefined,
       });
     }
   }
   return proposals;
 }
 
+const PREVIEW_MAX = 14_000;
+
+function printSideBySidePreview(cells, newRow) {
+  const beforeJson = JSON.stringify(cells, null, 2);
+  const afterJson = JSON.stringify([...cells, newRow], null, 2);
+  process.stdout.write(
+    `\n┌── Current igor-power-cells.json (${cells.length} cells) ─────────────────────\n`,
+  );
+  process.stdout.write(
+    beforeJson.length > PREVIEW_MAX ? `${beforeJson.slice(0, PREVIEW_MAX)}\n… [truncated]\n` : `${beforeJson}\n`,
+  );
+  process.stdout.write(
+    `└── After apply (${cells.length + 1} cells) — proposed + row shown below ─────\n`,
+  );
+  process.stdout.write(
+    afterJson.length > PREVIEW_MAX ? `${afterJson.slice(0, PREVIEW_MAX)}\n… [truncated]\n` : `${afterJson}\n`,
+  );
+}
+
+function archiveAccepted(root, proposal, newRow) {
+  const dir = join(root, "tools", "iom-accepted-proposals");
+  mkdirSync(dir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const safeId = String(proposal.id).replace(/[^a-z0-9_-]/gi, "_");
+  const path = join(dir, `${stamp}_${safeId}.json`);
+  writeFileSync(
+    path,
+    `${JSON.stringify(
+      {
+        archivedAt: new Date().toISOString(),
+        proposal,
+        appliedRow: newRow,
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+  process.stdout.write(`Archived → ${path}\n`);
+}
+
 async function main() {
+  const auto = process.argv.includes("--auto");
   const here = dirname(fileURLToPath(import.meta.url));
   const root = findMonorepoRoot(here) ?? findMonorepoRoot(process.cwd());
   if (!root) {
@@ -91,11 +138,11 @@ async function main() {
 
   const existingIds = new Set(cells.map((c) => c?.id).filter(Boolean));
 
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const rl = auto ? null : createInterface({ input: process.stdin, output: process.stdout });
 
   try {
     for (const p of proposals) {
-      process.stdout.write("\n--- Proposal ---\n");
+      process.stdout.write(`\n--- Proposal (${auto ? "--auto" : "interactive"}) ---\n`);
       process.stdout.write(`${JSON.stringify(p, null, 2)}\n`);
 
       if (existingIds.has(p.id)) {
@@ -103,31 +150,34 @@ async function main() {
         continue;
       }
 
-      const beforeSnippet = JSON.stringify(cells.slice(-1)[0] ?? null, null, 2);
       const newRow = {
         id: p.id,
         responsibility: p.responsibility,
         artifacts: p.artifacts,
       };
-      process.stdout.write("\n[diff] New row to append (last existing row shown for context):\n");
-      process.stdout.write(`… last cell: ${beforeSnippet}\n`);
-      process.stdout.write(`+ ${JSON.stringify(newRow)}\n`);
 
-      const ans = (await rl.question(`\nApply this cell to igor-power-cells.json? [y/N] `))
-        .trim()
-        .toLowerCase();
-      if (ans !== "y" && ans !== "yes") {
-        process.stdout.write("Skipped.\n");
-        continue;
+      printSideBySidePreview(cells, newRow);
+
+      if (!auto) {
+        const ans = (await rl.question(`\nApply this cell to igor-power-cells.json? [y/N] `))
+          .trim()
+          .toLowerCase();
+        if (ans !== "y" && ans !== "yes") {
+          process.stdout.write("Skipped.\n");
+          continue;
+        }
+      } else {
+        process.stdout.write("\n[--auto] Applying without prompt.\n");
       }
 
       cells.push(newRow);
       existingIds.add(p.id);
       writeFileSync(cellsPath, `${JSON.stringify(cells, null, 2)}\n`, "utf8");
+      archiveAccepted(root, p, newRow);
       process.stdout.write(`Appended cell "${p.id}". Run: pnpm igor:sync\n`);
     }
   } finally {
-    rl.close();
+    rl?.close();
   }
 }
 

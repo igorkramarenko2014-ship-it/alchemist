@@ -61,6 +61,10 @@ export async function GET(request: Request) {
     telemetry: {
       logEvent: "stderr JSON lines (packages/shared-engine/telemetry.ts) — not dev-only console spam",
     },
+    ops: {
+      iomDashboardPath: "/api/health/iom",
+      note: "Operator-only: set ALCHEMIST_OPS_TOKEN and send X-Ops-Token on GET /api/health/iom for full Igor + IOM + talent hints.",
+    },
     igorOrchestrator: getIgorOrchestratorManifest(),
     iomPulse: getIOMHealthPulse({
       triad: {

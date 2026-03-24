@@ -6,11 +6,19 @@
  * Writes **`tools/iom-proposals.jsonl`** (gitignored) for **`pnpm igor:apply`**, or copy rows by hand,
  * then **`pnpm igor:sync`** after editing **`igor-power-cells.json`**.
  *
+ * Proposal lines may include **`suggestedHealthCheck`**, **`confidence`**, **`tuningNotes`** for docs
+ * and operator review (still human-applied via **`pnpm igor:apply`**).
+ *
  * @see packages/shared-engine/igor-orchestrator-layer.ts IOM_POLICY_CELL_MAX
  */
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  inferGhostConfidence,
+  inferGhostHealthCheckHint,
+  scanIomGhostArtifacts,
+} from "./lib/iom-registry-scan.mjs";
 
 const IOM_POLICY_CELL_MAX = 12;
 
@@ -42,52 +50,6 @@ function logEvent(event, payload) {
   process.stderr.write(`${line}\n`);
 }
 
-/** Barrel + shared telemetry — not “power cell” slices; omit from ghost list. */
-const CROSS_CUTTING_ALLOW = new Set(["index.ts", "telemetry.ts"]);
-
-function isSkippableTs(relPosix) {
-  if (!relPosix.endsWith(".ts")) return true;
-  if (relPosix.endsWith(".d.ts")) return true;
-  if (relPosix.endsWith(".test.ts")) return true;
-  if (relPosix.endsWith(".gen.ts")) return true;
-  if (relPosix.includes("/tests/")) return true;
-  if (relPosix === "vitest.config.ts") return true;
-  return false;
-}
-
-/** @param {string} dir @yields {string} posix-relative from engineRoot */
-function* walkTsFiles(dir, engineRoot) {
-  const entries = readdirSync(dir, { withFileTypes: true });
-  for (const ent of entries) {
-    const abs = join(dir, ent.name);
-    if (ent.isDirectory()) {
-      if (ent.name === "node_modules" || ent.name === "dist" || ent.name === "tests") continue;
-      yield* walkTsFiles(abs, engineRoot);
-      continue;
-    }
-    if (!ent.isFile()) continue;
-    const rel = relative(engineRoot, abs).split("\\").join("/");
-    if (isSkippableTs(rel)) continue;
-    yield rel;
-  }
-}
-
-function loadRegisteredArtifacts(powerCellsPath) {
-  const raw = readFileSync(powerCellsPath, "utf8");
-  const cells = JSON.parse(raw);
-  if (!Array.isArray(cells)) throw new Error("igor-power-cells.json: expected array");
-  const set = new Set();
-  for (const c of cells) {
-    if (!c || typeof c !== "object") continue;
-    const arts = c.artifacts;
-    if (!Array.isArray(arts)) continue;
-    for (const a of arts) {
-      if (typeof a === "string") set.add(a.split("\\").join("/"));
-    }
-  }
-  return { set, cellCount: cells.length };
-}
-
 function writeProposalsJsonl(root, proposals, scanTs) {
   const toolsDir = join(root, "tools");
   mkdirSync(toolsDir, { recursive: true });
@@ -100,10 +62,15 @@ function writeProposalsJsonl(root, proposals, scanTs) {
       id: p.id,
       responsibility: p.responsibility,
       artifacts: p.artifacts,
+      suggestedHealthCheck: p.suggestedHealthCheck,
+      confidence: p.confidence,
+      tuningNotes: p.tuningNotes,
     }),
   );
   writeFileSync(outPath, lines.length ? `${lines.join("\n")}\n` : "", "utf8");
-  process.stdout.write(`\nWrote ${lines.length} line(s) → tools/iom-proposals.jsonl (gitignored). Run pnpm igor:apply to review y/n.\n`);
+  process.stdout.write(
+    `\nWrote ${lines.length} line(s) → tools/iom-proposals.jsonl (gitignored). Run pnpm igor:apply to review y/n.\n`,
+  );
 }
 
 function main() {
@@ -114,21 +81,17 @@ function main() {
     process.exit(1);
   }
 
-  const engineRoot = join(root, "packages", "shared-engine");
-  const powerCellsPath = join(engineRoot, "igor-power-cells.json");
-  if (!existsSync(powerCellsPath) || !statSync(engineRoot).isDirectory()) {
-    process.stderr.write("[igor-self-heal] packages/shared-engine not found\n");
+  let ghostList;
+  let cellCount;
+  try {
+    const scan = scanIomGhostArtifacts(root);
+    ghostList = scan.ghostArtifacts;
+    cellCount = scan.cellCount;
+  } catch (e) {
+    process.stderr.write(`[igor-self-heal] ${String(e?.message ?? e)}\n`);
     process.exit(1);
   }
 
-  const { set: registered, cellCount } = loadRegisteredArtifacts(powerCellsPath);
-  const seen = new Set();
-  for (const rel of walkTsFiles(engineRoot, engineRoot)) {
-    if (CROSS_CUTTING_ALLOW.has(rel)) continue;
-    if (!registered.has(rel)) seen.add(rel);
-  }
-
-  const ghostList = [...seen].sort();
   const scanTs = new Date().toISOString();
 
   if (ghostList.length > 0) {
@@ -138,11 +101,15 @@ function main() {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "_")
         .replace(/^_|_$/g, "");
+      const suggestedHealthCheck = inferGhostHealthCheckHint(file);
+      const confidence = inferGhostConfidence(file);
       return {
         id: id || "unknown_cell",
         responsibility: "Pending classification — detected via igor-self-heal scan",
         artifacts: [file],
-        provenance: "igor-self-heal.mjs",
+        suggestedHealthCheck,
+        confidence,
+        tuningNotes: "Auto-suggested from ghost scan — verify thresholds before merge",
       };
     });
 
@@ -163,7 +130,11 @@ function main() {
 
     process.stdout.write("\n🧪 IOM self-heal scan — ghost artifacts (review required)\n\n");
     for (const p of proposals) {
-      process.stdout.write(`  • ${p.artifacts[0]}  →  suggested id: ${p.id}\n`);
+      const hi = p.confidence >= 0.7 ? " (high-confidence cue)" : "";
+      process.stdout.write(
+        `  • ${p.artifacts[0]}  →  id: ${p.id}${hi}\n` +
+          `    health check hint: ${p.suggestedHealthCheck}\n`,
+      );
     }
     process.stdout.write(
       `\nTo promote: pnpm igor:apply — or edit packages/shared-engine/igor-power-cells.json by hand — then pnpm igor:sync\n` +

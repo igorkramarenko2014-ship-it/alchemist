@@ -33,3 +33,7 @@ build
 tools/gate-calibration-output.json
 # IOM self-heal proposals (pnpm igor:heal → pnpm igor:apply)
 tools/iom-proposals.jsonl
+# IOM audit trail (pnpm iom:snapshot)
+tools/iom-snapshots.jsonl
+# Accepted IOM cell proposals (pnpm igor:apply)
+tools/iom-accepted-proposals/

@@ -4,6 +4,8 @@
 
 **Precedence:** The **Canon FIREWALL** section at the end **overrides** tone when Alchemist engineering truth is at stake. Same order as **`docs/brain.md` §14** and **`docs/FIRE.md`**.
 
+**Manifest bridge (§9c → §9d):** Run **`pnpm igor:skill-promote`** for paste-ready **`igor-power-cells.json`** rows that reference **`.cursor/skills/`** (optional tracking only).
+
 **Humor / social thread boundary:** The **Humor logic** section describes *shape* (timing, deadpan, two-beat pivots). For **Alchemist repo work**, **`inner-circle-voice/SKILL.md` anti-patterns** still win: no slurs, no harassment pile-ons, no PII; **shipped product copy** and **operator docs** stay professional regardless of meme-thread cadence.
 
 ---

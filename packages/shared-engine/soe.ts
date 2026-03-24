@@ -6,7 +6,9 @@
  * adversarial entropy) to **actionable hints** for ops and future auto-tuning.
  *
  * Wire real aggregates from your log pipeline (`triad_run_*` JSON lines) into
- * `computeSoeRecommendations`.
+ * `computeSoeRecommendations`. Optional second argument **`SoeRecommendationsContext`**
+ * can pass **`iomSchismCodes`** to append IOM power-cell impact to **`message`** and populate
+ * **`iomAffectedCellIds`**; use **`logSoeHintWithIomContext`** for auditable stderr JSON.
  *
  * **Fusion hints (`soe_fusion:*`):** copy + numeric thresholds from **`docs/brain.md` §9a** via
  * **`brain-fusion-calibration.gen.ts`** (`pnpm brain:sync`). Aligned with **agent skills**
@@ -18,10 +20,12 @@ import {
   BRAIN_SOE_RECOMMENDATION_MESSAGES,
   BRAIN_SOE_THRESHOLDS,
 } from "./brain-fusion-calibration.gen";
+import { getAffectedIomCellsFromSchismCodes } from "./iom-schism-impact";
 import {
   ATHENA_SOE_RECALIBRATION_LINE,
   computeTriadGovernance,
 } from "./triad-panel-governance";
+import { logEvent } from "./telemetry";
 
 export interface SoeTriadSnapshot {
   /** Mean panelist wall time (ms) over recent runs. */
@@ -72,6 +76,18 @@ export interface SoeRecommendations {
   fusionHintCodes: SoeFusionHintCode[];
   /** One human line per code — `soe_fusion:` prefix for grep. */
   fusionHintLines: string[];
+  /** Distinct power cell ids when `iomSchismCodes` was supplied (IOM impact trace). */
+  iomAffectedCellIds?: string[];
+  /** Schism codes echoed from optional compute context. */
+  iomSchismCodesEcho?: string[];
+  /** `iomAffectedCellIds.length` — quick prioritization signal. */
+  iomImpactCellCount?: number;
+}
+
+/** Optional offline / diagnostic context — never changes gate math. */
+export interface SoeRecommendationsContext {
+  /** Current or hypothetical IOM schism codes (e.g. from `detectSchisms`). */
+  iomSchismCodes?: readonly string[];
 }
 
 function buildSoeFusionHints(
@@ -155,10 +171,51 @@ function buildSoeFusionHints(
   return { fusionHintCodes, fusionHintLines };
 }
 
+function appendIomImpactToMessage(
+  message: string,
+  schismCodes: readonly string[],
+  affectedCells: string[]
+): string {
+  if (schismCodes.length === 0 || affectedCells.length === 0) return message;
+  const sch = schismCodes.slice(0, 6).join(", ");
+  const schEll = schismCodes.length > 6 ? "…" : "";
+  const cells = affectedCells.slice(0, 8).join(", ");
+  const cellEll = affectedCells.length > 8 ? "…" : "";
+  return `${message} | IOM impact: ${affectedCells.length} cell(s) [${cells}${cellEll}] ← schisms: ${sch}${schEll}`;
+}
+
+/**
+ * Optional stderr JSON when SOE was computed with IOM schism context — call from jobs / calibration.
+ */
+export function logSoeHintWithIomContext(
+  rec: SoeRecommendations,
+  meta?: Record<string, unknown>
+): void {
+  if (
+    (!rec.iomAffectedCellIds || rec.iomAffectedCellIds.length === 0) &&
+    (!rec.iomSchismCodesEcho || rec.iomSchismCodesEcho.length === 0)
+  ) {
+    return;
+  }
+  logEvent("soe_hint_with_iom_context", {
+    fusionHintCodes: rec.fusionHintCodes,
+    messageHead: rec.message.split("\n")[0]?.slice(0, 240) ?? "",
+    iomAffectedCellIds: rec.iomAffectedCellIds,
+    iomSchismCodes: rec.iomSchismCodesEcho,
+    iomImpactCellCount: rec.iomImpactCellCount,
+    ...meta,
+    note: "SOE + IOM schism→cell map — hints only; deployer applies changes.",
+  });
+}
+
 /**
  * Heuristic recommendations from aggregate telemetry. Pure function — safe in tests.
+ * Pass **`context.iomSchismCodes`** to append IOM responsibility impact to **`message`**.
  */
-export function computeSoeRecommendations(s: SoeTriadSnapshot): SoeRecommendations {
+export function computeSoeRecommendations(
+  s: SoeTriadSnapshot,
+  context?: SoeRecommendationsContext
+): SoeRecommendations {
   const { meanPanelistMs, triadFailureRate, gateDropRate, meanRunMs } = s;
   const th = BRAIN_SOE_THRESHOLDS;
   const msg = BRAIN_SOE_RECOMMENDATION_MESSAGES;
@@ -213,6 +270,12 @@ export function computeSoeRecommendations(s: SoeTriadSnapshot): SoeRecommendatio
     athenaSoeRecalibrationRecommended: governance.athenaSoeRecalibrationRecommended,
   });
 
+  const schismCodes = context?.iomSchismCodes?.filter((c) => c.length > 0) ?? [];
+  const affectedCells = getAffectedIomCellsFromSchismCodes(schismCodes);
+  if (schismCodes.length > 0 && affectedCells.length > 0) {
+    message = appendIomImpactToMessage(message, schismCodes, affectedCells);
+  }
+
   return {
     relaxAdversarialEntropy,
     tightenGates,
@@ -223,5 +286,11 @@ export function computeSoeRecommendations(s: SoeTriadSnapshot): SoeRecommendatio
     fusionHintCodes,
     fusionHintLines,
     ...(suggestedPromptMaxChars != null && { suggestedPromptMaxChars }),
+    ...(schismCodes.length > 0 &&
+      affectedCells.length > 0 && {
+        iomAffectedCellIds: affectedCells,
+        iomSchismCodesEcho: [...schismCodes].sort(),
+        iomImpactCellCount: affectedCells.length,
+      }),
   };
 }

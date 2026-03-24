@@ -20,11 +20,19 @@
  *
  * When `shared-engine` sources changed, **IOM cell hints** (`igor-power-cells.json`) map
  * touched artifacts → Vitest files; unmatched `.ts` changes fall back to the full engine suite.
+ *
+ * **`verify_post_summary`** always includes **`iomCoverageScore`** (0–1 power-cell test map coverage),
+ * **`uncoveredCells[]`**, **`iomCoveredCellCount`**, **`iomPowerCellTotal`**, **`iomUnmappedCellIds`**.
+ * Selective partial runs also set **`iomVitestBreadthScore`** (fraction of engine test files executed).
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  computeIomCoverageReport,
+  IOM_CELL_VITEST_FILES,
+} from "./lib/iom-coverage-report.mjs";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -75,26 +83,6 @@ function getChangedPathsFromGit(root) {
   return d.stdout.split(/\r?\n/).filter(Boolean);
 }
 
-/** Power cell id → Vitest paths under `packages/shared-engine/` (maintain when cells/tests shift). */
-const IOM_CELL_VITEST_FILES = {
-  triad: ["tests/triad-pulse-alignment.test.ts"],
-  gatekeeper: ["tests/gatekeeper-telemetry.test.ts"],
-  undercover_adversarial: ["tests/undercover-slavic.test.ts"],
-  slavic_score: ["tests/undercover-slavic.test.ts"],
-  soe: ["tests/soe.test.ts"],
-  agent_fusion: ["tests/agent-fusion.test.ts"],
-  integrity: ["tests/integrity.test.ts"],
-  aji_entropy: ["tests/aji-entropy.test.ts"],
-  schism: ["tests/schism.test.ts"],
-  triad_governance: ["tests/triad-panel-governance.test.ts"],
-  arbitration: ["tests/transparent-arbitration.test.ts"],
-  taxonomy: ["tests/taxonomy-engine.test.ts", "tests/taxonomy-sparse-rank.test.ts"],
-  talent_market: ["tests/talent-market-scout.test.ts"],
-  tablebase: ["tests/reliability-tablebase.test.ts", "tests/tablebase-shortcircuit.test.ts"],
-  perf_boss: ["tests/compliant-perf-boss.test.ts"],
-  prompt_guard: ["tests/engine-harsh.test.ts"],
-};
-
 function loadIgorPowerCells(root) {
   const p = join(root, "packages", "shared-engine", "igor-power-cells.json");
   if (!existsSync(p)) return null;
@@ -125,6 +113,13 @@ function collectAllEngineTestRelPaths(engineRoot) {
   return [...new Set(out)].sort();
 }
 
+function withIomCoverage(root, executedVitestRelPaths, baseMeta) {
+  const cells = loadIgorPowerCells(root);
+  if (!cells) return baseMeta ?? {};
+  const cov = computeIomCoverageReport(cells, executedVitestRelPaths ?? []);
+  return { ...(baseMeta ?? {}), ...cov };
+}
+
 function buildIomPartialSummary(root, plan) {
   const engineRoot = join(root, "packages", "shared-engine");
   const allTests = collectAllEngineTestRelPaths(engineRoot);
@@ -138,18 +133,19 @@ function buildIomPartialSummary(root, plan) {
     : "";
   const skipPreview = skipped.slice(0, 12);
   const ell = skipped.length > 12 ? " …" : "";
-  return {
+  const base = {
     iomSelectiveEngineMode: "partial_iom_mapped",
-    iomCoverageScore: score,
+    iomVitestBreadthScore: score,
     iomMatchedCellIds: plan.matchedCellIds,
     iomRanVitestFileCount: plan.vitestArgs.length,
     iomEngineTestFileTotal: allTests.length,
     iomSkippedVitestFilesSample: skipPreview,
     iomSkippedVitestFileCount: skipped.length,
     iomSelectiveWarnings: [
-      `${cellPart}Local selective IOM Vitest ran ${plan.vitestArgs.length}/${allTests.length} files (iomCoverageScore=${score}). Not executed include: ${skipPreview.join(", ")}${ell}. Run full pnpm verify:harsh or pnpm harshcheck before merge.`,
+      `${cellPart}Local selective IOM Vitest ran ${plan.vitestArgs.length}/${allTests.length} files (vitest breadth score=${score}). Not executed include: ${skipPreview.join(", ")}${ell}. Run full pnpm verify:harsh or pnpm harshcheck before merge.`,
     ],
   };
+  return withIomCoverage(root, plan.vitestArgs, base);
 }
 
 /**
@@ -219,6 +215,9 @@ function iomSelectiveVitestPlan(root, changed) {
 }
 
 function runSelectiveEngineTests(root, withPnpm) {
+  const engineRoot = join(root, "packages", "shared-engine");
+  const allEngineTests = () => collectAllEngineTestRelPaths(engineRoot);
+
   const wp = (...args) => [process.execPath, withPnpm, ...args];
   const runWp = (argv) => {
     const r = spawnSync(argv[0], argv.slice(1), {
@@ -230,9 +229,8 @@ function runSelectiveEngineTests(root, withPnpm) {
     return r.status === null ? 1 : r.status;
   };
 
-  const fullEngineOkMeta = {
+  const fullEngineOkBase = {
     iomSelectiveEngineMode: "full_engine_selective_path",
-    iomCoverageScore: 1,
     iomSelectiveWarnings: [],
   };
 
@@ -245,16 +243,18 @@ function runSelectiveEngineTests(root, withPnpm) {
     if (c === 0) {
       return {
         code: 0,
-        iom: { ...fullEngineOkMeta, iomSelectiveEngineMode: "full_engine_no_git_range" },
+        iom: withIomCoverage(root, allEngineTests(), {
+          ...fullEngineOkBase,
+          iomSelectiveEngineMode: "full_engine_no_git_range",
+        }),
       };
     }
     return {
       code: c,
-      iom: {
+      iom: withIomCoverage(root, allEngineTests(), {
         iomSelectiveEngineMode: "full_engine_no_git_range_failed",
-        iomCoverageScore: null,
         iomSelectiveWarnings: ["Selective verify: full test:engine failed — see output above."],
-      },
+      }),
     };
   }
   const needEngine = changed.some(
@@ -267,13 +267,12 @@ function runSelectiveEngineTests(root, withPnpm) {
     );
     return {
       code: 0,
-      iom: {
+      iom: withIomCoverage(root, [], {
         iomSelectiveEngineMode: "vitest_skipped_no_package_diff",
-        iomCoverageScore: null,
         iomSelectiveWarnings: [
           "Selective verify: Vitest skipped — no changes under packages/shared-engine, packages/shared-types, or packages/serum2-encoder in git range.",
         ],
-      },
+      }),
     };
   }
   if (needEngine) {
@@ -293,6 +292,19 @@ function runSelectiveEngineTests(root, withPnpm) {
         "run",
         ...plan.vitestArgs,
       ]);
+      if (c !== 0) {
+        return {
+          code: c,
+          iom: withIomCoverage(root, plan.vitestArgs, {
+            ...partialMeta,
+            iomSelectiveEngineMode: "partial_iom_mapped_failed",
+            iomSelectiveWarnings: [
+              ...partialMeta.iomSelectiveWarnings,
+              "Selective verify: IOM-targeted Vitest failed — see output above.",
+            ],
+          }),
+        };
+      }
       return { code: c, iom: partialMeta };
     }
     process.stderr.write(
@@ -302,46 +314,65 @@ function runSelectiveEngineTests(root, withPnpm) {
     if (c === 0) {
       return {
         code: 0,
-        iom: { ...fullEngineOkMeta, iomSelectiveEngineMode: "full_engine_iom_fallback_or_unmapped" },
+        iom: withIomCoverage(root, allEngineTests(), {
+          ...fullEngineOkBase,
+          iomSelectiveEngineMode: "full_engine_iom_fallback_or_unmapped",
+        }),
       };
     }
     return {
       code: c,
-      iom: {
+      iom: withIomCoverage(root, allEngineTests(), {
         iomSelectiveEngineMode: "full_engine_iom_fallback_failed",
-        iomCoverageScore: null,
         iomSelectiveWarnings: ["Selective verify: full shared-engine Vitest failed — see output above."],
-      },
+      }),
     };
   }
   if (needSerum2) {
     const c = runWp(wp("--filter", "@alchemist/serum2-encoder", "test"));
     return {
       code: c,
-      iom: {
+      iom: withIomCoverage(root, [], {
         iomSelectiveEngineMode: "serum2_encoder_only",
-        iomCoverageScore: null,
         iomSelectiveWarnings:
           c === 0
             ? ["Selective verify: only serum2-encoder tests ran; shared-engine Vitest was not in scope for this diff."]
             : ["Selective verify: serum2-encoder tests failed — see output above."],
-      },
+      }),
     };
   }
-  return { code: 0, iom: fullEngineOkMeta };
+  return { code: 0, iom: withIomCoverage(root, allEngineTests(), fullEngineOkBase) };
 }
 
-function soeHint(exitCode, durationMs, mode) {
+function soeHint(exitCode, durationMs, mode, iomMeta) {
   if (exitCode !== 0) {
     return "verify_failed: inspect output above; stale Next types → pnpm web:dev:fresh; doctor → pnpm alc:doctor";
   }
+  let base;
   if (durationMs > 180_000) {
-    return "soe: long verify wall time — use pnpm verify:harsh for daily iteration; enable CI cache";
+    base =
+      "soe: long verify wall time — use pnpm verify:harsh for daily iteration; enable CI cache";
+  } else if (mode === "verify-harsh") {
+    base = "verify_harsh_green: run pnpm harshcheck before release (adds next build)";
+  } else {
+    base =
+      "verify_web_green: optional pnpm fire:sync (or ALCHEMIST_FIRE_SYNC=1) to refresh docs/FIRE.md metrics; wire triad_run_* + gate metrics into computeSoeRecommendations — read fusionHintCodes / soe_fusion lines for agent-skill–aligned ops hints";
   }
-  if (mode === "verify-harsh") {
-    return "verify_harsh_green: run pnpm harshcheck before release (adds next build)";
+  if (!iomMeta) return base;
+  const score = iomMeta.iomCoverageScore;
+  const uncovered = iomMeta.uncoveredCells;
+  const lowCov = typeof score === "number" && score < 0.85;
+  const hasUncovered = Array.isArray(uncovered) && uncovered.length > 0;
+  if (!lowCov && !hasUncovered) return base;
+  const parts = [];
+  if (lowCov) parts.push(`iomCoverageScore=${score} (<0.85)`);
+  if (hasUncovered) {
+    const sample = uncovered.slice(0, 10).join(", ");
+    parts.push(
+      `uncoveredCells: ${sample}${uncovered.length > 10 ? " …" : ""} (${uncovered.length} total)`
+    );
   }
-  return "verify_web_green: optional pnpm fire:sync (or ALCHEMIST_FIRE_SYNC=1) to refresh docs/FIRE.md metrics; wire triad_run_* + gate metrics into computeSoeRecommendations — read fusionHintCodes / soe_fusion lines for agent-skill–aligned ops hints";
+  return `${base} | soe_iom_verify: ${parts.join("; ")} — extend Vitest mapping in packages/shared-engine/iom-coverage.ts (keep sync with scripts/lib/iom-coverage-report.mjs).`;
 }
 
 function runPipeline(root, mode) {
@@ -411,12 +442,20 @@ function runPipeline(root, mode) {
       shell: false,
     });
     const code = r.status === null ? 1 : r.status;
-    if (label === "test:engine" && code === 0) {
-      iomVerifyMeta = {
-        iomSelectiveEngineMode: process.env.CI ? "full_ci" : "full_local",
-        iomCoverageScore: 1,
-        iomSelectiveWarnings: [],
-      };
+    if (label === "test:engine") {
+      const engineRoot = join(root, "packages", "shared-engine");
+      const allT = collectAllEngineTestRelPaths(engineRoot);
+      if (code === 0) {
+        iomVerifyMeta = withIomCoverage(root, allT, {
+          iomSelectiveEngineMode: process.env.CI ? "full_ci" : "full_local",
+          iomSelectiveWarnings: [],
+        });
+      } else {
+        iomVerifyMeta = withIomCoverage(root, allT, {
+          iomSelectiveEngineMode: "full_engine_failed",
+          iomSelectiveWarnings: ["test:engine failed — see output above."],
+        });
+      }
     }
     if (code !== 0) {
       return { exitCode: code, failedStep: label, iomVerifyMeta };
@@ -445,6 +484,15 @@ const t0 = Date.now();
 const { exitCode, failedStep, iomVerifyMeta } = runPipeline(root, mode);
 const durationMs = Date.now() - t0;
 
+const iomSummaryMeta =
+  iomVerifyMeta ??
+  withIomCoverage(root, [], {
+    iomSelectiveEngineMode: failedStep ? `${failedStep}_failed` : "no_engine_meta",
+    iomSelectiveWarnings: failedStep
+      ? [`Verify failed at step ${failedStep} before shared-engine Vitest meta was set.`]
+      : [],
+  });
+
 logSummary({
   mode,
   exitCode,
@@ -453,10 +501,10 @@ logSummary({
   monorepoRoot: root,
   selectiveVerify:
     process.env.ALCHEMIST_SELECTIVE_VERIFY === "1" && !process.env.CI ? true : undefined,
-  soeHint: soeHint(exitCode, durationMs, mode),
+  soeHint: soeHint(exitCode, durationMs, mode, iomSummaryMeta),
   note:
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
-  ...(iomVerifyMeta ?? {}),
+  ...iomSummaryMeta,
 });
 
 if (process.env.ALCHEMIST_FIRE_SYNC === "1" && exitCode === 0) {

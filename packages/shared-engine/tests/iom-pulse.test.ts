@@ -8,12 +8,14 @@ import {
 } from "../iom-pulse";
 
 describe("iom pulse", () => {
-  it("getIOMHealthPulse returns pulseVersion and manifestDigest", () => {
+  it("getIOMHealthPulse returns pulseVersion, manifestDigest, and suggestions", () => {
     const p = getIOMHealthPulse({});
     expect(p.pulseVersion).toBe(IOM_PULSE_VERSION);
     expect(p.manifestDigest.packageCount).toBeGreaterThan(0);
     expect(p.manifestDigest.powerCellCount).toBeGreaterThan(0);
     expect(p.schisms.length).toBeGreaterThanOrEqual(0);
+    expect(Array.isArray(p.suggestions)).toBe(true);
+    expect(p.suggestions.length).toBe(p.schisms.length);
   });
 
   it("detectSchisms flags partial triad", () => {
@@ -29,6 +31,16 @@ describe("iom pulse", () => {
       m,
     );
     expect(s.some((x) => x.code === "PARTIAL_TRIAD_VELOCITY")).toBe(true);
+    const p = getIOMHealthPulse({
+      triad: {
+        triadFullyLive: false,
+        anyPanelistLive: true,
+        livePanelists: ["deepseek"],
+      },
+    });
+    const sug = p.suggestions.find((x) => x.cellId === "PARTIAL_TRIAD_VELOCITY");
+    expect(sug?.provenance).toBe("iom_schism");
+    expect(sug?.action).toContain("verify:keys");
   });
 
   it("detectSchisms flags MODEL_GATE_DECOUPLE from snapshot", () => {
@@ -71,6 +83,9 @@ describe("iom pulse", () => {
     });
     expect(p.soe).toBeDefined();
     expect(p.soe?.fusionHintCodes?.length).toBeGreaterThan(0);
+    const soeSug = p.suggestions.filter((x) => x.provenance === "soe_fusion_hint");
+    expect(soeSug.length).toBeGreaterThan(0);
+    expect(soeSug[0]?.cellId.startsWith("soe_fusion:")).toBe(true);
   });
 
   it("digestIgorManifestForPulse marks over budget when >12 cells", () => {

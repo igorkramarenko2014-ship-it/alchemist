@@ -11,9 +11,14 @@ import {
   IOM_POLICY_CELL_MAX,
   type IgorOrchestratorManifest,
 } from "./igor-orchestrator-layer";
-import { computeSoeRecommendations, type SoeRecommendations, type SoeTriadSnapshot } from "./soe";
+import {
+  computeSoeRecommendations,
+  type SoeFusionHintCode,
+  type SoeRecommendations,
+  type SoeTriadSnapshot,
+} from "./soe";
 
-export const IOM_PULSE_VERSION = 1 as const;
+export const IOM_PULSE_VERSION = 2 as const;
 
 export type IomSchismSeverity = "info" | "warn" | "critical";
 
@@ -22,6 +27,19 @@ export interface IomSchismFinding {
   severity: IomSchismSeverity;
   message: string;
   evidence?: Record<string, unknown>;
+}
+
+/** Structured operator cue — diagnostic only; does not execute or mutate gates. */
+export interface IomSuggestion {
+  /** Schism code or `soe_fusion:<code>`. */
+  cellId: string;
+  severity: IomSchismSeverity;
+  message: string;
+  action: string;
+  /** 0–1 heuristic confidence for prioritization. */
+  confidence: number;
+  generatedAtMs: number;
+  provenance: "iom_schism" | "soe_fusion_hint";
 }
 
 export interface IomPulseTriadFlags {
@@ -61,6 +79,8 @@ export interface IOMHealthPulseResult {
     | "triadGovernance"
   >;
   schisms: IomSchismFinding[];
+  /** Schism- and SOE-derived cues for dashboards / `pnpm iom:review` style tooling. */
+  suggestions: IomSuggestion[];
   note: string;
 }
 
@@ -175,15 +195,135 @@ export function detectSchisms(
   return out;
 }
 
+const SCHISM_SUGGESTION_META: Record<
+  string,
+  { action: string; confidence: number; severity?: IomSchismSeverity }
+> = {
+  IOM_CELL_POLICY_DRIFT: {
+    action: "pnpm igor:heal — consolidate or merge cells, then pnpm igor:sync",
+    confidence: 0.78,
+  },
+  PARTIAL_TRIAD_VELOCITY: {
+    action: "pnpm verify:keys — enable 3/3 live panelists or document partial triad mode",
+    confidence: 0.82,
+    severity: "warn",
+  },
+  WASM_EXPORT_OFF: {
+    action: "pnpm build:wasm — restore fxp-encoder WASM for browser .fxp path",
+    confidence: 0.74,
+    severity: "info",
+  },
+  MODEL_GATE_DECOUPLE: {
+    action: "pnpm test:real-gates — review Slavic/Undercover + prompts before blaming providers",
+    confidence: 0.85,
+    severity: "warn",
+  },
+  STUB_LIVE_MISMATCH: {
+    action: "pnpm verify:keys — reconcile stub vs fetcher telemetry with deploy (see triad routes)",
+    confidence: 0.8,
+    severity: "warn",
+  },
+  PIPELINE_SILENT_CHOKE: {
+    action: "pnpm test:real-gates && pnpm verify:harsh — inspect gates + param payloads",
+    confidence: 0.9,
+    severity: "critical",
+  },
+  LATENCY_WITHOUT_STRESS: {
+    action: "pnpm verify:harsh — review TRIAD_PANELIST_CLIENT_TIMEOUT_MS / payload size",
+    confidence: 0.72,
+    severity: "info",
+  },
+};
+
+const SOE_FUSION_SUGGESTION_META: Record<
+  SoeFusionHintCode,
+  { action: string; confidence: number; severity: IomSchismSeverity }
+> = {
+  STUB_PROD_PARITY: {
+    action: "pnpm verify:keys — align stub vs live triad keys and telemetry window",
+    confidence: 0.84,
+    severity: "warn",
+  },
+  KEYS_AND_TIMEOUTS: {
+    action: "pnpm verify:keys; check AI_TIMEOUT_MS / TRIAD_PANELIST_CLIENT_TIMEOUT_MS",
+    confidence: 0.8,
+    severity: "warn",
+  },
+  GATE_SOURCE_QC: {
+    action: "pnpm test:real-gates — review Undercover + Slavic vs recent candidate payloads",
+    confidence: 0.78,
+    severity: "warn",
+  },
+  API_CONSTRAINT_ENTROPY: {
+    action: "pnpm verify:harsh — review prompt bounds and candidate schema entropy",
+    confidence: 0.72,
+    severity: "info",
+  },
+  STRESSED_DUAL: {
+    action: "pnpm verify:harsh — triad failure + gate drop elevated; check providers and gates",
+    confidence: 0.86,
+    severity: "critical",
+  },
+  LATENCY_PROMPT_UX: {
+    action: "pnpm verify:harsh — trim param payloads / review panelist timeouts",
+    confidence: 0.7,
+    severity: "info",
+  },
+  GOVERNANCE_VELOCITY: {
+    action: "Review triad-panel-governance vs brain calibration (SOE / product posture)",
+    confidence: 0.68,
+    severity: "info",
+  },
+  NOMINAL_VERIFY_MILE: {
+    action: "pnpm harshcheck — routine verify before release",
+    confidence: 0.55,
+    severity: "info",
+  },
+};
+
+function schismToSuggestion(s: IomSchismFinding, generatedAtMs: number): IomSuggestion {
+  const row = SCHISM_SUGGESTION_META[s.code];
+  return {
+    cellId: s.code,
+    severity: row?.severity ?? s.severity,
+    message: s.message,
+    action: row?.action ?? "pnpm verify:harsh — review recent triad + gate telemetry",
+    confidence: row?.confidence ?? 0.65,
+    generatedAtMs,
+    provenance: "iom_schism",
+  };
+}
+
+function soeFusionToSuggestion(
+  code: SoeFusionHintCode,
+  line: string,
+  generatedAtMs: number,
+): IomSuggestion {
+  const row = SOE_FUSION_SUGGESTION_META[code];
+  return {
+    cellId: `soe_fusion:${code}`,
+    severity: row.severity,
+    message: line,
+    action: row.action,
+    confidence: row.confidence,
+    generatedAtMs,
+    provenance: "soe_fusion_hint",
+  };
+}
+
 /** Merges static Igor manifest with live health flags and optional SOE snapshot. */
 export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
+  const generatedAtMs = Date.now();
   const manifest = getIgorOrchestratorManifest();
   const manifestDigest = digestIgorManifestForPulse(manifest);
   const schisms = detectSchisms(input, manifest);
+  const suggestions: IomSuggestion[] = schisms.map((s) => schismToSuggestion(s, generatedAtMs));
 
   let soe: IOMHealthPulseResult["soe"];
   if (input.soeSnapshot) {
-    const r = computeSoeRecommendations(input.soeSnapshot);
+    const r = computeSoeRecommendations(input.soeSnapshot, {
+      iomSchismCodes: schisms.map((x) => x.code),
+    });
     soe = {
       message: r.message,
       triadHealthScore: r.triadHealthScore,
@@ -191,17 +331,29 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
       fusionHintCodes: r.fusionHintCodes,
       triadGovernance: r.triadGovernance,
     };
+    for (let i = 0; i < r.fusionHintCodes.length; i++) {
+      const code = r.fusionHintCodes[i]!;
+      const line = r.fusionHintLines[i] ?? "";
+      suggestions.push(soeFusionToSuggestion(code, line, generatedAtMs));
+    }
   }
 
   return {
     pulseVersion: IOM_PULSE_VERSION,
-    generatedAtMs: Date.now(),
+    generatedAtMs,
     manifestDigest,
     triad: input.triad,
     wasmOk: input.wasmOk,
     soe,
     schisms,
+    suggestions,
     note:
-      "IOM pulse — diagnostic merge; schisms are explicit heuristics. No auto gate mutation. Pass soeSnapshot from stderr/log aggregates for full numeric schisms.",
+      "IOM pulse — diagnostic merge; schisms + suggestions are explicit heuristics. No auto gate mutation. Pass soeSnapshot from stderr/log aggregates for full numeric schisms and SOE fusion cues.",
   };
 }
+
+export {
+  getIOMCoverageReport,
+  IOM_CELL_VITEST_MAP,
+} from "./iom-coverage";
+export type { IOMCoverageReport } from "./iom-coverage";

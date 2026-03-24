@@ -11,6 +11,7 @@
 import { mergeSoeWithAjiChat } from "../agent-fusion";
 import type { AgentAjiChatFusion } from "../agent-fusion";
 import { formatBrainGreatLibraryAglLine } from "../brain-fusion-calibration.gen";
+import { getAffectedIomCellsFromSchismCodes } from "../iom-schism-impact";
 import { computeSoeRecommendations, type SoeTriadSnapshot } from "../soe";
 import { logEvent } from "../telemetry";
 
@@ -27,6 +28,11 @@ export interface GreatLibraryContext {
   jobRunId?: string;
   /** Free-form notes for operators (e.g. “subset of CC-licensed forum posts only”). */
   notes?: string;
+  /**
+   * Optional IOM schism codes (e.g. from **`getIOMHealthPulse`**) — **not** merged into the snapshot;
+   * pass through to **`logGreatLibraryMerge(..., { iomSchismCodes })`** for **`iom_soe_fusion`**.
+   */
+  iomSchismCodes?: readonly string[];
   /**
    * Optional partial overlay on **`SoeTriadSnapshot`** — only keys you set are merged.
    * Caller is responsible for legality of data used to derive these numbers.
@@ -106,10 +112,16 @@ export function computeGreatLibraryAgentAjiChatFusion(
   };
 }
 
+export interface GreatLibraryMergeLogOptions {
+  /** Optional IOM schism codes from **`getIOMHealthPulse`** / calibration — emits **`iom_soe_fusion`**. */
+  iomSchismCodes?: readonly string[];
+}
+
 /** Structured line for pipelines — same pattern as triad / talent / verify summary. */
 export function logGreatLibraryMerge(
   result: GreatLibraryMergeResult,
-  runId?: string
+  runId?: string,
+  opts?: GreatLibraryMergeLogOptions
 ): void {
   const agentAjiChatFusion = computeGreatLibraryAgentAjiChatFusion(result);
   logEvent("great_library_soe_merge", {
@@ -122,4 +134,17 @@ export function logGreatLibraryMerge(
     note:
       "Offline AGL context merged into SoeTriadSnapshot — no hidden intuition; inspect provenance.",
   });
+  const sch = opts?.iomSchismCodes?.filter((c) => c.length > 0);
+  if (sch && sch.length > 0) {
+    logEvent("iom_soe_fusion", {
+      runId,
+      phase: "great_library_merge",
+      provenance: result.provenance,
+      appliedAugmentKeys: result.appliedAugmentKeys,
+      iomSchismCodes: [...sch],
+      affectedIomCellIds: getAffectedIomCellsFromSchismCodes(sch),
+      note:
+        "IOM schism context correlated with offline AGL merge — diagnostic trace only; no gate mutation.",
+    });
+  }
 }

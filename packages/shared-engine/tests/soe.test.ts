@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ATHENA_SOE_RECALIBRATION_LINE } from "../triad-panel-governance";
-import { computeSoeRecommendations } from "../soe";
+import { computeSoeRecommendations, logSoeHintWithIomContext } from "../soe";
 
 describe("SOE (self-optimizing hints)", () => {
   it("nominal snapshot stays nominal", () => {
@@ -74,5 +74,37 @@ describe("SOE (self-optimizing hints)", () => {
     expect(r.fusionHintCodes).toContain("STRESSED_DUAL");
     expect(r.fusionHintCodes).toContain("KEYS_AND_TIMEOUTS");
     expect(r.fusionHintCodes).toContain("API_CONSTRAINT_ENTROPY");
+  });
+
+  it("optional IOM schism codes append power-cell impact to message", () => {
+    const r = computeSoeRecommendations(
+      {
+        meanPanelistMs: 2000,
+        triadFailureRate: 0.05,
+        gateDropRate: 0.7,
+      },
+      { iomSchismCodes: ["MODEL_GATE_DECOUPLE"] },
+    );
+    expect(r.message).toContain("IOM impact:");
+    expect(r.message).toContain("slavic_score");
+    expect(r.iomImpactCellCount).toBe(3);
+    expect(r.iomAffectedCellIds).toEqual([
+      "gatekeeper",
+      "slavic_score",
+      "undercover_adversarial",
+    ]);
+  });
+
+  it("logSoeHintWithIomContext emits soe_hint_with_iom_context when IOM fields set", () => {
+    const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    const r = computeSoeRecommendations(
+      { meanPanelistMs: 2000, triadFailureRate: 0.05, gateDropRate: 0.7 },
+      { iomSchismCodes: ["MODEL_GATE_DECOUPLE"] },
+    );
+    logSoeHintWithIomContext(r, { probe: "vitest" });
+    const line = spy.mock.calls.map((c) => String(c[0])).join("");
+    spy.mockRestore();
+    expect(line).toContain('"event":"soe_hint_with_iom_context"');
+    expect(line).toContain("MODEL_GATE_DECOUPLE");
   });
 });

@@ -137,12 +137,20 @@ export { fingerprintPromptNormalized } from "./reliability/prompt-fingerprint";
 export type { TablebaseRecord } from "./reliability/tablebase-schema";
 export { isTablebaseRecord } from "./reliability/tablebase-schema";
 export { TABLEBASE_RECORDS } from "./reliability/tablebase-db";
-export { computeSoeRecommendations } from "./soe";
+export {
+  computeSoeRecommendations,
+  logSoeHintWithIomContext,
+} from "./soe";
 export type {
   SoeFusionHintCode,
   SoeRecommendations,
+  SoeRecommendationsContext,
   SoeTriadSnapshot,
 } from "./soe";
+export {
+  getAffectedIomCellsFromSchismCodes,
+  IOM_SCHISM_AFFECTED_CELLS,
+} from "./iom-schism-impact";
 export { BRAIN_FUSION_CALIBRATION_VERSION } from "./brain-fusion-calibration.gen";
 export { IGOR_SHARED_ENGINE_POWER_CELLS_GEN } from "./igor-orchestrator-cells.gen";
 export { IGOR_ORCHESTRATOR_PACKAGES_GEN } from "./igor-orchestrator-packages.gen";
@@ -158,16 +166,20 @@ export {
 export {
   detectSchisms,
   digestIgorManifestForPulse,
+  getIOMCoverageReport,
   getIOMHealthPulse,
+  IOM_CELL_VITEST_MAP,
   IOM_PULSE_VERSION,
 } from "./iom-pulse";
 export type {
   IOMManifestDigest,
+  IOMCoverageReport,
   IOMHealthPulseResult,
   IOMPulseInput,
   IomPulseTriadFlags,
   IomSchismFinding,
   IomSchismSeverity,
+  IomSuggestion,
 } from "./iom-pulse";
 export type {
   IgorOrchestratorManifest,
@@ -242,6 +254,7 @@ export {
 } from "./learning/great-library";
 export type {
   GreatLibraryContext,
+  GreatLibraryMergeLogOptions,
   GreatLibraryMergeResult,
 } from "./learning/great-library";
 export type {

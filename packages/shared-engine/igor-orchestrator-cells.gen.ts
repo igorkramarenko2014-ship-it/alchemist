@@ -37,8 +37,8 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "integrity",
-    responsibility: "Honest capability gaps, sprint completes, degraded fallbacks.",
-    artifacts: ["integrity.ts"] as const,
+    responsibility: "Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.",
+    artifacts: ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts"] as const,
   },
   {
     id: "aji_entropy",
@@ -47,8 +47,8 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "schism",
-    responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative + logs only.",
-    artifacts: ["schism.ts"] as const,
+    responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative + logs only; IOM pulse schisms.",
+    artifacts: ["schism.ts", "iom-pulse.ts"] as const,
   },
   {
     id: "triad_governance",
@@ -58,7 +58,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "arbitration",
     responsibility: "Transparent 2-of-3 arbitration — full logEvent trail.",
-    artifacts: ["arbitration/transparent-arbitration.ts"] as const,
+    artifacts: ["arbitration/transparent-arbitration.ts", "arbitration/types.ts"] as const,
   },
   {
     id: "taxonomy",
@@ -72,8 +72,8 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "tablebase",
-    responsibility: "Deterministic short-circuit candidates when tablebase hits.",
-    artifacts: ["reliability/checkers-fusion.ts", "reliability/tablebase-db.ts"] as const,
+    responsibility: "Deterministic short-circuit candidates when tablebase hits; offline learning types + prompt fingerprint.",
+    artifacts: ["reliability/checkers-fusion.ts", "reliability/tablebase-db.ts", "reliability/tablebase-schema.ts", "reliability/prompt-fingerprint.ts", "learning/great-library.ts", "learning/offline-pipeline-types.ts"] as const,
   },
   {
     id: "perf_boss",

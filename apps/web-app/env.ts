@@ -22,4 +22,9 @@ export const env = {
   llamaApiKey: process.env.GROQ_API_KEY ?? process.env.LLAMA_API_KEY ?? "",
   /** Optional Groq model id for Llama panelist (default `llama-3.3-70b-versatile`). */
   llamaGroqModel: process.env.LLAMA_GROQ_MODEL ?? "",
+  /**
+   * When set, **`GET /api/health/iom`** accepts matching **`X-Ops-Token`** header (operator dashboard).
+   * Empty → route returns 503 (disabled).
+   */
+  alchemistOpsToken: (process.env.ALCHEMIST_OPS_TOKEN ?? "").trim(),
 } as const;

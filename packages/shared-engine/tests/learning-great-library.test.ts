@@ -53,4 +53,19 @@ describe("Great Library (AGL) SOE bridge", () => {
     expect(line).toContain("run_gl");
     expect(line).toContain("agentAjiFusionLines");
   });
+
+  it("logGreatLibraryMerge emits iom_soe_fusion when iomSchismCodes provided", () => {
+    const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    const r = mergeGreatLibraryIntoSoeSnapshot(base, {
+      provenance: "audit-trail",
+      collectedAt: "2026-03-15T00:00:00.000Z",
+    });
+    logGreatLibraryMerge(r, "run_gl2", { iomSchismCodes: ["MODEL_GATE_DECOUPLE"] });
+    const line = spy.mock.calls.map((c) => String(c[0])).join("");
+    spy.mockRestore();
+    expect(line).toContain('"event":"great_library_soe_merge"');
+    expect(line).toContain('"event":"iom_soe_fusion"');
+    expect(line).toContain("MODEL_GATE_DECOUPLE");
+    expect(line).toContain("affectedIomCellIds");
+  });
 });
