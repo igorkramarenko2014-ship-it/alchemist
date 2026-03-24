@@ -85,4 +85,14 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
     responsibility: "Triad prompt bounds and rejection reasons.",
     artifacts: ["prompt-guard.ts"] as const,
   },
+  {
+    id: "vst_observer",
+    responsibility: "VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (Igor artifacts stay under shared-engine per sync script).",
+    artifacts: ["vst-observer.ts", "iom-pulse.ts", "surgical-repair.ts"] as const,
+  },
+  {
+    id: "vst_wrapper",
+    responsibility: "JUCE VST3 FXP bridge skeleton (apps/vst-wrapper) — read-only consumer of validated .fxp; stores chunk as plugin state; does not inject Serum. Pulse: vst-wrapper-pulse.ts.",
+    artifacts: ["vst-wrapper-pulse.ts", "iom-pulse.ts"] as const,
+  },
 ] as const;

@@ -183,6 +183,43 @@ export type {
   IomSchismSeverity,
   IomSuggestion,
 } from "./iom-pulse";
+export {
+  getVstWrapperPulseSlice,
+  recordVstWrapperPulseHint,
+  resetVstWrapperPulseForTests,
+  setVstWrapperDaemonRunning,
+  setVstWrapperStance,
+  setVstWrapperWatchFolder,
+} from "./vst-wrapper-pulse";
+export type {
+  VstWrapperLoadResult,
+  VstWrapperStance,
+  VstWrapperStatusPulse,
+} from "./vst-wrapper-pulse";
+export {
+  getVstObserverPulseSlice,
+  getVstObserverStance,
+  recordVstObserverSync,
+  resetVstObserverStateForTests,
+  setVstObserverStance,
+} from "./vst-observer";
+export type {
+  VstObserverConfig,
+  VstObserverStance,
+  VstSyncResult,
+  VstSyncStatusPulse,
+} from "./vst-observer";
+export {
+  drainSurgicalRepairSchisms,
+  performSurgicalRepair,
+  repairAndPushToVst,
+  resetSurgicalRepairStateForTests,
+} from "./surgical-repair";
+export type {
+  RepairOptions,
+  RepairResult,
+  SurgicalRepairSchismPulse,
+} from "./surgical-repair";
 export type {
   IgorOrchestratorManifest,
   IgorOrchestratorPackagePower,

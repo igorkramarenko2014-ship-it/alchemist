@@ -67,7 +67,7 @@
 2. **`tools/validate-offsets.py`** + validated source.  
 3. **`packages/fxp-encoder/serum-offset-map.ts`** — validated vs real Serum init **`.fxp`**.  
 4. **`fxp-encoder`** — WASM when Rust present; else skip script.  
-5. **`shared-engine`** → **web-app** → **mobile-app** → **vst**.
+5. **`shared-engine`** → **web-app** → **mobile-app** → **`vst/`** Cursor slice; optional **`apps/vst-wrapper`** (CMake + JUCE) is separate from the TypeScript pipeline.
 
 ---
 
@@ -363,6 +363,8 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **Expo:** `pnpm dev:mobile` / `pnpm dev:all`. **`vst/`:** if Cursor opened only this folder, **`pnpm dev`** / **`pnpm harshcheck`** run **`node ../scripts/with-pnpm.mjs …`** from the parent repo — **no** global **`pnpm`** required. **`pnpm alc:doctor`** → **`node ../scripts/doctor.mjs`**. Prefer opening **Vibe Projects** (repo root). Checklist: **`vst/README.md`**.
 
+**Optional native lane (not the web product):** **`apps/vst-wrapper/`** — JUCE **VST3** skeleton that loads **Alchemist-produced** `.fxp` into the plugin state only (does **not** host Serum inside the plugin; see **`docs/vst-wrapper.md`**). **`pnpm build:vst`** runs **`scripts/vst-build.mjs`** (expects local **CMake** + JUCE fetch). **Operator CLI:** **`pnpm vst:observe`** (`scripts/vst-bridge-cli.ts` → **`packages/fxp-encoder/vst-bridge.ts`**, **`vst_observer`** IOM telemetry); **`pnpm vst:observe:gate`** — offset-map validate hook; **`pnpm vst:daemon`** — **`fxp-encoder`** Rust watcher + optional **`validate-offsets`** refresh. All **`.fxp`** authority stays behind the **HARD GATE** (**`serum-offset-map.ts`** + **`validate-offsets.py`**).
+
 ---
 
 ## 12. Documentation index
@@ -380,6 +382,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 | Path | Role |
 |------|------|
+| **`docs/vst-wrapper.md`** | Optional JUCE VST3 slice: **`apps/vst-wrapper`**, **`pnpm build:vst`**, **`pnpm vst:observe`** / daemon — read-only `.fxp` consumer; not Serum hosting |
 | **`apps/web-app/docs/MERCURY-BALL.md`** | Orb / WebGL |
 | **`LEGAL.md`**, **`LICENSE`**, **`SECURITY.md`** (repo root) | Legal notices, proprietary license (default), vulnerability reporting |
 | **Root `README.md`**, **`AGENTS.md`**, **`RUN.txt`** | Quick start, agents, one-liner |

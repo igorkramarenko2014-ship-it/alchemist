@@ -52,6 +52,10 @@ pnpm docs:list        # list first-party markdown
 pnpm perf:boss        # shared-engine perf sweep (perf_boss_* JSON on stderr)
 pnpm check:transparent # denylist scan: no shadow / KGB / amnesia patterns in shared-engine .ts
 pnpm build:wasm        # Rust + wasm-pack → browser Export .fxp (needs rustup + wasm32-unknown-unknown)
+pnpm vst:observe       # CLI: fxp-encoder vst-bridge + vst_observer IOM (HARD GATE); see docs/vst-wrapper.md
+pnpm vst:observe:gate  # validate-offsets hook only
+pnpm vst:daemon        # fxp-encoder Rust file watcher (optional)
+pnpm build:vst         # copy JUCE .vst3 when CMake build exists (apps/vst-wrapper)
 pnpm fire:sync         # after green verify: refresh docs/FIRE.md Vitest + Next metrics block
 pnpm brain:sync        # docs/brain.md §9a JSON → brain-fusion-calibration.gen.ts
 pnpm igor:sync         # workspace packages + meta → igor-orchestrator-packages.gen.ts

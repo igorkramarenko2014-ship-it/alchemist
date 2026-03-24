@@ -8,7 +8,7 @@ import { IGOR_ORCHESTRATOR_PACKAGES_GEN } from "./igor-orchestrator-packages.gen
 import { logEvent } from "./telemetry";
 
 /** Bumped when manifest semantics change (packages/cells generation, shape). */
-export const IGOR_ORCHESTRATOR_LAYER_VERSION = 4 as const;
+export const IGOR_ORCHESTRATOR_LAYER_VERSION = 6 as const;
 
 /**
  * Human discipline target for **`igor-power-cells.json`** length (consolidation).

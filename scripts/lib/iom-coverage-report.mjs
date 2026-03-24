@@ -24,6 +24,8 @@ export const IOM_CELL_VITEST_FILES = {
   ],
   perf_boss: ["tests/compliant-perf-boss.test.ts"],
   prompt_guard: ["tests/engine-harsh.test.ts"],
+  vst_observer: ["tests/vst-observer.test.ts", "tests/surgical-repair.test.ts"],
+  vst_wrapper: ["tests/vst-wrapper-pulse.test.ts"],
 };
 
 /**

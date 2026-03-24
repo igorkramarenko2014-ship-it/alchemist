@@ -3,11 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "@alchemist/shared-types": "workspace:*"
+  },
   "main": "./serum-offset-map.ts",
   "types": "./serum-offset-map.ts",
   "exports": {
     ".": "./serum-offset-map.ts",
     "./serum-offset-map": "./serum-offset-map.ts",
+    "./vst-bridge": "./vst-bridge.ts",
     "./wasm": {
       "types": "./pkg/fxp_encoder.d.ts",
       "import": "./pkg/fxp_encoder.js",
@@ -22,10 +26,13 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build:wasm": "npx --yes wasm-pack build --target web --out-dir pkg && node scripts/clear-stub-marker.cjs",
+    "build:watcher": "cargo build --release --bin watcher-daemon",
+    "vst:daemon": "cargo run --release --bin watcher-daemon",
     "build": "node scripts/skip-if-no-rust.cjs",
     "sync-maps": "node scripts/sync-maps.cjs"
   },
   "devDependencies": {
+    "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
   }
 }

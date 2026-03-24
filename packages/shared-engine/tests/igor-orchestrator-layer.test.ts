@@ -12,12 +12,14 @@ import {
 describe("igor orchestrator power layer", () => {
   it("manifest lists all workspace packages and power cells", () => {
     const m = getIgorOrchestratorManifest();
-    expect(m.layerVersion).toBe(4);
+    expect(m.layerVersion).toBe(6);
     expect(m.packages.length).toBe(IGOR_ORCHESTRATOR_PACKAGES_GEN.length);
     expect(m.packages.map((p) => p.packageName)).toContain("@alchemist/shared-engine");
     expect(m.sharedEnginePowerCells.length).toBe(IGOR_SHARED_ENGINE_POWER_CELLS_GEN.length);
     expect(IGOR_SHARED_ENGINE_POWER_CELLS.map((c) => c.id)).toContain("gatekeeper");
     expect(IGOR_SHARED_ENGINE_POWER_CELLS.map((c) => c.id)).toContain("schism");
+    expect(IGOR_SHARED_ENGINE_POWER_CELLS.map((c) => c.id)).toContain("vst_observer");
+    expect(IGOR_SHARED_ENGINE_POWER_CELLS.map((c) => c.id)).toContain("vst_wrapper");
   });
 
   it("logIgorOrchestratorManifest does not throw", () => {
@@ -32,7 +34,7 @@ describe("igor orchestrator power layer", () => {
     expect(() =>
       logIomSelfHealProposal({
         reason: "vitest probe",
-        currentCellCount: 16,
+        currentCellCount: 18,
         transmutationNote: "merge before add",
       }),
     ).not.toThrow();

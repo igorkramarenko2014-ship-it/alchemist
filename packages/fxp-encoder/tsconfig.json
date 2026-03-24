@@ -5,8 +5,9 @@
     "moduleResolution": "NodeNext",
     "strict": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["node"]
   },
-  "include": ["*.ts"],
+  "include": ["*.ts", "pkg/fxp_encoder.d.ts"],
   "exclude": ["pkg"]
 }

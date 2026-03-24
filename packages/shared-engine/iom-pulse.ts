@@ -17,8 +17,11 @@ import {
   type SoeRecommendations,
   type SoeTriadSnapshot,
 } from "./soe";
+import { drainSurgicalRepairSchisms } from "./surgical-repair";
+import { getVstObserverPulseSlice, type VstSyncStatusPulse } from "./vst-observer";
+import { getVstWrapperPulseSlice, type VstWrapperStatusPulse } from "./vst-wrapper-pulse";
 
-export const IOM_PULSE_VERSION = 2 as const;
+export const IOM_PULSE_VERSION = 4 as const;
 
 export type IomSchismSeverity = "info" | "warn" | "critical";
 
@@ -86,6 +89,10 @@ export interface IOMHealthPulseResult {
   schisms: IomSchismFinding[];
   /** Schism- and SOE-derived cues for dashboards / `pnpm iom:review` style tooling. */
   suggestions: IomSuggestion[];
+  /** VST/Serum bridge diagnostic slice (`vst_observer` cell) — no auto file I/O here. */
+  vstSyncStatus: VstSyncStatusPulse;
+  /** JUCE FXP bridge diagnostic slice (`vst_wrapper` cell) — native plugin logs outside TS. */
+  vstWrapperStatus: VstWrapperStatusPulse;
   note: string;
 }
 
@@ -238,6 +245,12 @@ const SCHISM_SUGGESTION_META: Record<
     confidence: 0.72,
     severity: "info",
   },
+  VST_SURGICAL_REPAIR_HEAVY: {
+    action:
+      "Review triad candidate payloads / gates — heavy surgical clamp burst before VST; confirm HARD GATE + Slavic already green.",
+    confidence: 0.76,
+    severity: "warn",
+  },
 };
 
 const SOE_FUSION_SUGGESTION_META: Record<
@@ -321,7 +334,7 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
   const generatedAtMs = Date.now();
   const manifest = getIgorOrchestratorManifest();
   const manifestDigest = digestIgorManifestForPulse(manifest);
-  const schisms = detectSchisms(input, manifest);
+  const schisms = [...detectSchisms(input, manifest), ...drainSurgicalRepairSchisms()];
   const suggestions: IomSuggestion[] = schisms.map((s) => schismToSuggestion(s, generatedAtMs));
 
   let soe: IOMHealthPulseResult["soe"];
@@ -353,6 +366,8 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
     soe,
     schisms,
     suggestions,
+    vstSyncStatus: getVstObserverPulseSlice(),
+    vstWrapperStatus: getVstWrapperPulseSlice(),
     note:
       "IOM pulse — diagnostic merge; schisms + suggestions are explicit heuristics. No auto gate mutation. Pass soeSnapshot from stderr/log aggregates for full numeric schisms and SOE fusion cues.",
   };

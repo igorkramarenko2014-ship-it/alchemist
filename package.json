@@ -39,6 +39,8 @@
     "harshchek": "node scripts/harshcheck.mjs",
     "test:gate": "node scripts/test-gate-hint.mjs",
     "validate:offsets": "node scripts/validate-offsets-if-sample.mjs",
+    "vst:observe": "tsx scripts/vst-bridge-cli.ts",
+    "vst:observe:gate": "node scripts/vst-observer-hook.mjs",
     "assert:hard-gate": "node scripts/assert-hard-gate.mjs",
     "check:transparent": "node scripts/check-no-shadow-patterns.mjs",
     "alc:doctor": "node scripts/doctor.mjs",
@@ -66,10 +68,14 @@
     "github:first-push": "node scripts/github-first-push.mjs",
     "test:real-gates": "tsx scripts/calibrate-gates.ts",
     "build:wasm": "pnpm --filter @alchemist/fxp-encoder build:wasm",
+    "vst:daemon": "pnpm --filter @alchemist/fxp-encoder run vst:daemon",
+    "build:watcher": "pnpm --filter @alchemist/fxp-encoder run build:watcher",
+    "build:vst": "node scripts/vst-build.mjs",
     "analyze:serum2": "node scripts/analyze-serum2-format.mjs",
     "talent:sync-whatmodels": "node scripts/sync-whatmodels-vendor.mjs"
   },
   "devDependencies": {
+    "@alchemist/fxp-encoder": "workspace:*",
     "@alchemist/shared-engine": "workspace:*",
     "tsx": "^4.19.2",
     "turbo": "^2.3.0"

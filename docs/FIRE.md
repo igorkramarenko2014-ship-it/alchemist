@@ -8,7 +8,7 @@
 
 **Explicit hooks (no shadow state):** **`verify_post_summary`** + **`soeHint`** on stderr after verify; **`soe.ts`** / governance telemetry — **forbidden:** unauditable loops (**§I**, **`pnpm check:transparent`**).
 
-**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain + **doc map** table), **`brain-plus.md`** (minimal outside-assessment shell; metrics synced with **`pnpm fire:sync`**), **`inner-circle-agent.md`** (peer prompt + Canon FIREWALL — tone only), **`iom.md`** (IOM — §9c + §9d discipline + growth protocol), **`cursor-universal-habits.md`** (User Rules template). **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). **Web app recovery ladder:** **§L** *Web app not running*. Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
+**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain + **doc map** table), **`brain-plus.md`** (minimal outside-assessment shell; metrics synced with **`pnpm fire:sync`**), **`inner-circle-agent.md`** (peer prompt + Canon FIREWALL — tone only), **`iom.md`** (IOM — §9c + §9d discipline + growth protocol), **`cursor-universal-habits.md`** (User Rules template), **`vst-wrapper.md`** (optional JUCE VST3 read-only `.fxp` consumer + CLI/daemon pointers). **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). **Web app recovery ladder:** **§L** *Web app not running*. Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
 
 **Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside **`ALCHEMIST:FIRE_METRICS`** or **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** + optional **`brain.md`** / **`brain-plus.md`**; **HTML** packs + agent notes → **§12**, **Appendix C–D**.
 
@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **134** tests passed, **22** files (runner) · **22** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **142** tests passed, **25** files (runner) · **25** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -315,7 +315,8 @@ PATCH_HINTS: <files>
 | **`.next` / Turbo cache** | Corrupt or mixed outputs can yield **`MODULE_NOT_FOUND`** or **`PageNotFoundError` / `ENOENT`** for App Router segments (e.g. **`/api/health`**) during **“Collecting page data”**. Recovery: **`pnpm run clean`** (deletes **`apps/web-app/.next`**) / **`node scripts/with-pnpm.mjs run clean`**, then **`pnpm install`** if needed, then **`pnpm harshcheck`** or **`pnpm dev`**. **`pnpm web:rebuild`** = clean + forced **`next build`** for web-app. |
 | **Legal footer** | **`components/legal/LegalDisclaimer.tsx`** — trademarks + AI/privacy pointer + **third-party preset / indexing** responsibility (not a substitute for counsel). |
 | **WASM health** | **`GET /api/health/wasm`** — JSON **`ok`**, **`status`** (`available` \| `unavailable`), **`message`** (operator hint). Run **`pnpm dev`** / **`harshcheck`** from monorepo root (or **`vst/`** scripts that **`cd ..`**) so **`cwd`** resolves **`packages/fxp-encoder/pkg`**. |
-| **Ops** | **`pnpm alc:doctor`** (= **`node scripts/doctor.mjs`**); **`RUN.txt`**; **`vst/README.md`**; **`scripts/with-pnpm.mjs`**; **`FIRESTARTER` §8–§10**. |
+| **VST / `.fxp` sidecar (optional)** | **`pnpm vst:observe`** — CLI over **`packages/fxp-encoder/vst-bridge.ts`** + **`vst_observer`** IOM cell (HARD GATE on offset map). **`pnpm vst:observe:gate`** — validate-only hook. **`pnpm vst:daemon`** — Rust file watcher in **`fxp-encoder`**. **`pnpm build:vst`** — copies JUCE **`.vst3`** when **`cmake`** build output exists. Native skeleton: **`apps/vst-wrapper/`**; contract: **`docs/vst-wrapper.md`**. Does **not** replace browser WASM export or triad gates. |
+| **Ops** | **`pnpm alc:doctor`** (= **`node scripts/doctor.mjs`**); **`RUN.txt`**; **`vst/README.md`**; **`docs/vst-wrapper.md`**; **`scripts/with-pnpm.mjs`**; **`FIRESTARTER` §8–§11**. |
 
 ### Web app not running — recovery ladder (canonical)
 
