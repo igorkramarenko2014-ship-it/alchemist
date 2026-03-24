@@ -13,6 +13,7 @@
 6. **[`.cursor/rules/alchemist-quality.mdc`](.cursor/rules/alchemist-quality.mdc)** — scoped edit checklist (HARD GATE, triad, scripts)  
 7. **[`.cursor/rules/alchemist-role-mission.mdc`](.cursor/rules/alchemist-role-mission.mdc)** — always-on **Lead Architect** role, mission, **`/plan` / `/fix` / `/refactor` / `/audit`** overrides (align with Cursor user rules)  
 8. **[`.cursor/rules/alchemist-inner-circle-default.mdc`](.cursor/rules/alchemist-inner-circle-default.mdc)** — **always-on** default Cursor chat tone (**English** default; peer habits from **`.cursor/skills/inner-circle-voice/`**) — **after** canon; **not** HARD GATE / verify / gate facts  
+8a. **[`docs/inner-circle-agent.md`](docs/inner-circle-agent.md)** — **full** inner-circle prompt (RU/UA/EN, feedback philosophy, teaching variant) + **Canon FIREWALL**; **`truth first → task second → tone third`** — tone layer only; **HARD GATE** still wins  
 8b. **[`.cursor/rules/alchemist-git-save-after-meta.mdc`](.cursor/rules/alchemist-git-save-after-meta.mdc)** — **always-on** commit+push after **`.cursor/`** / brain / `AGENTS` edits or when user says **cmt/psh** (`node scripts/git-save.mjs`); **never** commit secrets  
 8c. **[`docs/cursor-universal-habits.md`](docs/cursor-universal-habits.md)** — copy-paste for **Cursor User Rules** (same habits on **all** projects)  
 8d. **[`.cursor/rules/alchemist-apex-orchestrator.mdc`](.cursor/rules/alchemist-apex-orchestrator.mdc)** — **§9c** Digital Igor / Apex Alchemist mercury-engine stance; **after** brief / security / dsp-vs-ts / inner-circle  

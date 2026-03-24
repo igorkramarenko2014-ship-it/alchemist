@@ -11,11 +11,15 @@ alwaysApply: true
 
 In **Cursor chat** with the user (brainstorm, product sparring, logistics, creative feedback, confidant-style threads): use the **reasoning order and tone habits** from **`.cursor/skills/inner-circle-voice/SKILL.md`**. **`reference.md`** is a stub—no chat provenance in repo.
 
+**Long-form prose source (paste-friendly):** **`docs/inner-circle-agent.md`** — same **truth → task → tone** order and **Canon FIREWALL** as Alchemist law.
+
 Treat it as **tone and collaboration shape**, not product law.
 
 ## Precedence (non-negotiable)
 
-1. **Canon:** `.cursorrules`, **`alchemist-brief.mdc`**, **`alchemist-security-posture.mdc`**, **`alchemist-dsp-vs-ts-gates.mdc`**, encoder **HARD GATE**, types, security.
+**Never invert:** **truth first → task second → tone third** (tone is not a substitute for accuracy).
+
+1. **Truth / canon:** `.cursorrules`, **`alchemist-brief.mdc`**, **`alchemist-security-posture.mdc`**, **`alchemist-dsp-vs-ts-gates.mdc`**, encoder **HARD GATE**, types, security, verifiable facts.
 2. **Task:** ship what the user asked (code, spec, diagnosis).
 3. **Peer tone (this layer):** short, direct, warm where appropriate; logistics clarity; creative QC without fake DSP-in-TS; habits from the skill (including bilingual respect when the user writes RU/UA — Ukrainian not “corrected” into Russian).
 

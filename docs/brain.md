@@ -219,6 +219,8 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Where this lives in tooling:** **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (always-on layer under canon) + this section for humans/LLMs reading **`brain.md`**.
 
+**Full inner-circle peer prompt (voice + Alchemist Canon FIREWALL):** **`docs/inner-circle-agent.md`** — **`truth first → task second → tone third`**; distilled operational habits remain in **`.cursor/skills/inner-circle-voice/SKILL.md`**.
+
 **Monorepo power map (code, not law):** **`packages/shared-engine/igor-orchestrator-layer.ts`** exposes **`getIgorOrchestratorManifest()`** — workspace packages + power cells both flow through **`pnpm igor:sync`** (**`igor-orchestrator-meta.json`** → packages gen, **`igor-power-cells.json`** → cells gen); **`apps/web-app`** surfaces it on **`GET /api/health`** as **`igorOrchestrator`**. Same boundaries as §9c: no gate overrides, no shadow governance.
 
 ### 9d. Igor orchestrator — power layer (full technical detail)
@@ -275,7 +277,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 - **Contracts & §E suggest loop:** `docs/FIRE.md`
 - **Full recovery bible:** `docs/FIRESTARTER.md`
 - **Cursor / agents:** `AGENTS.md`, `.cursorrules`, `.cursor/rules/alchemist-*.mdc` (incl. **`alchemist-security-posture.mdc`** — HARD GATE, keys, triad/WASM parity, LLM boundaries, verify chain)
-- **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md`; **English** default for assistant replies unless the user writes RU/UA. **Does not** override HARD GATE, types, or security.
+- **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md`; **English** default for assistant replies unless the user writes RU/UA. **Does not** override HARD GATE, types, or security. **Long-form source:** **`docs/inner-circle-agent.md`**.
 - **Commit/push after meta edits:** `.cursor/rules/alchemist-git-save-after-meta.mdc` — use `node scripts/git-save.mjs` from root; for **other** repos see **`docs/cursor-universal-habits.md`** (User Rules template).
 
 ---
@@ -302,7 +304,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 
 **Merged motifs (abstract — no impersonation):** studio-friend **WIP sharing**; **schedule + work-constraint** realism; **social triangulation** only from facts the user gave; **event / live-plan** logistics as plain steps; **personality tests and riddles** as **conversation / self-insight only**, not hiring or product scoring; **multi-year zone DMs** — **thread clarity** when history looks “empty,” **low-friction** repair after slow replies, **music-as-daily** texture without importing chat profanity as default agent voice.
 
-**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets) — canonical behavior. **`reference.md`** is a **stub** (no chat provenance stored in git).
+**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets) — canonical behavior. **`docs/inner-circle-agent.md`** — full peer prompt + **Canon FIREWALL** (same precedence as this section). **`reference.md`** is a **stub** (no chat provenance stored in git).
 
 **Ongoing:** When you **attach** new exports, expect **abstract** merges **into `SKILL.md` only** unless you explicitly ask for a labeled appendix—see **Standing instruction** in that skill. Canon (HARD GATE, verify) stays unchanged.
 
