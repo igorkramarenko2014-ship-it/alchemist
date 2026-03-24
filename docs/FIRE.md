@@ -8,7 +8,7 @@
 
 **Explicit hooks (no shadow state):** **`verify_post_summary`** + **`soeHint`** on stderr after verify; **`soe.ts`** / governance telemetry — **forbidden:** unauditable loops (**§I**, **`pnpm check:transparent`**).
 
-**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain), **`brain-plus.md`** (minimal outside-assessment shell; metrics synced with **`pnpm fire:sync`**), **`inner-circle-agent.md`** (peer prompt + Canon FIREWALL — tone only), **`iom.md`** (IOM — §9c + §9d discipline + growth protocol). **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
+**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain + **doc map** table), **`brain-plus.md`** (minimal outside-assessment shell; metrics synced with **`pnpm fire:sync`**), **`inner-circle-agent.md`** (peer prompt + Canon FIREWALL — tone only), **`iom.md`** (IOM — §9c + §9d discipline + growth protocol), **`cursor-universal-habits.md`** (User Rules template). **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). **Web app recovery ladder:** **§L** *Web app not running*. Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
 
 **Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside **`ALCHEMIST:FIRE_METRICS`** or **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** + optional **`brain.md`** / **`brain-plus.md`**; **HTML** packs + agent notes → **§12**, **Appendix C–D**.
 
@@ -315,6 +315,23 @@ PATCH_HINTS: <files>
 | **Legal footer** | **`components/legal/LegalDisclaimer.tsx`** — trademarks + AI/privacy pointer + **third-party preset / indexing** responsibility (not a substitute for counsel). |
 | **WASM health** | **`GET /api/health/wasm`** — JSON **`ok`**, **`status`** (`available` \| `unavailable`), **`message`** (operator hint). Run **`pnpm dev`** / **`harshcheck`** from monorepo root (or **`vst/`** scripts that **`cd ..`**) so **`cwd`** resolves **`packages/fxp-encoder/pkg`**. |
 | **Ops** | **`pnpm alc:doctor`** (= **`node scripts/doctor.mjs`**); **`RUN.txt`**; **`vst/README.md`**; **`scripts/with-pnpm.mjs`**; **`FIRESTARTER` §8–§10**. |
+
+### Web app not running — recovery ladder (canonical)
+
+_Merged from the former standalone **`CRUCIAL-FIX`** note; keep this section in sync with **`FIRESTARTER` §8**._
+
+**Preconditions:** Shell **`cwd`** = monorepo root (**`apps/`** + **`packages/`**). **`pnpm alc:doctor`** — **not** **`pnpm doctor`**. After edits to **`packages/shared-engine`** or **`app/api/triad/*`**, **restart `pnpm dev`** (HMR may not reload **`transpilePackages`** triad behavior).
+
+| Symptom | Fix |
+|--------|-----|
+| Connection refused / blank | **`pnpm dev`** from root; use **exact** URL from **cyan Ready** banner (**port 3000–3120**, not assumed **:3000**). |
+| Stale tab | Hard refresh; prefer **127.0.0.1** URL from banner. **`BASE_URL=http://127.0.0.1:<PORT> pnpm test:real-gates`** — **PORT** from banner. |
+| **`PageNotFoundError` / `ENOENT` / bad routes** during **`next build`** | Corrupt **`.next`**: **`pnpm run clean`** then **`pnpm harshcheck`** or **`pnpm web:rebuild`**. |
+| Triad feels capped at **8000** ms / mismatch vs server | Ensure **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`** (**QWEN** longer) in **`constants.ts`**; **restart dev**; client + server on same revision. |
+| Groq Llama JSON truncated mid-array | Raise **`max_tokens`** in **`apps/web-app/lib/fetch-llama-candidates.ts`** (e.g. **4096**); restart dev. |
+| **`EMFILE` / watcher pain** | **`pnpm dev:recover`** → **`pnpm web:dev:fresh`**; polling notes in table rows above. |
+
+**One-shot ladder (order):** **`pnpm alc:doctor`** → **`pnpm run clean`** → **`pnpm install`** (if needed) → **`pnpm verify:harsh`** → **`pnpm dev`** → open banner URL.
 
 **Forbidden** (audit): Silently swallowing production errors with no user feedback; claiming **`LegalDisclaimer`** replaces **`PRIVACY.md`** / counsel for a consumer launch.
 

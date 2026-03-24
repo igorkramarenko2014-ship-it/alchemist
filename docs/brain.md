@@ -4,6 +4,21 @@
 
 **Truth hierarchy:** `docs/FIRESTARTER.md` (recovery + implementation narrative) → `docs/FIRE.md` (§E–§L, assessment) → this file → code.
 
+**Doc map (first-party markdown under `docs/`):**
+
+| File | Role |
+|------|------|
+| **`FIRESTARTER.md`** | Recovery bible, workflow appendices, INIT paste |
+| **`FIRE.md`** | Assessment contracts §A–L + **`pnpm fire:sync`** metrics |
+| **`brain.md`** | This file — deep orientation, §9a fusion, §9c–§9d Igor / IOM |
+| **`brain-plus.md`** | Minimal outside-assessment shell + synced metrics |
+| **`inner-circle-agent.md`** | Full peer prompt + Canon FIREWALL (tone layer) |
+| **`iom.md`** | IOM — §9c + §9d discipline, growth protocol |
+| **`cursor-universal-habits.md`** | Cursor User Rules template (any repo) |
+| **`alchemist-*.html`** | Composer / task prompt packs — index **`FIRESTARTER` §12** |
+
+Web dev “won’t start” ladder: **`FIRE.md` §L** subsection *Web app not running*.
+
 ---
 
 ## 1. What the product is
@@ -279,6 +294,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 
 ## 12. Related files
 
+- **Doc inventory:** opening **Doc map** table in this file + **`pnpm docs:list`**
 - **Outside assessment shell (minimal + auto metrics):** `docs/brain-plus.md`
 - **Contracts & §E suggest loop:** `docs/FIRE.md`
 - **Full recovery bible:** `docs/FIRESTARTER.md`

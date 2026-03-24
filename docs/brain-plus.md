@@ -79,7 +79,7 @@ _Update this block when outsiders need new context._
 |-------|-------------------|
 | **Top risk today** | WASM / CI; stub vs fetcher triad parity; keep Igor manifest **descriptive** only (no shadow control plane). |
 | **What we want from reviewers** | Threat model for **`/api/triad`**; encoder HARD GATE; optional review of **`igorOrchestrator`** health payload for ops usefulness. |
-| **Last manual refresh (date)** | **2026-03-24** (Igor power layer fused: **`igor-power-cells.json`** + verify **`--check`**) |
+| **Last manual refresh (date)** | **2026-03-24** (docs consolidated: **`CRUCIAL-FIX`** → **`FIRE.md` §L**; IOM + Igor map in **`brain`/`FIRE`**) |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---

@@ -284,7 +284,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **Triad / shared-engine edits:** After changing **`packages/shared-engine`** (**`triad.ts`**, **`constants.ts`**, …) or **`app/api/triad/*`**, **restart `pnpm dev`** so the server and **`transpilePackages`** bundle pick up **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`** and route timeouts (stale dev sessions can look like a permanent **8000** ms client cap).
 
-**Assistants (Claude, etc.):** **`docs/CRUCIAL-FIX-WEB-APP-NOT-RUNNING.md`** — monorepo root, cyan-banner port, corrupt **`.next`**, triad timeout / Groq **`max_tokens`** recovery ladder.
+**Assistants (Claude, etc.):** **`docs/FIRE.md` §L** — *Web app not running — recovery ladder* (monorepo root, cyan-banner port, corrupt **`.next`**, triad timeout / Groq **`max_tokens`**).
 
 **Client errors:** **`app/error.tsx`** — segment **error boundary**; **`app/global-error.tsx`** — root layout failures (includes **`html`/`body`**). Recovery hints: **`pnpm dev:recover`** (webpack/swc cache only), **`web:dev:fresh`**, **`pnpm run clean`**, **`pnpm dev`**, **127.0.0.1** URL from banner. **`FIRE.md` §L**.
 
