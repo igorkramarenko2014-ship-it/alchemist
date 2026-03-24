@@ -351,6 +351,15 @@ export type {
   WarfareSequenceResult,
   WarfareTargetFilter,
 } from "./pnh/pnh-warfare-model";
+export {
+  getPnhAptScenarioById,
+  PNH_APT_SCENARIO_CATALOG,
+} from "./pnh/pnh-apt-scenarios";
+export type {
+  AptDefenseLayer,
+  AptImplementationStatus,
+  PnhAptScenario,
+} from "./pnh/pnh-apt-scenarios";
 export { parseLegacySoeHintMessage } from "./soe-hint-structured";
 export type {
   StructuredSoeHint,
