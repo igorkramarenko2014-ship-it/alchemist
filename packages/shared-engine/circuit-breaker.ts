@@ -1,8 +1,11 @@
 /**
- * Optional **triad HTTP resilience** helper — sliding-window failure rate → open → half-open → closed.
+ * **Triad HTTP resilience** — sliding-window failure rate → open → half-open → closed.
  *
- * **Not** wired to **`/api/triad/*`** by default: opt in from app code with explicit composition.
- * Telemetry: **`circuit_breaker_*`** via **`logEvent`** (stderr JSON) — assessment-friendly, no gate mutation.
+ * **Wired** from **`apps/web-app/lib/triad-panel-route.ts`** (per-panelist **`TriadCircuitBreaker`**
+ * in **`triad-circuit-breakers.ts`**). **`GET /api/health` → `iomPulse`** includes **`TRIAD_CIRCUIT_OPEN`**
+ * when any breaker is open (process-local).
+ *
+ * Telemetry: **`circuit_breaker_*`** / **`triad_circuit_breaker_skip`** via **`logEvent`** — no gate mutation.
  */
 import { logEvent } from "./telemetry";
 
@@ -42,6 +45,11 @@ export class TriadCircuitBreaker {
 
   getPhase(): CircuitBreakerPhase {
     return this.phase;
+  }
+
+  /** **`true`** when phase is **`open`** (hard block). Half-open uses **`allowRequest()`** to admit probes after cooldown. */
+  isOpen(): boolean {
+    return this.phase === "open";
   }
 
   getFailureRate(): number {

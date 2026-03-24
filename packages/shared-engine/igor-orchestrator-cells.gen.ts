@@ -8,7 +8,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "triad",
     responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry.",
-    artifacts: ["triad.ts", "triad-monitor.ts", "constants.ts", "circuit-breaker.ts"] as const,
+    artifacts: ["triad.ts", "triad-monitor.ts", "triad-panelist-prompt.ts", "constants.ts", "circuit-breaker.ts"] as const,
   },
   {
     id: "gatekeeper",
@@ -18,7 +18,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "slavic_score",
     responsibility: "Weighted ranking + cosine/text dedupe; creativePivot on dead end.",
-    artifacts: ["score.ts", "gates.ts"] as const,
+    artifacts: ["score.ts", "intent-alignment.ts", "gates.ts"] as const,
   },
   {
     id: "undercover_adversarial",

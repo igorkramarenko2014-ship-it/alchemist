@@ -4,13 +4,18 @@
  * text (`description` or `reasoning` ≥ `REASONING_LEGIBILITY_MIN_CHARS`), also require high
  * Dice similarity on character bigrams — catches near-identical params with divergent intent copy
  * without pulling in external embedding models (transparent TS only).
+ *
+ * **Intent alignment (IOM MOVE 3):** when **`prompt`** is non-empty, after Slavic dedupe each survivor
+ * gets **`intentAlignmentScore`** and is re-sorted by **`intentBlendRankKey`** (**0.7 × model score +
+ * 0.3 × alignment**), scaled by panelist weight — not a gate override.
  */
-import type { AICandidate } from "@alchemist/shared-types";
+import type { AICandidate, UserMode } from "@alchemist/shared-types";
 import type { GameChanger } from "./aji-logic";
 import { runAjiCrystallization } from "./aji-logic";
 import { PANELIST_WEIGHTS } from "./constants";
 import { generateEntropy } from "./entropy";
 import { getSegmentCosineThreshold, slavicCosineThresholdForPrompt } from "./gates";
+import { computeIntentAlignmentScore } from "./intent-alignment";
 import {
   filterValid,
   isTelemetryPureFromCandidates,
@@ -125,6 +130,49 @@ export type ScoreCandidatesGateStatus = "OK" | typeof STATUS_NOISY;
 /** Optional Aji-style residue when the scored batch is a dead end (gate fail or empty after filters). */
 export type CreativePivot = GameChanger;
 
+/** Optional **`userMode`** nudge for **`computeIntentAlignmentScore`** (PRO/NEWBIE lexicon hints). */
+export interface ScoreCandidatesOptions {
+  userMode?: UserMode;
+}
+
+function clamp01(x: number): number {
+  return Math.min(1, Math.max(0, x));
+}
+
+/**
+ * Panelist-weighted blend: **0.7 × model `score` + 0.3 × `intentAlignment`** (IOM MOVE 3).
+ */
+export function intentBlendRankKey(c: AICandidate, intentAlignment: number): number {
+  const w = PANELIST_WEIGHTS[c.panelist] ?? 0;
+  const core = 0.7 * clamp01(c.score) + 0.3 * clamp01(intentAlignment);
+  return w * core;
+}
+
+function applyIntentBlendSort(
+  candidates: AICandidate[],
+  prompt: string | undefined,
+  opts?: ScoreCandidatesOptions,
+): AICandidate[] {
+  const p = prompt?.trim() ?? "";
+  if (p.length === 0 || candidates.length <= 1) {
+    return candidates;
+  }
+  const enriched = candidates.map((c) => ({
+    ...c,
+    intentAlignmentScore: computeIntentAlignmentScore(p, c, opts),
+  }));
+  enriched.sort((a, b) => {
+    const ia = a.intentAlignmentScore ?? 0.5;
+    const ib = b.intentAlignmentScore ?? 0.5;
+    const d = intentBlendRankKey(b, ib) - intentBlendRankKey(a, ia);
+    if (d !== 0) return d;
+    const wd = weightedScore(b) - weightedScore(a);
+    if (wd !== 0) return wd;
+    return a.panelist.localeCompare(b.panelist);
+  });
+  return enriched;
+}
+
 export interface ScoreCandidatesGatedResult {
   status: ScoreCandidatesGateStatus;
   candidates: AICandidate[];
@@ -157,7 +205,8 @@ function buildCreativePivotForDeadEnd(prompt?: string): CreativePivot {
 export function scoreCandidatesWithGate(
   candidates: AICandidate[],
   prompt?: string,
-  durationMs?: number[]
+  durationMs?: number[],
+  options?: ScoreCandidatesOptions
 ): ScoreCandidatesGatedResult {
   if (candidates.length === 0) {
     return { status: "OK", candidates: [] };
@@ -180,7 +229,7 @@ export function scoreCandidatesWithGate(
   }
   return {
     status: "OK",
-    candidates: deduped,
+    candidates: applyIntentBlendSort(deduped, prompt, options),
   };
 }
 
@@ -188,7 +237,8 @@ export function scoreCandidatesWithGate(
 export function scoreCandidates(
   candidates: AICandidate[],
   prompt?: string,
-  durationMs?: number[]
+  durationMs?: number[],
+  options?: ScoreCandidatesOptions
 ): AICandidate[] {
-  return scoreCandidatesWithGate(candidates, prompt, durationMs).candidates;
+  return scoreCandidatesWithGate(candidates, prompt, durationMs, options).candidates;
 }

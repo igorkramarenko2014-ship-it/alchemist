@@ -5,6 +5,7 @@
 export const IOM_SCHISM_AFFECTED_CELLS: Readonly<Record<string, readonly string[]>> = {
   IOM_CELL_POLICY_DRIFT: ["integrity", "schism"],
   PARTIAL_TRIAD_VELOCITY: ["triad", "triad_governance"],
+  TRIAD_CIRCUIT_OPEN: ["triad"],
   WASM_EXPORT_OFF: ["integrity"],
   MODEL_GATE_DECOUPLE: ["slavic_score", "undercover_adversarial", "gatekeeper"],
   STUB_LIVE_MISMATCH: ["triad", "soe"],

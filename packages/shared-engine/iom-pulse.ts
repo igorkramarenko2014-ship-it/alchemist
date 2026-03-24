@@ -20,8 +20,9 @@ import {
 import { drainSurgicalRepairSchisms } from "./surgical-repair";
 import { getVstObserverPulseSlice, type VstSyncStatusPulse } from "./vst-observer";
 import { getVstWrapperPulseSlice, type VstWrapperStatusPulse } from "./vst-wrapper-pulse";
+import type { Panelist } from "@alchemist/shared-types";
 
-export const IOM_PULSE_VERSION = 4 as const;
+export const IOM_PULSE_VERSION = 5 as const;
 
 export type IomSchismSeverity = "info" | "warn" | "critical";
 
@@ -54,6 +55,11 @@ export interface IomPulseTriadFlags {
 export interface IOMPulseInput {
   triad?: IomPulseTriadFlags;
   wasmOk?: boolean;
+  /**
+   * Panelists with **`TriadCircuitBreaker`** phase **`open`** (e.g. from **`listOpenTriadCircuitPanelists()`**
+   * in web-app). Process-local; omit when unknown.
+   */
+  openTriadCircuitPanelists?: readonly Panelist[];
   /** Aggregates from log pipeline — enables numeric schisms + SOE summary in pulse. */
   soeSnapshot?: SoeTriadSnapshot;
   /**
@@ -137,6 +143,16 @@ export function detectSchisms(
       message:
         "Partial live triad — governance blend skewed; prefer 3/3 keys for canonical ATHENA/HERMES/HESTIA telemetry or document intentional partial mode.",
       evidence: { livePanelists: [...input.triad.livePanelists] },
+    });
+  }
+
+  const openBreakers = input.openTriadCircuitPanelists;
+  if (openBreakers !== undefined && openBreakers.length > 0) {
+    out.push({
+      code: "TRIAD_CIRCUIT_OPEN",
+      severity: "warn",
+      message: `Triad circuit open for: ${openBreakers.join(", ")} — fast-fail active; partial triad until half-open probes succeed.`,
+      evidence: { panelists: [...openBreakers] },
     });
   }
 
@@ -243,6 +259,12 @@ const SCHISM_SUGGESTION_META: Record<
   PARTIAL_TRIAD_VELOCITY: {
     action: "pnpm verify:keys — enable 3/3 live panelists or document partial triad mode",
     confidence: 0.82,
+    severity: "warn",
+  },
+  TRIAD_CIRCUIT_OPEN: {
+    action:
+      "pnpm verify:keys — check provider health; TriadCircuitBreaker recovers after open window + half-open successes (warm instance)",
+    confidence: 0.83,
     severity: "warn",
   },
   WASM_EXPORT_OFF: {

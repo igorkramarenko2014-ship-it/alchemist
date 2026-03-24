@@ -20,6 +20,7 @@ export {
 export type { TriadPanelistChunk } from "./triad";
 export {
   cosineSimilarityParamArrays,
+  intentBlendRankKey,
   scoreCandidates,
   scoreCandidatesWithGate,
   SLAVIC_FILTER_COSINE_THRESHOLD,
@@ -30,7 +31,15 @@ export type {
   CreativePivot,
   ScoreCandidatesGatedResult,
   ScoreCandidatesGateStatus,
+  ScoreCandidatesOptions,
 } from "./score";
+export {
+  computeIntentAlignmentScore,
+  paramTextureScore01,
+  tokenSetJaccard,
+  tokenizeForIntent,
+} from "./intent-alignment";
+export type { IntentAlignmentContext } from "./intent-alignment";
 export {
   adminWipeMess,
   ajiCompressionRatio,
@@ -252,6 +261,11 @@ export type {
   TriadPanelWeights,
 } from "./triad-panel-governance";
 export { logAthenaSoeRecalibration } from "./triad-monitor";
+export {
+  PANELIST_DNA,
+  panelistDnaText,
+  triadPanelistSystemPrompt,
+} from "./triad-panelist-prompt";
 export {
   narrowTaxonomyPoolToTriadCandidates,
   type NarrowTaxonomyOptions,

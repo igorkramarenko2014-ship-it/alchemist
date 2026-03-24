@@ -21,6 +21,7 @@ describe("TriadCircuitBreaker", () => {
     expect(b.getPhase()).toBe("closed");
     b.recordFailure();
     expect(b.getPhase()).toBe("open");
+    expect(b.isOpen()).toBe(true);
     expect(b.allowRequest()).toBe(false);
   });
 

@@ -18,6 +18,19 @@ describe("iom pulse", () => {
     expect(p.suggestions.length).toBe(p.schisms.length);
   });
 
+  it("detectSchisms flags TRIAD_CIRCUIT_OPEN when openTriadCircuitPanelists set", () => {
+    const m = getIgorOrchestratorManifest();
+    const s = detectSchisms({ openTriadCircuitPanelists: ["DEEPSEEK", "LLAMA"] }, m);
+    const row = s.find((x) => x.code === "TRIAD_CIRCUIT_OPEN");
+    expect(row).toBeDefined();
+    expect(row?.message).toContain("DEEPSEEK");
+    expect(row?.message).toContain("LLAMA");
+    const p = getIOMHealthPulse({ openTriadCircuitPanelists: ["QWEN"] });
+    expect(p.schisms.some((x) => x.code === "TRIAD_CIRCUIT_OPEN")).toBe(true);
+    const sug = p.suggestions.find((x) => x.cellId === "TRIAD_CIRCUIT_OPEN");
+    expect(sug?.action).toContain("verify:keys");
+  });
+
   it("detectSchisms flags partial triad", () => {
     const m = getIgorOrchestratorManifest();
     const s = detectSchisms(

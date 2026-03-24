@@ -82,6 +82,11 @@ export interface AICandidate {
   description?: string;
   /** FxCk param array when available; used by Consensus Validator for physical-range checks. */
   paramArray?: number[];
+  /**
+   * Heuristic prompt→candidate alignment in **[0,1]** — keyword / category / param texture (**TS only**).
+   * Set by **`scoreCandidates`** when a non-empty **`prompt`** is passed; omitted otherwise.
+   */
+  intentAlignmentScore?: number;
 }
 
 /** Single-run triad metrics attached to `AIAnalysis` for SOE / agent-aji chat fusion on the client. */

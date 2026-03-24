@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
+import { getTriadCircuitBreakerForPanelist } from "@/lib/triad-circuit-breakers";
 import {
   DEFAULT_LLAMA_GROQ_MODEL,
   fetchLlamaCandidates,
@@ -60,7 +61,7 @@ function mergeAiTimeoutSignal(
 
 function triadResponseHeaders(
   panelist: Panelist,
-  mode: "fetcher" | "unconfigured"
+  mode: "fetcher" | "unconfigured" | "circuit-open"
 ): Record<string, string> {
   return {
     "x-alchemist-triad-mode": mode,
@@ -148,6 +149,43 @@ export async function triadPanelPost(
     );
   }
 
+  const breaker = getTriadCircuitBreakerForPanelist(panelist);
+  // `allowRequest()` (not `isOpen()` alone) — transitions **open → half_open** after cooldown for probe traffic.
+  if (!breaker.allowRequest()) {
+    logEvent("triad_circuit_breaker_skip", {
+      runId,
+      panelist,
+      alchemistCodename,
+      phase: breaker.getPhase(),
+      circuitOpen: breaker.isOpen(),
+    });
+    logEvent("triad_run_start", {
+      runId,
+      panelist,
+      promptLength,
+      mode: "circuit_open",
+    });
+    logEvent("triad_panelist_end", {
+      runId,
+      panelist,
+      alchemistCodename,
+      candidateCount: 0,
+      durationMs: 0,
+      mode: "circuit_open",
+      error: "circuit_open",
+    });
+    return NextResponse.json(
+      {
+        error: "circuit_open",
+        mode: "circuit-open",
+        candidates: [],
+        message:
+          "Triad circuit breaker open for this panelist — fast-fail while the provider recovers. Retry after cooldown; see IOM schism TRIAD_CIRCUIT_OPEN on GET /api/health.",
+      },
+      { status: 503, headers: triadResponseHeaders(panelist, "circuit-open") }
+    );
+  }
+
   logEvent("triad_run_start", {
     runId,
     panelist,
@@ -184,6 +222,11 @@ export async function triadPanelPost(
     candidates = [];
   } finally {
     dispose();
+  }
+  if (error !== undefined) {
+    breaker.recordFailure();
+  } else {
+    breaker.recordSuccess();
   }
   const durationMs = Math.round(nowMs() - t0);
   logEvent("triad_panelist_end", {

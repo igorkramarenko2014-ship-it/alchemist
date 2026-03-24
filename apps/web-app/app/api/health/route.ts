@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { listOpenTriadCircuitPanelists } from "@/lib/triad-circuit-breakers";
 import { getOptionalSoeTriadSnapshotFromEnv } from "@/lib/soe-snapshot-from-env";
 import {
   computeHealthAgentAjiChatFusion,
@@ -77,6 +78,7 @@ export async function GET(request: Request) {
         livePanelists: liveList as string[],
       },
       wasmOk: wasmOk,
+      openTriadCircuitPanelists: listOpenTriadCircuitPanelists(),
       ...(soeSnapshot !== undefined && { soeSnapshot }),
     }),
     soeSnapshotInjected: soeSnapshot !== undefined,

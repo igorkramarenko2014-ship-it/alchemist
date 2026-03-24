@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { listOpenTriadCircuitPanelists } from "@/lib/triad-circuit-breakers";
 import {
   analyzeTalentMarket,
   computeSoeRecommendations,
@@ -74,6 +75,7 @@ export async function buildIomOpsCore(requestUrl: string): Promise<IomOpsCorePay
       livePanelists: liveList,
     },
     wasmOk,
+    openTriadCircuitPanelists: listOpenTriadCircuitPanelists(),
   });
 
   const talentInput = {

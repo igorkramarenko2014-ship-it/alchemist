@@ -3,7 +3,13 @@
  * **Alchemist codenames** (Athena / Hermes / Hestia) are for UI + telemetry only.
  * 8 candidates; client fetch budget per panelist — see `TRIAD_PANELIST_CLIENT_TIMEOUT_MS` (≥ server upstream).
  */
-import type { AICandidate, AIAnalysis, Panelist, SerumState } from "@alchemist/shared-types";
+import type {
+  AICandidate,
+  AIAnalysis,
+  Panelist,
+  SerumState,
+  UserMode,
+} from "@alchemist/shared-types";
 import { MAX_CANDIDATES, TRIAD_PANELIST_CLIENT_TIMEOUT_MS } from "./constants";
 import { validatePromptForTriad } from "./prompt-guard";
 import {
@@ -55,7 +61,8 @@ export function flattenTriadChunksWithDurations(chunks: readonly TriadPanelistCh
 function scoreGatedTriadPool(
   raw: AICandidate[],
   prompt: string,
-  panelDurationsMs: number[] | undefined
+  panelDurationsMs: number[] | undefined,
+  scoreOptions?: { userMode?: UserMode }
 ): AICandidate[] {
   if (raw.length === 0) return [];
   const useTemporal =
@@ -66,7 +73,8 @@ function scoreGatedTriadPool(
   const first = scoreCandidatesWithGate(
     raw,
     prompt,
-    useTemporal ? panelDurationsMs : undefined
+    useTemporal ? panelDurationsMs : undefined,
+    scoreOptions
   );
   if (first.status !== STATUS_NOISY) return first.candidates;
   if (useTemporal) {
@@ -74,7 +82,7 @@ function scoreGatedTriadPool(
       module: "triad.scoreGatedTriadPool",
       rawCount: raw.length,
     });
-    return scoreCandidatesWithGate(raw, prompt, undefined).candidates;
+    return scoreCandidatesWithGate(raw, prompt, undefined, scoreOptions).candidates;
   }
   return [];
 }
@@ -152,7 +160,8 @@ const PANELIST_TO_SLUG: Record<Panelist, string> = {
  */
 export function makeTriadFetcher(
   demo: boolean,
-  baseUrl = ""
+  baseUrl = "",
+  postOpts?: { userMode?: UserMode }
 ): (prompt: string, panelist: Panelist, signal: AbortSignal) => Promise<AICandidate[]> {
   if (demo) {
     return (prompt, panelist, signal) => stubPanelistCandidates(prompt, panelist, signal);
@@ -164,7 +173,10 @@ export function makeTriadFetcher(
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({
+        prompt,
+        ...(postOpts?.userMode !== undefined ? { userMode: postOpts.userMode } : {}),
+      }),
       signal,
     });
     if (!res.ok) {
@@ -198,6 +210,8 @@ export async function runTriad(
     useConsensusFilter?: boolean;
     /** Skip keyword tablebase short-circuit (tests / explicit triad-only runs). */
     skipTablebase?: boolean;
+    /** Forward to **`scoreCandidates`** intent alignment + optional triad POST body via **`makeTriadFetcher(..., postOpts)`**. */
+    userMode?: UserMode;
   }
 ): Promise<AIAnalysis> {
   const pg = validatePromptForTriad(prompt);
@@ -209,6 +223,8 @@ export async function runTriad(
   const fetcher = options?.fetcher;
   const runConsensus = options?.runConsensusValidation === true;
   const useConsensusFilter = options?.useConsensusFilter === true;
+  const scoreOpts =
+    options?.userMode !== undefined ? { userMode: options.userMode } : undefined;
 
   const runId = newTriadRunId();
   const tRun0 = nowMs();
@@ -289,7 +305,7 @@ export async function runTriad(
     triadFailureRate = 0;
   }
 
-  const scored = scoreGatedTriadPool(candidates, prompt, panelDurationsMs);
+  const scored = scoreGatedTriadPool(candidates, prompt, panelDurationsMs, scoreOpts);
 
   let valid = scored
     .filter(candidatePassesDistributionGate)

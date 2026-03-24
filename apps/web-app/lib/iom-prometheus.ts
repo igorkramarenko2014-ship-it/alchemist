@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { listOpenTriadCircuitPanelists } from "@/lib/triad-circuit-breakers";
 import {
   getAffectedIomCellsFromSchismCodes,
   getIgorOrchestratorManifest,
@@ -123,6 +124,7 @@ export async function collectIomPrometheusText(requestUrl: string): Promise<stri
       livePanelists: liveList,
     },
     wasmOk,
+    openTriadCircuitPanelists: listOpenTriadCircuitPanelists(),
   });
   const manifest = getIgorOrchestratorManifest();
   const covRep = tryLoadIomCoverageReport();
