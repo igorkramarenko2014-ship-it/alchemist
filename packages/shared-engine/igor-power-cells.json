@@ -1,0 +1,82 @@
+[
+  {
+    "id": "triad",
+    "responsibility": "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry.",
+    "artifacts": ["triad.ts", "triad-monitor.ts", "constants.ts"]
+  },
+  {
+    "id": "gatekeeper",
+    "responsibility": "Telemetry purity — IQR/Z score stream + optional durationMs temporal gate.",
+    "artifacts": ["validate.ts"]
+  },
+  {
+    "id": "slavic_score",
+    "responsibility": "Weighted ranking + cosine/text dedupe; creativePivot on dead end.",
+    "artifacts": ["score.ts", "gates.ts"]
+  },
+  {
+    "id": "undercover_adversarial",
+    "responsibility": "Distribution / adversarial statistical gates on candidates.",
+    "artifacts": ["validate.ts"]
+  },
+  {
+    "id": "soe",
+    "responsibility": "SOE hints from triad health — telemetry only, not DSP buffers.",
+    "artifacts": ["soe.ts"]
+  },
+  {
+    "id": "agent_fusion",
+    "responsibility": "Brain §9a strings merged into operator-facing fusion lines.",
+    "artifacts": ["agent-fusion.ts", "brain-fusion-calibration.gen.ts"]
+  },
+  {
+    "id": "integrity",
+    "responsibility": "Honest capability gaps, sprint completes, degraded fallbacks.",
+    "artifacts": ["integrity.ts"]
+  },
+  {
+    "id": "aji_entropy",
+    "responsibility": "Entropy seeds + crystallized residue (TS-only distillation).",
+    "artifacts": ["entropy.ts", "aji-logic.ts"]
+  },
+  {
+    "id": "schism",
+    "responsibility": "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative + logs only.",
+    "artifacts": ["schism.ts"]
+  },
+  {
+    "id": "triad_governance",
+    "responsibility": "ATHENA/HERMES/HESTIA blend weights + velocity from wall time.",
+    "artifacts": ["triad-panel-governance.ts"]
+  },
+  {
+    "id": "arbitration",
+    "responsibility": "Transparent 2-of-3 arbitration — full logEvent trail.",
+    "artifacts": ["arbitration/transparent-arbitration.ts"]
+  },
+  {
+    "id": "taxonomy",
+    "responsibility": "Preset taxonomy pool narrow + sparse rank pre-Slavic.",
+    "artifacts": ["taxonomy/engine.ts", "taxonomy/sparse-rank.ts"]
+  },
+  {
+    "id": "talent_market",
+    "responsibility": "Market scout hints — deployer-owned benchmarks.",
+    "artifacts": ["talent/market-scout.ts"]
+  },
+  {
+    "id": "tablebase",
+    "responsibility": "Deterministic short-circuit candidates when tablebase hits.",
+    "artifacts": ["reliability/checkers-fusion.ts", "reliability/tablebase-db.ts"]
+  },
+  {
+    "id": "perf_boss",
+    "responsibility": "FIRE-compliant perf sweep — perf_boss_* JSON on stderr.",
+    "artifacts": ["perf/compliant-perf-boss.ts"]
+  },
+  {
+    "id": "prompt_guard",
+    "responsibility": "Triad prompt bounds and rejection reasons.",
+    "artifacts": ["prompt-guard.ts"]
+  }
+]

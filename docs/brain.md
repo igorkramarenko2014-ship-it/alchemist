@@ -98,6 +98,7 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 | Env / workspace doctor | **`pnpm alc:doctor`** |
 | Refresh **FIRE.md** + **brain-plus** metrics block | **`pnpm fire:sync`** (requires green **`shared-engine`** Vitest) |
 | Regenerate **brain fusion** TypeScript after editing **§9a** JSON | **`pnpm brain:sync`** |
+| Regenerate **Igor manifest** (workspace packages + power cells) | **`pnpm igor:sync`** — see **§9d** |
 | Optional auto-sync metrics after green verify | **`ALCHEMIST_FIRE_SYNC=1`** with harsh verify |
 | Triad key smoke | **`pnpm verify:keys`** |
 | Gate calibration vs live routes | **`pnpm test:real-gates`** (local artifact gitignored) |
@@ -114,6 +115,7 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 - **Talent market scout:** `talent/` — §J.
 - **Great Library / AGL:** offline provenance merges into SOE snapshot — §K, `learning/great-library.ts`.
 - **Taxonomy:** sparse rank + pool size limits — `taxonomy/`, `FIRESTARTER` §13 notes.
+- **Igor orchestrator power map:** **`igor-orchestrator-layer.ts`** + **`pnpm igor:sync`** — **§9d** (manifest only; not gate law).
 
 All stay **explicit** and **auditable** — no shadow governance.
 
@@ -217,6 +219,36 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Where this lives in tooling:** **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (always-on layer under canon) + this section for humans/LLMs reading **`brain.md`**.
 
+**Monorepo power map (code, not law):** **`packages/shared-engine/igor-orchestrator-layer.ts`** exposes **`getIgorOrchestratorManifest()`** — workspace packages + power cells both flow through **`pnpm igor:sync`** (**`igor-orchestrator-meta.json`** → packages gen, **`igor-power-cells.json`** → cells gen); **`apps/web-app`** surfaces it on **`GET /api/health`** as **`igorOrchestrator`**. Same boundaries as §9c: no gate overrides, no shadow governance.
+
+### 9d. Igor orchestrator — power layer (full technical detail)
+
+**What it is:** A **typed manifest** of (1) every **`@alchemist/*`** workspace under **`apps/*`** and **`packages/*`**, and (2) **`shared-engine` “power cells”** — named responsibility slices (triad, gatekeeper, Slavic/score, SOE, integrity, Aji, schism, etc.). **Not** a runtime governor: it does **not** change triad weights, gates, or encoder bytes. **Purpose:** operator clarity, health JSON, stderr audit (`igor_orchestrator_manifest`), alignment with **§9c** Apex stance.
+
+**Source files (human-editable JSON + generated TS):**
+
+| Artifact | Role |
+|----------|------|
+| **`packages/shared-engine/igor-orchestrator-meta.json`** | Per **`pathFromRepoRoot`** (e.g. `apps/web-app`): **`role`**, **`canonAnchors`**. Missing keys → default role string (“extend meta…”). |
+| **`packages/shared-engine/igor-power-cells.json`** | Array of **`{ id, responsibility, artifacts[] }`**. Unique **`id`**; **`artifacts`** are paths under **`packages/shared-engine/`** (hints only). |
+| **`igor-orchestrator-packages.gen.ts`** | **Generated** — do not hand-edit. |
+| **`igor-orchestrator-cells.gen.ts`** | **Generated** — do not hand-edit. |
+| **`igor-orchestrator-layer.ts`** | **`getIgorOrchestratorManifest()`**, **`logIgorOrchestratorManifest()`**, **`IGOR_ORCHESTRATOR_LAYER_VERSION`**, re-exports wired to `.gen.ts`. |
+
+**Commands:**
+
+- **`pnpm igor:sync`** — runs **`scripts/sync-igor-orchestrator.mjs`**; writes both **`.gen.ts`** files.
+- **`pnpm verify:harsh`** / **`pnpm harshcheck`** (via **`run-verify-with-summary.mjs`**) — runs **`sync-igor-orchestrator.mjs --check`** after **`brain:sync` --check**; fails if JSON and disk disagree with committed gen (same pattern as brain fusion).
+
+**Runtime surfaces:**
+
+- **`GET /api/health`** (web-app) — JSON field **`igorOrchestrator`** = full manifest (packages + cells + **`layerVersion`** + **`brainFusionCalibrationVersion`** link).
+- **`logIgorOrchestratorManifest()`** — optional **`igor_orchestrator_manifest`** line on stderr (`telemetry.ts`).
+
+**Public exports:** **`@alchemist/shared-engine`** — **`getIgorOrchestratorManifest`**, **`IGOR_ORCHESTRATOR_PACKAGES_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS`**, layer version constant, etc. — see **`packages/shared-engine/index.ts`**.
+
+**Doc / Cursor links:** **`AGENTS.md` §8e**; **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (ethos); **`docs/FIRE.md`** (verify + assessment mention).
+
 ---
 
 ## 10. Legal & security pointers
@@ -253,7 +285,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 - **`brain-plus.md` machine block:** never hand-edit between **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers — **`pnpm fire:sync`** (§8).
 - **`brain-plus.md` § Human deltas:** edit manually per release or before external review.
 - **`brain.md` §9a fusion JSON:** edit the fenced JSON between **`ALCHEMIST:BRAIN_FUSION_CALIBRATION:BEGIN`** / **`END`**, then **`pnpm brain:sync`** — see §9a.
-- **`brain.md` §9c:** Apex orchestrator ethos (Cursor) — **not** law; see **`.cursor/rules/alchemist-apex-orchestrator.mdc`**.
+- **`brain.md` §9c–§9d:** §9c = Apex / Digital Igor **ethos** (Cursor); §9d = **power layer** (manifest pipeline). Run **`pnpm igor:sync`** after workspace churn or edits to **`igor-orchestrator-meta.json`** / **`igor-power-cells.json`**; verify enforces **`--check`**. See **`.cursor/rules/alchemist-apex-orchestrator.mdc`**.
 - **This file (`brain.md`):** narrative orientation only; law stays **`FIRESTARTER.md`** / **`FIRE.md`**.
 
 ---

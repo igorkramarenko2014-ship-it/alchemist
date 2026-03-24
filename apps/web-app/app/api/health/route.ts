@@ -1,5 +1,8 @@
 import { env } from "@/env";
-import { computeHealthAgentAjiChatFusion } from "@alchemist/shared-engine";
+import {
+  computeHealthAgentAjiChatFusion,
+  getIgorOrchestratorManifest,
+} from "@alchemist/shared-engine";
 import { NextResponse } from "next/server";
 
 /**
@@ -57,6 +60,7 @@ export async function GET(request: Request) {
     telemetry: {
       logEvent: "stderr JSON lines (packages/shared-engine/telemetry.ts) — not dev-only console spam",
     },
+    igorOrchestrator: getIgorOrchestratorManifest(),
     agentAjiChatFusion,
     generatedAtMs: Date.now(),
     nodeEnv: process.env.NODE_ENV ?? "development",

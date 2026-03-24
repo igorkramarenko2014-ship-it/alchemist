@@ -33,6 +33,7 @@
     "save": "cd .. && node scripts/git-save.mjs",
     "fire:sync": "cd .. && node scripts/sync-fire-md.mjs",
     "brain:sync": "cd .. && node scripts/sync-brain-fusion.mjs",
+    "igor:sync": "cd .. && node scripts/sync-igor-orchestrator.mjs",
     "github:first-push": "cd .. && node scripts/github-first-push.mjs"
   }
 }

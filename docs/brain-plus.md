@@ -26,8 +26,8 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 | Signal | Value |
 |--------|-------|
-| **Synced (UTC)** | **2026-03-23** |
-| **Vitest** (`@alchemist/shared-engine`) | **113** tests passed, **19** files (runner) · **19** `*.test.ts` on disk |
+| **Synced (UTC)** | **2026-03-24** |
+| **Vitest** (`@alchemist/shared-engine`) | **115** tests passed, **20** files (runner) · **20** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -53,7 +53,7 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 ## Stack (at a glance)
 
 - **Frontend:** Next.js 14 App Router, Tailwind, React.
-- **Core logic:** TypeScript in **`packages/shared-engine`** (triad orchestration, gates, telemetry).
+- **Core logic:** TypeScript in **`packages/shared-engine`** (triad orchestration, gates, telemetry, optional **Igor manifest** — **`pnpm igor:sync`**, **`GET /api/health` → `igorOrchestrator`**; map only, not gate law).
 - **Encoder:** **`packages/fxp-encoder`** (Rust optional for dev; WASM for browser export).
 
 ---
@@ -77,9 +77,9 @@ _Update this block when outsiders need new context._
 
 | Field | Value (you edit) |
 |-------|-------------------|
-| **Top risk today** | _e.g. WASM unavailable in CI; stub vs prod parity_ |
-| **What we want from reviewers** | _e.g. threat model for `/api/triad`, encoder HARD GATE process_ |
-| **Last manual refresh (date)** | _YYYY-MM-DD_ |
+| **Top risk today** | WASM / CI; stub vs fetcher triad parity; keep Igor manifest **descriptive** only (no shadow control plane). |
+| **What we want from reviewers** | Threat model for **`/api/triad`**; encoder HARD GATE; optional review of **`igorOrchestrator`** health payload for ops usefulness. |
+| **Last manual refresh (date)** | **2026-03-24** (Igor power layer fused: **`igor-power-cells.json`** + verify **`--check`**) |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---
@@ -101,5 +101,6 @@ Paste to an auditor or LLM:
 | Action | When |
 |--------|------|
 | **`pnpm fire:sync`** | After green **`verify:harsh`** or **`harshcheck`** (refreshes this file’s metrics + **`FIRE.md`**) |
+| **`pnpm igor:sync`** | After adding/removing workspace **`apps/*` / `packages/*`**, or editing **`igor-orchestrator-meta.json`** / **`igor-power-cells.json`** — then commit **`.gen.ts`**; **`verify:harsh`** checks staleness |
 | Edit **§ Human deltas** | Each release or before external review |
 | Deep doc changes | **`FIRESTARTER.md`** + contract rows **`FIRE.md` §E–L** |

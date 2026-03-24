@@ -1,0 +1,30 @@
+{
+  "packages/shared-types": {
+    "role": "Schema source of truth — AICandidate, SerumState, panelist IDs.",
+    "canonAnchors": ["AGENTS.md", "alchemist-brief.mdc build order"]
+  },
+  "packages/shared-engine": {
+    "role": "Preset logic, triad, TS gates (Undercover/Slavic), SOE, integrity, Aji, schism, perf boss, arbitration.",
+    "canonAnchors": ["FIRESTARTER §6", "alchemist-dsp-vs-ts-gates.mdc", "brain.md §9a fusion"]
+  },
+  "packages/fxp-encoder": {
+    "role": "Rust→WASM Serum preset bytes — behind validated serum-offset-map (HARD GATE).",
+    "canonAnchors": ["alchemist-brief.mdc HARD GATE", "tools/validate-offsets.py"]
+  },
+  "packages/serum2-encoder": {
+    "role": "Serum 2 encode path — same offset discipline as fxp-encoder family.",
+    "canonAnchors": ["HARD GATE", "FIRE.md encoder notes"]
+  },
+  "packages/shared-ui": {
+    "role": "Shared React/Tailwind surfaces for web + future shells.",
+    "canonAnchors": ["design tokens", "web-app consumer"]
+  },
+  "apps/web-app": {
+    "role": "Next.js App Router — triad routes, health, Mercury UI, browser WASM export hook.",
+    "canonAnchors": ["FIRESTARTER §5a keys", "GET /api/health/*"]
+  },
+  "apps/mobile-app": {
+    "role": "Expo shell — operator stance until API parity (brain fusion mobile line).",
+    "canonAnchors": ["brain-fusion-calibration mobile shell"]
+  }
+}

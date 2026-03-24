@@ -9,6 +9,9 @@
  *
  * Brain fusion: `docs/brain.md` §9a JSON block → `packages/shared-engine/brain-fusion-calibration.gen.ts`.
  * First step runs `sync-brain-fusion.mjs --check` (run `pnpm brain:sync` after editing §9a).
+ * Igor orchestrator: `sync-igor-orchestrator.mjs --check` validates `igor-orchestrator-packages.gen.ts`
+ * and `igor-orchestrator-cells.gen.ts` (run `pnpm igor:sync` after workspace churn or edits to
+ * `igor-orchestrator-meta.json` / `igor-power-cells.json`).
  * Optional after green verify: `ALCHEMIST_BRAIN_SYNC=1` regenerates `.gen.ts` (like `ALCHEMIST_FIRE_SYNC`).
  *
  * Opt-in faster Vitest (local only): `ALCHEMIST_SELECTIVE_VERIFY=1` skips packages whose
@@ -130,6 +133,10 @@ function runPipeline(root, mode) {
     {
       label: "brain:fusion-sync",
       args: [process.execPath, join(root, "scripts", "sync-brain-fusion.mjs"), "--check"],
+    },
+    {
+      label: "igor:orchestrator-sync",
+      args: [process.execPath, join(root, "scripts", "sync-igor-orchestrator.mjs"), "--check"],
     },
     {
       label: "shared-types:build",

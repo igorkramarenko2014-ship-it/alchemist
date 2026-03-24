@@ -144,6 +144,20 @@ export type {
   SoeTriadSnapshot,
 } from "./soe";
 export { BRAIN_FUSION_CALIBRATION_VERSION } from "./brain-fusion-calibration.gen";
+export { IGOR_SHARED_ENGINE_POWER_CELLS_GEN } from "./igor-orchestrator-cells.gen";
+export { IGOR_ORCHESTRATOR_PACKAGES_GEN } from "./igor-orchestrator-packages.gen";
+export {
+  getIgorOrchestratorManifest,
+  IGOR_APEX_STANCE_REF,
+  IGOR_ORCHESTRATOR_LAYER_VERSION,
+  IGOR_SHARED_ENGINE_POWER_CELLS,
+  logIgorOrchestratorManifest,
+} from "./igor-orchestrator-layer";
+export type {
+  IgorOrchestratorManifest,
+  IgorOrchestratorPackagePower,
+  IgorOrchestratorPowerCell,
+} from "./igor-orchestrator-layer";
 export {
   ARBITRATION_AGENT_AJI_FUSION_LINES,
   computeAgentAjiChatFusionFromTriadTelemetry,

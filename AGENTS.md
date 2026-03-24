@@ -16,6 +16,7 @@
 8b. **[`.cursor/rules/alchemist-git-save-after-meta.mdc`](.cursor/rules/alchemist-git-save-after-meta.mdc)** — **always-on** commit+push after **`.cursor/`** / brain / `AGENTS` edits or when user says **cmt/psh** (`node scripts/git-save.mjs`); **never** commit secrets  
 8c. **[`docs/cursor-universal-habits.md`](docs/cursor-universal-habits.md)** — copy-paste for **Cursor User Rules** (same habits on **all** projects)  
 8d. **[`.cursor/rules/alchemist-apex-orchestrator.mdc`](.cursor/rules/alchemist-apex-orchestrator.mdc)** — **§9c** Digital Igor / Apex Alchemist mercury-engine stance; **after** brief / security / dsp-vs-ts / inner-circle  
+8e. **`igor-orchestrator-layer.ts`** + **`igor-orchestrator-meta.json`** + **`igor-power-cells.json`** → **`pnpm igor:sync`** writes **`igor-orchestrator-packages.gen.ts`** + **`igor-orchestrator-cells.gen.ts`**; **`getIgorOrchestratorManifest()`**; **`GET /api/health`** → **`igorOrchestrator`** (map only — not gate law)  
 9. **[`docs/brain.md`](docs/brain.md)** — **§14** human-readable map (incl. RU); **§9a–§9c** (**brain-fusion** + soul + Apex orchestrator ethos). **[`docs/brain-plus.md`](docs/brain-plus.md)** — metrics shell — same inner-circle **detail** in skill folder  
 10. **[`.cursor/rules/alchemist-aji-fluidic.mdc`](.cursor/rules/alchemist-aji-fluidic.mdc)** — optional **OpenCV + OSC** “Lava–Aji” bridge (**`research/lava-aji-bridge/`**) — **not** TS triad/gates; see **`alchemist-dsp-vs-ts-gates.mdc`**  
 11. **[`LEGAL.md`](LEGAL.md)** — not legal advice; trademarks (Serum / Xfer), AI provider ToS, telemetry, warranty, consumer-product gaps  
@@ -49,6 +50,8 @@ pnpm perf:boss        # shared-engine perf sweep (perf_boss_* JSON on stderr)
 pnpm check:transparent # denylist scan: no shadow / KGB / amnesia patterns in shared-engine .ts
 pnpm build:wasm        # Rust + wasm-pack → browser Export .fxp (needs rustup + wasm32-unknown-unknown)
 pnpm fire:sync         # after green verify: refresh docs/FIRE.md Vitest + Next metrics block
+pnpm brain:sync        # docs/brain.md §9a JSON → brain-fusion-calibration.gen.ts
+pnpm igor:sync         # workspace packages + meta → igor-orchestrator-packages.gen.ts
 ```
 
 See **[`RUN.txt`](RUN.txt)** for a copy-paste one-liner.
