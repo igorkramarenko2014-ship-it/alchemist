@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **143** tests passed, **26** files (runner) · **26** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **150** tests passed, **28** files (runner) · **28** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -44,9 +44,10 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 
 ## Verify (what “green” means here)
 
+- **`pnpm verify:ci`** — **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`** (GitHub **`Verify`** workflow; sample **`.fxp`** optional unless **`ALCHEMIST_STRICT_OFFSETS=1`**).
 - **`pnpm verify:harsh`** — types + **`shared-engine`** Vitest (no production Next build).
 - **`pnpm harshcheck`** — above + **`next build`**; ends with stderr **`verify_post_summary`**.
-- **Browser export** additionally needs WASM build + **`GET /api/health/wasm`** → **`available`**.
+- **Browser export** additionally needs WASM build + **`GET /api/health/wasm`** → **`available`**; deploy helper **`pnpm predeploy`** runs **`build:wasm`** then strict **`assert:wasm`**.
 
 ---
 
@@ -77,9 +78,9 @@ _Update this block when outsiders need new context._
 
 | Field | Value (you edit) |
 |-------|-------------------|
-| **Top risk today** | WASM / CI; stub vs fetcher triad parity; keep Igor manifest **descriptive** only (no shadow control plane). |
-| **What we want from reviewers** | Threat model for **`/api/triad`**; encoder HARD GATE; optional review of **`igorOrchestrator`** / **`iomPulse`** health payloads for ops usefulness. |
-| **Last manual refresh (date)** | **2026-03-24** (**`pnpm harshcheck`** + **`pnpm fire:sync`**; IOM **`GET /api/metrics/iom`** Prometheus; **`tools/grafana-iom-dashboard.json`** + **`tools/prometheus-alchemist-iom-alerts.yaml`**; **`verify_post_summary`** IOM meta; **`soe_iom_fusion`**) |
+| **Top risk today** | WASM stub vs real **`pkg/`**; triad stub vs fetcher parity; HARD GATE sample **`.fxp`** is local/CI-secret; circuit breaker is **library-only** until explicitly wired to routes. |
+| **What we want from reviewers** | **`tools/sample_init.fxp.README.md`** + **`§M`** CI story; optional **`TriadCircuitBreaker`** composition (no default **`/api/triad`** hook); **`pnpm soe:migrate`** for archived hints only. |
+| **Last manual refresh (date)** | **2026-03-24** — sample **`.fxp`** doc; **`circuit-breaker.ts`** + tests; **`soe-hint-structured`** + **`soe:migrate`** |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---

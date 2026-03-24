@@ -1,5 +1,9 @@
 # Tools
 
+## `sample_init.fxp` (local only)
+
+See **`sample_init.fxp.README.md`** — export a real Serum init preset to **`tools/sample_init.fxp`** for **`pnpm validate:offsets`** / **`pnpm assert:hard-gate`**. Not committed (`*.fxp` is gitignored).
+
 ## validate-offsets.py
 
 Validates a Serum (VST2) init preset `.fxp` against the sourced offset map. **HARD GATE**: run this and fix any mismatches before adding `packages/fxp-encoder/serum-offset-map.ts`.

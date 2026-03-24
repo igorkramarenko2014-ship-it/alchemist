@@ -35,5 +35,8 @@ tools/gate-calibration-output.json
 tools/iom-proposals.jsonl
 # IOM audit trail (pnpm iom:snapshot)
 tools/iom-snapshots.jsonl
+# Optional SOE hint migration I/O (pnpm soe:migrate)
+tools/soe-hints-legacy.jsonl
+tools/structured-soe-hints.jsonl
 # Accepted IOM cell proposals (pnpm igor:apply)
 tools/iom-accepted-proposals/

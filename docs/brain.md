@@ -71,6 +71,8 @@ No authoritative **Serum byte layout**, **`.fxp` generation**, or **placeholder 
 
 Release-style checks: **`pnpm validate:offsets`**, **`pnpm assert:hard-gate`**, **`ALCHEMIST_STRICT_OFFSETS=1`** when the sample must exist.
 
+**Selective verify (local speed):** **`ALCHEMIST_SELECTIVE_VERIFY=1`** with **`pnpm harshcheck`** / **`pnpm verify:harsh:selective`** may run a **subset** of **`shared-engine`** Vitest files when git diff maps to Igor power cells — **`verify_post_summary`** then includes **`iomSelectiveWarnings`** and often **`iomCoverageScore` < 1**. That can be **green locally** while an unmapped test file would fail in **CI** (full suite). Treat selective runs as **iteration helpers**; run full **`pnpm verify:harsh`** or **`pnpm harshcheck`** without the env var before merge.
+
 ---
 
 ## 5. Gates = TypeScript statistics (not analog DSP)

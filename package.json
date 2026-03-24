@@ -35,6 +35,8 @@
     "verify:harsh": "node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:harsh:selective": "ALCHEMIST_SELECTIVE_VERIFY=1 node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:web": "node scripts/run-verify-with-summary.mjs verify-web",
+    "verify:ci": "pnpm assert:hard-gate && pnpm verify:harsh",
+    "predeploy": "node scripts/predeploy-wasm.mjs",
     "harshcheck": "node scripts/harshcheck.mjs",
     "harshchek": "node scripts/harshcheck.mjs",
     "test:gate": "node scripts/test-gate-hint.mjs",
@@ -42,6 +44,7 @@
     "vst:observe": "tsx scripts/vst-bridge-cli.ts",
     "vst:observe:gate": "node scripts/vst-observer-hook.mjs",
     "assert:hard-gate": "node scripts/assert-hard-gate.mjs",
+    "assert:wasm": "node scripts/assert-wasm-available.mjs",
     "check:transparent": "node scripts/check-no-shadow-patterns.mjs",
     "alc:doctor": "node scripts/doctor.mjs",
     "env:check": "node scripts/check-env-local.mjs",
@@ -74,7 +77,8 @@
     "analyze:serum2": "node scripts/analyze-serum2-format.mjs",
     "talent:sync-whatmodels": "node scripts/sync-whatmodels-vendor.mjs",
     "estimate": "tsx scripts/engine-estimate.ts",
-    "engine:estimate": "tsx scripts/engine-estimate.ts"
+    "engine:estimate": "tsx scripts/engine-estimate.ts",
+    "soe:migrate": "tsx scripts/migrate-structured-soe-hints.ts"
   },
   "devDependencies": {
     "@alchemist/fxp-encoder": "workspace:*",

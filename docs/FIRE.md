@@ -1,6 +1,6 @@
 # FIRE — outside assessment (lightweight)
 
-**What this file is:** A **structured** surface for **auditors, CI, and external LLMs** — verify playbook (**§E**), contract tables (**§F–§L**), and **auditable** hooks (**`verify_post_summary`**, SOE). It is **not** the full project archive.
+**What this file is:** A **structured** surface for **auditors, CI, and external LLMs** — verify playbook (**§E**), contract tables (**§F–§M**), and **auditable** hooks (**`verify_post_summary`**, SOE). It is **not** the full project archive.
 
 **Recovery bible:** If documentation is thin or scattered, treat **`docs/FIRESTARTER.md`** as the **canonical reconstruction guide** — monorepo layout, triad + gates (**§5b**), scripts, WASM, legal (**§14**), workflow appendices, INIT paste. **FIRE** does not duplicate that depth.
 
@@ -10,9 +10,9 @@
 
 **Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain + **doc map** table), **`brain-plus.md`** (minimal outside-assessment shell; metrics synced with **`pnpm fire:sync`**), **`inner-circle-agent.md`** (peer prompt + Canon FIREWALL — tone only), **`iom.md`** (IOM — §9c + §9d discipline + growth protocol), **`cursor-universal-habits.md`** (User Rules template), **`vst-wrapper.md`** (optional JUCE VST3 read-only `.fxp` consumer + CLI/daemon pointers). **`docs/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). **Web app recovery ladder:** **§L** *Web app not running*. Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
 
-**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§L** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside **`ALCHEMIST:FIRE_METRICS`** or **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** + optional **`brain.md`** / **`brain-plus.md`**; **HTML** packs + agent notes → **§12**, **Appendix C–D**.
+**Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§M** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside **`ALCHEMIST:FIRE_METRICS`** or **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** + optional **`brain.md`** / **`brain-plus.md`**; **HTML** packs + agent notes → **§12**, **Appendix C–D**.
 
-**Contents:** **§A–C** invariants, **Assessment snapshot** (metrics, **next moves**, verify loop), **§E** VERIFY / RISKS / SUGGEST, **§F–§L** contracts.
+**Contents:** **§A–C** invariants, **Assessment snapshot** (metrics, **next moves**, verify loop), **§E** VERIFY / RISKS / SUGGEST, **§F–§M** contracts.
 
 ---
 
@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **143** tests passed, **26** files (runner) · **26** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **150** tests passed, **28** files (runner) · **28** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -118,6 +118,10 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 No encoder / authoritative `SerumState` / real `.fxp` work without validated **`serum-offset-map.ts`** + **`tools/validate-offsets.py <path-to-init.fxp>`** on a real Serum init **`.fxp`**. **Release / CI:** **`pnpm assert:hard-gate`** or **`pnpm validate:offsets`** (same Python invocation when **`tools/sample_init.fxp`** exists); **`ALCHEMIST_STRICT_OFFSETS=1`** fails closed if the sample is absent — **`FIRESTARTER` §4**, **§9**.
 
+**CI baseline (`.github/workflows/verify.yml`):** runs **`pnpm assert:hard-gate`** then **`pnpm verify:harsh`**. Default clone often has **no** **`tools/sample_init.fxp`** (binary, frequently gitignored) — assert **warns** and exits **0**. For pipelines that must fail without a real preset, set **`ALCHEMIST_STRICT_OFFSETS=1`** and **provision** **`tools/sample_init.fxp`** (e.g. CI secret → file) before **`pnpm assert:hard-gate`**. PRs touching **`serum-offset-map.ts`**, **`packages/fxp-encoder/pkg`**, or **`tools/validate-offsets.py`** should use that stricter job or an equivalent manual gate.
+
+**Operator CLI vs Serum hosting:** **`pnpm vst:observe`** is a **Node/TS** bridge over **`vst-bridge.ts`** (HARD GATE, IOM **`vst_observer`**) — it does **not** attach to a live Serum UI instance; the optional JUCE skeleton (**`apps/vst-wrapper`**) loads **`.fxp`** bytes in-plugin only — **`docs/vst-wrapper.md`**, **§L**.
+
 ---
 
 ## E. External LLM — verify → assess → suggest
@@ -127,7 +131,7 @@ No encoder / authoritative `SerumState` / real `.fxp` work without validated **`
 2. `PANELIST_WEIGHTS` = **§B**.  
 3. ≤8 gated candidates.  
 4. Tests: `engine-harsh`, `undercover-slavic`, `triad-panel-governance`, `soe`, **`taxonomy-*`**, **`transparent-arbitration`**, **`compliant-perf-boss`**, **`talent-market-scout`**, **`learning-great-library`**, **`reliability-tablebase`** — run **`pnpm test:engine`**.  
-5. **Post-verify JSON:** **`pnpm verify:harsh`** / **`pnpm verify:web`** / **`pnpm harshcheck`** invoke **`node scripts/run-verify-with-summary.mjs`** (`verify-harsh` | `verify-web`). On completion, **stderr** includes a single line with **`"event":"verify_post_summary"`** and payload: **`mode`**, **`exitCode`**, **`durationMs`**, **`failedStep`** (step label or `null`), **`monorepoRoot`**, **`soeHint`**, **`note`** (states auditable, not a hidden brain). When **`ALCHEMIST_SELECTIVE_VERIFY=1`** (local **`harshcheck`** path, not **CI**), the payload may include **IOM test-health fields**: **`iomCoverageScore`** (**0–1**, ratio of **`shared-engine`** Vitest files run vs total under **`tests/`** when an IOM-mapped partial run executed), **`iomSelectiveEngineMode`**, **`iomMatchedCellIds`**, **`iomSelectiveWarnings`** (human-readable reminder that most suite files were not executed — run full **`pnpm verify:harsh`** before merge). **CI** always runs the full engine suite; **`iomCoverageScore`** is **1** when that step is green. Other stderr lines (e.g. Vitest **`logEvent`**) may appear **above** the summary — grep or parse the last **`verify_post_summary`** as needed.  
+5. **Post-verify JSON:** **`pnpm verify:harsh`** / **`pnpm verify:web`** / **`pnpm harshcheck`** invoke **`node scripts/run-verify-with-summary.mjs`** (`verify-harsh` | `verify-web`). On completion, **stderr** includes a single line with **`"event":"verify_post_summary"`** and payload: **`mode`**, **`exitCode`**, **`durationMs`**, **`failedStep`** (step label or `null`), **`monorepoRoot`**, **`soeHint`**, **`note`** (states auditable, not a hidden brain). When **`ALCHEMIST_SELECTIVE_VERIFY=1`** (local **`harshcheck`** path, not **CI**), the payload may include **IOM test-health fields**: **`iomCoverageScore`** (**0–1**, ratio of **`shared-engine`** Vitest files run vs total under **`tests/`** when an IOM-mapped partial run executed), **`iomSelectiveEngineMode`**, **`iomMatchedCellIds`**, **`iomSelectiveWarnings`** (human-readable reminder that most suite files were not executed — run full **`pnpm verify:harsh`** before merge). **CI** always runs the full engine suite; **`iomCoverageScore`** is **1** when that step is green. **`soeHint`** remains a **single string** for grep-friendly logs; richer structured hints are **queued** (see **`docs/alchemist-new-moves.html`**, **`verify:capture`** / **`soe:review`**). Other stderr lines (e.g. Vitest **`logEvent`**) may appear **above** the summary — grep or parse the last **`verify_post_summary`** as needed.  
 5b. **FIRE metrics (optional):** After green verify, **`pnpm fire:sync`** updates **`docs/FIRE.md`** between **`ALCHEMIST:FIRE_METRICS`** HTML comments (Vitest counts, Next version). Or **`ALCHEMIST_FIRE_SYNC=1`** on the same shell when running verify to run sync automatically.  
 5c. **Igor orchestrator sync:** **`verify:harsh`** / **`verify:web`** run **`scripts/sync-igor-orchestrator.mjs --check`**. On failure: **`pnpm igor:sync`**, commit **`igor-orchestrator-packages.gen.ts`** + **`igor-orchestrator-cells.gen.ts`**. Human edits: **`igor-orchestrator-meta.json`**, **`igor-power-cells.json`** only — **not** the **`.gen.ts`** files. See **`docs/brain.md` §9d**.  
 6. Triad timeouts: **`AI_TIMEOUT_MS` = 8000** (default server **`triad-panel-route`** upstream **`AbortController`** budget). **`POST /api/triad/qwen`** may pass **16_000** ms. **`runTriad` + `makeTriadFetcher`** use **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`**: **QWEN** **18_000** ms (browser → app, must cover server Qwen budget); **LLAMA** / **DEEPSEEK** **8000**.  
@@ -141,7 +145,7 @@ No encoder / authoritative `SerumState` / real `.fxp` work without validated **`
 14. **Great Library / AGL (if used):** Offline jobs only; **`GreatLibraryContext.provenance`** required; **`mergeGreatLibraryIntoSoeSnapshot`** then **`computeSoeRecommendations`**; **no** vector DB client in **`web-app`** bundle — see **§K** + **`FIRESTARTER` §7d`.  
 15. **Web shell / dev (shipped):** **`next.config.mjs`** dev polling; **`dev-server.mjs`** + **`WATCHPACK_POLLING`**; **`app/error.tsx`** + **`app/global-error.tsx`**; **`LegalDisclaimer`**; root **`pnpm dev`** direct (optional **`dev:turbo`**); **`turbo.json`** **`envMode: loose`**; **`pnpm run clean`** / **`web:rebuild`** if **`.next`** corrupt — see **§L** + **`FIRESTARTER` §8**.  
 16. **Transparent compliance hygiene (optional):** **`pnpm check:transparent`** — scans **`shared-engine`** `.ts` for denylisted shadow-pattern strings (e.g. stealth verdict symbols, “amnesia” governance). **Not** a substitute for review or **`pnpm verify:harsh`**; wire into CI if desired — see **§I**, **`FIRESTARTER` Appendix C**.  
-17. **WASM export / health (if shipping browser `.fxp`):** **`pnpm run build:wasm`** in **`packages/fxp-encoder`** after Rust + **`wasm32-unknown-unknown`**; **`GET /api/health/wasm`** matches client prerequisites (**§C**). **`harshcheck`** green does **not** require Rust (encoder **`pnpm build`** may stub — **`FIRESTARTER` §10**).  
+17. **WASM export / health (if shipping browser `.fxp`):** **`pnpm run build:wasm`** in **`packages/fxp-encoder`** after Rust + **`wasm32-unknown-unknown`**; **`GET /api/health/wasm`** matches client prerequisites (**§C**). **`pnpm assert:wasm`** (**`scripts/assert-wasm-available.mjs`**) performs the same **filesystem** checks **without** starting Next — use in **deploy** after **`build:wasm`**. Set **`REQUIRE_WASM=1`** (or **`ALCHEMIST_REQUIRE_WASM=1`**) to **exit 1** when **`pkg/`** is stubbed or missing (default without env: exit **0** with stderr note so optional CI steps can stay non-blocking). **`harshcheck`** green does **not** require Rust (encoder **`pnpm build`** may stub — **`FIRESTARTER` §10**).  
 18. **Toolchain PATH:** If **`pnpm`** is absent, root **`pnpm dev`** / **`pnpm harshcheck`** still work when invoked as **`npm run dev`** / **`npm run harshcheck`** at root (they call **`with-pnpm.mjs`**). **`pnpm alc:doctor`** remains **`node scripts/doctor.mjs`** — no **`pnpm`** required to run the doctor script itself.  
 19. **Triad HTTP vs gates:** **`GET /api/health`** includes **`triad.panelistRoutes`**: **`"stub"`** or **`"mixed"`** (≥1 live panelist), **`triad.livePanelists`**, **`triad.triadFullyLive`** (all three keyed), **`hardGate.pythonValidate`**, **`igorOrchestrator`** (Igor manifest — **`brain.md` §9d**), **`telemetry.logEvent`** (stderr JSON). Per route: **`fetcher`** when the matching env key is set — **`FIRESTARTER` §5a**.  
 20. **Offset validation (optional CI):** **`pnpm validate:offsets`** and **`pnpm assert:hard-gate`** run **`tools/validate-offsets.py`** with the **`.fxp`** path when **`tools/sample_init.fxp`** exists (the assert script prints an explicit OK on success). With **`ALCHEMIST_STRICT_OFFSETS=1`**, exits **1** if the sample is missing (fail closed). **Never** invoke **`validate-offsets.py`** without the required **`fxp_path`** argument.  
@@ -167,6 +171,7 @@ No encoder / authoritative `SerumState` / real `.fxp` work without validated **`
 | Triad | `triad.ts`, `triad-panel-route.ts`, `fetch-*-candidates.ts`, `triad-llm-normalize.ts`, API routes | Parallel panelists — **no** runtime self-rewrite; optional **keyword tablebase** short-circuit → **`triad_run_*`** **`mode: "tablebase"`**; each **`/api/triad/*`** → **`fetcher`** when its provider env key is set, else **stub** — client **`runTriad`** + **`scoreCandidates`** still apply real gates |
 | Taxonomy (offline → 8) | `taxonomy/engine.ts`, `taxonomy/sparse-rank.ts`, `taxonomy/README.md` | **`rankTaxonomy`** for large lists; engine **≤200** rows; **`scoreCandidates`** path; **`shared-engine` index** |
 | Arbitration (opt-in) | `arbitration/transparent-arbitration.ts`, `arbitration/types.ts` | **2-of-3** vote on order strategy; **telemetry**; **no** Slavic bypass |
+| Triad circuit breaker (opt-in library) | `circuit-breaker.ts` | Sliding-window failure rate → **open** / **half_open** / **closed**; **`circuit_breaker_*`** **`logEvent`**; **not** wired to **`/api/triad/*`** by default — compose explicitly if product needs degradation + fallback |
 | Perf audit (opt-in) | `perf/compliant-perf-boss.ts`, `perf/README.md` | **`perf_boss_*`** timings; **no** shadow / triad override |
 | Talent scout (opt-in) | `talent/market-scout.ts`, `talent/market-benchmarks.json`, `talent/README.md` | Compare triad health to **operator** rows; **`talent_market_analysis`** if logged; **no** runtime route mutation |
 | Great Library / AGL (opt-in) | `learning/great-library.ts`, `learning/offline-pipeline-types.ts`, `learning/README.md` | Offline **`SoeTriadSnapshot`** merge + provenance; **`great_library_soe_merge`** if logged; **no** scraper / vector client here |
@@ -257,6 +262,20 @@ PATCH_HINTS: <files>
 | **Forbidden** | Stealth / Slavic bypass / module-cache hiding — see **`alchemist-quality.mdc` §9**. **Not** a “shadow kernel,” **KGB** layer stack, **`Symbol(VERDICT)`** gate bypass, **omnipotent forced** triad mutation, **amnesia** / purged stderr / single-event-only logs, or **`v8.serialize`** wiping — those violate assessment + **§G** telemetry honesty. |
 | **Hygiene (optional)** | **`pnpm check:transparent`** (root) runs **`scripts/check-no-shadow-patterns.mjs`** on **`packages/shared-engine/**/*.ts`** — regex denylist for the above **narratives as shipped code**; doc-only mentions in comments are fine if they **negate** forbidden behavior (see script header). |
 
+### I2. Triad circuit breaker (optional — not default routes)
+
+**Scope:** **`TriadCircuitBreaker`** + **`withTriadCircuitBreaker`** in **`packages/shared-engine/circuit-breaker.ts`**. **Resilience helper** for high **failure rates** in a sliding window — **not** transparent arbitration (§I table above) and **not** a second governance plane.
+
+| Rule | Detail |
+|------|--------|
+| **Default** | **No** import from **`app/api/triad/*`** in the shipped tree — wire only if deployers explicitly opt in. |
+| **Behavior** | **Closed** → track recent success/failure outcomes; when rate ≥ **`failureRateThreshold`** after **`minSamplesToTrip`**, transition **open** (block **`allowRequest`**). After **`openDurationMs`**, **half_open** (probe); **`halfOpenSuccessNeeded`** successes → **closed**. |
+| **Fallback** | **`withTriadCircuitBreaker(breaker, fn, fallback?)`** — on block, optional **`fallback`** **`Promise`** (e.g. tablebase-only path); must remain **auditable** (log + product copy), **not** a Slavic/gate bypass. |
+| **Telemetry** | **`circuit_breaker_opened`**, **`circuit_breaker_half_open`**, **`circuit_breaker_closed`**, **`circuit_breaker_blocked`**, **`circuit_breaker_reset`**. |
+| **Tests** | **`packages/shared-engine/tests/circuit-breaker.test.ts`**. |
+
+**Rejected pattern:** Omnipotent circuit breaker that **hides** triad failures, **purges** stderr, or **rewrites** **`PANELIST_WEIGHTS`** / routes without deployer config.
+
 **Rejected prompt pattern (do not implement):** Multi-layer **“1-2-3” shadow loops** that **enforce** outcomes, **bypass `SLAVIC_FILTER_COSINE_THRESHOLD`**, auto **model-swap** from Talent, or **purge** reasoning traces. Canonical substitutes: **§I** (logged **ALPHA/OMEGA** vote after **`scoreCandidates`**), **§J** (**`operatorReviewSuggested`** only), **§K** (**`provenance`** + **`mergeGreatLibraryIntoSoeSnapshot`**), all via **`logEvent`**.
 
 **Tests:** **`packages/shared-engine/tests/transparent-arbitration.test.ts`**.
@@ -339,4 +358,22 @@ PATCH_HINTS: <files>
 
 ---
 
-**Footer:** **`FIRESTARTER.md`** holds **recovery-grade** operational truth (rebuild-from-repo). **`FIRE.md`** holds **assessment contracts** (**§E–§L**) + **auto metrics** (**`pnpm fire:sync`**). If §E–L grow unwieldy, split behind versioned filenames — until then, this file stays the assessment **law** alongside FIRESTARTER.
+## M. CI/CD contracts (baseline vs strict)
+
+**Baseline PR CI** (`.github/workflows/verify.yml`): **`pnpm verify:ci`** = **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`**. **`assert:hard-gate`** always requires **`packages/fxp-encoder/serum-offset-map.ts`** + **`tools/validate-offsets.py`** on disk; Python validation runs only when **`tools/sample_init.fxp`** exists — otherwise **warn** and exit **0** unless **`ALCHEMIST_STRICT_OFFSETS=1`**. Default clones often **omit** the binary sample — **do not** claim “every PR fails without `.fxp`” unless you **provision** the file (e.g. CI secret → **`tools/sample_init.fxp`**).
+
+| Script / step | Fails when | Typical use |
+|---------------|------------|-------------|
+| **`pnpm verify:ci`** | Missing offset map / validate script; or **`verify:harsh`** failure | GitHub Actions **`Verify`** job |
+| **`pnpm assert:hard-gate`** + **`ALCHEMIST_STRICT_OFFSETS=1`** | No **`sample_init.fxp`** or Python validation error | Release / encoder-critical pipelines |
+| **`pnpm harshcheck`** | Same as **`verify:web`** (includes production **`next build`**) | Pre-merge / pre-release |
+| **`pnpm predeploy`** | **`build:wasm`** fails or **`pkg/`** stub / missing WASM ( **`REQUIRE_WASM=1`** during assert ) | Before shipping browser **`.fxp`** |
+| **`REQUIRE_WASM=1 pnpm assert:wasm`** | No **`fxp_encoder_bg.wasm`**, stub glue, or **`pkg/.stub`** marker | After **`build:wasm`** in deploy |
+
+**Structured `soeHint`:** **`verify_post_summary`** keeps **`soeHint` as a string**. Offline / SIEM: **`parseLegacySoeHintMessage`** (**`packages/shared-engine/soe-hint-structured.ts`**) + **`pnpm soe:migrate`** produce JSONL — optional; does **not** change the verify line schema yet (**`docs/alchemist-new-moves.html`**).
+
+**Pre-merge (human):** Full **`pnpm harshcheck`** before merge if you used local **`ALCHEMIST_SELECTIVE_VERIFY=1`**; confirm **`iomCoverageScore`** = **1** on the CI summary line. **No** committed **`.git/hooks`** in-repo — install optional hooks locally if your team wants them.
+
+---
+
+**Footer:** **`FIRESTARTER.md`** holds **recovery-grade** operational truth (rebuild-from-repo). **`FIRE.md`** holds **assessment contracts** (**§E–§M**) + **auto metrics** (**`pnpm fire:sync`**). If §E–M grow unwieldy, split behind versioned filenames — until then, this file stays the assessment **law** alongside FIRESTARTER.

@@ -12,8 +12,16 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const offsetMap = join(root, "packages", "fxp-encoder", "serum-offset-map.ts");
 const sample = join(root, "tools", "sample_init.fxp");
 const py = join(root, "tools", "validate-offsets.py");
+
+if (!existsSync(offsetMap)) {
+  console.error(
+    "assert-hard-gate: missing packages/fxp-encoder/serum-offset-map.ts (HARD GATE source)",
+  );
+  process.exit(1);
+}
 
 if (!existsSync(py)) {
   console.error("assert-hard-gate: missing tools/validate-offsets.py");

@@ -28,7 +28,7 @@
 ## Hard rules
 
 - **No** encoder / `.fxp` / authoritative `SerumState` values without validated **`packages/fxp-encoder/serum-offset-map.ts`** and **`tools/validate-offsets.py`** on a real Serum `.fxp`.  
-- **Browser export** needs wasm-pack output in **`packages/fxp-encoder/pkg/`** (`pnpm run build:wasm` with Rust). Health: **`GET /api/health/wasm`**. See **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C**.  
+- **Browser export** needs wasm-pack output in **`packages/fxp-encoder/pkg/`** (`pnpm run build:wasm` with Rust). Health: **`GET /api/health/wasm`**. CI/deploy: **`pnpm assert:wasm`** (same checks on disk); **`REQUIRE_WASM=1`** fails closed if stub/missing. See **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C / §E1.17**.  
 - **`shared-types`** is schema source of truth; after edits run **`pnpm --filter @alchemist/shared-types build`** (or **`pnpm harshcheck`**).  
 - Open workspace **repo root** *Vibe Projects*, not only **`vst/`**, when editing `apps/` or `packages/`.
 
@@ -43,7 +43,10 @@ pnpm verify:keys      # live Groq / DeepSeek / Qwen probe (.env.local; Qwen URL/
 pnpm test:real-gates  # gate calibration vs live triad routes → stderr calibration_*; local tools/gate-calibration-output.json (gitignored)
 pnpm dev              # or pnpm dev:web
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
+pnpm verify:ci        # assert:hard-gate + verify:harsh (matches default GitHub Verify job)
 pnpm verify:harsh     # faster: no next build
+pnpm predeploy        # build:wasm + REQUIRE_WASM assert:wasm — before shipping browser .fxp
+pnpm soe:migrate      # optional: legacy SOE lines → structured JSONL (see packages/shared-engine/soe-hint-structured.ts)
 pnpm test:engine:grep -- --grep <pattern>  # shared-engine Vitest only — fast iteration (see brain.md §9c.1)
 pnpm web:dev:fresh    # stale Next / shared-engine
 pnpm app:repair       # alias → web:dev:fresh (corrupt .next / dev 404 on /)
@@ -59,6 +62,7 @@ pnpm build:vst         # copy JUCE .vst3 when CMake build exists (apps/vst-wrapp
 pnpm fire:sync         # after green verify: refresh docs/FIRE.md Vitest + Next metrics block
 pnpm iom:status        # offline IOM Markdown + engine scale heuristic (descriptive; not valuation advice)
 pnpm estimate          # same LOC/heuristic as IOM; harshcheck verify_post_summary includes iomEngineHeuristic
+pnpm assert:wasm       # pkg/ present + non-stub glue; REQUIRE_WASM=1 for release-style fail-closed
 pnpm brain:sync        # docs/brain.md §9a JSON → brain-fusion-calibration.gen.ts
 pnpm igor:sync         # workspace packages + meta → igor-orchestrator-packages.gen.ts
 pnpm igor:heal         # ghost .ts vs igor-power-cells.json → tools/iom-proposals.jsonl (gitignored) + stderr

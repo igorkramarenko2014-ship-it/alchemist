@@ -309,3 +309,16 @@ export type {
   EngineValuationHeuristicResult,
   PackageLocBreakdown,
 } from "./engine-valuation-heuristic";
+export {
+  TriadCircuitBreaker,
+  withTriadCircuitBreaker,
+} from "./circuit-breaker";
+export type {
+  CircuitBreakerPhase,
+  TriadCircuitBreakerConfig,
+} from "./circuit-breaker";
+export { parseLegacySoeHintMessage } from "./soe-hint-structured";
+export type {
+  StructuredSoeHint,
+  StructuredSoeSeverity,
+} from "./soe-hint-structured";
