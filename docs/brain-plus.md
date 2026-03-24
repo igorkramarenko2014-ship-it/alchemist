@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **117** tests passed, **20** files (runner) · **20** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **123** tests passed, **21** files (runner) · **21** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -53,7 +53,7 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 ## Stack (at a glance)
 
 - **Frontend:** Next.js 14 App Router, Tailwind, React.
-- **Core logic:** TypeScript in **`packages/shared-engine`** (triad orchestration, gates, telemetry, optional **Igor manifest** — **`pnpm igor:sync`**, **`GET /api/health` → `igorOrchestrator`**; map only, not gate law).
+- **Core logic:** TypeScript in **`packages/shared-engine`** (triad orchestration, gates, telemetry, optional **Igor manifest** — **`pnpm igor:sync`**, **`GET /api/health` → `igorOrchestrator`**; **IOM pulse** — **`iom-pulse.ts`**, **`GET /api/health` → `iomPulse`** with explicit **`schisms[]`**; map + diagnostics only, not gate law).
 - **Encoder:** **`packages/fxp-encoder`** (Rust optional for dev; WASM for browser export).
 
 ---
@@ -78,8 +78,8 @@ _Update this block when outsiders need new context._
 | Field | Value (you edit) |
 |-------|-------------------|
 | **Top risk today** | WASM / CI; stub vs fetcher triad parity; keep Igor manifest **descriptive** only (no shadow control plane). |
-| **What we want from reviewers** | Threat model for **`/api/triad`**; encoder HARD GATE; optional review of **`igorOrchestrator`** health payload for ops usefulness. |
-| **Last manual refresh (date)** | **2026-03-24** (docs consolidated: **`CRUCIAL-FIX`** → **`FIRE.md` §L**; IOM + Igor map in **`brain`/`FIRE`**) |
+| **What we want from reviewers** | Threat model for **`/api/triad`**; encoder HARD GATE; optional review of **`igorOrchestrator`** / **`iomPulse`** health payloads for ops usefulness. |
+| **Last manual refresh (date)** | **2026-03-24** (**`pnpm harshcheck`** + **`pnpm fire:sync`**; IOM pulse + schism detector in **`iom-pulse.ts`**; **`FIRE` / `FIRESTARTER` / `brain` / `brain-plus`**) |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---

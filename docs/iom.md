@@ -29,6 +29,8 @@ IOM never overrides types, security posture, or engineering truth.
 
 **Assistant fast-path protocol (three moves):** **`docs/brain.md` §9c.1** — self-heal **proposal** (`logIomSelfHealProposal` / event **`iom_self_heal_proposal`**), selective Vitest grep (**`pnpm test:engine:grep`**), schism/degradation surfacing (**`triad_*`** + **`constants.ts`**). **IOM** = Igor Orchestration Module here, not “input-output mapping.”
 
+**IOM pulse (diagnostic):** **`packages/shared-engine/iom-pulse.ts`** — **`getIOMHealthPulse`**, **`detectSchisms`**; **`GET /api/health` → `iomPulse`** merges manifest digest with live triad/WASM and optional log-derived **`SoeTriadSnapshot`**; explicit **`schisms[]`** only — **no** shadow governance.
+
 ---
 
 ## God particle constraint (machine + human)

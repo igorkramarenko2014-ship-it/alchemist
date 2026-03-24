@@ -155,6 +155,20 @@ export {
   logIgorOrchestratorManifest,
   logIomSelfHealProposal,
 } from "./igor-orchestrator-layer";
+export {
+  detectSchisms,
+  digestIgorManifestForPulse,
+  getIOMHealthPulse,
+  IOM_PULSE_VERSION,
+} from "./iom-pulse";
+export type {
+  IOMManifestDigest,
+  IOMHealthPulseResult,
+  IOMPulseInput,
+  IomPulseTriadFlags,
+  IomSchismFinding,
+  IomSchismSeverity,
+} from "./iom-pulse";
 export type {
   IgorOrchestratorManifest,
   IgorOrchestratorPackagePower,

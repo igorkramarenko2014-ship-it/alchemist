@@ -2,6 +2,7 @@ import { env } from "@/env";
 import {
   computeHealthAgentAjiChatFusion,
   getIgorOrchestratorManifest,
+  getIOMHealthPulse,
 } from "@alchemist/shared-engine";
 import { NextResponse } from "next/server";
 
@@ -61,6 +62,14 @@ export async function GET(request: Request) {
       logEvent: "stderr JSON lines (packages/shared-engine/telemetry.ts) — not dev-only console spam",
     },
     igorOrchestrator: getIgorOrchestratorManifest(),
+    iomPulse: getIOMHealthPulse({
+      triad: {
+        triadFullyLive: allLive,
+        anyPanelistLive: anyLive,
+        livePanelists: liveList as string[],
+      },
+      wasmOk: wasmOk,
+    }),
     agentAjiChatFusion,
     generatedAtMs: Date.now(),
     nodeEnv: process.env.NODE_ENV ?? "development",

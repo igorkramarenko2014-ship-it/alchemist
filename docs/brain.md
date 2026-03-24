@@ -252,7 +252,7 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Cursor skills = what you teach “Igor” in chat (§9c, not §9d):** When you extend **`.cursor/skills/`** (e.g. **`inner-circle-voice`**, **`harshcheck`**), **`docs/inner-circle-agent.md`**, or the always-on **`.cursor/rules/alchemist-inner-circle-default.mdc`** / **`alchemist-apex-orchestrator.mdc`**, you are training the **assistant’s orchestration ethos** — Digital Igor / Apex: dense execution, peer tone, verify discipline, Canon FIREWALL. **`shared-engine` does not `import` skill files**; they are **Cursor-side**. **`brain.md` §14** is the human map of that layer.
 
-**Monorepo power map (code, not law):** **`packages/shared-engine/igor-orchestrator-layer.ts`** exposes **`getIgorOrchestratorManifest()`** — workspace packages + power cells both flow through **`pnpm igor:sync`** (**`igor-orchestrator-meta.json`** → packages gen, **`igor-power-cells.json`** → cells gen); **`apps/web-app`** surfaces it on **`GET /api/health`** as **`igorOrchestrator`**. Same boundaries as §9c: no gate overrides, no shadow governance. This **manifest** is the **operator/health picture** of shipped TS modules; it is **not** the skill runtime.
+**Monorepo power map (code, not law):** **`packages/shared-engine/igor-orchestrator-layer.ts`** exposes **`getIgorOrchestratorManifest()`** — workspace packages + power cells both flow through **`pnpm igor:sync`** (**`igor-orchestrator-meta.json`** → packages gen, **`igor-power-cells.json`** → cells gen); **`apps/web-app`** surfaces it on **`GET /api/health`** as **`igorOrchestrator`**. **`iom-pulse.ts`** adds **`getIOMHealthPulse`** / **`detectSchisms`** — same route exposes **`iomPulse`** (manifest digest + **`schisms[]`** + optional SOE summary when **`soeSnapshot`** is wired). Same boundaries as §9c: no gate overrides, no shadow governance. This **manifest** and **pulse** are the **operator/health picture** of shipped TS modules; they are **not** the skill runtime.
 
 ### 9d. Igor orchestrator — power layer (full technical detail)
 
@@ -280,9 +280,10 @@ All stay **explicit** and **auditable** — no shadow governance.
 **Runtime surfaces:**
 
 - **`GET /api/health`** (web-app) — JSON field **`igorOrchestrator`** = full manifest (packages + cells + **`layerVersion`** + **`brainFusionCalibrationVersion`** link).
+- **`GET /api/health`** — JSON field **`iomPulse`** = **`getIOMHealthPulse({ triad, wasmOk })`** (optional **`soeSnapshot`** when log aggregates are wired).
 - **`logIgorOrchestratorManifest()`** — optional **`igor_orchestrator_manifest`** line on stderr (`telemetry.ts`).
 
-**Public exports:** **`@alchemist/shared-engine`** — **`getIgorOrchestratorManifest`**, **`IGOR_ORCHESTRATOR_PACKAGES_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS`**, layer version constant, etc. — see **`packages/shared-engine/index.ts`**.
+**Public exports:** **`@alchemist/shared-engine`** — **`getIgorOrchestratorManifest`**, **`getIOMHealthPulse`**, **`detectSchisms`**, **`IOM_PULSE_VERSION`**, **`IGOR_ORCHESTRATOR_PACKAGES_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS`**, layer version constant, etc. — see **`packages/shared-engine/index.ts`**.
 
 **Doc / Cursor links:** **`AGENTS.md` §8e**; **`docs/iom.md`** + **`.cursor/rules/alchemist-iom.mdc`** (unified IOM); **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (ethos + §9c.1 compress); **`docs/FIRE.md`** (verify + assessment mention). **API:** **`logIomSelfHealProposal`**, **`IOM_POLICY_CELL_MAX`** — **`@alchemist/shared-engine`** / **`igor-orchestrator-layer.ts`**.
 

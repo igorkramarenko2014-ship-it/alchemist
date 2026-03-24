@@ -114,11 +114,11 @@
 | **`scoreCandidates` (web)** | **Real:** **`filterValid`** (incl. **≥15** char **`reasoning`**), Slavic dedupe (**param** cosine **> 0.80**; when both sides have legible text, also **Dice(bigram) > 0.75** on **`description` || `reasoning`**), preserve score order — used from **`apps/web-app/app/page.tsx`** after triad analysis. |
 | **Telemetry** | **`logEvent`** → **stderr JSON** lines (`packages/shared-engine/telemetry.ts`), not dev-only `console.log` for those events. |
 | **HARD GATE** | **`serum-offset-map.ts`** + **`validate-offsets.py`** ship in-repo; full Python validation requires a **local** **`tools/sample_init.fxp`** (often gitignored). Use **`pnpm validate:offsets`** / **`pnpm test:gate`**. |
-| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, plus **`hardGate`**, **`telemetry`**. |
+| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, **`igorOrchestrator`** (Igor manifest), **`iomPulse`** (**`getIOMHealthPulse`** — manifest digest + **`schisms[]`** + optional SOE trim), **`agentAjiChatFusion`**, plus **`hardGate`**, **`telemetry`**. |
 
 ### 5b. Shared-engine — implementation truth (crucial & sane)
 
-This subsection is the **canonical map** of logic shipped in **`packages/shared-engine`**. It complements **§5** (product contract) and **§6** (gate narrative). **Source files:** **`triad.ts`**, **`constants.ts`**, **`validate.ts`**, **`score.ts`**, **`reliability/*`** (tablebase), **`prompt-guard.ts`**, **`encoder.ts`**, **`triad-panel-governance.ts`**, **`triad-monitor.ts`**, **`telemetry.ts`**, plus optional modules in **§7b–§7d**, **§13**.
+This subsection is the **canonical map** of logic shipped in **`packages/shared-engine`**. It complements **§5** (product contract) and **§6** (gate narrative). **Source files:** **`triad.ts`**, **`constants.ts`**, **`validate.ts`**, **`score.ts`**, **`reliability/*`** (tablebase), **`prompt-guard.ts`**, **`encoder.ts`**, **`triad-panel-governance.ts`**, **`triad-monitor.ts`**, **`telemetry.ts`**, **`iom-pulse.ts`** (IOM health pulse + **`detectSchisms`**), plus optional modules in **§7b–§7d**, **§13**.
 
 #### Module responsibilities
 
@@ -134,6 +134,7 @@ This subsection is the **canonical map** of logic shipped in **`packages/shared-
 | **`triad-panel-governance.ts`** | **`computeTriadGovernance`** — default weights **45% / 35% / 20%** (fidelity / velocity / frugality); **`velocityScoreFromMeanPanelistMs`** (piecewise vs **18_000 ms** and **800 ms**); **`athenaSoeRecalibrationRecommended`** when velocity component **&lt; 0.7**. |
 | **`triad-monitor.ts`** | Run / panelist timing; **`logTriadRunStart`**, **`logTriadPanelistEnd`**, **`logTriadRunEnd`**, **`logAthenaSoeRecalibration`**. **`TriadRunMode`**: **`stub`** \| **`fetcher`** \| **`tablebase`**. |
 | **`telemetry.ts`** | **`logEvent`** — structured **stderr JSON** lines for auditable events. |
+| **`iom-pulse.ts`** | **`getIOMHealthPulse`**, **`detectSchisms`**, **`digestIgorManifestForPulse`** — merges Igor manifest digest with triad/WASM flags and optional **`SoeTriadSnapshot`**; returns explicit **`schisms[]`** (e.g. **`PARTIAL_TRIAD_VELOCITY`**, **`MODEL_GATE_DECOUPLE`**, **`PIPELINE_SILENT_CHOKE`**). **Diagnostic only** — does not mutate gates or routes. |
 
 #### Two pipelines (do not conflate)
 
