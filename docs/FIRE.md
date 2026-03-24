@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **115** tests passed, **20** files (runner) · **20** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **117** tests passed, **20** files (runner) · **20** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -45,6 +45,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 ### Verify loop (human checklist)
 
 - **`pnpm harshcheck`** (= **`verify:web`**) → `shared-types` build → typecheck (no mobile) → **`shared-engine` Vitest** → **`next build`** via **`scripts/run-verify-with-summary.mjs`** — stderr **`verify_post_summary`** (**§E1**). Canonical name: **`harshcheck`**; root also ships **`pnpm harshchek`** as the same script (typo alias).
+- **Fast iteration (localized `shared-engine` edits):** **`pnpm test:engine:grep -- --grep <pattern>`** runs Vitest with a filter — **`brain.md` §9c.1**; still run full **`verify:harsh`** / **`harshcheck`** before treating a change as shippable.
 - **`pnpm verify:harsh`** — same without **`next build`**. Scripts use **`node scripts/with-pnpm.mjs`** (**`npx pnpm@9.14.2`** fallback if **`pnpm`** missing).
 - **Ship vs verify:** green verify **≠** browser **`.fxp`** — encoder may be **stubbed** without Rust (**§E1.17**, **`FIRESTARTER` §10**). **`@alchemist/fxp-encoder`:** **`skip-if-no-rust.cjs`** when no Rust.
 - **Web dev / recovery:** **`§L`** + **`FIRESTARTER` §8** — **`dev-server.mjs`**, **`pnpm save`**, **`vst/`** slice.

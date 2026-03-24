@@ -27,6 +27,8 @@ Two manifestations. One discipline:
 **Canon firewall:** **`FIRESTARTER` → `FIRE` → HARD GATE → IOM ethos → tone.**  
 IOM never overrides types, security posture, or engineering truth.
 
+**Assistant fast-path protocol (three moves):** **`docs/brain.md` §9c.1** — self-heal **proposal** (`logIomSelfHealProposal` / event **`iom_self_heal_proposal`**), selective Vitest grep (**`pnpm test:engine:grep`**), schism/degradation surfacing (**`triad_*`** + **`constants.ts`**). **IOM** = Igor Orchestration Module here, not “input-output mapping.”
+
 ---
 
 ## God particle constraint (machine + human)
@@ -35,7 +37,7 @@ IOM never overrides types, security posture, or engineering truth.
 
 ### Hard limits (machine-enforced in `sync-igor-orchestrator.mjs`)
 
-1. **Cell count ceiling** — Array length ≤ **`IOM_CELL_MAX`** (default **32**; override with env **`IOM_CELL_MAX`**). **Policy target** for consolidation: **12** — lowering the env in CI to **12** is valid **after** cells are merged/retired.
+1. **Cell count ceiling** — Array length ≤ **`IOM_CELL_MAX`** (default **32**; override with env **`IOM_CELL_MAX`**). **Policy target** for consolidation: **`IOM_POLICY_CELL_MAX` = 12** in **`igor-orchestrator-layer.ts`** — lowering **`IOM_CELL_MAX`** in CI to **12** is valid **after** cells are merged/retired.
 2. **Cell id uniqueness** — Already enforced.
 3. **Artifact path verification** — Every `artifacts[]` entry must exist as a **file** under **`packages/shared-engine/`** (no phantom cells).
 4. **Staleness check** — Generated `.gen.ts` must match JSON + workspace scan (existing).

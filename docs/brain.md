@@ -13,7 +13,7 @@
 | **`brain.md`** | This file — deep orientation, §9a fusion, §9c–§9d Igor / IOM |
 | **`brain-plus.md`** | Minimal outside-assessment shell + synced metrics |
 | **`inner-circle-agent.md`** | Full peer prompt + Canon FIREWALL (tone layer) |
-| **`iom.md`** | IOM — §9c + §9d discipline, growth protocol |
+| **`iom.md`** | IOM — §9c + §9d discipline, growth protocol, §9c.1 fast-path moves |
 | **`cursor-universal-habits.md`** | Cursor User Rules template (any repo) |
 | **`alchemist-*.html`** | Composer / task prompt packs — index **`FIRESTARTER` §12** |
 
@@ -232,7 +232,19 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Execution:** you **orchestrate** the alchemy (plan → code → verify), not perform helpless assistant. **§9a machine JSON** stays **neutral ops copy** — do **not** inject meme voice into `soe_fusion:` / `aji_fusion:` **calibration strings**; those remain auditable and grep-clean unless Igor explicitly edits **§9a JSON** for product reasons.
 
-**Where this lives in tooling:** **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (always-on layer under canon) + this section for humans/LLMs reading **`brain.md`**.
+#### 9c.1 Digital Igor — IOM fast-path moves (assistant protocol)
+
+**Naming:** **IOM** here = **Igor Orchestration Module** (**`docs/iom.md`**), not “input-output mapping.” **No shadow governance:** proposals are **stderr + human edit**, never silent JSON mutation.
+
+1. **Self-healing registry (P0)** — Before inventing a new engine slice, read **`igor-power-cells.json`**. If a **new cell** is justified, **do not** auto-edit the JSON in the agent. Emit an auditable line via **`logIomSelfHealProposal()`** (**`@alchemist/shared-engine`**) or paste the equivalent **`iom_self_heal_proposal`** JSON for the operator, plus the exact **`{ id, responsibility, artifacts[] }`** snippet. **Headroom:** **`IOM_POLICY_CELL_MAX` = 12** (consolidation target). If **`currentCellCount` ≥ 12**, propose a **transmutation** (merge/retire cells) before adding. Machine sync may allow more rows until **`IOM_CELL_MAX`** is lowered — see **`docs/iom.md`**.
+
+2. **Selective verify (P0)** — For fast iteration after a localized change, prefer **Vitest grep** on **`shared-engine`** instead of the full suite: **`pnpm test:engine:grep -- --grep <pattern>`** (e.g. cell id or test name). Before release / ambiguous edits, still run **`pnpm verify:harsh`** or **`pnpm harshcheck`**. After a **green** full or scoped run used for metrics, run **`pnpm fire:sync`** so **`FIRE.md`** / **`brain-plus.md`** machine blocks stay honest.
+
+3. **Schism / silent degradation (P1)** — If logs or behavior suggest a panelist path is **slow**, **erroring**, or returning **malformed** candidate payloads, surface it: cite **`triad_panelist_end`** / **`triad_run_end`**, and recommend checking **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`** and related constants in **`packages/shared-engine/constants.ts`** (with measured evidence — not automatic timeout mutation). Tie to **SOE** / **`computeSoeRecommendations`** hints where relevant (**telemetry only**).
+
+**Alchemical compress (same as Apex mandates):** **3-word razor**; **HARD GATE** and **`LegalDisclaimer`** are never bypassed — solutions touching Serum bytes or legal surface stay **auditable**. **Aji leverage:** prefer one structural fix (prompt shape, gate input, constants) over piling on post-hoc filters.
+
+**Emoji:** 🤖👾 only as a **rare seal** on a structural pivot — **`.cursor/rules/alchemist-apex-orchestrator.mdc`**.
 
 **Full inner-circle peer prompt (voice + Alchemist Canon FIREWALL):** **`docs/inner-circle-agent.md`** — **`truth first → task second → tone third`**; distilled operational habits remain in **`.cursor/skills/inner-circle-voice/SKILL.md`**.
 
@@ -270,7 +282,7 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Public exports:** **`@alchemist/shared-engine`** — **`getIgorOrchestratorManifest`**, **`IGOR_ORCHESTRATOR_PACKAGES_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS`**, layer version constant, etc. — see **`packages/shared-engine/index.ts`**.
 
-**Doc / Cursor links:** **`AGENTS.md` §8e**; **`docs/iom.md`** + **`.cursor/rules/alchemist-iom.mdc`** (unified IOM); **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (ethos); **`docs/FIRE.md`** (verify + assessment mention).
+**Doc / Cursor links:** **`AGENTS.md` §8e**; **`docs/iom.md`** + **`.cursor/rules/alchemist-iom.mdc`** (unified IOM); **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (ethos + §9c.1 compress); **`docs/FIRE.md`** (verify + assessment mention). **API:** **`logIomSelfHealProposal`**, **`IOM_POLICY_CELL_MAX`** — **`@alchemist/shared-engine`** / **`igor-orchestrator-layer.ts`**.
 
 ---
 

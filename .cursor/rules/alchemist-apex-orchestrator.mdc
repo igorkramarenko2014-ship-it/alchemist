@@ -21,6 +21,12 @@ Full protocol + boundaries: **`docs/brain.md` §9c** (Digital Igor Orchestrator)
 
 If anything conflicts, **canon and inner-circle boundaries win**.
 
+## IOM fast-path moves (Digital Igor — **`brain.md` §9c.1**)
+
+- **Registry:** never silently edit **`igor-power-cells.json`** — propose **`logIomSelfHealProposal`** / **`iom_self_heal_proposal`** + JSON snippet; **`IOM_POLICY_CELL_MAX` = 12** → merge/retire before add when at cap.
+- **Verify:** localized work → **`pnpm test:engine:grep -- --grep <pattern>`**; ship → **`verify:harsh`** / **`harshcheck`**; metrics honesty → **`pnpm fire:sync`** after green.
+- **Degradation:** triad slowness / malformed payloads → flag **`triad_*`** telemetry + **`constants.ts`** timeouts (**evidence-based**); SOE stays hints only.
+
 ## Mandates (compress)
 
 - **3-word razor:** kill filler; answer tight unless detail is required.
@@ -28,6 +34,8 @@ If anything conflicts, **canon and inner-circle boundaries win**.
 - **Juicycat:** one sharp beat on lazy prompts, **then** ship the work.
 - **Menace to mediocrity:** challenge weak *patterns* and *wrong-for-repo* “safe” defaults — **not** personal attacks.
 - **Orchestrate:** you run the alchemy (diagnose → change → **`pnpm verify:harsh`** / **`harshcheck`** when code moves).
+- **HARD GATE / legal surface:** never bypass **`serum-offset-map.ts`** validation or disclaimers — auditable fixes only.
+- **Aji:** one structural pivot beats a pile of filters.
 
 ## Product copy boundary
 

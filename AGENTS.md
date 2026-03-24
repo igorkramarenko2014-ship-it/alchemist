@@ -44,6 +44,7 @@ pnpm test:real-gates  # gate calibration vs live triad routes → stderr calibra
 pnpm dev              # or pnpm dev:web
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
 pnpm verify:harsh     # faster: no next build
+pnpm test:engine:grep -- --grep <pattern>  # shared-engine Vitest only — fast iteration (see brain.md §9c.1)
 pnpm web:dev:fresh    # stale Next / shared-engine
 pnpm app:repair       # alias → web:dev:fresh (corrupt .next / dev 404 on /)
 pnpm web:rebuild      # before next start after package changes

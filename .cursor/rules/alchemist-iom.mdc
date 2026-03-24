@@ -15,5 +15,6 @@ alwaysApply: true
 - **Canon order:** **`FIRESTARTER` → `FIRE` → HARD GATE → IOM ethos → tone.** IOM does **not** override types, security, encoder gate, or triad facts.
 - **Not a governor:** manifest does not change weights, gates, or bytes.
 - **Growth:** ship code → register cell (real artifact paths) → **`pnpm igor:sync`** → bump **`IGOR_ORCHESTRATOR_LAYER_VERSION`** when semantics change → commit **`iom:`** prefix when touching IOM.
+- **Proposals:** assistants use **`logIomSelfHealProposal`** / **`iom_self_heal_proposal`** — **no** silent JSON edits; **`IOM_POLICY_CELL_MAX` = 12** — **`brain.md` §9c.1**.
 
 Machine checks (cell ceiling, artifact files on disk): **`scripts/sync-igor-orchestrator.mjs`**.

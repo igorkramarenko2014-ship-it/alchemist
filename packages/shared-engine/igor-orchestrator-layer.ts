@@ -8,10 +8,25 @@ import { IGOR_ORCHESTRATOR_PACKAGES_GEN } from "./igor-orchestrator-packages.gen
 import { logEvent } from "./telemetry";
 
 /** Bumped when manifest semantics change (packages/cells generation, shape). */
-export const IGOR_ORCHESTRATOR_LAYER_VERSION = 3 as const;
+export const IGOR_ORCHESTRATOR_LAYER_VERSION = 4 as const;
+
+/**
+ * Human discipline target for **`igor-power-cells.json`** length (consolidation).
+ * Machine sync allows more rows until **`IOM_CELL_MAX`** is lowered — see **`docs/iom.md`**.
+ */
+export const IOM_POLICY_CELL_MAX = 12 as const;
 
 /** Human doc anchor (metaphor); tooling: `.cursor/rules/alchemist-apex-orchestrator.mdc`. */
 export const IGOR_APEX_STANCE_REF = "docs/brain.md §9c";
+
+export interface IomSelfHealProposalPayload {
+  reason: string;
+  currentCellCount: number;
+  /** Suggested JSON row for `igor-power-cells.json` — human applies + `pnpm igor:sync`. */
+  suggestedCell?: { id: string; responsibility: string; artifacts: readonly string[] };
+  /** When at/over policy max: merge or retire existing cells first. */
+  transmutationNote?: string;
+}
 
 export interface IgorOrchestratorPackagePower {
   packageName: string;
@@ -65,5 +80,16 @@ export function logIgorOrchestratorManifest(extra?: Record<string, unknown>): vo
     powerCellCount: m.sharedEnginePowerCells.length,
     ...extra,
     note: m.note,
+  });
+}
+
+/**
+ * Auditable stderr line when an assistant or tool **proposes** a new power cell.
+ * Does **not** mutate **`igor-power-cells.json`** — operator edits JSON + runs **`pnpm igor:sync`**.
+ */
+export function logIomSelfHealProposal(payload: IomSelfHealProposalPayload): void {
+  logEvent("iom_self_heal_proposal", {
+    ...payload,
+    policyCellMax: IOM_POLICY_CELL_MAX,
   });
 }

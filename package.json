@@ -31,6 +31,7 @@
     "ix": "node scripts/with-pnpm.mjs run app:repair",
     "dev:recover": "node scripts/recover-web-dev.mjs && node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
     "test:engine": "pnpm --filter @alchemist/shared-engine test && pnpm --filter @alchemist/serum2-encoder test",
+    "test:engine:grep": "pnpm --filter @alchemist/shared-engine exec vitest run",
     "verify:harsh": "node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:harsh:selective": "ALCHEMIST_SELECTIVE_VERIFY=1 node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:web": "node scripts/run-verify-with-summary.mjs verify-web",

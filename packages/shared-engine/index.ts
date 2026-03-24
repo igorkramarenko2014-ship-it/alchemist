@@ -150,13 +150,16 @@ export {
   getIgorOrchestratorManifest,
   IGOR_APEX_STANCE_REF,
   IGOR_ORCHESTRATOR_LAYER_VERSION,
+  IOM_POLICY_CELL_MAX,
   IGOR_SHARED_ENGINE_POWER_CELLS,
   logIgorOrchestratorManifest,
+  logIomSelfHealProposal,
 } from "./igor-orchestrator-layer";
 export type {
   IgorOrchestratorManifest,
   IgorOrchestratorPackagePower,
   IgorOrchestratorPowerCell,
+  IomSelfHealProposalPayload,
 } from "./igor-orchestrator-layer";
 export {
   ARBITRATION_AGENT_AJI_FUSION_LINES,
