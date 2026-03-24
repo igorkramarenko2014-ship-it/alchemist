@@ -1,11 +1,35 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 namespace
 {
+/**
+ * Non-authoritative sanity check only — same header layout as `packages/fxp-encoder/src/lib.rs`
+ * (`decode_fxp_fxck` prefix). HARD GATE remains Python/TS/Rust; this rejects obvious garbage
+ * before storing bytes in-plugin.
+ */
+constexpr size_t kMinSerumBankBytes = 0x38 + 4;
+
+bool isLikelySerumFxpBank(const void* data, size_t size)
+{
+    if (data == nullptr || size < kMinSerumBankBytes)
+        return false;
+    const auto* bytes = static_cast<const std::uint8_t*>(data);
+    static constexpr std::uint8_t kCcnK[] = { 'C', 'c', 'n', 'K' };
+    static constexpr std::uint8_t kFxCk[] = { 'F', 'x', 'C', 'k' };
+    static constexpr std::uint8_t kFPCh[] = { 'F', 'P', 'C', 'h' };
+    if (std::memcmp(bytes, kCcnK, 4) != 0)
+        return false;
+    const bool fxck = std::memcmp(bytes + 8, kFxCk, 4) == 0;
+    const bool fpch = std::memcmp(bytes + 8, kFPCh, 4) == 0;
+    return fxck || fpch;
+}
+
 juce::String envOrEmpty(const char* key)
 {
     if (auto* s = std::getenv(key))
@@ -93,13 +117,22 @@ void AlchemistFxpBridgeProcessor::processBlock(juce::AudioBuffer<float>& buffer,
 
 void AlchemistFxpBridgeProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    destData.append(programData.getData(), programData.getSize());
+    destData.replaceAll(programData.getData(), programData.getSize());
 }
 
 void AlchemistFxpBridgeProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    programData.replaceAll(data, static_cast<size_t>(sizeInBytes));
-    lastStatusLine = "Restored state (" + juce::String(sizeInBytes) + " bytes)";
+    const auto n = static_cast<size_t>(juce::jmax(0, sizeInBytes));
+    if (data != nullptr && n > 0 && !isLikelySerumFxpBank(data, n))
+    {
+        juce::DynamicObject::Ptr w(new juce::DynamicObject());
+        w->setProperty("schism", "state_chunk_not_serum_fxp_shape");
+        w->setProperty("size", static_cast<int>(n));
+        w->setProperty("note", "Host recalled bytes that do not match Serum bank header — stored anyway for session fidelity");
+        emitWrapperLog("vst_wrapper_schism", juce::var(w.get()));
+    }
+    programData.replaceAll(data, n);
+    lastStatusLine = "Restored state (" + juce::String(static_cast<int>(n)) + " bytes)";
 }
 
 void AlchemistFxpBridgeProcessor::loadAlchemistFxp(const juce::File& fxpFile)
@@ -122,6 +155,18 @@ void AlchemistFxpBridgeProcessor::loadAlchemistFxp(const juce::File& fxpFile)
         e->setProperty("path", fxpFile.getFullPathName());
         emitWrapperLog("vst_wrapper_error", juce::var(e.get()));
         lastStatusLine = "Error: read failed";
+        return;
+    }
+
+    if (!isLikelySerumFxpBank(fxpData.getData(), fxpData.getSize()))
+    {
+        juce::DynamicObject::Ptr e(new juce::DynamicObject());
+        e->setProperty("error", "fxp_header_invalid");
+        e->setProperty("path", fxpFile.getFullPathName());
+        e->setProperty("size", static_cast<int>(fxpData.getSize()));
+        e->setProperty("note", "Expected CcnK + FxCk/FPCh at byte 8 (see fxp-encoder decode precheck)");
+        emitWrapperLog("vst_wrapper_error", juce::var(e.get()));
+        lastStatusLine = "Error: not a Serum-style .fxp bank";
         return;
     }
 

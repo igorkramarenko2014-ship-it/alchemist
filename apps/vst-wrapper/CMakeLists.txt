@@ -1,5 +1,7 @@
 # Alchemist FXP Bridge — minimal JUCE VST3 (read-only .fxp consumer).
-# JUCE is fetched via CMake FetchContent on first configure (requires network once).
+# JUCE: FetchContent GIT_TAG 8.0.8 below, or local tree via env JUCE_PATH.
+# Build from monorepo root: `pnpm build:vst` → ../../scripts/vst-build.mjs runs
+# `cmake -B build -S .` + `cmake --build` here, then copies the `.vst3` to the OS VST3 dir.
 cmake_minimum_required(VERSION 3.22)
 project(AlchemistFxpBridge VERSION 0.1.0 LANGUAGES CXX)
 
@@ -31,6 +33,7 @@ juce_add_plugin(AlchemistFxpBridge
     PLUGIN_MANUFACTURER_CODE Amfx
     PLUGIN_CODE Afxb
     FORMATS VST3
+    VST3_CATEGORIES Fx
     PRODUCT_NAME "Alchemist FXP Bridge")
 
 target_sources(AlchemistFxpBridge

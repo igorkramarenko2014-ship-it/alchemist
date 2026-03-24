@@ -10,7 +10,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "discover-mod-matrix": "node scripts/serum2-mod-discovery.mjs"
   },
   "dependencies": {
     "@mongodb-js/zstd": "^7.0.0",

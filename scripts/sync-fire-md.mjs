@@ -16,8 +16,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findVst3BuildBundlePath } from "./lib/vst-bundle-resolve.mjs";
 
 /** Must not appear elsewhere in FIRE.md (intro prose used to duplicate this and broke `indexOf`). */
 const MARK_BEGIN = "<!-- ALCHEMIST:FIRE_METRICS:BEGIN -->";
@@ -114,7 +115,25 @@ function buildSyncBlock({ isoDate, testCount, fileCount, nextVersion, testFilesO
 /**
  * Single machine-readable snapshot (auditors / LLM tools). Hash covers exact file bytes on disk.
  */
-function writeFireMetricsArtifacts(root, { isoDate, testCount, fileCount, nextVersion, testFilesOnDisk }) {
+/** macOS **`.vst3`** bundle: hash first file under **`Contents/MacOS`** (main binary). */
+function sha256VstBundleMainBinary(bundlePath) {
+  try {
+    const macos = join(bundlePath, "Contents", "MacOS");
+    if (!existsSync(macos)) return null;
+    const files = readdirSync(macos);
+    if (!files.length) return null;
+    const binPath = join(macos, files[0]);
+    const buf = readFileSync(binPath);
+    return createHash("sha256").update(buf).digest("hex");
+  } catch {
+    return null;
+  }
+}
+
+function writeFireMetricsArtifacts(
+  root,
+  { isoDate, testCount, fileCount, nextVersion, testFilesOnDisk, vst3BundlePresent, vst3BundleBasename, vst3MainBinarySha256 }
+) {
   const payload = {
     schemaVersion: 1,
     syncedDateUtc: isoDate,
@@ -123,6 +142,9 @@ function writeFireMetricsArtifacts(root, { isoDate, testCount, fileCount, nextVe
     vitestTestFilesPassed: fileCount,
     vitestTestTsOnDisk: testFilesOnDisk,
     nextJsVersion: nextVersion,
+    vst3BundlePresent,
+    vst3BundleBasename,
+    vst3MainBinarySha256,
     note: "Regenerated only by pnpm fire:sync after green shared-engine Vitest; do not hand-edit.",
   };
   const jsonPath = join(root, "docs", "fire-metrics.json");
@@ -175,6 +197,10 @@ if (!engine.ok) {
 const testFilesOnDisk = countEngineTestFiles(root);
 const nextVersion = readNextVersion(root);
 const isoDate = new Date().toISOString().slice(0, 10);
+const vstBundlePath = findVst3BuildBundlePath(root);
+const vst3BundlePresent = Boolean(vstBundlePath);
+const vst3BundleBasename = vstBundlePath ? basename(vstBundlePath) : null;
+const vst3MainBinarySha256 = vstBundlePath ? sha256VstBundleMainBinary(vstBundlePath) : null;
 const inner = buildSyncBlock({
   isoDate,
   testCount: engine.testCount,
@@ -189,6 +215,9 @@ writeFireMetricsArtifacts(root, {
   fileCount: engine.fileCount,
   nextVersion,
   testFilesOnDisk,
+  vst3BundlePresent,
+  vst3BundleBasename,
+  vst3MainBinarySha256,
 });
 process.stderr.write("sync-fire-md: wrote docs/fire-metrics.json + docs/fire-metrics.sha256\n");
 

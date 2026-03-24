@@ -21,6 +21,9 @@
  * When `shared-engine` sources changed, **IOM cell hints** (`igor-power-cells.json`) map
  * touched artifacts → Vitest files; unmatched `.ts` changes fall back to the full engine suite.
  *
+ * Optional **VST3 sidecar** (strict): `ALCHEMIST_VST_VERIFY=1` after a green pipeline runs
+ * `REQUIRE_VST=1 assert:vst` then `pnpm vst:observe:gate` (HARD GATE preflight). No default in CI.
+ *
  * **`verify_post_summary`** always includes **`iomCoverageScore`** (0–1 power-cell test map coverage),
  * **`uncoveredCells[]`**, **`iomCoveredCellCount`**, **`iomPowerCellTotal`**, **`iomUnmappedCellIds`**.
  * After a green or failed run, **`tsx scripts/iom-verify-iom-meta.ts`** adds **`iomActiveSchisms`**,
@@ -517,6 +520,43 @@ if (mode !== "verify-harsh" && mode !== "verify-web") {
 
 const t0 = Date.now();
 const { exitCode, failedStep, iomVerifyMeta } = runPipeline(root, mode);
+let finalExitCode = exitCode;
+if (exitCode === 0 && process.env.ALCHEMIST_VST_VERIFY === "1") {
+  const withPnpm = join(root, "scripts", "with-pnpm.mjs");
+  const assertScript = join(root, "scripts", "assert-vst-available.mjs");
+  const a = spawnSync(process.execPath, [assertScript], {
+    cwd: root,
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      REQUIRE_VST: "1",
+      ALCHEMIST_REQUIRE_VST: "1",
+      ALCHEMIST_PNPM_FALLBACK_QUIET: "1",
+    },
+    shell: false,
+  });
+  const acode = a.status === null ? 1 : a.status;
+  if (acode !== 0) {
+    finalExitCode = acode;
+    process.stderr.write(
+      "[alchemist] ALCHEMIST_VST_VERIFY=1: assert:vst failed — run pnpm build:vst or unset ALCHEMIST_VST_VERIFY\n"
+    );
+  } else {
+    const g = spawnSync(process.execPath, [withPnpm, "vst:observe:gate"], {
+      cwd: root,
+      stdio: "inherit",
+      env: { ...process.env, ALCHEMIST_PNPM_FALLBACK_QUIET: "1" },
+      shell: false,
+    });
+    const gcode = g.status === null ? 1 : g.status;
+    if (gcode !== 0) {
+      finalExitCode = gcode;
+      process.stderr.write(
+        "[alchemist] ALCHEMIST_VST_VERIFY=1: vst:observe:gate failed — offset / HARD GATE preflight\n"
+      );
+    }
+  }
+}
 const durationMs = Date.now() - t0;
 
 const iomSummaryMeta =
@@ -532,20 +572,21 @@ const iomPulseMeta = collectIomVerifyMeta(root);
 
 logSummary({
   mode,
-  exitCode,
+  exitCode: finalExitCode,
+  vstVerifyOptIn: process.env.ALCHEMIST_VST_VERIFY === "1" ? true : undefined,
   durationMs,
   failedStep,
   monorepoRoot: root,
   selectiveVerify:
     process.env.ALCHEMIST_SELECTIVE_VERIFY === "1" && !process.env.CI ? true : undefined,
-  soeHint: soeHint(exitCode, durationMs, mode, iomSummaryMeta),
+  soeHint: soeHint(finalExitCode, durationMs, mode, iomSummaryMeta),
   note:
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
   ...iomSummaryMeta,
   ...iomPulseMeta,
 });
 
-if (process.env.ALCHEMIST_FIRE_SYNC === "1" && exitCode === 0) {
+if (process.env.ALCHEMIST_FIRE_SYNC === "1" && finalExitCode === 0) {
   const syncScript = join(root, "scripts", "sync-fire-md.mjs");
   const sync = spawnSync(process.execPath, [syncScript], {
     cwd: root,
@@ -561,7 +602,7 @@ if (process.env.ALCHEMIST_FIRE_SYNC === "1" && exitCode === 0) {
   }
 }
 
-if (process.env.ALCHEMIST_BRAIN_SYNC === "1" && exitCode === 0) {
+if (process.env.ALCHEMIST_BRAIN_SYNC === "1" && finalExitCode === 0) {
   const brainScript = join(root, "scripts", "sync-brain-fusion.mjs");
   const br = spawnSync(process.execPath, [brainScript], {
     cwd: root,
@@ -577,4 +618,4 @@ if (process.env.ALCHEMIST_BRAIN_SYNC === "1" && exitCode === 0) {
   }
 }
 
-process.exit(exitCode);
+process.exit(finalExitCode);

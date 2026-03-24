@@ -12,48 +12,15 @@
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawnSync } from "node:child_process";
+import {
+  MAGIC,
+  SEP,
+  decompressCompressed,
+  parsePreset,
+} from "./lib/serum2-preset-parse.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
-const fzstdEntry = join(
-  repoRoot,
-  "packages",
-  "shared-engine",
-  "node_modules",
-  "fzstd",
-  "esm",
-  "index.mjs"
-);
-
-async function loadDecompress() {
-  if (!existsSync(fzstdEntry)) {
-    throw new Error(
-      `fzstd not found at ${fzstdEntry}. Run: pnpm add fzstd --filter @alchemist/shared-engine`
-    );
-  }
-  const mod = await import(fzstdEntry);
-  return mod.decompress;
-}
-
-const MAGIC = new Uint8Array(Buffer.from("XferJson", "ascii"));
-/** Binary marker after JSON: ASCII `r]` + 0x00 0x00 0x02 0x00 0x00 0x00 */
-const SEP = new Uint8Array([0x72, 0x5d, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00]);
-function indexOfSubarray(haystack, needle, from = 0) {
-  const n = needle.length;
-  if (n === 0) return from;
-  for (let i = from; i <= haystack.length - n; i++) {
-    let match = true;
-    for (let j = 0; j < n; j++) {
-      if (haystack[i + j] !== needle[j]) {
-        match = false;
-        break;
-      }
-    }
-    if (match) return i;
-  }
-  return -1;
-}
 
 function hexPreview(u8, maxBytes = 256) {
   const n = Math.min(u8.length, maxBytes);
@@ -68,63 +35,6 @@ function hexPreview(u8, maxBytes = 256) {
   }
   if (u8.length > maxBytes) lines.push(`... (${u8.length - maxBytes} more bytes)`);
   return lines.join("\n");
-}
-
-function tryZstdCli(compressed) {
-  const r = spawnSync("zstd", ["-d", "-c"], {
-    input: Buffer.from(compressed),
-    maxBuffer: 256 * 1024 * 1024,
-    encoding: "buffer",
-  });
-  if (r.error || r.status !== 0) return null;
-  return new Uint8Array(r.stdout);
-}
-
-function parsePreset(buf) {
-  const u8 = new Uint8Array(buf);
-  if (u8.length < MAGIC.length + SEP.length + 2) {
-    throw new Error("File too small for XferJson + JSON + separator");
-  }
-  for (let i = 0; i < MAGIC.length; i++) {
-    if (u8[i] !== MAGIC[i]) {
-      throw new Error(
-        `Magic mismatch at 0: expected XferJson, got ${Buffer.from(u8.subarray(0, 12)).toString("hex")}`
-      );
-    }
-  }
-  const searchFrom = MAGIC.length;
-  let jsonStart = -1;
-  for (let i = searchFrom; i < u8.length; i++) {
-    if (u8[i] === 0x7b) {
-      jsonStart = i;
-      break;
-    }
-  }
-  if (jsonStart < 0) {
-    throw new Error(`No JSON object start '{' after offset ${searchFrom}`);
-  }
-  const sepIdx = indexOfSubarray(u8, SEP, jsonStart);
-  if (sepIdx < 0) {
-    throw new Error(
-      `Separator (r] + 00 00 02 00 00 00) not found after JSON start (offset ${jsonStart})`
-    );
-  }
-  const jsonBytes = u8.subarray(jsonStart, sepIdx);
-  if (jsonBytes.length === 0 || jsonBytes[jsonBytes.length - 1] !== 0x7d) {
-    throw new Error(
-      `JSON slice does not end with '}' (len=${jsonBytes.length}, last byte 0x${jsonBytes.at(-1)?.toString(16) ?? ""})`
-    );
-  }
-  const compressedOffset = sepIdx + SEP.length;
-  const compressed = u8.subarray(compressedOffset);
-  return {
-    jsonBytes,
-    jsonLen: jsonBytes.length,
-    jsonStart,
-    compressed,
-    compressedOffset,
-    headerThroughJson: compressedOffset - SEP.length,
-  };
 }
 
 function resolveDefaultSerumPresetPath() {
@@ -148,7 +58,7 @@ async function main() {
     console.error(
       "Usage: node scripts/analyze-serum2-format.mjs <path-to-file.SerumPreset>\n" +
         "Or place a .SerumPreset in tools/ (uses first match lexicographically).\n" +
-        "Example: node scripts/analyze-serum2-format.mjs \"tools/808 - Decomposed.SerumPreset\""
+        "Example: node scripts/analyze-serum2-format.mjs \"tools/808 - Decomposed.SerumPreset\"",
     );
     process.exit(1);
   }
@@ -199,24 +109,15 @@ async function main() {
   const ratioLine = (decLen) =>
     `Blob vs file: ${(compressed.length / totalSize).toFixed(4)}; compressed/decompressed: ${(compressed.length / decLen).toFixed(4)}`;
 
-  const decompress = await loadDecompress();
   let decompressed;
-  let method = "fzstd (npm)";
   try {
-    decompressed = decompress(compressed);
+    decompressed = await decompressCompressed(compressed);
   } catch (e) {
-    console.warn(`\nfzstd decompress failed: ${e.message}`);
-    const cli = tryZstdCli(compressed);
-    if (cli) {
-      decompressed = cli;
-      method = "zstd CLI (fallback)";
-    } else {
-      console.error("zstd CLI fallback also failed (is `zstd` on PATH?).");
-      process.exit(1);
-    }
+    console.error(`\nDecompression failed: ${e.message}`);
+    process.exit(1);
   }
 
-  console.log(`\n--- Decompression (${method}) ---`);
+  console.log("\n--- Decompression (fzstd npm or zstd CLI) ---");
   console.log(`Decompressed size: ${decompressed.length} bytes`);
   console.log(ratioLine(decompressed.length));
 

@@ -1,6 +1,7 @@
 import { env } from "@/env";
 import { listOpenTriadCircuitPanelists } from "@/lib/triad-circuit-breakers";
 import { getOptionalSoeTriadSnapshotFromEnv } from "@/lib/soe-snapshot-from-env";
+import { getVstHealthSnapshot } from "@/lib/vst-bundle-health";
 import {
   computeHealthAgentAjiChatFusion,
   getIgorOrchestratorManifest,
@@ -36,6 +37,17 @@ export async function GET(request: Request) {
   const wasmOk =
     wasmRec?.ok === true &&
     wasmRec?.status === "available";
+  const vstSnap = getVstHealthSnapshot();
+  const vst = {
+    ok: vstSnap.ok,
+    available: vstSnap.ok,
+    status: vstSnap.status,
+    version: vstSnap.bundleBasename ?? "unavailable",
+    /** Reserved for IOM / observer telemetry — not wired yet. */
+    lastObservedMs: null as number | null,
+    message: vstSnap.message,
+    healthPath: "/api/health/vst",
+  };
   const agentAjiChatFusion = computeHealthAgentAjiChatFusion({
     wasmOk,
     triadFullyLive: allLive,
@@ -45,6 +57,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     ok: true,
     wasm,
+    vst,
     triad: {
       panelistRoutes: anyLive ? "live" : "unconfigured",
       triadFullyLive: allLive,

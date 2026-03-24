@@ -335,7 +335,18 @@ PATCH_HINTS: <files>
 | **`.next` / Turbo cache** | Corrupt or mixed outputs can yield **`MODULE_NOT_FOUND`** (e.g. missing **`./NNN.js`** under **`.next/server`**) or **`PageNotFoundError` / `ENOENT`** for App Router segments during **“Collecting page data”**. Recovery: **`pnpm run clean`** (deletes **`apps/web-app/.next`**) / **`node scripts/with-pnpm.mjs run clean`**, then **`pnpm install`** if needed, then **`pnpm harshcheck`** or **`pnpm dev`**. **`pnpm web:rebuild`** = root clean + forced **`turbo run build --filter=@alchemist/web-app --force`** (preferred when **`harshcheck`** fails mid–**`next build`**). |
 | **Legal footer** | **`components/legal/LegalDisclaimer.tsx`** — trademarks + AI/privacy pointer + **third-party preset / indexing** responsibility (not a substitute for counsel). |
 | **WASM health** | **`GET /api/health/wasm`** — JSON **`ok`**, **`status`** (`available` \| `unavailable`), **`message`** (operator hint). Run **`pnpm dev`** / **`harshcheck`** from monorepo root (or **`vst/`** scripts that **`cd ..`**) so **`cwd`** resolves **`packages/fxp-encoder/pkg`**. |
-| **VST / `.fxp` sidecar (optional)** | **`pnpm vst:observe`** — CLI over **`packages/fxp-encoder/vst-bridge.ts`** + **`vst_observer`** IOM cell (HARD GATE on offset map). **`pnpm vst:observe:gate`** — validate-only hook. **`pnpm vst:daemon`** — Rust file watcher in **`fxp-encoder`**. **`pnpm build:vst`** — copies JUCE **`.vst3`** when **`cmake`** build output exists. Native skeleton: **`apps/vst-wrapper/`**; contract: **`docs/vst-wrapper.md`**. Does **not** replace browser WASM export or triad gates. |
+| **VST health** | **`GET /api/health/vst`** — JSON **`ok`**, **`available`**, **`version`** (bundle basename or **`unavailable`**), **`lastObservedMs`** (reserved), **`message`**. Filesystem probe only — same artifact path as **`pnpm build:vst`** / **`assert:vst`**; does **not** load the plugin. |
+| **VST / `.fxp` sidecar (optional)** | **CLI:** **`pnpm vst:observe`** — Node/TS bridge over **`packages/fxp-encoder/vst-bridge.ts`** + IOM **`vst_observer`** (HARD GATE). **`pnpm vst:observe:gate`** — validate-only (**`validate-offsets-if-sample`**). **`pnpm vst:daemon`** — Rust watcher in **`fxp-encoder`**. **Build:** **`pnpm build:vst`** / **`pnpm build:vst:full`** — **`scripts/vst-build.mjs`** (CMake + install copy when toolchain present). **Assert:** **`pnpm assert:vst`** — optional warn; **`REQUIRE_VST=1`** fail-closed (mirrors WASM). **`pnpm verify:vst`** — **`assert:vst`** + **`vst:observe:gate`**. **Predeploy:** **`pnpm predeploy:vst`**. **Verify hook:** **`ALCHEMIST_VST_VERIFY=1`** on **`pnpm verify:harsh`** / **`verify:web`** runs strict **`assert:vst`** + gate after green pipeline (opt-in; not in default **`harshcheck`**). Native skeleton: **`apps/vst-wrapper/`**. Full contract: **`docs/vst-wrapper.md`**. Does **not** replace browser WASM export or triad gates. |
+
+```mermaid
+graph LR
+  Triad[Triad / gates] --> Encoder[WASM or CLI encoder]
+  HARD[HARD GATE / offset map] --> Encoder
+  Encoder --> Fxp[".fxp"]
+  Fxp --> Observe["pnpm vst:observe / vst-bridge.ts"]
+  Observe --> VST3[JUCE VST3 / DAW load]
+```
+
 | **Ops** | **`pnpm alc:doctor`** (= **`node scripts/doctor.mjs`**); **`RUN.txt`**; **`vst/README.md`**; **`docs/vst-wrapper.md`**; **`scripts/with-pnpm.mjs`**; **`FIRESTARTER` §8–§11**. |
 
 ### Web app not running — recovery ladder (canonical)

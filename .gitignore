@@ -40,3 +40,5 @@ tools/soe-hints-legacy.jsonl
 tools/structured-soe-hints.jsonl
 # Accepted IOM cell proposals (pnpm igor:apply)
 tools/iom-accepted-proposals/
+# Serum 2 mod discovery output (pnpm serum2:discover-mod-matrix)
+tools/serum2-discovery/
