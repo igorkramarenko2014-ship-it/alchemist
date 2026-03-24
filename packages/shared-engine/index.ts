@@ -140,6 +140,8 @@ export { TABLEBASE_RECORDS } from "./reliability/tablebase-db";
 export {
   computeSoeRecommendations,
   logSoeHintWithIomContext,
+  logSoeIomContext,
+  logSoeIomFusion,
 } from "./soe";
 export type {
   SoeFusionHintCode,

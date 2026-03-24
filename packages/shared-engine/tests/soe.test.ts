@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { ATHENA_SOE_RECALIBRATION_LINE } from "../triad-panel-governance";
-import { computeSoeRecommendations, logSoeHintWithIomContext } from "../soe";
+import {
+  computeSoeRecommendations,
+  logSoeHintWithIomContext,
+  logSoeIomContext,
+  logSoeIomFusion,
+} from "../soe";
 
 describe("SOE (self-optimizing hints)", () => {
   it("nominal snapshot stays nominal", () => {
@@ -95,6 +100,27 @@ describe("SOE (self-optimizing hints)", () => {
     ]);
   });
 
+  it("iomCoverageScore appends to IOM impact line when schisms map to cells", () => {
+    const r = computeSoeRecommendations(
+      {
+        meanPanelistMs: 2000,
+        triadFailureRate: 0.05,
+        gateDropRate: 0.7,
+      },
+      { iomSchismCodes: ["MODEL_GATE_DECOUPLE"], iomCoverageScore: 0.78 },
+    );
+    expect(r.message).toContain("test↔cell coverage 0.78");
+    expect(r.iomCoverageScoreEcho).toBe(0.78);
+  });
+
+  it("iomCoverageScore alone (no schisms) warns when below 1", () => {
+    const r = computeSoeRecommendations(
+      { meanPanelistMs: 800, triadFailureRate: 0, gateDropRate: 0.1 },
+      { iomCoverageScore: 0.55 },
+    );
+    expect(r.message).toContain("IOM test↔cell coverage: 0.55");
+  });
+
   it("logSoeHintWithIomContext emits soe_hint_with_iom_context when IOM fields set", () => {
     const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
     const r = computeSoeRecommendations(
@@ -106,5 +132,39 @@ describe("SOE (self-optimizing hints)", () => {
     spy.mockRestore();
     expect(line).toContain('"event":"soe_hint_with_iom_context"');
     expect(line).toContain("MODEL_GATE_DECOUPLE");
+  });
+
+  it("logSoeIomContext emits soe_iom_context with coverage + schisms", () => {
+    const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    const r = computeSoeRecommendations(
+      { meanPanelistMs: 2000, triadFailureRate: 0.05, gateDropRate: 0.7 },
+      { iomSchismCodes: ["MODEL_GATE_DECOUPLE"], iomCoverageScore: 0.78 },
+    );
+    logSoeIomContext(
+      r,
+      { iomSchismCodes: ["MODEL_GATE_DECOUPLE"], iomCoverageScore: 0.78 },
+      { probe: "vitest" },
+    );
+    const line = spy.mock.calls.map((c) => String(c[0])).join("");
+    spy.mockRestore();
+    expect(line).toContain('"event":"soe_iom_context"');
+    expect(line).toContain("0.78");
+  });
+
+  it("logSoeIomFusion emits soe_iom_fusion", () => {
+    const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    const r = computeSoeRecommendations(
+      { meanPanelistMs: 2000, triadFailureRate: 0.05, gateDropRate: 0.7 },
+      { iomSchismCodes: ["MODEL_GATE_DECOUPLE"], iomCoverageScore: 0.82 },
+    );
+    logSoeIomFusion(
+      r,
+      { iomSchismCodes: ["MODEL_GATE_DECOUPLE"], iomCoverageScore: 0.82 },
+      { probe: "vitest" },
+    );
+    const line = spy.mock.calls.map((c) => String(c[0])).join("");
+    spy.mockRestore();
+    expect(line).toContain('"event":"soe_iom_fusion"');
+    expect(line).toContain("fusionHintLineSample");
   });
 });

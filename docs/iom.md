@@ -33,6 +33,20 @@ IOM never overrides types, security posture, or engineering truth.
 
 **Self-heal workflow:** **`pnpm igor:heal`** writes **`tools/iom-proposals.jsonl`** (gitignored; one **`iom_ghost_cell`** JSON line per proposal). **`pnpm igor:apply`** prompts **y/n** per line and appends accepted cells to **`igor-power-cells.json`** — **no** agent-only mutation.
 
+**Structured cues (diagnostic):** **`iomPulse.suggestions[]`** — schism- and SOE-derived **`IOMSuggestion`** rows (severity, **`action`**, confidence). Consumable by ops tooling; **no** automatic execution.
+
+**Historical snapshots:** **`pnpm iom:snapshot -- --provenance "<label>"`** appends **`iom_snapshot_v1`** lines to **`tools/iom-snapshots.jsonl`** (gitignored). Optional override: env **`IOM_SNAPSHOTS_FILE`**. Compare windows: **`pnpm iom:diff -- --from YYYY-MM-DD --to YYYY-MM-DD`**.
+
+**CI coverage (opt-in):** **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** fails when new **`packages/shared-engine`** sources are not listed in any power cell artifact set — **CI only**, no runtime mutation.
+
+**Operator HTTP (token-gated):** Set **`ALCHEMIST_OPS_TOKEN`**; send header **`X-Ops-Token`**. **`GET /api/health/iom`** — Igor manifest + **`iomPulse`** + talent hints. **`GET /api/iom/dashboard`** — same core plus recent snapshot tail (if JSONL present on host), offline **`iomCoverage`** when monorepo paths resolve from the server cwd. **`GET /api/metrics/iom`** — **Prometheus** text exposition (`prom-client` in **`web-app`** only): `alchemist_iom_*` gauges (coverage, schisms, cells, triad/WASM flags, pending heal proposals, per-cell schism map). Scraping needs the same ops header (use a reverse proxy or Prometheus **`authorization`** if the scraper cannot send **`X-Ops-Token`**). Grafana import: **`tools/grafana-iom-dashboard.json`** (uid **`alchemist-iom-health`**). Example Prometheus alert rules: **`tools/prometheus-alchemist-iom-alerts.yaml`** (coverage gated on **`alchemist_iom_coverage_available`**, critical/warn schism tiers, heal-proposal backlog, optional triad/WASM info rules — validate with **`promtool check rules`**). **`GET /api/health`** lists paths under **`ops`**.
+
+**One-page offline status:** **`pnpm iom:status`** — Markdown table (pulse, **`iomCoverageScore`**, schisms, IOM-weighted SOE hint head, heal-proposal queue count, verdict). Complements **`pnpm igor:checkup`** (JSON). Implemented via **`node scripts/iom-status.mjs`** → **`tsx`** (engine package is TS-only).
+
+**Verify tail:** **`verify_post_summary`** (stderr) also merges offline **`iomActiveSchisms`**, **`iomHealthVerdict`**, **`recommendedNext`**, **`iomPendingProposalCount`**, **`iomSoeHintHead`** from **`scripts/iom-verify-iom-meta.ts`**.
+
+**Local proposal UI:** **`tools/iom-proposals-review.html`** — open in a browser, load **`iom-proposals.jsonl`**, approve rows, copy JSON for manual merge into **`igor-power-cells.json`**.
+
 ---
 
 ## God particle constraint (machine + human)

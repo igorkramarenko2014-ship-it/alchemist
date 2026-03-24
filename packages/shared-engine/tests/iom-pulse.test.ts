@@ -88,6 +88,18 @@ describe("iom pulse", () => {
     expect(soeSug[0]?.cellId.startsWith("soe_fusion:")).toBe(true);
   });
 
+  it("getIOMHealthPulse passes iomCoverageScore into SOE when snapshot passed", () => {
+    const p = getIOMHealthPulse({
+      soeSnapshot: {
+        meanPanelistMs: 2000,
+        triadFailureRate: 0.05,
+        gateDropRate: 0.7,
+      },
+      iomCoverageScore: 0.81,
+    });
+    expect(p.soe?.message).toContain("0.81");
+  });
+
   it("digestIgorManifestForPulse marks over budget when >12 cells", () => {
     const m = getIgorOrchestratorManifest();
     const d = digestIgorManifestForPulse(m);

@@ -1,0 +1,146 @@
+# Alchemist IOM — Prometheus alerting rules (production-oriented).
+#
+# Metrics: `apps/web-app/lib/iom-prometheus.ts` → `GET /api/metrics/iom` (scrape with ops token / proxy).
+# Load: Prometheus `rule_files:` or Grafana Mimir / ruler; validate with `promtool check rules` if installed.
+#
+# Notes:
+# - Coverage alerts require `alchemist_iom_coverage_available == 1` so serverless / wrong cwd does not false-positive.
+# - Metric names differ from some blog snippets: use `alchemist_iom_schisms_total` (not `*_active_schisms`),
+#   `alchemist_iom_igor_layer_version` (not `*_layer_version` alone), `alchemist_iom_pending_heal_proposals`.
+# - Do NOT use `time() - alchemist_iom_igor_layer_version`: layer version is a small integer, not a unix timestamp.
+# - Grafana annotation templates like `humanizePercentage` apply in Grafana-managed alerts, not Alertmanager.
+
+groups:
+  - name: alchemist-iom-health
+    interval: 30s
+    rules:
+      # --- Coverage (Vitest ↔ power cells) ---
+      - alert: AlchemistIOMCoverageCritical
+        expr: |
+          alchemist_iom_coverage_available == 1
+          and alchemist_iom_coverage_score < 0.75
+        for: 10m
+        labels:
+          severity: critical
+          team: alchemist-core
+        annotations:
+          summary: "IOM coverage critically low"
+          description: "alchemist_iom_coverage_score is {{ $value }} (threshold 0.75 on 0–1 scale). Run full `pnpm verify:harsh`, `pnpm igor:heal`, and extend Vitest↔cell mapping."
+          runbook: "docs/iom.md — IOM growth protocol & verify"
+
+      - alert: AlchemistIOMCoverageWarning
+        expr: |
+          alchemist_iom_coverage_available == 1
+          and alchemist_iom_coverage_score < 0.85
+          and alchemist_iom_coverage_score >= 0.75
+        for: 15m
+        labels:
+          severity: warning
+          team: alchemist-core
+        annotations:
+          summary: "IOM coverage below target"
+          description: "Coverage {{ $value }} (warn band 0.75–0.85). Plan test/cell mapping work before merge."
+          runbook: "docs/iom.md — coverage & selective verify"
+
+      # --- Schisms (pulse degradation) ---
+      - alert: AlchemistIOMSchismCriticalSeverity
+        expr: sum(alchemist_iom_schisms_by_severity{severity="critical"}) > 0
+        for: 8m
+        labels:
+          severity: critical
+          team: alchemist-core
+        annotations:
+          summary: "IOM pulse reports critical schism(s)"
+          description: "At least one schism with severity=critical. Check triad keys, WASM, and `GET /api/health` → iomPulse.schisms; run `pnpm iom:status`."
+          runbook: "docs/iom.md — schisms & self-heal"
+
+      - alert: AlchemistIOMSchismWarnSeverity
+        expr: sum(alchemist_iom_schisms_by_severity{severity="warn"}) > 0
+        for: 15m
+        labels:
+          severity: warning
+          team: alchemist-core
+        annotations:
+          summary: "IOM pulse reports warn-level schism(s)"
+          description: "Schisms with severity=warn present. Review iomPulse and recent deploys."
+          runbook: "docs/iom.md — schisms"
+
+      - alert: AlchemistIOMSchismsTotalCritical
+        expr: alchemist_iom_schisms_total > 4
+        for: 8m
+        labels:
+          severity: critical
+          team: alchemist-core
+        annotations:
+          summary: "IOM schism count very high"
+          description: "alchemist_iom_schisms_total = {{ $value }}. Multiple simultaneous findings — triage triad/WASM/SOE context."
+          runbook: "docs/iom.md — schisms"
+
+      - alert: AlchemistIOMSchismsTotalWarning
+        expr: alchemist_iom_schisms_total > 2
+        for: 15m
+        labels:
+          severity: warning
+          team: alchemist-core
+        annotations:
+          summary: "IOM schism count elevated"
+          description: "alchemist_iom_schisms_total = {{ $value }}. Review pulse; may overlap with severity-based alerts."
+          runbook: "docs/iom.md — schisms"
+
+      # --- Manifest / policy (consolidation backlog) ---
+      - alert: AlchemistIOMPowerCellsOverPolicy
+        expr: alchemist_iom_power_cells_total > 12
+        for: 6h
+        labels:
+          severity: info
+          team: alchemist-core
+        annotations:
+          summary: "Power cell count over IOM_POLICY_CELL_MAX (12)"
+          description: "{{ $value }} cells registered — consolidation / merge backlog per docs/iom.md (machine ceiling may still be higher until lowered in CI)."
+          runbook: "docs/iom.md — god particle constraint"
+
+      # --- Heal proposal queue (human-in-the-loop) ---
+      - alert: AlchemistIOMPendingHealProposalsWarning
+        expr: alchemist_iom_pending_heal_proposals > 3
+        for: 2h
+        labels:
+          severity: warning
+          team: alchemist-core
+        annotations:
+          summary: "Many pending IOM ghost-cell proposals"
+          description: "{{ $value }} `iom_ghost_cell` line(s) in tools/iom-proposals.jsonl — schedule `pnpm igor:apply` review."
+          runbook: "docs/iom.md — self-heal workflow"
+
+      - alert: AlchemistIOMPendingHealProposalsInfo
+        expr: alchemist_iom_pending_heal_proposals > 0
+        for: 48h
+        labels:
+          severity: info
+          team: alchemist-core
+        annotations:
+          summary: "Pending IOM heal proposals"
+          description: "{{ $value }} proposal line(s) open >48h. Clear or apply when ready."
+          runbook: "docs/iom.md — igor:apply"
+
+      # --- Optional product signals (tune or drop per environment) ---
+      - alert: AlchemistIOMTriadNotFullyLive
+        expr: alchemist_iom_triad_fully_live == 0
+        for: 2h
+        labels:
+          severity: info
+          team: alchemist-core
+        annotations:
+          summary: "Triad not fully live (expected in many dev/stage setups)"
+          description: "Not all three panelist API keys set — stubs only. Info-level; increase severity only for prod triad SLOs."
+          runbook: "docs/FIRESTARTER.md — triad keys"
+
+      - alert: AlchemistIOMWasmUnavailable
+        expr: alchemist_iom_wasm_available == 0
+        for: 4h
+        labels:
+          severity: info
+          team: alchemist-core
+        annotations:
+          summary: "WASM encoder not available on health check"
+          description: "Browser `.fxp` export path blocked until `GET /api/health/wasm` → available. Info for non-export environments."
+          runbook: "docs/FIRESTARTER.md — WASM build"

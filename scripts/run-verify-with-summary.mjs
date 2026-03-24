@@ -23,6 +23,8 @@
  *
  * **`verify_post_summary`** always includes **`iomCoverageScore`** (0–1 power-cell test map coverage),
  * **`uncoveredCells[]`**, **`iomCoveredCellCount`**, **`iomPowerCellTotal`**, **`iomUnmappedCellIds`**.
+ * After a green or failed run, **`tsx scripts/iom-verify-iom-meta.ts`** adds **`iomActiveSchisms`**,
+ * **`iomHealthVerdict`**, **`recommendedNext`**, **`iomPendingProposalCount`**, **`iomSoeHintHead`** (offline pulse).
  * Selective partial runs also set **`iomVitestBreadthScore`** (fraction of engine test files executed).
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -60,6 +62,38 @@ function logSummary(payload) {
     ...payload,
   });
   process.stderr.write(`${line}\n`);
+}
+
+/** Offline IOM meta via **`tsx`** (shared-engine is TS-only). */
+function collectIomVerifyMeta(root) {
+  const withPnpm = join(root, "scripts", "with-pnpm.mjs");
+  const script = join(root, "scripts", "iom-verify-iom-meta.ts");
+  const r = spawnSync(
+    process.execPath,
+    [withPnpm, "exec", "tsx", script],
+    {
+      cwd: root,
+      encoding: "utf8",
+      env: { ...process.env, ALCHEMIST_PNPM_FALLBACK_QUIET: "1" },
+      shell: false,
+    },
+  );
+  if (r.status !== 0) {
+    return {
+      iomActiveSchisms: null,
+      iomHealthVerdict: null,
+      recommendedNext: null,
+      iomPendingProposalCount: null,
+      iomSoeHintHead: null,
+      iomVerifyPulseMetaError: (r.stderr || r.stdout || "tsx_iom_meta_failed").trim().slice(0, 400),
+    };
+  }
+  try {
+    const line = (r.stdout || "").trim().split("\n").filter(Boolean).pop();
+    return line ? JSON.parse(line) : {};
+  } catch (e) {
+    return { iomVerifyPulseMetaError: String(e).slice(0, 400) };
+  }
 }
 
 function getChangedPathsFromGit(root) {
@@ -493,6 +527,8 @@ const iomSummaryMeta =
       : [],
   });
 
+const iomPulseMeta = collectIomVerifyMeta(root);
+
 logSummary({
   mode,
   exitCode,
@@ -505,6 +541,7 @@ logSummary({
   note:
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
   ...iomSummaryMeta,
+  ...iomPulseMeta,
 });
 
 if (process.env.ALCHEMIST_FIRE_SYNC === "1" && exitCode === 0) {

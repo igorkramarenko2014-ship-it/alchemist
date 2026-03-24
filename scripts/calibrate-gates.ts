@@ -6,7 +6,7 @@
  * - BASE_URL — default http://127.0.0.1:3000 (set to your cyan banner port)
  * - CALIBRATION_PROMPTS_FILE — optional; one prompt per line (replaces embedded set)
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AICandidate, Panelist } from "@alchemist/shared-engine";
@@ -17,10 +17,13 @@ import {
   computeSoeRecommendations,
   entropyParamArray,
   filterValid,
+  getIgorOrchestratorManifest,
+  getIOMCoverageReport,
   getIOMHealthPulse,
   isValidCandidate,
   logEvent,
   logSoeHintWithIomContext,
+  logSoeIomFusion,
   makeTriadFetcher,
   newTriadRunId,
   slavicFilterDedupe,
@@ -30,6 +33,24 @@ import {
 
 const rootDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUTPUT_PATH = join(rootDir, "tools", "gate-calibration-output.json");
+
+function collectAllEngineTestRelPaths(engineRoot: string): string[] {
+  const testsDir = join(engineRoot, "tests");
+  const out: string[] = [];
+  function walk(dir: string, prefix: string) {
+    if (!existsSync(dir)) return;
+    for (const ent of readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${ent.name}` : ent.name;
+      const abs = join(dir, ent.name);
+      if (ent.isDirectory()) walk(abs, rel);
+      else if (ent.isFile() && ent.name.endsWith(".test.ts")) {
+        out.push(`tests/${rel.split("\\").join("/")}`);
+      }
+    }
+  }
+  walk(testsDir, "");
+  return Array.from(new Set(out)).sort();
+}
 
 const DEFAULT_BASE_URL = "http://127.0.0.1:3000";
 
@@ -272,12 +293,17 @@ async function main(): Promise<void> {
     (providerFailureRate.DEEPSEEK + providerFailureRate.LLAMA + providerFailureRate.QWEN) / 3;
   const gateDropApprox =
     slavicValidIn > 0 ? Math.min(1, Math.max(0, 1 - slavicAfter / slavicValidIn)) : 0;
+  const manifest = getIgorOrchestratorManifest();
+  const engineRoot = join(rootDir, "packages", "shared-engine");
+  const executedTests = collectAllEngineTestRelPaths(engineRoot);
+  const iomCov = getIOMCoverageReport(manifest.sharedEnginePowerCells, executedTests);
   const iomPulse = getIOMHealthPulse({
     soeSnapshot: {
       meanPanelistMs: output.runDurationMs.mean,
       triadFailureRate: meanProviderFailure,
       gateDropRate: gateDropApprox,
     },
+    iomCoverageScore: iomCov.iomCoverageScore,
   });
   logEvent("iom_soe_fusion", {
     phase: "calibration_complete",
@@ -291,15 +317,21 @@ async function main(): Promise<void> {
       "Calibration-derived SOE snapshot run through IOM pulse for schism context — offline diagnostic only.",
   });
 
+  const schismCodes = iomPulse.schisms.map((s) => s.code);
   const soeForIomLog = computeSoeRecommendations(
     {
       meanPanelistMs: output.runDurationMs.mean,
       triadFailureRate: meanProviderFailure,
       gateDropRate: gateDropApprox,
     },
-    { iomSchismCodes: iomPulse.schisms.map((s) => s.code) },
+    { iomSchismCodes: schismCodes, iomCoverageScore: iomCov.iomCoverageScore },
   );
   logSoeHintWithIomContext(soeForIomLog, { runId, phase: "calibration_complete" });
+  logSoeIomFusion(
+    soeForIomLog,
+    { iomSchismCodes: schismCodes, iomCoverageScore: iomCov.iomCoverageScore },
+    { runId, phase: "calibration_complete" },
+  );
 
   console.error(`[calibrate-gates] wrote ${OUTPUT_PATH}`);
 }

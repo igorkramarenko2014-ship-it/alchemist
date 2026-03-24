@@ -1,13 +1,12 @@
 import { env } from "@/env";
-import { buildIomOpsCore } from "@/lib/iom-ops-core";
+import { buildIomOpsCore, loadRecentIomSnapshots, schismCodesTrend } from "@/lib/iom-ops-core";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 /**
- * Operator-only IOM / Igor JSON: manifest, **`iomPulse`**, talent hints, offline **`iomCoverage`** when paths resolve,
- * top schisms, **`iomSoeHintHead`**, **`iomPendingProposalCount`**, **`recommendedNext`**.
- * Requires **`ALCHEMIST_OPS_TOKEN`** and **`X-Ops-Token`**. More history → **`GET /api/iom/dashboard`**.
+ * Dedicated IOM ops JSON: core pulse + optional **`tools/iom-snapshots.jsonl`** tail + offline coverage.
+ * Same auth as **`/api/health/iom`** (**`ALCHEMIST_OPS_TOKEN`** + **`X-Ops-Token`**).
  */
 export async function GET(request: Request) {
   if (!env.alchemistOpsToken) {
@@ -26,10 +25,20 @@ export async function GET(request: Request) {
   }
 
   const core = await buildIomOpsCore(request.url);
+  const { rows, sourcePath } = loadRecentIomSnapshots(100);
 
   return NextResponse.json({
     ok: true,
     generatedAtMs: Date.now(),
     ...core,
+    snapshots: {
+      loadedCount: rows.length,
+      sourcePath,
+      schismCodeCountsAcrossSnapshots: schismCodesTrend(rows),
+      recent: rows,
+    },
+    historyNote:
+      "Suggestion acceptance rate is not tracked in-repo; use tools/iom-accepted-proposals/ locally if you archive applies.",
+    canonicalHealthIomPath: "/api/health/iom",
   });
 }

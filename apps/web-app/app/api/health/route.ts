@@ -63,7 +63,9 @@ export async function GET(request: Request) {
     },
     ops: {
       iomDashboardPath: "/api/health/iom",
-      note: "Operator-only: set ALCHEMIST_OPS_TOKEN and send X-Ops-Token on GET /api/health/iom for full Igor + IOM + talent hints.",
+      iomExtendedDashboardPath: "/api/iom/dashboard",
+      iomPrometheusMetricsPath: "/api/metrics/iom",
+      note: "Operator-only: set ALCHEMIST_OPS_TOKEN and X-Ops-Token — GET /api/health/iom (core), GET /api/iom/dashboard (+ snapshots), GET /api/metrics/iom (Prometheus text).",
     },
     igorOrchestrator: getIgorOrchestratorManifest(),
     iomPulse: getIOMHealthPulse({

@@ -53,6 +53,11 @@ export interface IOMPulseInput {
   wasmOk?: boolean;
   /** Aggregates from log pipeline — enables numeric schisms + SOE summary in pulse. */
   soeSnapshot?: SoeTriadSnapshot;
+  /**
+   * Optional **`getIOMCoverageReport` → `iomCoverageScore`** — passed into **`computeSoeRecommendations`**
+   * when **`soeSnapshot`** is set (offline map quality for SOE message + suggestions).
+   */
+  iomCoverageScore?: number;
 }
 
 export interface IOMManifestDigest {
@@ -323,6 +328,7 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
   if (input.soeSnapshot) {
     const r = computeSoeRecommendations(input.soeSnapshot, {
       iomSchismCodes: schisms.map((x) => x.code),
+      ...(input.iomCoverageScore != null && { iomCoverageScore: input.iomCoverageScore }),
     });
     soe = {
       message: r.message,

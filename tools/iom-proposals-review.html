@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IOM proposals review (local)</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    body { margin: 1.25rem; max-width: 52rem; background: #111827; color: #e5e7eb; line-height: 1.45; }
+    h1 { font-size: 1.1rem; color: #5eead4; }
+    .muted { color: #9ca3af; font-size: 0.85rem; }
+    pre { background: #0f172a; padding: 0.75rem; overflow: auto; border: 1px solid #334155; font-size: 0.8rem; }
+    button { margin-right: 0.35rem; margin-bottom: 0.35rem; padding: 0.35rem 0.6rem; cursor: pointer; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: #e5e7eb; }
+    button.approve { border-color: #0d9488; color: #5eead4; }
+    button.reject { border-color: #7f1d1d; color: #fca5a5; }
+    .row { border-bottom: 1px solid #334155; padding: 0.65rem 0; }
+    label { display: block; margin: 0.75rem 0 0.25rem; }
+    input[type="file"] { color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <h1>IOM heal proposals — local review</h1>
+  <p class="muted">
+    Browser cannot read <code>tools/iom-proposals.jsonl</code> from disk automatically.
+    Use <strong>Choose file</strong> and select that JSONL (after <code>pnpm igor:heal</code>).
+    This page does <strong>not</strong> write to the repo — copy the generated JSON and merge into
+    <code>igor-power-cells.json</code> yourself, then <code>pnpm igor:sync && pnpm verify:harsh</code>.
+  </p>
+
+  <label for="file">JSONL file</label>
+  <input id="file" type="file" accept=".jsonl,.json,text/*" />
+
+  <div id="out"></div>
+
+  <label>Accepted cells (paste into power-cells array)</label>
+  <pre id="patch">{}</pre>
+
+  <script>
+    const fileEl = document.getElementById("file");
+    const outEl = document.getElementById("out");
+    const patchEl = document.getElementById("patch");
+    const state = { rows: [], decisions: {} };
+
+    function render() {
+      outEl.innerHTML = "";
+      state.rows.forEach((row, i) => {
+        if (row.kind !== "iom_ghost_cell") return;
+        const div = document.createElement("div");
+        div.className = "row";
+        div.innerHTML =
+          "<strong>" + (row.id || "?") + "</strong>" +
+          "<div class=\"muted\">" + (row.responsibility || "") + "</div>" +
+          "<pre>" + JSON.stringify(row, null, 2) + "</pre>";
+        const ap = document.createElement("button");
+        ap.className = "approve";
+        ap.textContent = "Approve";
+        ap.onclick = () => { state.decisions[i] = "approve"; updatePatch(); };
+        const rj = document.createElement("button");
+        rj.className = "reject";
+        rj.textContent = "Reject";
+        rj.onclick = () => { state.decisions[i] = "reject"; updatePatch(); };
+        div.appendChild(ap);
+        div.appendChild(rj);
+        outEl.appendChild(div);
+      });
+      updatePatch();
+    }
+
+    function cellFromProposal(row) {
+      return {
+        id: row.id,
+        responsibility: row.responsibility,
+        artifacts: row.artifacts || [],
+        ...(row.suggestedHealthCheck != null && { health_check: row.suggestedHealthCheck }),
+        ...(row.tuningNotes != null && { tuning_notes: row.tuningNotes }),
+      };
+    }
+
+    function updatePatch() {
+      const accepted = [];
+      state.rows.forEach((row, i) => {
+        if (state.decisions[i] === "approve" && row.kind === "iom_ghost_cell") {
+          accepted.push(cellFromProposal(row));
+        }
+      });
+      patchEl.textContent =
+        accepted.length === 0
+          ? "// No approved rows yet."
+          : JSON.stringify(accepted, null, 2);
+    }
+
+    fileEl.addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const text = await f.text();
+      state.rows = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+        try { return JSON.parse(l); } catch { return null; }
+      }).filter(Boolean);
+      state.decisions = {};
+      render();
+    });
+  </script>
+</body>
+</html>

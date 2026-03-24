@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **129** tests passed, **22** files (runner) · **22** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **134** tests passed, **22** files (runner) · **22** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -79,7 +79,7 @@ _Update this block when outsiders need new context._
 |-------|-------------------|
 | **Top risk today** | WASM / CI; stub vs fetcher triad parity; keep Igor manifest **descriptive** only (no shadow control plane). |
 | **What we want from reviewers** | Threat model for **`/api/triad`**; encoder HARD GATE; optional review of **`igorOrchestrator`** / **`iomPulse`** health payloads for ops usefulness. |
-| **Last manual refresh (date)** | **2026-03-24** (**`pnpm harshcheck`** green + **`pnpm fire:sync`**; IOM V2 **`igor:heal` / `igor:apply`**, **`verify_post_summary`** **`iomCoverageScore`**; docs trimmed **`CRUCIAL-FIX`** stub line in **`FIRE` §L**) |
+| **Last manual refresh (date)** | **2026-03-24** (**`pnpm harshcheck`** + **`pnpm fire:sync`**; IOM **`GET /api/metrics/iom`** Prometheus; **`tools/grafana-iom-dashboard.json`** + **`tools/prometheus-alchemist-iom-alerts.yaml`**; **`verify_post_summary`** IOM meta; **`soe_iom_fusion`**) |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---
@@ -101,6 +101,8 @@ Paste to an auditor or LLM:
 | Action | When |
 |--------|------|
 | **`pnpm fire:sync`** | After green **`verify:harsh`** or **`harshcheck`** (refreshes this file’s metrics + **`FIRE.md`**) |
+| **`pnpm iom:status`** | One-shot **Markdown** table: offline **`getIOMHealthPulse`**, **`iomCoverageScore`**, schisms, SOE hint (IOM-weighted), **`tools/iom-proposals.jsonl`** queue count + verdict line |
+| **`pnpm igor:checkup`** | Optional one-shot **JSON**: offline **`iomPulse`** + **`iomCoverage`**; set **`ALCHEMIST_CHECKUP_BASE_URL`** to append **`/api/health`** triad slice |
 | **`pnpm igor:sync`** | After adding/removing workspace **`apps/*` / `packages/*`**, or editing **`igor-orchestrator-meta.json`** / **`igor-power-cells.json`** — then commit **`.gen.ts`**; **`verify:harsh`** checks staleness |
 | Edit **§ Human deltas** | Each release or before external review |
 | Deep doc changes | **`FIRESTARTER.md`** + contract rows **`FIRE.md` §E–L** |

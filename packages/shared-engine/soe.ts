@@ -7,8 +7,9 @@
  *
  * Wire real aggregates from your log pipeline (`triad_run_*` JSON lines) into
  * `computeSoeRecommendations`. Optional second argument **`SoeRecommendationsContext`**
- * can pass **`iomSchismCodes`** to append IOM power-cell impact to **`message`** and populate
- * **`iomAffectedCellIds`**; use **`logSoeHintWithIomContext`** for auditable stderr JSON.
+ * can pass **`iomSchismCodes`** and **`iomCoverageScore`** (Vitest↔power-cell map) to enrich
+ * **`message`** and **`iomAffectedCellIds`**; use **`logSoeIomContext`** → **`soe_iom_context`**
+ * and **`logSoeHintWithIomContext`** for auditable stderr JSON.
  *
  * **Fusion hints (`soe_fusion:*`):** copy + numeric thresholds from **`docs/brain.md` §9a** via
  * **`brain-fusion-calibration.gen.ts`** (`pnpm brain:sync`). Aligned with **agent skills**
@@ -82,12 +83,19 @@ export interface SoeRecommendations {
   iomSchismCodesEcho?: string[];
   /** `iomAffectedCellIds.length` — quick prioritization signal. */
   iomImpactCellCount?: number;
+  /** Echo of **`SoeRecommendationsContext.iomCoverageScore`** when supplied. */
+  iomCoverageScoreEcho?: number;
 }
 
 /** Optional offline / diagnostic context — never changes gate math. */
 export interface SoeRecommendationsContext {
   /** Current or hypothetical IOM schism codes (e.g. from `detectSchisms`). */
   iomSchismCodes?: readonly string[];
+  /**
+   * **`getIOMCoverageReport` → `iomCoverageScore`** (0–1). When set with schisms or below 1,
+   * appended to **`message`** for operator triangulation.
+   */
+  iomCoverageScore?: number;
 }
 
 function buildSoeFusionHints(
@@ -174,14 +182,17 @@ function buildSoeFusionHints(
 function appendIomImpactToMessage(
   message: string,
   schismCodes: readonly string[],
-  affectedCells: string[]
+  affectedCells: string[],
+  coverageScore?: number,
 ): string {
   if (schismCodes.length === 0 || affectedCells.length === 0) return message;
   const sch = schismCodes.slice(0, 6).join(", ");
   const schEll = schismCodes.length > 6 ? "…" : "";
   const cells = affectedCells.slice(0, 8).join(", ");
   const cellEll = affectedCells.length > 8 ? "…" : "";
-  return `${message} | IOM impact: ${affectedCells.length} cell(s) [${cells}${cellEll}] ← schisms: ${sch}${schEll}`;
+  const cov =
+    coverageScore != null ? `; test↔cell coverage ${coverageScore.toFixed(2)}` : "";
+  return `${message} | IOM impact: ${affectedCells.length} cell(s) [${cells}${cellEll}] ← schisms: ${sch}${schEll}${cov}`;
 }
 
 /**
@@ -203,8 +214,56 @@ export function logSoeHintWithIomContext(
     iomAffectedCellIds: rec.iomAffectedCellIds,
     iomSchismCodes: rec.iomSchismCodesEcho,
     iomImpactCellCount: rec.iomImpactCellCount,
+    iomCoverageScore: rec.iomCoverageScoreEcho,
     ...meta,
     note: "SOE + IOM schism→cell map — hints only; deployer applies changes.",
+  });
+}
+
+/**
+ * Structured **`soe_iom_context`** line when SOE was computed with IOM schism and/or coverage context.
+ */
+export function logSoeIomContext(
+  rec: SoeRecommendations,
+  context: { iomCoverageScore?: number; iomSchismCodes?: readonly string[] },
+  meta?: Record<string, unknown>,
+): void {
+  const codes = context.iomSchismCodes?.filter((c) => c.length > 0) ?? [];
+  const hasCov = context.iomCoverageScore != null;
+  if (codes.length === 0 && !hasCov) return;
+  logEvent("soe_iom_context", {
+    fusionHintCodes: rec.fusionHintCodes,
+    messageHead: rec.message.split("\n")[0]?.slice(0, 320) ?? "",
+    iomSchismCodes: codes.length > 0 ? [...codes].sort() : rec.iomSchismCodesEcho,
+    iomAffectedCellIds: rec.iomAffectedCellIds,
+    iomImpactCellCount: rec.iomImpactCellCount,
+    iomCoverageScore: context.iomCoverageScore ?? rec.iomCoverageScoreEcho,
+    ...meta,
+    note: "SOE + IOM contextual weighting — hints only; no gate mutation.",
+  });
+}
+
+/**
+ * FIRE / ops: **`soe_iom_fusion`** — SOE lines + IOM schism/coverage context (calibration, dashboards).
+ */
+export function logSoeIomFusion(
+  rec: SoeRecommendations,
+  context: { iomCoverageScore?: number; iomSchismCodes?: readonly string[] },
+  meta?: Record<string, unknown>,
+): void {
+  const codes = context.iomSchismCodes?.filter((c) => c.length > 0) ?? [];
+  const hasCov = context.iomCoverageScore != null;
+  if (codes.length === 0 && !hasCov) return;
+  logEvent("soe_iom_fusion", {
+    fusionHintCodes: rec.fusionHintCodes,
+    fusionHintLineSample: rec.fusionHintLines[0]?.slice(0, 280) ?? "",
+    messageHead: rec.message.split("\n")[0]?.slice(0, 320) ?? "",
+    iomSchismCodes: codes.length > 0 ? [...codes].sort() : rec.iomSchismCodesEcho,
+    iomAffectedCellIds: rec.iomAffectedCellIds,
+    iomImpactCellCount: rec.iomImpactCellCount,
+    iomCoverageScore: context.iomCoverageScore ?? rec.iomCoverageScoreEcho,
+    ...meta,
+    note: "SOE + IOM fusion hints — heuristic; deployer applies. No gate mutation.",
   });
 }
 
@@ -272,8 +331,15 @@ export function computeSoeRecommendations(
 
   const schismCodes = context?.iomSchismCodes?.filter((c) => c.length > 0) ?? [];
   const affectedCells = getAffectedIomCellsFromSchismCodes(schismCodes);
+  const cov = context?.iomCoverageScore;
   if (schismCodes.length > 0 && affectedCells.length > 0) {
-    message = appendIomImpactToMessage(message, schismCodes, affectedCells);
+    message = appendIomImpactToMessage(message, schismCodes, affectedCells, cov);
+  } else if (cov != null && cov < 1 && schismCodes.length === 0) {
+    message = `${message} | IOM test↔cell coverage: ${cov.toFixed(2)} (run full pnpm verify:harsh before merge if selective)`;
+  } else if (cov != null && schismCodes.length > 0 && affectedCells.length === 0) {
+    const sch = schismCodes.slice(0, 6).join(", ");
+    const schEll = schismCodes.length > 6 ? "…" : "";
+    message = `${message} | IOM schisms: ${sch}${schEll} (no mapped power cells)${cov != null ? `; coverage ${cov.toFixed(2)}` : ""}`;
   }
 
   return {
@@ -286,11 +352,13 @@ export function computeSoeRecommendations(
     fusionHintCodes,
     fusionHintLines,
     ...(suggestedPromptMaxChars != null && { suggestedPromptMaxChars }),
-    ...(schismCodes.length > 0 &&
-      affectedCells.length > 0 && {
+    ...(schismCodes.length > 0 && {
+      iomSchismCodesEcho: [...schismCodes].sort(),
+      ...(affectedCells.length > 0 && {
         iomAffectedCellIds: affectedCells,
-        iomSchismCodesEcho: [...schismCodes].sort(),
         iomImpactCellCount: affectedCells.length,
       }),
+    }),
+    ...(cov != null && { iomCoverageScoreEcho: cov }),
   };
 }
