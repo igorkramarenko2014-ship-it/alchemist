@@ -34,7 +34,7 @@ describe("igor orchestrator power layer", () => {
     expect(() =>
       logIomSelfHealProposal({
         reason: "vitest probe",
-        currentCellCount: 18,
+        currentCellCount: 19,
         transmutationNote: "merge before add",
       }),
     ).not.toThrow();

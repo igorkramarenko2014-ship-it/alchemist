@@ -62,6 +62,13 @@ export async function GET(request: Request) {
       panelistRoutes: anyLive ? "live" : "unconfigured",
       triadFullyLive: allLive,
       livePanelists: liveList,
+      /** True when this server's `/api/triad/*` can call live providers (env keys). */
+      httpTriadProviderConfigured: anyLive,
+      /**
+       * Client `runTriad` in the browser may still use **local stub fetchers** for demos when
+       * keys are missing — that path is not this server's POST behavior. Audit network + 503.
+       */
+      httpTriadPostWhenUnconfigured: "POST /api/triad/* → 503 triad_unconfigured (no upstream inference)",
       note: anyLive
         ? `Live panelist HTTP: ${liveList.join(", ")} (fetcher)${allLive ? " — full triad" : ""}. Keys: DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope or OpenRouter URL), GROQ_API_KEY or LLAMA_API_KEY (Groq Llama). Optional LLAMA_GROQ_MODEL. See docs/FIRESTARTER.md §5a.`
         : "POST /api/triad/* returns 503 triad_unconfigured until keys are set (DEEPSEEK_API_KEY, QWEN_API_KEY, GROQ_API_KEY or LLAMA_API_KEY). Demo stubs: makeTriadFetcher(true). See docs/FIRESTARTER.md §5a.",

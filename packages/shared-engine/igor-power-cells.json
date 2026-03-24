@@ -96,6 +96,16 @@
     "artifacts": ["prompt-guard.ts", "intent-hardener.ts"]
   },
   {
+    "id": "pnh",
+    "responsibility": "Predictive Network Hardening — deterministic ghost probes, warfare model, APT-pattern catalog (TS gates + triad surface; no prod auto-patch).",
+    "artifacts": [
+      "pnh/pnh-ghost-run.ts",
+      "pnh/pnh-scenarios.ts",
+      "pnh/pnh-warfare-model.ts",
+      "pnh/pnh-apt-scenarios.ts"
+    ]
+  },
+  {
     "id": "vst_observer",
     "responsibility": "VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (Igor artifacts stay under shared-engine per sync script).",
     "artifacts": ["vst-observer.ts", "iom-pulse.ts", "surgical-repair.ts"]

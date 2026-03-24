@@ -7,7 +7,7 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 ### triad
 
 - **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry.
-- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `constants.ts`
+- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `constants.ts`, `circuit-breaker.ts`
 
 ### gatekeeper
 
@@ -17,7 +17,7 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 ### slavic_score
 
 - **Responsibility:** Weighted ranking + cosine/text dedupe; creativePivot on dead end.
-- **Artifacts:** `score.ts`, `gates.ts`
+- **Artifacts:** `score.ts`, `intent-alignment.ts`, `gates.ts`
 
 ### undercover_adversarial
 
@@ -27,7 +27,7 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 ### soe
 
 - **Responsibility:** SOE hints from triad health — telemetry only, not DSP buffers.
-- **Artifacts:** `soe.ts`
+- **Artifacts:** `soe.ts`, `iom-schism-impact.ts`, `soe-hint-structured.ts`
 
 ### agent_fusion
 
@@ -37,7 +37,7 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 ### integrity
 
 - **Responsibility:** Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.
-- **Artifacts:** `integrity.ts`, `encoder.ts`, `igor-orchestrator-layer.ts`
+- **Artifacts:** `integrity.ts`, `encoder.ts`, `igor-orchestrator-layer.ts`, `engine-valuation-heuristic.ts`
 
 ### aji_entropy
 
@@ -47,7 +47,7 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 ### schism
 
 - **Responsibility:** Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative + logs only; IOM pulse schisms.
-- **Artifacts:** `schism.ts`, `iom-pulse.ts`
+- **Artifacts:** `schism.ts`, `iom-pulse.ts`, `iom-coverage.ts`
 
 ### triad_governance
 
@@ -62,7 +62,7 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 ### taxonomy
 
 - **Responsibility:** Preset taxonomy pool narrow + sparse rank pre-Slavic.
-- **Artifacts:** `taxonomy/engine.ts`, `taxonomy/sparse-rank.ts`
+- **Artifacts:** `taxonomy/engine.ts`, `taxonomy/prompt-keyword-sparse.ts`, `taxonomy/sparse-rank.ts`
 
 ### talent_market
 
@@ -81,6 +81,21 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 
 ### prompt_guard
 
-- **Responsibility:** Triad prompt bounds and rejection reasons.
-- **Artifacts:** `prompt-guard.ts`
+- **Responsibility:** Triad prompt bounds, intent guard (`validateTriadIntent`), and rejection reasons.
+- **Artifacts:** `prompt-guard.ts`, `intent-hardener.ts`
+
+### pnh
+
+- **Responsibility:** Predictive Network Hardening — deterministic ghost probes, warfare model, APT-pattern catalog (TS gates + triad surface; no prod auto-patch).
+- **Artifacts:** `pnh/pnh-ghost-run.ts`, `pnh/pnh-scenarios.ts`, `pnh/pnh-warfare-model.ts`, `pnh/pnh-apt-scenarios.ts`
+
+### vst_observer
+
+- **Responsibility:** VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (Igor artifacts stay under shared-engine per sync script).
+- **Artifacts:** `vst-observer.ts`, `iom-pulse.ts`, `surgical-repair.ts`
+
+### vst_wrapper
+
+- **Responsibility:** JUCE VST3 FXP bridge skeleton (apps/vst-wrapper) — read-only consumer of validated .fxp; stores chunk as plugin state; does not inject Serum. Pulse: vst-wrapper-pulse.ts.
+- **Artifacts:** `vst-wrapper-pulse.ts`, `iom-pulse.ts`
 

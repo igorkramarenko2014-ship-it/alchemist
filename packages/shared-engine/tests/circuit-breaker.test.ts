@@ -9,6 +9,7 @@ describe("TriadCircuitBreaker", () => {
   });
 
   it("opens when failure rate exceeds threshold after min samples", () => {
+    vi.useFakeTimers();
     const b = new TriadCircuitBreaker({
       windowSize: 4,
       minSamplesToTrip: 3,
@@ -23,6 +24,7 @@ describe("TriadCircuitBreaker", () => {
     expect(b.getPhase()).toBe("open");
     expect(b.isOpen()).toBe(true);
     expect(b.allowRequest()).toBe(false);
+    vi.useRealTimers();
   });
 
   it("half-opens after open duration and can close after successes", async () => {
