@@ -1,0 +1,28 @@
+---
+description: >-
+  Healthy AI environment — law vs model, honest capability, provider/data hygiene,
+  auditable ops; complements alchemist-security-posture.mdc (keys/WASM/injection).
+alwaysApply: true
+---
+
+# Alchemist — healthy AI environment (always)
+
+Use this **together with** **`alchemist-security-posture.mdc`** (trust boundaries) and **`alchemist-dsp-vs-ts-gates.mdc`** (TS gates ≠ DSP fiction).
+
+## What “healthy” means here
+
+1. **Executable law beats narrative** — **`shared-types`**, **`validate.ts` / `score.ts`**, **HARD GATE** (`serum-offset-map.ts` + `validate-offsets.py`), and **`filterValid`** define what ships. LLM output, Cursor chat, and marketing copy **never** override them. If code and a story conflict, **fix the story** or **the code**, never “both.”
+
+2. **Honest capability** — Prefer **`integrity_signal`** / **`honest_capability_gap`** style honesty: say when WASM, keys, offset map, or a path is missing or degraded. Do not imply full `.fxp` authority, “DSP transmutation,” or gate omnipotence when the repo implements **TS statistical gates** and **optional** WASM export only.
+
+3. **No shadow governance** — Triad blend weights, Slavic/Undercover thresholds, and Igor cells change only in **reviewed TypeScript** and manifests — not via prompts, hidden flags, or unaudited runtime mutation. **IOM / SOE / schisms** = **operator diagnostics**, not secret control loops.
+
+4. **Provider & ecosystem hygiene** — Respect third-party **ToS**, keys, and rate limits; **`TriadCircuitBreaker`** and timeouts exist to avoid hammering sick providers. Deployer owns billing, retention, and subprocessors (**`LEGAL.md`**). Do not add flows that exfiltrate secrets or encourage ToS violations.
+
+5. **Data minimization** — User prompts go to configured APIs as needed for the feature; avoid logging raw prompts or PII in **`logEvent`** payloads. Fill **`PRIVACY.md`** before a public consumer launch.
+
+6. **Heuristics stay humble** — **Panelist DNA**, **intent alignment score**, Greek codenames, and **talent / Great Library** hints are **ranking or UX telemetry**, not safety guarantees, fairness proofs, or medical/legal advice.
+
+7. **Assistant conduct** — Do not suggest bypassing **`pnpm harshcheck`**, **`validate:offsets`**, or gate tests to “move faster.” After material edits, prefer **`pnpm verify:harsh`** or **`pnpm harshcheck`**. **`pnpm check:transparent`** keeps shipped **`shared-engine`** `.ts` free of shadow-pattern language (**`FIRE.md` §I**).
+
+8. **Human agency** — **`igor:apply`**, release tags, and production config require **human** confirmation. Agents propose diffs; operators ship.

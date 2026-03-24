@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "syncedDateUtc": "2026-03-24",
+  "generatedAtUtc": "2026-03-24T19:24:21.519Z",
+  "vitestTestsPassed": 171,
+  "vitestTestFilesPassed": 31,
+  "vitestTestTsOnDisk": 31,
+  "nextJsVersion": "14.2.35",
+  "note": "Regenerated only by pnpm fire:sync after green shared-engine Vitest; do not hand-edit."
+}

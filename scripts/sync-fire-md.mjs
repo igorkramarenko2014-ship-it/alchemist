@@ -9,7 +9,11 @@
  *   pnpm fire:sync
  *
  * Optional: ALCHEMIST_FIRE_SYNC=1 with pnpm harshcheck / verify:harsh — see run-verify-with-summary.mjs
+ *
+ * Also writes **docs/fire-metrics.json** (+ **docs/fire-metrics.sha256**, GNU `sha256sum -c` form from repo root)
+ * so auditors and CI can treat one JSON as canonical metrics; Markdown tables stay human-facing mirrors.
  */
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
@@ -101,9 +105,32 @@ function buildSyncBlock({ isoDate, testCount, fileCount, nextVersion, testFilesO
     `| **Synced (UTC)** | **${isoDate}** |`,
     `| **Vitest** (\`@alchemist/shared-engine\`) | **${tc}** tests passed, **${fc}** files (runner) · **${tfd}** \`*.test.ts\` on disk |`,
     `| **Next.js** (\`apps/web-app\`) | **${nv}** (\`dependencies.next\`) |`,
+    "| **Canonical metrics JSON** | `docs/fire-metrics.json` — verify: `sha256sum -c docs/fire-metrics.sha256` (repo root) |",
     "",
     "**Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.",
   ].join("\n");
+}
+
+/**
+ * Single machine-readable snapshot (auditors / LLM tools). Hash covers exact file bytes on disk.
+ */
+function writeFireMetricsArtifacts(root, { isoDate, testCount, fileCount, nextVersion, testFilesOnDisk }) {
+  const payload = {
+    schemaVersion: 1,
+    syncedDateUtc: isoDate,
+    generatedAtUtc: new Date().toISOString(),
+    vitestTestsPassed: testCount,
+    vitestTestFilesPassed: fileCount,
+    vitestTestTsOnDisk: testFilesOnDisk,
+    nextJsVersion: nextVersion,
+    note: "Regenerated only by pnpm fire:sync after green shared-engine Vitest; do not hand-edit.",
+  };
+  const jsonPath = join(root, "docs", "fire-metrics.json");
+  const body = `${JSON.stringify(payload, null, 2)}\n`;
+  writeFileSync(jsonPath, body, "utf8");
+  const digest = createHash("sha256").update(body).digest("hex");
+  const shaPath = join(root, "docs", "fire-metrics.sha256");
+  writeFileSync(shaPath, `${digest}  docs/fire-metrics.json\n`, "utf8");
 }
 
 function patchMarkedBlock(content, beginMark, endMark, innerMarkdown, labelForError) {
@@ -155,6 +182,15 @@ const inner = buildSyncBlock({
   nextVersion,
   testFilesOnDisk,
 });
+
+writeFireMetricsArtifacts(root, {
+  isoDate,
+  testCount: engine.testCount,
+  fileCount: engine.fileCount,
+  nextVersion,
+  testFilesOnDisk,
+});
+process.stderr.write("sync-fire-md: wrote docs/fire-metrics.json + docs/fire-metrics.sha256\n");
 
 const beforeFire = readFileSync(firePath, "utf8");
 const afterFire = patchMarkedBlock(beforeFire, MARK_BEGIN, MARK_END, inner, "docs/FIRE.md");

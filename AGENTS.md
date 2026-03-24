@@ -9,6 +9,7 @@
 3. **[`.cursorrules`](.cursorrules)** (repo root) — compressed context  
 4. **[`.cursor/rules/alchemist-brief.mdc`](.cursor/rules/alchemist-brief.mdc)** — HARD GATE, build order, triad weights  
 4b. **[`.cursor/rules/alchemist-security-posture.mdc`](.cursor/rules/alchemist-security-posture.mdc)** — **always-on** security posture: offsets, env keys, triad stub/prod parity, WASM integrity, LLM trust boundaries, verification chain, thinking order  
+4c. **[`.cursor/rules/alchemist-healthy-ai-environment.mdc`](.cursor/rules/alchemist-healthy-ai-environment.mdc)** — **always-on** healthy AI ops: **law vs model**, honest capability / no shadow governance, provider & data hygiene, humble heuristics (DNA / intent alignment), human agency (**`igor:apply`**, release)  
 5. **[`.cursor/rules/alchemist-dsp-vs-ts-gates.mdc`](.cursor/rules/alchemist-dsp-vs-ts-gates.mdc)** — Undercover/Slavic = TS gates, not VST DSP  
 6. **[`.cursor/rules/alchemist-quality.mdc`](.cursor/rules/alchemist-quality.mdc)** — scoped edit checklist (HARD GATE, triad, scripts)  
 7. **[`.cursor/rules/alchemist-role-mission.mdc`](.cursor/rules/alchemist-role-mission.mdc)** — always-on **Lead Architect** role, mission, **`/plan` / `/fix` / `/refactor` / `/audit`** overrides (align with Cursor user rules)  
@@ -29,6 +30,7 @@
 
 ## Hard rules
 
+- **Healthy AI environment** — TS gates + HARD GATE are **law**; triad LLMs produce **candidates** only. No shadow governance, no overstated “AI decides” copy over code. Provider ToS, keys, and **`PRIVACY.md`** before public beta — see **`alchemist-healthy-ai-environment.mdc`**.  
 - **No** encoder / `.fxp` / authoritative `SerumState` values without validated **`packages/fxp-encoder/serum-offset-map.ts`** and **`tools/validate-offsets.py`** on a real Serum `.fxp`.  
 - **Browser export** needs wasm-pack output in **`packages/fxp-encoder/pkg/`** (`pnpm run build:wasm` with Rust). Health: **`GET /api/health/wasm`**. CI/deploy: **`pnpm assert:wasm`** (same checks on disk); **`REQUIRE_WASM=1`** fails closed if stub/missing. See **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C / §E1.17**.  
 - **`shared-types`** is schema source of truth; after edits run **`pnpm --filter @alchemist/shared-types build`** (or **`pnpm harshcheck`**).  
