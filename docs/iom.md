@@ -31,6 +31,8 @@ IOM never overrides types, security posture, or engineering truth.
 
 **IOM pulse (diagnostic):** **`packages/shared-engine/iom-pulse.ts`** — **`getIOMHealthPulse`**, **`detectSchisms`**; **`GET /api/health` → `iomPulse`** merges manifest digest with live triad/WASM and optional log-derived **`SoeTriadSnapshot`**; explicit **`schisms[]`** only — **no** shadow governance.
 
+**Self-heal workflow:** **`pnpm igor:heal`** writes **`tools/iom-proposals.jsonl`** (gitignored; one **`iom_ghost_cell`** JSON line per proposal). **`pnpm igor:apply`** prompts **y/n** per line and appends accepted cells to **`igor-power-cells.json`** — **no** agent-only mutation.
+
 ---
 
 ## God particle constraint (machine + human)

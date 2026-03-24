@@ -21,7 +21,7 @@
  * When `shared-engine` sources changed, **IOM cell hints** (`igor-power-cells.json`) map
  * touched artifacts → Vitest files; unmatched `.ts` changes fall back to the full engine suite.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -106,8 +106,54 @@ function loadIgorPowerCells(root) {
   }
 }
 
+/** Collect every `tests` `.test.ts` file path relative to `packages/shared-engine/`. */
+function collectAllEngineTestRelPaths(engineRoot) {
+  const testsDir = join(engineRoot, "tests");
+  const out = [];
+  function walk(dir, prefix) {
+    if (!existsSync(dir)) return;
+    for (const ent of readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${ent.name}` : ent.name;
+      const abs = join(dir, ent.name);
+      if (ent.isDirectory()) walk(abs, rel);
+      else if (ent.isFile() && ent.name.endsWith(".test.ts")) {
+        out.push(`tests/${rel.split("\\").join("/")}`);
+      }
+    }
+  }
+  walk(testsDir, "");
+  return [...new Set(out)].sort();
+}
+
+function buildIomPartialSummary(root, plan) {
+  const engineRoot = join(root, "packages", "shared-engine");
+  const allTests = collectAllEngineTestRelPaths(engineRoot);
+  const ranSet = new Set(plan.vitestArgs);
+  const skipped = allTests.filter((t) => !ranSet.has(t));
+  const score = allTests.length
+    ? Math.round((plan.vitestArgs.length / allTests.length) * 1000) / 1000
+    : null;
+  const cellPart = plan.matchedCellIds?.length
+    ? `Cells linked from git diff: [${plan.matchedCellIds.join(", ")}]. `
+    : "";
+  const skipPreview = skipped.slice(0, 12);
+  const ell = skipped.length > 12 ? " …" : "";
+  return {
+    iomSelectiveEngineMode: "partial_iom_mapped",
+    iomCoverageScore: score,
+    iomMatchedCellIds: plan.matchedCellIds,
+    iomRanVitestFileCount: plan.vitestArgs.length,
+    iomEngineTestFileTotal: allTests.length,
+    iomSkippedVitestFilesSample: skipPreview,
+    iomSkippedVitestFileCount: skipped.length,
+    iomSelectiveWarnings: [
+      `${cellPart}Local selective IOM Vitest ran ${plan.vitestArgs.length}/${allTests.length} files (iomCoverageScore=${score}). Not executed include: ${skipPreview.join(", ")}${ell}. Run full pnpm verify:harsh or pnpm harshcheck before merge.`,
+    ],
+  };
+}
+
 /**
- * @returns {{ kind: "full" } | { kind: "partial"; vitestArgs: string[] }}
+ * @returns {{ kind: "full"; matchedCellIds: string[] } | { kind: "partial"; vitestArgs: string[]; matchedCellIds: string[] }}
  */
 function iomSelectiveVitestPlan(root, changed) {
   const enginePrefix = "packages/shared-engine/";
@@ -122,12 +168,12 @@ function iomSelectiveVitestPlan(root, changed) {
   const relSources = tsUnderEngine.map((f) => f.slice(enginePrefix.length).split("\\").join("/"));
 
   if (relSources.length === 0) {
-    return { kind: "full" };
+    return { kind: "full", matchedCellIds: [] };
   }
 
   const cells = loadIgorPowerCells(root);
   if (!cells) {
-    return { kind: "full" };
+    return { kind: "full", matchedCellIds: [] };
   }
 
   const matchedIds = new Set();
@@ -143,14 +189,14 @@ function iomSelectiveVitestPlan(root, changed) {
   }
 
   if (matchedIds.size === 0) {
-    return { kind: "full" };
+    return { kind: "full", matchedCellIds: [] };
   }
 
   const vitestRel = new Set(["tests/igor-orchestrator-layer.test.ts"]);
   for (const id of matchedIds) {
     const files = IOM_CELL_VITEST_FILES[id];
     if (!files || files.length === 0) {
-      return { kind: "full" };
+      return { kind: "full", matchedCellIds: [] };
     }
     for (const t of files) vitestRel.add(t);
   }
@@ -160,12 +206,16 @@ function iomSelectiveVitestPlan(root, changed) {
   for (const rel of vitestRel) {
     const abs = join(engineRoot, ...rel.split("/"));
     if (!existsSync(abs)) {
-      return { kind: "full" };
+      return { kind: "full", matchedCellIds: [] };
     }
     vitestArgs.push(rel);
   }
   vitestArgs.sort();
-  return { kind: "partial", vitestArgs };
+  return {
+    kind: "partial",
+    vitestArgs,
+    matchedCellIds: [...matchedIds].sort(),
+  };
 }
 
 function runSelectiveEngineTests(root, withPnpm) {
@@ -179,12 +229,33 @@ function runSelectiveEngineTests(root, withPnpm) {
     });
     return r.status === null ? 1 : r.status;
   };
+
+  const fullEngineOkMeta = {
+    iomSelectiveEngineMode: "full_engine_selective_path",
+    iomCoverageScore: 1,
+    iomSelectiveWarnings: [],
+  };
+
   const changed = getChangedPathsFromGit(root);
   if (!changed || changed.length === 0) {
     process.stderr.write(
       "[alchemist] selective verify: no git diff range — running full test:engine\n"
     );
-    return runWp(wp("test:engine"));
+    const c = runWp(wp("test:engine"));
+    if (c === 0) {
+      return {
+        code: 0,
+        iom: { ...fullEngineOkMeta, iomSelectiveEngineMode: "full_engine_no_git_range" },
+      };
+    }
+    return {
+      code: c,
+      iom: {
+        iomSelectiveEngineMode: "full_engine_no_git_range_failed",
+        iomCoverageScore: null,
+        iomSelectiveWarnings: ["Selective verify: full test:engine failed — see output above."],
+      },
+    };
   }
   const needEngine = changed.some(
     (f) => f.startsWith("packages/shared-engine/") || f.startsWith("packages/shared-types/")
@@ -194,7 +265,16 @@ function runSelectiveEngineTests(root, withPnpm) {
     process.stderr.write(
       "[alchemist] selective verify: skipping Vitest — no changes under shared-engine, shared-types, or serum2-encoder\n"
     );
-    return 0;
+    return {
+      code: 0,
+      iom: {
+        iomSelectiveEngineMode: "vitest_skipped_no_package_diff",
+        iomCoverageScore: null,
+        iomSelectiveWarnings: [
+          "Selective verify: Vitest skipped — no changes under packages/shared-engine, packages/shared-types, or packages/serum2-encoder in git range.",
+        ],
+      },
+    };
   }
   if (needEngine) {
     const plan = iomSelectiveVitestPlan(root, changed);
@@ -202,6 +282,7 @@ function runSelectiveEngineTests(root, withPnpm) {
       process.stderr.write(
         `[alchemist] selective verify: IOM-targeted Vitest (${plan.vitestArgs.length} files)\n`
       );
+      const partialMeta = buildIomPartialSummary(root, plan);
       const c = runWp([
         process.execPath,
         withPnpm,
@@ -212,19 +293,42 @@ function runSelectiveEngineTests(root, withPnpm) {
         "run",
         ...plan.vitestArgs,
       ]);
-      if (c !== 0) return c;
-    } else {
-      process.stderr.write(
-        "[alchemist] selective verify: full shared-engine Vitest (no IOM cell match or unmapped cell)\n"
-      );
-      const c = runWp(wp("--filter", "@alchemist/shared-engine", "test"));
-      if (c !== 0) return c;
+      return { code: c, iom: partialMeta };
     }
+    process.stderr.write(
+      "[alchemist] selective verify: full shared-engine Vitest (no IOM cell match or unmapped cell)\n"
+    );
+    const c = runWp(wp("--filter", "@alchemist/shared-engine", "test"));
+    if (c === 0) {
+      return {
+        code: 0,
+        iom: { ...fullEngineOkMeta, iomSelectiveEngineMode: "full_engine_iom_fallback_or_unmapped" },
+      };
+    }
+    return {
+      code: c,
+      iom: {
+        iomSelectiveEngineMode: "full_engine_iom_fallback_failed",
+        iomCoverageScore: null,
+        iomSelectiveWarnings: ["Selective verify: full shared-engine Vitest failed — see output above."],
+      },
+    };
   }
   if (needSerum2) {
-    return runWp(wp("--filter", "@alchemist/serum2-encoder", "test"));
+    const c = runWp(wp("--filter", "@alchemist/serum2-encoder", "test"));
+    return {
+      code: c,
+      iom: {
+        iomSelectiveEngineMode: "serum2_encoder_only",
+        iomCoverageScore: null,
+        iomSelectiveWarnings:
+          c === 0
+            ? ["Selective verify: only serum2-encoder tests ran; shared-engine Vitest was not in scope for this diff."]
+            : ["Selective verify: serum2-encoder tests failed — see output above."],
+      },
+    };
   }
-  return 0;
+  return { code: 0, iom: fullEngineOkMeta };
 }
 
 function soeHint(exitCode, durationMs, mode) {
@@ -245,6 +349,9 @@ function runPipeline(root, mode) {
   const withPnpm = join(root, "scripts", "with-pnpm.mjs");
   /** Uses `scripts/with-pnpm.mjs` so verify works when `pnpm` is not on PATH (falls back to npx). */
   const wp = (...pnpmArgs) => [process.execPath, withPnpm, ...pnpmArgs];
+
+  /** @type {Record<string, unknown> | undefined} */
+  let iomVerifyMeta;
 
   const steps = [
     {
@@ -290,9 +397,10 @@ function runPipeline(root, mode) {
 
   for (const { label, args } of steps) {
     if (label === "test:engine" && selective) {
-      const code = runSelectiveEngineTests(root, withPnpm);
-      if (code !== 0) {
-        return { exitCode: code, failedStep: label };
+      const res = runSelectiveEngineTests(root, withPnpm);
+      iomVerifyMeta = res.iom;
+      if (res.code !== 0) {
+        return { exitCode: res.code, failedStep: label, iomVerifyMeta };
       }
       continue;
     }
@@ -303,11 +411,18 @@ function runPipeline(root, mode) {
       shell: false,
     });
     const code = r.status === null ? 1 : r.status;
+    if (label === "test:engine" && code === 0) {
+      iomVerifyMeta = {
+        iomSelectiveEngineMode: process.env.CI ? "full_ci" : "full_local",
+        iomCoverageScore: 1,
+        iomSelectiveWarnings: [],
+      };
+    }
     if (code !== 0) {
-      return { exitCode: code, failedStep: label };
+      return { exitCode: code, failedStep: label, iomVerifyMeta };
     }
   }
-  return { exitCode: 0, failedStep: null };
+  return { exitCode: 0, failedStep: null, iomVerifyMeta };
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -327,7 +442,7 @@ if (mode !== "verify-harsh" && mode !== "verify-web") {
 }
 
 const t0 = Date.now();
-const { exitCode, failedStep } = runPipeline(root, mode);
+const { exitCode, failedStep, iomVerifyMeta } = runPipeline(root, mode);
 const durationMs = Date.now() - t0;
 
 logSummary({
@@ -341,6 +456,7 @@ logSummary({
   soeHint: soeHint(exitCode, durationMs, mode),
   note:
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
+  ...(iomVerifyMeta ?? {}),
 });
 
 if (process.env.ALCHEMIST_FIRE_SYNC === "1" && exitCode === 0) {

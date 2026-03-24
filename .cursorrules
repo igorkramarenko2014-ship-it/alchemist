@@ -31,16 +31,20 @@
 
 `soe.ts` — **pure TS hints** from aggregate triad metrics. Not oversampling or buffer switching.
 
-## IOM V4 — healthy ecosystem (Digital Igor / refinery ethos)
+## IOM V5 — diagnostic + prescriptive (operator nervous system)
 
-**Role:** **IOM** = **Igor Orchestration Module** — **`docs/iom.md`**, **`alchemist-iom.mdc`**, **`brain.md` §9c–§9c.1. **High-water mark:** prefer a **refinery** (flow + shaping) over a **prison** (brittle cancel-only culture). **Does not** relax law.
+**Role:** **IOM** = **Igor Orchestration Module** — **`docs/iom.md`**, **`alchemist-iom.mdc`**, **`brain.md` §9c–§9d**. **Mandate:** active **diagnostic** layer for the operator — **descriptive** in code paths, **prescriptive** in hints (stderr, health JSON, **`verify_post_summary`**). **No shadow governance:** no silent mutation of gates, weights, routes, or **`igor-power-cells.json`**.
 
-1. **Upstream motivation** — Harden **intent before** the triad: clearer prompts, explicit “negative space” (what the sound should **avoid**), fewer ambiguous NL drops. **Triad** stays three APIs + telemetry — not mysticism.
-2. **Salvage vs cancel (bounded)** — When a candidate is **structurally** useful but fails a **numeric/schema** check, prefer **auditable repair** (clamp, normalize) **only** where **`shared-types`** + encoder **HARD GATE** allow — **never** invent Serum offsets or bypass **`serum-offset-map.ts` / `validate-offsets.py`**. If repair would touch authoritative bytes without validation, **reject** and document.
-3. **Diversity via purpose** — Optional **panelist identity** in prompts/system hints (e.g. timbral vs modulation vs saturation emphasis) to reduce clone-drift — **copy + routing**, not fake DSP claims in TS.
-4. **Flow health** — Track **pass rate / drop reasons / latency** in telemetry + **`igorOrchestrator`** / SOE hints — optimize the **environment**, not “cheat” the gates.
+1. **Schism-to-action pipeline** — Surface **`iomPulse.schisms[]`**, SOE / calibration hints, and concrete next steps (e.g. **`pnpm test:real-gates`**, full **`pnpm verify:harsh`**) — **telemetry + docs**, not auto-execution.
+2. **Safe promotion** — **`pnpm igor:heal`** proposes ghosts → **`tools/iom-proposals.jsonl`** (gitignored). **`pnpm igor:apply`** is interactive (**y/n**); only the **human** appends cells. Then **`pnpm igor:sync`**. Never auto-mutate the manifest in agents or daemons.
+3. **Coverage visibility** — Local **`harshcheck`** may run IOM-mapped **partial** Vitest; **`verify_post_summary`** carries **`iomCoverageScore`** + **`iomSelectiveWarnings`**. **CI** runs the **full** engine suite. Every new **`shared-engine`** source should eventually land in a power cell **artifact** list (use **`igor:heal`** to find gaps).
+4. **Provenance** — IOM proposals and pulses carry **`provenance`** / scan timestamps for audit; **cryptographic signing** is optional future ops — not claimed until implemented.
 
-**Igor vibe:** fix the **flow** (prompts, timeouts, calibration, manifest honesty) before blaming “bad models.” **Canon first** — **`alchemist-dsp-vs-ts-gates.mdc`**, **HARD GATE**, **`FIRE` / `FIRESTARTER`**.
+**Refinery ethos (unchanged):** prefer **upstream motivation** and **bounded salvage** over cancel-only culture — **`docs/iom.md`**, **`.cursorrules`** V4 spirit. **HARD GATE** and TS gate law are not negotiable.
+
+**Igor vibe:** fix **flow** (prompts, timeouts, calibration, manifest honesty) before blaming models. **Canon first** — **`alchemist-dsp-vs-ts-gates.mdc`**, **HARD GATE**, **`FIRE` / `FIRESTARTER`**.
+
+**Invariant:** IOM is an **ops map** — it **observes** the triad and gates; it does **not** control them. If a gate fails, IOM may report a **schism**; the **HARD GATE** and TS validators remain the executioners for Serum bytes and schema truth.
 
 ## New-session recovery (repo root)
 
@@ -56,6 +60,9 @@ pnpm alc:doctor    # env (NOT pnpm doctor)
 pnpm dev           # or pnpm dev:web if Turbo fails
 pnpm verify:harsh  # fast: types + Vitest
 pnpm harshcheck    # + next build (spell: harshcheck not harshchek)
+pnpm fire:sync     # after green verify — FIRE.md / brain-plus metrics
+pnpm igor:heal     # proposals → tools/iom-proposals.jsonl (gitignored)
+pnpm igor:apply    # interactive append cells — then igor:sync
 ```
 
 ## HARD GATE

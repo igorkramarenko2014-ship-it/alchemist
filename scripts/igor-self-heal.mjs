@@ -3,11 +3,12 @@
  * IOM self-heal **scan** — walks `packages/shared-engine` for `.ts` sources not listed in any
  * `igor-power-cells.json` artifact. Emits auditable stderr JSON; **does not** mutate JSON.
  *
- * Human places the stone: copy rows into `igor-power-cells.json`, then `pnpm igor:sync`.
+ * Writes **`tools/iom-proposals.jsonl`** (gitignored) for **`pnpm igor:apply`**, or copy rows by hand,
+ * then **`pnpm igor:sync`** after editing **`igor-power-cells.json`**.
  *
  * @see packages/shared-engine/igor-orchestrator-layer.ts IOM_POLICY_CELL_MAX
  */
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -87,6 +88,24 @@ function loadRegisteredArtifacts(powerCellsPath) {
   return { set, cellCount: cells.length };
 }
 
+function writeProposalsJsonl(root, proposals, scanTs) {
+  const toolsDir = join(root, "tools");
+  mkdirSync(toolsDir, { recursive: true });
+  const outPath = join(toolsDir, "iom-proposals.jsonl");
+  const lines = proposals.map((p) =>
+    JSON.stringify({
+      kind: "iom_ghost_cell",
+      scanTs,
+      provenance: "igor-self-heal.mjs",
+      id: p.id,
+      responsibility: p.responsibility,
+      artifacts: p.artifacts,
+    }),
+  );
+  writeFileSync(outPath, lines.length ? `${lines.join("\n")}\n` : "", "utf8");
+  process.stdout.write(`\nWrote ${lines.length} line(s) → tools/iom-proposals.jsonl (gitignored). Run pnpm igor:apply to review y/n.\n`);
+}
+
 function main() {
   const here = dirname(fileURLToPath(import.meta.url));
   const root = findMonorepoRoot(here) ?? findMonorepoRoot(process.cwd());
@@ -110,6 +129,7 @@ function main() {
   }
 
   const ghostList = [...seen].sort();
+  const scanTs = new Date().toISOString();
 
   if (ghostList.length > 0) {
     const proposals = ghostList.map((file) => {
@@ -125,6 +145,8 @@ function main() {
         provenance: "igor-self-heal.mjs",
       };
     });
+
+    writeProposalsJsonl(root, proposals, scanTs);
 
     logEvent("iom_self_heal_proposal", {
       reason: "igor_self_heal_scan",
@@ -144,12 +166,25 @@ function main() {
       process.stdout.write(`  • ${p.artifacts[0]}  →  suggested id: ${p.id}\n`);
     }
     process.stdout.write(
-      `\nTo promote: add rows to packages/shared-engine/igor-power-cells.json and run pnpm igor:sync\n` +
+      `\nTo promote: pnpm igor:apply — or edit packages/shared-engine/igor-power-cells.json by hand — then pnpm igor:sync\n` +
         `Policy target: ≤ ${IOM_POLICY_CELL_MAX} cells (current ${cellCount}).\n\n`,
     );
     process.exitCode = 0;
     return;
   }
+
+  mkdirSync(join(root, "tools"), { recursive: true });
+  writeFileSync(
+    join(root, "tools", "iom-proposals.jsonl"),
+    `${JSON.stringify({
+      kind: "iom_heal_scan_ok",
+      scanTs,
+      provenance: "igor-self-heal.mjs",
+      note: "no ghost artifacts under allowlist rules",
+      currentCellCount: cellCount,
+    })}\n`,
+    "utf8",
+  );
 
   logEvent("iom_self_heal_scan_ok", {
     reason: "igor_self_heal_scan",

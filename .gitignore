@@ -31,3 +31,5 @@ build
 
 # Gate calibration local artifact (pnpm test:real-gates)
 tools/gate-calibration-output.json
+# IOM self-heal proposals (pnpm igor:heal → pnpm igor:apply)
+tools/iom-proposals.jsonl

@@ -79,7 +79,7 @@ _Update this block when outsiders need new context._
 |-------|-------------------|
 | **Top risk today** | WASM / CI; stub vs fetcher triad parity; keep Igor manifest **descriptive** only (no shadow control plane). |
 | **What we want from reviewers** | Threat model for **`/api/triad`**; encoder HARD GATE; optional review of **`igorOrchestrator`** / **`iomPulse`** health payloads for ops usefulness. |
-| **Last manual refresh (date)** | **2026-03-24** (**`pnpm harshcheck`** + **`pnpm fire:sync`**; IOM pulse + schism detector in **`iom-pulse.ts`**; **`FIRE` / `FIRESTARTER` / `brain` / `brain-plus`**) |
+| **Last manual refresh (date)** | **2026-03-24** (**`pnpm harshcheck`** green + **`pnpm fire:sync`**; IOM V2 **`igor:heal` / `igor:apply`**, **`verify_post_summary`** **`iomCoverageScore`**; docs trimmed **`CRUCIAL-FIX`** stub line in **`FIRE` §L**) |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---

@@ -55,6 +55,8 @@ pnpm build:wasm        # Rust + wasm-pack → browser Export .fxp (needs rustup 
 pnpm fire:sync         # after green verify: refresh docs/FIRE.md Vitest + Next metrics block
 pnpm brain:sync        # docs/brain.md §9a JSON → brain-fusion-calibration.gen.ts
 pnpm igor:sync         # workspace packages + meta → igor-orchestrator-packages.gen.ts
+pnpm igor:heal         # ghost .ts vs igor-power-cells.json → tools/iom-proposals.jsonl (gitignored) + stderr
+pnpm igor:apply        # interactive y/n append proposals → igor-power-cells.json; then pnpm igor:sync
 ```
 
 See **[`RUN.txt`](RUN.txt)** for a copy-paste one-liner.
