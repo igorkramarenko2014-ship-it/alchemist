@@ -10,7 +10,7 @@ import {
   logEvent,
   newTriadRunId,
   PANELIST_ALCHEMIST_CODENAME,
-  validatePromptForTriad,
+  validateTriadIntent,
 } from "@alchemist/shared-engine";
 import type { AICandidate, Panelist } from "@alchemist/shared-types";
 import { NextResponse } from "next/server";
@@ -95,9 +95,23 @@ export async function triadPanelPost(
     return NextResponse.json({ error: "prompt_required" }, { status: 400 });
   }
 
-  const guard = validatePromptForTriad(prompt);
+  const userMode =
+    body !== null &&
+    typeof body === "object" &&
+    "userMode" in body &&
+    (body as { userMode?: unknown }).userMode !== undefined
+      ? (body as { userMode: unknown }).userMode
+      : undefined;
+
+  const guard = validateTriadIntent({ prompt, userMode });
   if (guard.ok === false) {
-    return NextResponse.json({ error: guard.reason }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: guard.reason,
+        ...(guard.detail !== undefined ? { message: guard.detail } : {}),
+      },
+      { status: 400 },
+    );
   }
 
   const runId = newTriadRunId();

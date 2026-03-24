@@ -3,6 +3,8 @@
  * **`AICandidate`** payloads only. Does **not** bypass HARD GATE, Slavic, Undercover,
  * or encoder logic. Intended to run **after** HARD GATE green, **before** encode/push
  * (when that pipeline is wired).
+ *
+ * Formal contract: **`docs/surgical-repair-contract.md`**.
  */
 import type { AICandidate } from "@alchemist/shared-types";
 import { logEvent } from "./telemetry";

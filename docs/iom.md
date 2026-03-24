@@ -146,14 +146,14 @@ iom(test): <what changed>     # tests for existing cell
 
 | Layer | “Motivation” stance (product + assistant) | Hard law (unchanged) |
 |--------|-------------------------------------------|----------------------|
-| **Upstream** | **`intent-hardener`** pattern (future module): Socratic / negative-space NL before triad — reduce ambiguity so models explore **valid** territory. | **HARD GATE:** no invented Serum bytes; triad = **LLAMA / DEEPSEEK / QWEN** APIs + weights. |
-| **Midstream** | **`surgical-repair`** pattern (future): if a candidate is **salvageable** under **`shared-types`**, prefer **nudge/clamp** over drop — **auditable**, tested, logged. | Repairs that need **authoritative** `.fxp` / offset semantics **require** validated **`serum-offset-map.ts`** + **`validate-offsets.py`** — otherwise **reject**, don’t guess. |
-| **Panelist DNA** | **`panelist-identity`** pattern (future): primacy seeds in **prompts** (e.g. timbral vs modulation vs saturation emphasis) so panelists **diversify** instead of cloning. | **Undercover / Slavic** remain **TS statistics** — not analog DSP namesakes. |
+| **Upstream** | **`validateTriadIntent`** (**`intent-hardener.ts`**) — cheap HTTP intent guard before provider calls (composes **`prompt-guard`** + optional **`userMode`** + signal heuristics). **Not** full Serum schema validation. | **HARD GATE:** no invented Serum bytes; triad = **LLAMA / DEEPSEEK / QWEN** APIs + weights. |
+| **Midstream** | **`performSurgicalRepair`** (**`surgical-repair.ts`**) — auditable **clamp / log-only** on **`AICandidate`** post-gate (see **`docs/surgical-repair-contract.md`**). | Repairs that need **authoritative** `.fxp` / offset semantics **require** validated **`serum-offset-map.ts`** + **`validate-offsets.py`** — otherwise **reject**, don’t guess. |
+| **Panelist DNA** | **`panelist-identity`** pattern (future): primacy seeds in **fetcher system prompts** (e.g. timbral vs modulation vs saturation emphasis) so panelists **diversify** instead of cloning. | **Undercover / Slavic** remain **TS statistics** — not analog DSP namesakes. |
 | **Telemetry** | Prefer **flow health** (pass rate, drop codes, latency) in **SOE** + **`igorOrchestrator`** narrative — “environment” debugging. | **No shadow governance** — no unaudited auto-relax of gates. |
 
 **Cursor / rules:** root **`.cursorrules`** — **IOM V4 — healthy ecosystem**. **Assistant:** **`brain.md` §9c.1** fast-path moves still apply.
 
-**Not shipped in-repo yet:** `intent-hardener.ts`, `surgical-repair.ts`, `panelist-identity.ts` — spec above; implement only with **`/plan` → GO**, schema hooks, and tests. **Shall we draft `surgical-repair.ts`?** Only after a written contract: which fields are clampable under **`AICandidate` / `SerumState`**, and which failures stay **hard reject**.
+**Shipped:** **`intent-hardener.ts`** (triad routes), **`surgical-repair.ts`** + **`docs/surgical-repair-contract.md`**. **Still future:** **`panelist-identity`** (per-fetcher prompt seeds) — implement with explicit prompt diffs + tests; no automatic gate relaxation.
 
 ---
 

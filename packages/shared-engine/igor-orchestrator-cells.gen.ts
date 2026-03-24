@@ -82,8 +82,8 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "prompt_guard",
-    responsibility: "Triad prompt bounds and rejection reasons.",
-    artifacts: ["prompt-guard.ts"] as const,
+    responsibility: "Triad prompt bounds, intent guard (`validateTriadIntent`), and rejection reasons.",
+    artifacts: ["prompt-guard.ts", "intent-hardener.ts"] as const,
   },
   {
     id: "vst_observer",

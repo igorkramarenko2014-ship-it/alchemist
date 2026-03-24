@@ -119,6 +119,8 @@ export {
   validatePromptForTriad,
 } from "./prompt-guard";
 export type { PromptGuardReason } from "./prompt-guard";
+export { validateTriadIntent } from "./intent-hardener";
+export type { IntentHardenerReason, TriadIntentInput } from "./intent-hardener";
 export { logEvent } from "./telemetry";
 export {
   logTriadPanelistEnd,

@@ -83,8 +83,8 @@
   },
   {
     "id": "prompt_guard",
-    "responsibility": "Triad prompt bounds and rejection reasons.",
-    "artifacts": ["prompt-guard.ts"]
+    "responsibility": "Triad prompt bounds, intent guard (`validateTriadIntent`), and rejection reasons.",
+    "artifacts": ["prompt-guard.ts", "intent-hardener.ts"]
   },
   {
     "id": "vst_observer",

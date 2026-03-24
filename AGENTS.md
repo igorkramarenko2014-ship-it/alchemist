@@ -43,8 +43,10 @@ pnpm verify:keys      # live Groq / DeepSeek / Qwen probe (.env.local; Qwen URL/
 pnpm test:real-gates  # gate calibration vs live triad routes → stderr calibration_*; local tools/gate-calibration-output.json (gitignored)
 pnpm dev              # or pnpm dev:web
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
+pnpm harshcheck:fire  # harshcheck + ALCHEMIST_FIRE_SYNC=1 (refresh FIRE / brain-plus metrics after green)
 pnpm verify:ci        # assert:hard-gate + verify:harsh (matches default GitHub Verify job)
 pnpm verify:harsh     # faster: no next build
+pnpm verify:harsh:fire # verify:harsh + ALCHEMIST_FIRE_SYNC=1 after green
 pnpm predeploy        # build:wasm + REQUIRE_WASM assert:wasm — before shipping browser .fxp
 pnpm soe:migrate      # optional: legacy SOE lines → structured JSONL (see packages/shared-engine/soe-hint-structured.ts)
 pnpm test:engine:grep -- --grep <pattern>  # shared-engine Vitest only — fast iteration (see brain.md §9c.1)

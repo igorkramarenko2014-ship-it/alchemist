@@ -28,6 +28,8 @@ Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first 
   pnpm dev:recover         # clears apps/web-app/.next/cache/webpack+swc then dev — lighter than app:repair
   pnpm dev                 # direct web dev-server — use 127.0.0.1 URL from cyan banner, not localhost
   pnpm verify:harsh        # optional sanity: types + Vitest
+  pnpm verify:harsh:fire   # same + ALCHEMIST_FIRE_SYNC=1 (refresh FIRE.md / brain-plus metrics after green)
+  pnpm harshcheck:fire     # full harshcheck + fire sync after green (local)
   pnpm check:ready         # env:check + verify:harsh (quick green before dev)
   pnpm verify:keys         # live API check for Groq + DeepSeek + Qwen (.env.local; Qwen uses QWEN_BASE_URL; no keys in output)
   pnpm test:real-gates     # optional: calibration vs live routes (BASE_URL=…; writes gitignored tools/gate-calibration-output.json)
