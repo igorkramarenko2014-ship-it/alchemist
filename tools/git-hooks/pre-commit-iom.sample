@@ -1,0 +1,10 @@
+#!/bin/sh
+# Optional local hook: copy to .git/hooks/pre-commit (chmod +x) to block commits when
+# Igor .gen.ts files are stale vs JSON + workspace scan.
+#
+#   cp tools/git-hooks/pre-commit-iom.sample .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+set -e
+cd "$(git rev-parse --show-toplevel)"
+echo "[pre-commit] pnpm igor:sync --check"
+pnpm igor:sync --check

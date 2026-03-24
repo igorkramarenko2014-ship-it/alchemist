@@ -89,6 +89,9 @@ IOM never overrides types, security posture, or engineering truth.
 4. **Bump version** — Increment **`IGOR_ORCHESTRATOR_LAYER_VERSION`** in **`igor-orchestrator-layer.ts`** when manifest semantics change.
 5. **Commit** — e.g. **`iom: add [cell-id] — …`**
 6. **Health** — **`GET /api/health` → `igorOrchestrator`** lists the cell; **`layerVersion`** matches.
+7. **CI coverage** — **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** runs on **`main` / `develop`** (GitHub **Verify**). Unregistered **`packages/shared-engine`** `*.ts` sources fail the job — add **`igor-power-cells.json`** artifacts or heal/apply.
+
+**Optional pre-commit:** copy **`tools/git-hooks/pre-commit-iom.sample`** → **`.git/hooks/pre-commit`** (**`chmod +x`**) to run **`pnpm igor:sync --check`** before each commit.
 
 **What does not trigger IOM manifest growth:**
 

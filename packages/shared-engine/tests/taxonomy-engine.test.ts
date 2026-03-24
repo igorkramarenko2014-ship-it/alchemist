@@ -84,4 +84,20 @@ describe("taxonomy/engine — narrowTaxonomyPoolToTriadCandidates", () => {
     const b = narrowTaxonomyPoolToTriadCandidates(pool, { prompt: "bass lead" });
     expect(b).toEqual(a);
   });
+
+  it("oversizeKeywordFallback narrows with prompt instead of throwing", () => {
+    const pool = Array.from({ length: TAXONOMY_PRE_SLAVIC_POOL_MAX + 1 }, (_, i) =>
+      cand("LLAMA", 0.5 + i * 0.0001, undefined),
+    );
+    pool[0] = {
+      ...pool[0]!,
+      reasoning: "warm analog bass patch for low end",
+    };
+    const out = narrowTaxonomyPoolToTriadCandidates(pool, {
+      prompt: "bass",
+      oversizeKeywordFallback: true,
+    });
+    expect(out.length).toBeGreaterThan(0);
+    expect(out.length).toBeLessThanOrEqual(MAX_CANDIDATES);
+  });
 });

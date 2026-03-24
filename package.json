@@ -39,6 +39,8 @@
     "verify:ci": "pnpm assert:hard-gate && pnpm verify:harsh",
     "predeploy": "node scripts/predeploy-wasm.mjs",
     "harshcheck": "node scripts/harshcheck.mjs",
+    "harshcheck:wasm": "node scripts/verify-with-wasm.mjs",
+    "verify:harsh:wasm": "ALCHEMIST_VERIFY_WASM_CHAIN=fast node scripts/verify-with-wasm.mjs",
     "harshcheck:fire": "ALCHEMIST_FIRE_SYNC=1 node scripts/harshcheck.mjs",
     "harshchek": "node scripts/harshcheck.mjs",
     "test:gate": "node scripts/test-gate-hint.mjs",

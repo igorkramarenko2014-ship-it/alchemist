@@ -100,6 +100,36 @@ describe("iom pulse", () => {
     expect(p.soe?.message).toContain("0.81");
   });
 
+  it("detectSchisms adds SOE_TRIAD_FAILURE_HIGH when triadFailureRate > 0.3", () => {
+    const m = getIgorOrchestratorManifest();
+    const s = detectSchisms(
+      {
+        soeSnapshot: {
+          meanPanelistMs: 2000,
+          triadFailureRate: 0.35,
+          gateDropRate: 0.1,
+        },
+      },
+      m,
+    );
+    expect(s.some((x) => x.code === "SOE_TRIAD_FAILURE_HIGH")).toBe(true);
+  });
+
+  it("detectSchisms adds SOE_LATENCY_NUMERIC when meanPanelistMs > 8000", () => {
+    const m = getIgorOrchestratorManifest();
+    const s = detectSchisms(
+      {
+        soeSnapshot: {
+          meanPanelistMs: 9000,
+          triadFailureRate: 0,
+          gateDropRate: 0,
+        },
+      },
+      m,
+    );
+    expect(s.some((x) => x.code === "SOE_LATENCY_NUMERIC")).toBe(true);
+  });
+
   it("digestIgorManifestForPulse marks over budget when >12 cells", () => {
     const m = getIgorOrchestratorManifest();
     const d = digestIgorManifestForPulse(m);

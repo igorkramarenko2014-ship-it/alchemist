@@ -2,7 +2,7 @@
   {
     "id": "triad",
     "responsibility": "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry.",
-    "artifacts": ["triad.ts", "triad-monitor.ts", "constants.ts"]
+    "artifacts": ["triad.ts", "triad-monitor.ts", "constants.ts", "circuit-breaker.ts"]
   },
   {
     "id": "gatekeeper",
@@ -22,7 +22,7 @@
   {
     "id": "soe",
     "responsibility": "SOE hints from triad health — telemetry only, not DSP buffers.",
-    "artifacts": ["soe.ts"]
+    "artifacts": ["soe.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"]
   },
   {
     "id": "agent_fusion",
@@ -32,7 +32,12 @@
   {
     "id": "integrity",
     "responsibility": "Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.",
-    "artifacts": ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts"]
+    "artifacts": [
+      "integrity.ts",
+      "encoder.ts",
+      "igor-orchestrator-layer.ts",
+      "engine-valuation-heuristic.ts"
+    ]
   },
   {
     "id": "aji_entropy",
@@ -42,7 +47,7 @@
   {
     "id": "schism",
     "responsibility": "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative + logs only; IOM pulse schisms.",
-    "artifacts": ["schism.ts", "iom-pulse.ts"]
+    "artifacts": ["schism.ts", "iom-pulse.ts", "iom-coverage.ts"]
   },
   {
     "id": "triad_governance",
@@ -57,7 +62,11 @@
   {
     "id": "taxonomy",
     "responsibility": "Preset taxonomy pool narrow + sparse rank pre-Slavic.",
-    "artifacts": ["taxonomy/engine.ts", "taxonomy/sparse-rank.ts"]
+    "artifacts": [
+      "taxonomy/engine.ts",
+      "taxonomy/prompt-keyword-sparse.ts",
+      "taxonomy/sparse-rank.ts"
+    ]
   },
   {
     "id": "talent_market",

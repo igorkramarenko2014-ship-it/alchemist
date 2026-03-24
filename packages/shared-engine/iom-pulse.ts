@@ -202,6 +202,31 @@ export function detectSchisms(
         evidence: { meanPanelistMs: s.meanPanelistMs, triadFailureRate: s.triadFailureRate },
       });
     }
+
+    if (s.triadFailureRate > 0.3) {
+      out.push({
+        code: "SOE_TRIAD_FAILURE_HIGH",
+        severity: "warn",
+        message:
+          "SOE snapshot: triad failure rate above 0.3 — check provider keys, timeouts, and network before retuning gates.",
+        evidence: { triadFailureRate: s.triadFailureRate, threshold: 0.3 },
+      });
+    }
+
+    const runMs = s.meanRunMs ?? 0;
+    if (s.meanPanelistMs > 8000 || runMs > 8000) {
+      out.push({
+        code: "SOE_LATENCY_NUMERIC",
+        severity: "info",
+        message:
+          "SOE snapshot: elevated wall time (meanPanelistMs or meanRunMs > 8000 ms) — review timeouts, prompt size, and provider latency.",
+        evidence: {
+          meanPanelistMs: s.meanPanelistMs,
+          meanRunMs: s.meanRunMs,
+          thresholdMs: 8000,
+        },
+      });
+    }
   }
 
   return out;
@@ -243,6 +268,16 @@ const SCHISM_SUGGESTION_META: Record<
   LATENCY_WITHOUT_STRESS: {
     action: "pnpm verify:harsh — review TRIAD_PANELIST_CLIENT_TIMEOUT_MS / payload size",
     confidence: 0.72,
+    severity: "info",
+  },
+  SOE_TRIAD_FAILURE_HIGH: {
+    action: "pnpm verify:keys — triad failure rate high; check providers and AI_TIMEOUT_MS before gate changes",
+    confidence: 0.84,
+    severity: "warn",
+  },
+  SOE_LATENCY_NUMERIC: {
+    action: "pnpm verify:harsh — panelist or run latency high; trim prompts or adjust timeouts",
+    confidence: 0.7,
     severity: "info",
   },
   VST_SURGICAL_REPAIR_HEAVY: {

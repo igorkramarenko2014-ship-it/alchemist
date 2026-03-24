@@ -40,6 +40,11 @@ jobs:
         # Same as: assert:hard-gate (warn if no tools/sample_init.fxp) + verify:harsh.
         # Stricter release job: ALCHEMIST_STRICT_OFFSETS=1 + provision tools/sample_init.fxp before assert:hard-gate.
 
+      - name: IOM power-cell coverage (ghost .ts must be registered)
+        run: IOM_ENFORCE_COVERAGE=1 pnpm igor:ci
+        env:
+          IOM_ENFORCE_COVERAGE: "1"
+
       - name: WASM artifacts (informational — CI image has no Rust by default)
         run: pnpm assert:wasm
         continue-on-error: true

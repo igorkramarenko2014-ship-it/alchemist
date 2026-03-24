@@ -8,7 +8,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "triad",
     responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry.",
-    artifacts: ["triad.ts", "triad-monitor.ts", "constants.ts"] as const,
+    artifacts: ["triad.ts", "triad-monitor.ts", "constants.ts", "circuit-breaker.ts"] as const,
   },
   {
     id: "gatekeeper",
@@ -28,7 +28,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "soe",
     responsibility: "SOE hints from triad health — telemetry only, not DSP buffers.",
-    artifacts: ["soe.ts"] as const,
+    artifacts: ["soe.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"] as const,
   },
   {
     id: "agent_fusion",
@@ -38,7 +38,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "integrity",
     responsibility: "Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.",
-    artifacts: ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts"] as const,
+    artifacts: ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts", "engine-valuation-heuristic.ts"] as const,
   },
   {
     id: "aji_entropy",
@@ -48,7 +48,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "schism",
     responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative + logs only; IOM pulse schisms.",
-    artifacts: ["schism.ts", "iom-pulse.ts"] as const,
+    artifacts: ["schism.ts", "iom-pulse.ts", "iom-coverage.ts"] as const,
   },
   {
     id: "triad_governance",
@@ -63,7 +63,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "taxonomy",
     responsibility: "Preset taxonomy pool narrow + sparse rank pre-Slavic.",
-    artifacts: ["taxonomy/engine.ts", "taxonomy/sparse-rank.ts"] as const,
+    artifacts: ["taxonomy/engine.ts", "taxonomy/prompt-keyword-sparse.ts", "taxonomy/sparse-rank.ts"] as const,
   },
   {
     id: "talent_market",

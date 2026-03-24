@@ -9,6 +9,7 @@ import {
   narrowTaxonomyPoolToTriadCandidates,
   TAXONOMY_PRE_SLAVIC_POOL_MAX,
 } from "./engine";
+import { filterTaxonomyByPromptKeywordsWithCap } from "./prompt-keyword-sparse";
 
 /**
  * Cap after keyword (or fallback) narrowing — keeps Slavic dedupe off the full ~45k set (O(n²) there).
@@ -16,34 +17,15 @@ import {
  */
 export const TAXONOMY_KEYWORD_SPARSE_MAX = TAXONOMY_PRE_SLAVIC_POOL_MAX;
 
-function promptKeywords(prompt: string): string[] {
-  return prompt
-    .toLowerCase()
-    .split(/\s+/)
-    .map((k) => k.trim())
-    .filter((k) => k.length > 0);
-}
-
 /**
  * **Phase 1:** O(n × keywords) scan of `fullTaxonomy`, match any token against **`reasoning`** (lowercased).
  * If there are no keywords (empty prompt), returns the first **`TAXONOMY_KEYWORD_SPARSE_MAX`** rows (deterministic).
  */
 export function filterTaxonomyByPromptKeywords(
   prompt: string,
-  fullTaxonomy: AICandidate[]
+  fullTaxonomy: AICandidate[],
 ): AICandidate[] {
-  const keywords = promptKeywords(prompt);
-  const cap = TAXONOMY_KEYWORD_SPARSE_MAX;
-
-  if (keywords.length === 0) {
-    return fullTaxonomy.slice(0, cap);
-  }
-
-  const sparse = fullTaxonomy.filter((item) => {
-    const text = item.reasoning.toLowerCase();
-    return keywords.some((k) => text.includes(k));
-  });
-  return sparse.slice(0, cap);
+  return filterTaxonomyByPromptKeywordsWithCap(prompt, fullTaxonomy, TAXONOMY_KEYWORD_SPARSE_MAX);
 }
 
 /**

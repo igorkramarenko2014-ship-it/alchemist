@@ -7,7 +7,7 @@
  * **Do not** copy-paste patterns that:
  * - import from non-existent `../gates/score` (use `../score`)
  * - call `slavicFilterDedupe(candidates)` — threshold is fixed in `score.ts` (`SLAVIC_FILTER_COSINE_THRESHOLD`)
- * - silent `slice` of a massive pool without keyword/index pre-pass — we **throw** if `length > TAXONOMY_PRE_SLAVIC_POOL_MAX`
+ * - silent `slice` of a massive pool without keyword/index pre-pass — we **throw** unless **`oversizeKeywordFallback`** + non-empty **`prompt`** applies the keyword Phase-1 pass
  * - add `metadata` on `AICandidate` — type lives in `@alchemist/shared-types` without that field
  * - skip `scoreCandidates` — you lose `filterValid` + weighted sort (Slavic alone is not the full gate path)
  */
@@ -15,14 +15,18 @@ import type { AICandidate } from "@alchemist/shared-types";
 import { formatBrainTaxonomyPoolBoundFusion } from "../brain-fusion-calibration.gen";
 import { MAX_CANDIDATES } from "../constants";
 import { scoreCandidates } from "../score";
+import { logEvent } from "../telemetry";
+import { filterTaxonomyByPromptKeywordsWithCap } from "./prompt-keyword-sparse";
 
 /** Optional hints for future contextual ranking; pool size rules are unchanged. */
 export interface NarrowTaxonomyOptions {
   /**
-   * Reserved for future use (e.g. contextual entropy). Offline semantic shortlist should
-   * already match the prompt; caller must still pass **≤ `TAXONOMY_PRE_SLAVIC_POOL_MAX`** rows.
+   * When **`oversizeKeywordFallback`** is true and **`prompt`** is non-empty, pools larger than
+   * **`TAXONOMY_PRE_SLAVIC_POOL_MAX`** are narrowed with the same keyword pass as **`rankTaxonomy`**
+   * Phase 1 (then scored). Default remains **throw** — prefer **`rankTaxonomy`** or offline index for huge sets.
    */
   prompt?: string;
+  oversizeKeywordFallback?: boolean;
 }
 
 /**
@@ -62,12 +66,22 @@ export function narrowTaxonomyPoolToTriadCandidates(
   preSlavicPool: AICandidate[],
   _options?: NarrowTaxonomyOptions
 ): AICandidate[] {
-  void _options?.prompt;
-  if (preSlavicPool.length > TAXONOMY_PRE_SLAVIC_POOL_MAX) {
-    throw new TaxonomyPoolTooLargeError(
-      preSlavicPool.length,
-      TAXONOMY_PRE_SLAVIC_POOL_MAX
-    );
+  let pool = preSlavicPool;
+  if (pool.length > TAXONOMY_PRE_SLAVIC_POOL_MAX) {
+    const p = _options?.prompt?.trim() ?? "";
+    if (_options?.oversizeKeywordFallback === true && p.length > 0) {
+      pool = filterTaxonomyByPromptKeywordsWithCap(p, pool, TAXONOMY_PRE_SLAVIC_POOL_MAX);
+      logEvent("taxonomy_oversize_keyword_fallback", {
+        incomingSize: preSlavicPool.length,
+        afterKeywordSparse: pool.length,
+        cap: TAXONOMY_PRE_SLAVIC_POOL_MAX,
+      });
+    } else {
+      throw new TaxonomyPoolTooLargeError(
+        preSlavicPool.length,
+        TAXONOMY_PRE_SLAVIC_POOL_MAX
+      );
+    }
   }
-  return scoreCandidates(preSlavicPool).slice(0, MAX_CANDIDATES);
+  return scoreCandidates(pool).slice(0, MAX_CANDIDATES);
 }

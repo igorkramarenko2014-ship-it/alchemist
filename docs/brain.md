@@ -103,6 +103,7 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 - Build: **`pnpm build:wasm`** in `packages/fxp-encoder` (Rust + wasm-pack → `pkg/`).
 - Health: **`GET /api/health/wasm`** must return **`available`** for UI to enable export.
 - **`harshcheck`** can pass **without** Rust (stub path); **browser export** needs WASM built.
+- **Before shipping browser `.fxp`:** **`pnpm build:wasm`**, then **`pnpm harshcheck:wasm`** (full verify + **`REQUIRE_WASM=1 assert:wasm`**) or **`pnpm verify:harsh:wasm`** (faster — no **`next build`**).
 
 ---
 
@@ -112,7 +113,9 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 |------|---------|
 | Fast CI loop (no Next production build) | **`pnpm verify:harsh`** |
 | Pre-ship (+ `next build`) | **`pnpm harshcheck`** |
+| Pre-ship + real WASM pkg (browser `.fxp`) | **`pnpm harshcheck:wasm`** or **`pnpm verify:harsh:wasm`** |
 | Env / workspace doctor | **`pnpm alc:doctor`** |
+| GitHub **Verify** (root CI) | **`pnpm verify:ci`** — includes **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** (power-cell registry) |
 | Refresh **FIRE.md** + **brain-plus** metrics block | **`pnpm fire:sync`** (requires green **`shared-engine`** Vitest) |
 | Regenerate **brain fusion** TypeScript after editing **§9a** JSON | **`pnpm brain:sync`** |
 | Regenerate **Igor manifest** (workspace packages + power cells) | **`pnpm igor:sync`** — see **§9d** |
