@@ -333,6 +333,24 @@ export type {
   CircuitBreakerPhase,
   TriadCircuitBreakerConfig,
 } from "./circuit-breaker";
+export { PNH_PROMPT_DEFENSE_MARKERS, PNH_SCENARIOS } from "./pnh/pnh-scenarios";
+export type { PnhScenario, PnhScenarioId, PnhSeverity } from "./pnh/pnh-scenarios";
+export { runPnhGhostWar } from "./pnh/pnh-ghost-run";
+export type {
+  ImmunityReport,
+  PnhProbeOutcome,
+  PnhProbeResult,
+  PnhScenarioResult,
+} from "./pnh/pnh-ghost-run";
+export { runPnhModelWarfare } from "./pnh/pnh-warfare-model";
+export type {
+  HardGateWarfareHooks,
+  PnhWarfareReport,
+  WarfareCategory,
+  WarfareOutcome,
+  WarfareSequenceResult,
+  WarfareTargetFilter,
+} from "./pnh/pnh-warfare-model";
 export { parseLegacySoeHintMessage } from "./soe-hint-structured";
 export type {
   StructuredSoeHint,

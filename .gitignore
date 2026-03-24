@@ -23,6 +23,8 @@ dist
 .DS_Store
 .env*.local
 *.fxp
+# PNH warfare CLI output (pnpm pnh:model-warfare)
+pnh-report.json
 __pycache__
 *.pyc
 .venv

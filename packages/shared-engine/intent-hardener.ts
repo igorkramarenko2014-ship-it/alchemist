@@ -17,7 +17,11 @@ export type IntentHardenerReason =
   | PromptGuardReason
   | "invalid_user_mode"
   | "low_signal_prompt"
-  | "pathological_repetition";
+  | "pathological_repetition"
+  /** PNH / triad — obvious instruction-override or exfiltration wording. */
+  | "jailbreak_instruction"
+  /** PNH — asks for physically impossible Serum-normalised values (e.g. million-percent detune). */
+  | "implausible_param_request";
 
 export interface TriadIntentInput {
   prompt: string;
@@ -26,6 +30,49 @@ export interface TriadIntentInput {
 }
 
 const USER_MODES = new Set<UserMode>(["PRO", "NEWBIE"]);
+
+/** Case-insensitive substrings → reject before provider (PNH prompt hijack probes). */
+const JAILBREAK_MARKERS = [
+  "ignore all previous",
+  "ignore your instructions",
+  "ignore previous instructions",
+  "disregard the above",
+  "pretend you are a",
+  "raw hex",
+  "hex-dump",
+  "hex dump",
+  "system memory",
+  "binary contents of your",
+  "output only the binary",
+] as const;
+
+/** Huge percentage / raw numeric abuse in param requests (coarse; TS-only). */
+const IMPLAUSIBLE_PARAM_RE =
+  /\b\d{1,3}(?:[,\s]\d{3})+\s*%|\b\d{5,}\s*%|\b1\s*,\s*0{3,}\s*%/i;
+
+/** Scan Base64-shaped tokens; decode with `atob` when available (browser + Node 16+). */
+function promptHasBase64EmbeddedJailbreak(prompt: string): boolean {
+  const atobFn = globalThis.atob as ((s: string) => string) | undefined;
+  if (typeof atobFn !== "function") return false;
+  const re = /\b[A-Za-z0-9+/]{16,}={0,2}\b/g;
+  let m: RegExpExecArray | null;
+  const hay = prompt;
+  re.lastIndex = 0;
+  while ((m = re.exec(hay)) !== null) {
+    const token = m[0];
+    if (token.length % 4 === 1) continue;
+    try {
+      const bin = atobFn(token);
+      const low = bin.toLowerCase();
+      for (const j of JAILBREAK_MARKERS) {
+        if (low.includes(j)) return true;
+      }
+    } catch {
+      /* not valid base64 */
+    }
+  }
+  return false;
+}
 
 /** Letters + ASCII spaces only — prompts that are mostly symbols/punctuation waste triad budget. */
 function letterSpaceRatio(s: string): number {
@@ -73,6 +120,31 @@ export function validateTriadIntent(
   }
 
   const t = prompt.trim();
+  const lower = t.toLowerCase();
+  for (const m of JAILBREAK_MARKERS) {
+    if (lower.includes(m)) {
+      return {
+        ok: false,
+        reason: "jailbreak_instruction",
+        detail: "prompt contains disallowed override / exfiltration-style wording",
+      };
+    }
+  }
+  if (promptHasBase64EmbeddedJailbreak(t)) {
+    return {
+      ok: false,
+      reason: "jailbreak_instruction",
+      detail: "prompt embeds override wording inside a base64-like token",
+    };
+  }
+  if (IMPLAUSIBLE_PARAM_RE.test(t)) {
+    return {
+      ok: false,
+      reason: "implausible_param_request",
+      detail: "prompt requests out-of-range or absurd percentage / numeric param values",
+    };
+  }
+
   if (t.length >= 80 && letterSpaceRatio(t) < 0.12) {
     return {
       ok: false,

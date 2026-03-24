@@ -21,6 +21,10 @@
  * When `shared-engine` sources changed, **IOM cell hints** (`igor-power-cells.json`) map
  * touched artifacts → Vitest files; unmatched `.ts` changes fall back to the full engine suite.
  *
+ * **PNH** (Predictive Network Hardening): deterministic probes in `packages/shared-engine/pnh/` run with
+ * `pnpm test:engine` (`tests/pnh-ghost-run.test.ts`); quick slice: `pnpm pnh:ghost`.
+ * Nine-sequence model + `pnh-report.json`: `pnpm pnh:model-warfare` (optional `--strict`).
+ *
  * Optional **VST3 sidecar** (strict): `ALCHEMIST_VST_VERIFY=1` after a green pipeline runs
  * `REQUIRE_VST=1 assert:vst` then `pnpm vst:observe:gate` (HARD GATE preflight). No default in CI.
  *

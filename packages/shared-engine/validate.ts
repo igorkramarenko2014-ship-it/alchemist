@@ -27,6 +27,13 @@ export interface ConsensusValidationResult {
 
 /** Check a single FxCk param is within Serum physical range [0, 1]. */
 function checkParam(index: number, value: number): ParamViolation | null {
+  if (!Number.isFinite(value)) {
+    return {
+      paramIndex: index,
+      value,
+      message: `param[${index}] is not a finite number (NaN/±Infinity rejected)`,
+    };
+  }
   if (value < PARAM_MIN || value > PARAM_MAX) {
     return {
       paramIndex: index,
