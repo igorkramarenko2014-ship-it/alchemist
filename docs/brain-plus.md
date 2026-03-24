@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **142** tests passed, **25** files (runner) · **25** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **143** tests passed, **26** files (runner) · **26** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.

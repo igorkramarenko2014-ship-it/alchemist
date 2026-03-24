@@ -11,10 +11,12 @@ import { existsSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  computeEngineValuationHeuristic,
   getIgorOrchestratorManifest,
   getIOMCoverageReport,
   getIOMHealthPulse,
 } from "@alchemist/shared-engine";
+import { collectEnginePackageMetrics } from "./lib/engine-package-scan";
 
 function collectAllEngineTestRelPaths(engineRoot: string): string[] {
   const testsDir = join(engineRoot, "tests");
@@ -60,6 +62,7 @@ async function main(): Promise<void> {
   const executed = collectAllEngineTestRelPaths(engineRoot);
   const iomCoverage = getIOMCoverageReport(cells, executed);
   const iomPulse = getIOMHealthPulse({});
+  const engineValuationHeuristic = computeEngineValuationHeuristic(collectEnginePackageMetrics(root));
 
   const base = process.env.ALCHEMIST_CHECKUP_BASE_URL?.trim();
   let healthSample: Record<string, unknown> | null = null;
@@ -79,6 +82,7 @@ async function main(): Promise<void> {
     },
     iomPulse,
     iomCoverage,
+    engineValuationHeuristic,
     healthFromDevServer: healthSample,
   };
 

@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-24** |
-| **Vitest** (`@alchemist/shared-engine`) | **142** tests passed, **25** files (runner) · **25** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **143** tests passed, **26** files (runner) · **26** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
@@ -312,7 +312,7 @@ PATCH_HINTS: <files>
 | **Watchpack** | When **`WATCHPACK_POLLING`** is **unset**, dev-server sets **`WATCHPACK_POLLING=true`** (all platforms) to reduce **`EMFILE: too many open files, watch`**. Opt out: **`WATCHPACK_POLLING=0 pnpm dev`**. |
 | **Webpack / Next** | **`apps/web-app/next.config.mjs`** — in **`dev`**, **`watchOptions`** **polling** for **server and client** compilers; **`config.cache = false`** in dev (reliable vs corrupt packs). **`transpilePackages`**: **`@alchemist/*`**. **`experimental.optimizePackageImports`**: **`@react-three/fiber`**, **`@react-three/drei`**. |
 | **Error UI** | **`app/error.tsx`** — segment error boundary (**Try again** / reload, hints). **`app/global-error.tsx`** — root layout failures (own **`html`/`body`**). Both log to **`console.error`**. |
-| **`.next` / Turbo cache** | Corrupt or mixed outputs can yield **`MODULE_NOT_FOUND`** or **`PageNotFoundError` / `ENOENT`** for App Router segments (e.g. **`/api/health`**) during **“Collecting page data”**. Recovery: **`pnpm run clean`** (deletes **`apps/web-app/.next`**) / **`node scripts/with-pnpm.mjs run clean`**, then **`pnpm install`** if needed, then **`pnpm harshcheck`** or **`pnpm dev`**. **`pnpm web:rebuild`** = clean + forced **`next build`** for web-app. |
+| **`.next` / Turbo cache** | Corrupt or mixed outputs can yield **`MODULE_NOT_FOUND`** (e.g. missing **`./NNN.js`** under **`.next/server`**) or **`PageNotFoundError` / `ENOENT`** for App Router segments during **“Collecting page data”**. Recovery: **`pnpm run clean`** (deletes **`apps/web-app/.next`**) / **`node scripts/with-pnpm.mjs run clean`**, then **`pnpm install`** if needed, then **`pnpm harshcheck`** or **`pnpm dev`**. **`pnpm web:rebuild`** = root clean + forced **`turbo run build --filter=@alchemist/web-app --force`** (preferred when **`harshcheck`** fails mid–**`next build`**). |
 | **Legal footer** | **`components/legal/LegalDisclaimer.tsx`** — trademarks + AI/privacy pointer + **third-party preset / indexing** responsibility (not a substitute for counsel). |
 | **WASM health** | **`GET /api/health/wasm`** — JSON **`ok`**, **`status`** (`available` \| `unavailable`), **`message`** (operator hint). Run **`pnpm dev`** / **`harshcheck`** from monorepo root (or **`vst/`** scripts that **`cd ..`**) so **`cwd`** resolves **`packages/fxp-encoder/pkg`**. |
 | **VST / `.fxp` sidecar (optional)** | **`pnpm vst:observe`** — CLI over **`packages/fxp-encoder/vst-bridge.ts`** + **`vst_observer`** IOM cell (HARD GATE on offset map). **`pnpm vst:observe:gate`** — validate-only hook. **`pnpm vst:daemon`** — Rust file watcher in **`fxp-encoder`**. **`pnpm build:vst`** — copies JUCE **`.vst3`** when **`cmake`** build output exists. Native skeleton: **`apps/vst-wrapper/`**; contract: **`docs/vst-wrapper.md`**. Does **not** replace browser WASM export or triad gates. |

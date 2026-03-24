@@ -57,6 +57,8 @@ pnpm vst:observe:gate  # validate-offsets hook only
 pnpm vst:daemon        # fxp-encoder Rust file watcher (optional)
 pnpm build:vst         # copy JUCE .vst3 when CMake build exists (apps/vst-wrapper)
 pnpm fire:sync         # after green verify: refresh docs/FIRE.md Vitest + Next metrics block
+pnpm iom:status        # offline IOM Markdown + engine scale heuristic (descriptive; not valuation advice)
+pnpm estimate          # same LOC/heuristic as IOM; harshcheck verify_post_summary includes iomEngineHeuristic
 pnpm brain:sync        # docs/brain.md §9a JSON → brain-fusion-calibration.gen.ts
 pnpm igor:sync         # workspace packages + meta → igor-orchestrator-packages.gen.ts
 pnpm igor:heal         # ghost .ts vs igor-power-cells.json → tools/iom-proposals.jsonl (gitignored) + stderr

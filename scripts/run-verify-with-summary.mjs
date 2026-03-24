@@ -24,7 +24,8 @@
  * **`verify_post_summary`** always includes **`iomCoverageScore`** (0–1 power-cell test map coverage),
  * **`uncoveredCells[]`**, **`iomCoveredCellCount`**, **`iomPowerCellTotal`**, **`iomUnmappedCellIds`**.
  * After a green or failed run, **`tsx scripts/iom-verify-iom-meta.ts`** adds **`iomActiveSchisms`**,
- * **`iomHealthVerdict`**, **`recommendedNext`**, **`iomPendingProposalCount`**, **`iomSoeHintHead`** (offline pulse).
+ * **`iomHealthVerdict`**, **`recommendedNext`**, **`iomPendingProposalCount`**, **`iomSoeHintHead`** (offline pulse),
+ * and **`iomEngineHeuristic`** (replacement-cost slice — same as **`pnpm estimate`**; descriptive only).
  * Selective partial runs also set **`iomVitestBreadthScore`** (fraction of engine test files executed).
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";

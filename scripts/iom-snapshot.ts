@@ -8,7 +8,12 @@ import { appendFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getIgorOrchestratorManifest, getIOMHealthPulse } from "@alchemist/shared-engine";
+import {
+  computeEngineValuationHeuristic,
+  getIgorOrchestratorManifest,
+  getIOMHealthPulse,
+} from "@alchemist/shared-engine";
+import { collectEnginePackageMetrics } from "./lib/engine-package-scan";
 
 function parseProvenance(argv: string[]): string {
   const args = argv.slice(2);
@@ -38,6 +43,7 @@ function main(): void {
   const root = join(here, "..");
   const manifest = getIgorOrchestratorManifest();
   const pulse = getIOMHealthPulse({});
+  const engineValuationHeuristic = computeEngineValuationHeuristic(collectEnginePackageMetrics(root));
 
   const row = {
     kind: "iom_snapshot_v1" as const,
@@ -46,6 +52,7 @@ function main(): void {
     manifestHash: sha256Json(manifest),
     powerCellsDigest: sha256Json(manifest.sharedEnginePowerCells),
     iomPulse: pulse,
+    engineValuationHeuristic,
   };
 
   const toolsDir = join(root, "tools");

@@ -300,3 +300,12 @@ export type {
   GreatLibraryOfflineJobMeta,
   GreatLibraryVectorDocument,
 } from "./learning/offline-pipeline-types";
+export {
+  computeEngineValuationHeuristic,
+  ENGINE_VALUATION_HEURISTIC_VERSION,
+} from "./engine-valuation-heuristic";
+export type {
+  EnginePackageMetrics,
+  EngineValuationHeuristicResult,
+  PackageLocBreakdown,
+} from "./engine-valuation-heuristic";

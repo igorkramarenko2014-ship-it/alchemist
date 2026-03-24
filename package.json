@@ -72,7 +72,9 @@
     "build:watcher": "pnpm --filter @alchemist/fxp-encoder run build:watcher",
     "build:vst": "node scripts/vst-build.mjs",
     "analyze:serum2": "node scripts/analyze-serum2-format.mjs",
-    "talent:sync-whatmodels": "node scripts/sync-whatmodels-vendor.mjs"
+    "talent:sync-whatmodels": "node scripts/sync-whatmodels-vendor.mjs",
+    "estimate": "tsx scripts/engine-estimate.ts",
+    "engine:estimate": "tsx scripts/engine-estimate.ts"
   },
   "devDependencies": {
     "@alchemist/fxp-encoder": "workspace:*",

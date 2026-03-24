@@ -5,11 +5,14 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
+  computeEngineValuationHeuristic,
   computeSoeRecommendations,
   getIgorOrchestratorManifest,
   getIOMCoverageReport,
   getIOMHealthPulse,
+  type EngineValuationHeuristicResult,
 } from "@alchemist/shared-engine";
+import { collectEnginePackageMetrics } from "./engine-package-scan";
 
 export function collectAllEngineTestRelPaths(engineRoot: string): string[] {
   const testsDir = join(engineRoot, "tests");
@@ -65,6 +68,11 @@ export interface IomOfflineSnapshot {
   recommendedNext: string;
   iomPendingProposalCount: number;
   iomSoeHintHead: string;
+  /**
+   * Replacement-cost heuristic — same as **`pnpm estimate`**. Descriptive only; not valuation
+   * advice and not a gate input.
+   */
+  engineValuationHeuristic: EngineValuationHeuristicResult;
 }
 
 export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapshot {
@@ -82,6 +90,8 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
     { iomSchismCodes: schismCodes, iomCoverageScore: iomCoverage.iomCoverageScore },
   );
   const proposals = countHealProposalLines(toolsDir);
+  const engineMetrics = collectEnginePackageMetrics(monorepoRoot);
+  const engineValuationHeuristic = computeEngineValuationHeuristic(engineMetrics);
 
   const crit = pulse.schisms.filter((s) => s.severity === "critical").length;
   const warn = pulse.schisms.filter((s) => s.severity === "warn").length;
@@ -129,5 +139,6 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
     recommendedNext,
     iomPendingProposalCount: proposals,
     iomSoeHintHead: soe.message.split("\n")[0] ?? "",
+    engineValuationHeuristic,
   };
 }

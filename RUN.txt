@@ -37,6 +37,9 @@ Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first 
   pnpm vst:daemon          # optional: fxp-encoder Rust watcher
   pnpm build:vst           # optional: JUCE VST3 copy when CMake built apps/vst-wrapper
   pnpm fire:sync           # optional: refresh docs/FIRE.md metrics (runs test:engine; needs green tests)
+  pnpm iom:status          # optional: offline IOM + engine scale heuristic (same math as pnpm estimate)
+  pnpm estimate            # optional: LOC + replacement-cost bands (not professional valuation)
+  pnpm web:rebuild         # if next build fails with MODULE_NOT_FOUND in .next — clean + forced web build
   # optional Turbo wrapper: pnpm dev:turbo
 
 **Mobile (Expo) separately:**  pnpm dev:mobile
