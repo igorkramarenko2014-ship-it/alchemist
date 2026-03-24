@@ -221,11 +221,17 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Full inner-circle peer prompt (voice + Alchemist Canon FIREWALL):** **`docs/inner-circle-agent.md`** — **`truth first → task second → tone third`**; distilled operational habits remain in **`.cursor/skills/inner-circle-voice/SKILL.md`**.
 
-**Monorepo power map (code, not law):** **`packages/shared-engine/igor-orchestrator-layer.ts`** exposes **`getIgorOrchestratorManifest()`** — workspace packages + power cells both flow through **`pnpm igor:sync`** (**`igor-orchestrator-meta.json`** → packages gen, **`igor-power-cells.json`** → cells gen); **`apps/web-app`** surfaces it on **`GET /api/health`** as **`igorOrchestrator`**. Same boundaries as §9c: no gate overrides, no shadow governance.
+**Cursor skills = what you teach “Igor” in chat (§9c, not §9d):** When you extend **`.cursor/skills/`** (e.g. **`inner-circle-voice`**, **`harshcheck`**), **`docs/inner-circle-agent.md`**, or the always-on **`.cursor/rules/alchemist-inner-circle-default.mdc`** / **`alchemist-apex-orchestrator.mdc`**, you are training the **assistant’s orchestration ethos** — Digital Igor / Apex: dense execution, peer tone, verify discipline, Canon FIREWALL. **`shared-engine` does not `import` skill files**; they are **Cursor-side**. **`brain.md` §14** is the human map of that layer.
+
+**Monorepo power map (code, not law):** **`packages/shared-engine/igor-orchestrator-layer.ts`** exposes **`getIgorOrchestratorManifest()`** — workspace packages + power cells both flow through **`pnpm igor:sync`** (**`igor-orchestrator-meta.json`** → packages gen, **`igor-power-cells.json`** → cells gen); **`apps/web-app`** surfaces it on **`GET /api/health`** as **`igorOrchestrator`**. Same boundaries as §9c: no gate overrides, no shadow governance. This **manifest** is the **operator/health picture** of shipped TS modules; it is **not** the skill runtime.
 
 ### 9d. Igor orchestrator — power layer (full technical detail)
 
-**What it is:** A **typed manifest** of (1) every **`@alchemist/*`** workspace under **`apps/*`** and **`packages/*`**, and (2) **`shared-engine` “power cells”** — named responsibility slices (triad, gatekeeper, Slavic/score, SOE, integrity, Aji, schism, etc.). **Not** a runtime governor: it does **not** change triad weights, gates, or encoder bytes. **Purpose:** operator clarity, health JSON, stderr audit (`igor_orchestrator_manifest`), alignment with **§9c** Apex stance.
+**What it is:** A **typed manifest** of (1) every **`@alchemist/*`** workspace under **`apps/*`** and **`packages/*`**, and (2) **`shared-engine` “power cells”** — named responsibility slices (triad, gatekeeper, Slavic/score, SOE, integrity, Aji, schism, etc.). **Not** a runtime governor: it does **not** change triad weights, gates, or encoder bytes. **Purpose:** operator clarity, health JSON, stderr audit (`igor_orchestrator_manifest`), **naming alignment** with **§9c** Apex stance.
+
+**Not the same as “teaching Igor” via skills:** Extending **`igor-power-cells.json`** / **`igor-orchestrator-meta.json`** describes **engine + workspace** slices for **audit and health**. Teaching **behavior** (inner circle, humor shape, harshcheck habits) lives in **§9c**, **§14**, **`.cursor/skills/`**, and **`docs/inner-circle-agent.md`** — run **`pnpm igor:sync`** only when **those JSON** files or workspace packages change, not when you edit a skill alone.
+
+**IOM (Igor Orchestration Module):** **`docs/iom.md`** — single name for **§9c + §9d** under one **canon firewall** (FIRESTARTER → FIRE → HARD GATE → ethos → tone). **`.cursor/rules/alchemist-iom.mdc`** loads the compress; **`scripts/sync-igor-orchestrator.mjs`** enforces **artifact paths on disk** + **`IOM_CELL_MAX`** (default **32**; lower when consolidating cells per IOM policy).
 
 **Source files (human-editable JSON + generated TS):**
 
@@ -249,7 +255,7 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **Public exports:** **`@alchemist/shared-engine`** — **`getIgorOrchestratorManifest`**, **`IGOR_ORCHESTRATOR_PACKAGES_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS_GEN`**, **`IGOR_SHARED_ENGINE_POWER_CELLS`**, layer version constant, etc. — see **`packages/shared-engine/index.ts`**.
 
-**Doc / Cursor links:** **`AGENTS.md` §8e**; **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (ethos); **`docs/FIRE.md`** (verify + assessment mention).
+**Doc / Cursor links:** **`AGENTS.md` §8e**; **`docs/iom.md`** + **`.cursor/rules/alchemist-iom.mdc`** (unified IOM); **`.cursor/rules/alchemist-apex-orchestrator.mdc`** (ethos); **`docs/FIRE.md`** (verify + assessment mention).
 
 ---
 
@@ -287,14 +293,14 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 - **`brain-plus.md` machine block:** never hand-edit between **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers — **`pnpm fire:sync`** (§8).
 - **`brain-plus.md` § Human deltas:** edit manually per release or before external review.
 - **`brain.md` §9a fusion JSON:** edit the fenced JSON between **`ALCHEMIST:BRAIN_FUSION_CALIBRATION:BEGIN`** / **`END`**, then **`pnpm brain:sync`** — see §9a.
-- **`brain.md` §9c–§9d:** §9c = Apex / Digital Igor **ethos** (Cursor); §9d = **power layer** (manifest pipeline). Run **`pnpm igor:sync`** after workspace churn or edits to **`igor-orchestrator-meta.json`** / **`igor-power-cells.json`**; verify enforces **`--check`**. See **`.cursor/rules/alchemist-apex-orchestrator.mdc`**.
+- **`brain.md` §9c–§9d:** §9c = Apex / Digital Igor **ethos** (Cursor skills + rules + **`inner-circle-agent.md`** — what you “teach” the assistant); §9d = **power layer** (manifest pipeline — TS health map, not skill execution). Run **`pnpm igor:sync`** after workspace churn or edits to **`igor-orchestrator-meta.json`** / **`igor-power-cells.json`**; **not** required for skill-only edits. Verify enforces **`--check`**. See **`.cursor/rules/alchemist-apex-orchestrator.mdc`**. **IOM umbrella:** **`docs/iom.md`**, **`alchemist-iom.mdc`**.
 - **This file (`brain.md`):** narrative orientation only; law stays **`FIRESTARTER.md`** / **`FIRE.md`**.
 
 ---
 
 ## 14. Agent thinking (trusted-peer merge)
 
-**What this is:** A **non-contract** layer for **how** an assistant reasons **after** canon— distilled from long **trusted-peer** chat patterns (music, logistics, events, playful curiosity) and merged into **`.cursor/skills/inner-circle-voice/`**. It does **not** change **HARD GATE**, **verify** meaning, **triad** wiring, or **TS gate** facts.
+**What this is:** A **non-contract** layer for **how** an assistant reasons **after** canon— distilled from long **trusted-peer** chat patterns (music, logistics, events, playful curiosity) and merged into **`.cursor/skills/inner-circle-voice/`**. This is the main **“teach Igor”** surface in Cursor (with **§9c** Apex + **`inner-circle-agent.md`**). It does **not** change **HARD GATE**, **verify** meaning, **triad** wiring, or **TS gate** facts.
 
 **Thinking order (for humans + LLMs):**
 

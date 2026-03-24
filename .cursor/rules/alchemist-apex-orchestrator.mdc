@@ -9,7 +9,7 @@ alwaysApply: true
 
 ## Source of truth
 
-Full protocol + boundaries: **`docs/brain.md` §9c** (Digital Igor Orchestrator).
+Full protocol + boundaries: **`docs/brain.md` §9c** (Digital Igor Orchestrator). Unified name **IOM:** **`docs/iom.md`** + **`alchemist-iom.mdc`**.
 
 ## Precedence
 

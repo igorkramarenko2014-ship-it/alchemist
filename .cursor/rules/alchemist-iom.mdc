@@ -1,0 +1,19 @@
+---
+description: >-
+  IOM (Igor Orchestration Module) — §9c ethos + §9d power manifest under one name;
+  canon firewall; growth protocol in docs/iom.md.
+alwaysApply: true
+---
+
+# IOM — Igor Orchestration Module
+
+**Full protocol:** **`docs/iom.md`**.
+
+## Compress
+
+- **Two layers:** **§9c** Cursor ethos (Apex, inner-circle, skills) + **§9d** **`igor-power-cells.json`** manifest (**`pnpm igor:sync`**, **`GET /api/health` → `igorOrchestrator`**).
+- **Canon order:** **`FIRESTARTER` → `FIRE` → HARD GATE → IOM ethos → tone.** IOM does **not** override types, security, encoder gate, or triad facts.
+- **Not a governor:** manifest does not change weights, gates, or bytes.
+- **Growth:** ship code → register cell (real artifact paths) → **`pnpm igor:sync`** → bump **`IGOR_ORCHESTRATOR_LAYER_VERSION`** when semantics change → commit **`iom:`** prefix when touching IOM.
+
+Machine checks (cell ceiling, artifact files on disk): **`scripts/sync-igor-orchestrator.mjs`**.

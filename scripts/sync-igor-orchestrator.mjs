@@ -8,8 +8,11 @@
  *   node scripts/sync-igor-orchestrator.mjs --check   # exit 1 if either stale
  *
  *   pnpm igor:sync
+ *
+ * IOM constraints (docs/iom.md): cell ceiling IOM_CELL_MAX (default 32),
+ * every power-cell artifact path must exist as a file under packages/shared-engine/.
  */
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -143,6 +146,34 @@ function loadPowerCells(engineDir) {
   return cells;
 }
 
+/** @param {{ id: string; responsibility: string; artifacts: string[] }[]} cells */
+function assertIomPowerCellConstraints(cells, engineDir) {
+  const maxRaw = process.env.IOM_CELL_MAX;
+  const max = maxRaw !== undefined && maxRaw !== "" ? Number.parseInt(String(maxRaw), 10) : 32;
+  if (!Number.isFinite(max) || max < 1) {
+    throw new Error("[igor:sync] IOM_CELL_MAX must be a positive integer");
+  }
+  if (cells.length > max) {
+    throw new Error(
+      `[igor:sync] IOM: cell count ${cells.length} exceeds ceiling ${max}. Retire or merge, or raise IOM_CELL_MAX with intent (see docs/iom.md).`,
+    );
+  }
+  for (const c of cells) {
+    for (const rel of c.artifacts) {
+      const abs = join(engineDir, rel);
+      if (!existsSync(abs)) {
+        throw new Error(
+          `[igor:sync] IOM: cell "${c.id}" artifact "${rel}" not found under packages/shared-engine/. Ship the file or fix the path.`,
+        );
+      }
+      const st = statSync(abs);
+      if (!st.isFile()) {
+        throw new Error(`[igor:sync] IOM: cell "${c.id}" artifact "${rel}" is not a file.`);
+      }
+    }
+  }
+}
+
 function emitCellsTs(cells) {
   const lines = [
     "/**",
@@ -180,6 +211,7 @@ const cellPath = join(engineDir, "igor-orchestrator-cells.gen.ts");
 let cells;
 try {
   cells = loadPowerCells(engineDir);
+  assertIomPowerCellConstraints(cells, engineDir);
 } catch (e) {
   console.error(e.message || e);
   process.exit(1);
