@@ -6,6 +6,8 @@ export type {
   AIAnalysis,
   Panelist,
   SerumState,
+  TriadPanelistRunOutcome,
+  TriadParityMode,
   TriadRunTelemetry,
   UserMode,
 } from "@alchemist/shared-types";
@@ -18,6 +20,12 @@ export {
   TRIAD_PANELISTS,
 } from "./triad";
 export type { TriadPanelistChunk } from "./triad";
+export {
+  buildTriadParityHarnessRecord,
+  diffTriadParitySnapshots,
+  snapshotTriadAnalysis,
+} from "./triad-parity-report";
+export type { TriadParityDiffEntry, TriadParitySnapshot } from "./triad-parity-report";
 export {
   cosineSimilarityParamArrays,
   intentBlendRankKey,

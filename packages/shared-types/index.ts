@@ -89,6 +89,20 @@ export interface AICandidate {
   intentAlignmentScore?: number;
 }
 
+/** Per-panelist outcome for **`runTriad`** parity audits (fetcher + stub paths). */
+export interface TriadPanelistRunOutcome {
+  panelist: Panelist;
+  candidateCount: number;
+  failed: boolean;
+  durationMs: number;
+}
+
+/**
+ * Cross-mode parity class — comparable across stub / partial HTTP / full HTTP.
+ * **`fully_live`** = fetcher path and all three panelists returned ≥1 candidate with no failure.
+ */
+export type TriadParityMode = "stub" | "fully_live" | "mixed" | "tablebase";
+
 /** Single-run triad metrics attached to `AIAnalysis` for SOE / agent-aji chat fusion on the client. */
 export interface TriadRunTelemetry {
   meanPanelistMs: number;
@@ -98,6 +112,12 @@ export interface TriadRunTelemetry {
   triadRunMode: "tablebase" | "fetcher" | "stub";
   rawCandidateCount: number;
   afterGateCount: number;
+  /** IOM / reviewer parity — how this run relates to ideal full triad. */
+  triadParityMode: TriadParityMode;
+  /** True when panel coverage is incomplete or any panelist failed (fetcher), or tablebase/stub policy flags it. */
+  triadDegraded: boolean;
+  /** Row order LLAMA → DEEPSEEK → QWEN; omitted for tablebase-only runs. */
+  triadPanelOutcomes?: TriadPanelistRunOutcome[];
 }
 
 export interface AIAnalysis {

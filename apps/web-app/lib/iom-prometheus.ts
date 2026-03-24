@@ -70,7 +70,7 @@ const iomTriadFullyLive = new Gauge({
 
 const iomWasmAvailable = new Gauge({
   name: "alchemist_iom_wasm_available",
-  help: "1 if GET /api/health/wasm reports available, else 0.",
+  help: '1 if GET /api/health/wasm reports ok+available+wasmArtifactTruth "real", else 0.',
   registers: [register],
 });
 
@@ -94,7 +94,11 @@ async function wasmOkFromRequest(requestUrl: string): Promise<boolean> {
     const wasm = await wasmRes.json();
     const rec =
       typeof wasm === "object" && wasm !== null ? (wasm as Record<string, unknown>) : null;
-    return rec?.ok === true && rec?.status === "available";
+    return (
+      rec?.ok === true &&
+      rec?.status === "available" &&
+      rec?.wasmArtifactTruth === "real"
+    );
   } catch {
     return false;
   }

@@ -38,6 +38,9 @@
  * **`wasmArtifactTruth`** + **`wasmBrowserFxpEncodeReady`** (from `lib/wasm-artifact-truth.mjs`):
  * filesystem classification of `packages/fxp-encoder/pkg` — **not** a substitute for
  * `REQUIRE_WASM=1 pnpm assert:wasm` before shipping browser `.fxp`; default verify stays green without Rust.
+ *
+ * **`hardGate*Present`** (from `lib/hard-gate-files-truth.mjs`): offset map file, Python script, sample `.fxp`
+ * on disk — **not** a substitute for `pnpm assert:hard-gate` / `validate-offsets.py` success.
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -47,6 +50,7 @@ import {
   computeIomCoverageReport,
   IOM_CELL_VITEST_FILES,
 } from "./lib/iom-coverage-report.mjs";
+import { getHardGateFilesTruth } from "./lib/hard-gate-files-truth.mjs";
 import { getWasmArtifactTruthForSummary } from "./lib/wasm-artifact-truth.mjs";
 
 function findMonorepoRoot(startDir) {
@@ -579,15 +583,19 @@ const iomSummaryMeta =
 
 const iomPulseMeta = collectIomVerifyMeta(root);
 const wasmTruth = getWasmArtifactTruthForSummary(root);
+const hardGateFiles = getHardGateFilesTruth(root);
 
 logSummary({
   mode,
   exitCode: finalExitCode,
+  /** Always false — this script does not run harshcheck, assert:wasm, or assert:hard-gate unless you do separately. */
+  productShippableFromVerifyScriptAlone: false,
   vstVerifyOptIn: process.env.ALCHEMIST_VST_VERIFY === "1" ? true : undefined,
   durationMs,
   failedStep,
   monorepoRoot: root,
   ...wasmTruth,
+  ...hardGateFiles,
   selectiveVerify:
     process.env.ALCHEMIST_SELECTIVE_VERIFY === "1" && !process.env.CI ? true : undefined,
   soeHint: soeHint(finalExitCode, durationMs, mode, iomSummaryMeta),

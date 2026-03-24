@@ -1,6 +1,6 @@
 /**
  * Classify fxp-encoder `pkg/` state for **auditable** verify summaries (no dev server).
- * Mirrors **`GET /api/health/wasm`** and **`scripts/assert-wasm-available.mjs`** logic.
+ * Mirrors **`GET /api/health/wasm`** (incl. **`pkg/.stub`**) and **`scripts/assert-wasm-available.mjs`** logic.
  * Does not exit the process — callers decide fail-closed (`REQUIRE_WASM=1` / `pnpm assert:wasm`).
  */
 import { existsSync, readFileSync } from "node:fs";

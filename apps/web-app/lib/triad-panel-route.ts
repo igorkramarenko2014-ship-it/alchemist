@@ -144,7 +144,13 @@ export async function triadPanelPost(
       error: "triad_unconfigured",
     });
     return NextResponse.json(
-      { error: "triad_unconfigured", message: detail, candidates: [] },
+      {
+        error: "triad_unconfigured",
+        message: detail,
+        candidates: [],
+        triadModeTag: "unconfigured" as const,
+        triadPanelist: panelist,
+      },
       { status: 503, headers: triadResponseHeaders(panelist, "unconfigured") }
     );
   }
@@ -181,6 +187,8 @@ export async function triadPanelPost(
         candidates: [],
         message:
           "Triad circuit breaker open for this panelist — fast-fail while the provider recovers. Retry after cooldown; see IOM schism TRIAD_CIRCUIT_OPEN on GET /api/health.",
+        triadModeTag: "circuit-open" as const,
+        triadPanelist: panelist,
       },
       { status: 503, headers: triadResponseHeaders(panelist, "circuit-open") }
     );
@@ -239,7 +247,11 @@ export async function triadPanelPost(
     ...(error !== undefined ? { error } : {}),
   });
   return NextResponse.json(
-    { candidates },
+    {
+      candidates,
+      triadModeTag: "fetcher" as const,
+      triadPanelist: panelist,
+    },
     { headers: triadResponseHeaders(panelist, "fetcher") }
   );
 }

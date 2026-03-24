@@ -70,6 +70,8 @@ export function logTriadRunEnd(
       computationalVelocity: number;
       resourceFrugality: number;
     };
+    triadParityMode?: string;
+    triadDegraded?: boolean;
   }
 ): void {
   logEvent("triad_run_end", {

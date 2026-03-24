@@ -8,6 +8,8 @@ import type {
   AIAnalysis,
   Panelist,
   SerumState,
+  TriadPanelistRunOutcome,
+  TriadParityMode,
   UserMode,
 } from "@alchemist/shared-types";
 import { MAX_CANDIDATES, TRIAD_PANELIST_CLIENT_TIMEOUT_MS } from "./constants";
@@ -58,6 +60,51 @@ export function flattenTriadChunksWithDurations(chunks: readonly TriadPanelistCh
  * Gatekeeper + Slavic scoring. Temporal array must match `raw.length` or it is ignored (score-only).
  * If temporal gate yields `STATUS_NOISY`, retry once score-only (stubs & sub-200ms panelists).
  */
+type TriadPanelChunk = {
+  panelist: Panelist;
+  value: AICandidate[];
+  durationMs: number;
+  failed: boolean;
+};
+
+function buildTriadParityFields(
+  triadRunMode: "tablebase" | "fetcher" | "stub",
+  panelChunks: TriadPanelChunk[] | null
+): {
+  triadParityMode: TriadParityMode;
+  triadDegraded: boolean;
+  triadPanelOutcomes: TriadPanelistRunOutcome[] | undefined;
+} {
+  if (triadRunMode === "tablebase") {
+    return { triadParityMode: "tablebase", triadDegraded: false, triadPanelOutcomes: undefined };
+  }
+  const outcomes: TriadPanelistRunOutcome[] | undefined =
+    panelChunks === null
+      ? undefined
+      : panelChunks.map((c) => ({
+          panelist: c.panelist,
+          candidateCount: c.value.length,
+          failed: c.failed,
+          durationMs: Math.round(c.durationMs),
+        }));
+  if (triadRunMode === "stub") {
+    return {
+      triadParityMode: "stub",
+      triadDegraded: false,
+      triadPanelOutcomes: outcomes ?? [],
+    };
+  }
+  const fully =
+    outcomes !== undefined &&
+    outcomes.length === TRIAD_PANELISTS.length &&
+    outcomes.every((o) => !o.failed && o.candidateCount > 0);
+  return {
+    triadParityMode: fully ? "fully_live" : "mixed",
+    triadDegraded: !fully,
+    triadPanelOutcomes: outcomes,
+  };
+}
+
 function scoreGatedTriadPool(
   raw: AICandidate[],
   prompt: string,
@@ -212,6 +259,11 @@ export async function runTriad(
     skipTablebase?: boolean;
     /** Forward to **`scoreCandidates`** intent alignment + optional triad POST body via **`makeTriadFetcher(..., postOpts)`**. */
     userMode?: UserMode;
+    /**
+     * When **`true`** with a fetcher: throw if any panelist failed or returned zero candidates
+     * (**`triadParityMode !== "fully_live"`**). Ignored for stub / tablebase.
+     */
+    throwIfTriadNotFullyLive?: boolean;
   }
 ): Promise<AIAnalysis> {
   const pg = validatePromptForTriad(prompt);
@@ -255,12 +307,15 @@ export async function runTriad(
   let triadFailureRate = 0;
   /** Parallel to `candidates` when built from panelist chunks; omitted for tablebase. */
   let panelDurationsMs: number[] | undefined;
+  /** Per-panel rows for parity telemetry; null for tablebase. */
+  let panelChunks: TriadPanelChunk[] | null = null;
 
   if (tablebaseCandidate) {
     candidates = [tablebaseCandidate];
     meanPanelistMs = 0;
     triadFailureRate = 0;
     panelDurationsMs = undefined;
+    panelChunks = null;
   } else if (fetcher) {
     const chunks = await Promise.all(
       TRIAD_PANELISTS.map(async (panelist) => {
@@ -272,9 +327,15 @@ export async function runTriad(
           const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
             withTimeout(fetcher(prompt, panelist, s), panelClientTimeoutMs)
           );
-          return { value, durationMs, failed: false as const };
+          return {
+            panelist,
+            value,
+            durationMs,
+            failed: false as const,
+          };
         } catch {
           return {
+            panelist,
             value: [] as AICandidate[],
             durationMs: panelClientTimeoutMs,
             failed: true as const,
@@ -282,7 +343,15 @@ export async function runTriad(
         }
       })
     );
-    const flat = flattenTriadChunksWithDurations(chunks);
+    panelChunks = chunks.map((c) => ({
+      panelist: c.panelist,
+      value: c.value,
+      durationMs: c.durationMs,
+      failed: c.failed,
+    }));
+    const flat = flattenTriadChunksWithDurations(
+      chunks.map((c) => ({ value: c.value, durationMs: c.durationMs }))
+    );
     candidates = flat.candidates;
     panelDurationsMs = flat.panelDurationsMs;
     meanPanelistMs =
@@ -291,19 +360,35 @@ export async function runTriad(
       chunks.filter((c) => c.failed || c.value.length === 0).length / Math.max(chunks.length, 1);
   } else {
     const chunks = await Promise.all(
-      TRIAD_PANELISTS.map((panelist) =>
-        withTriadPanelistTiming(runId, panelist, () =>
+      TRIAD_PANELISTS.map(async (panelist) => {
+        const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
           stubPanelistCandidates(prompt, panelist, signal)
-        )
-      )
+        );
+        return {
+          panelist,
+          value,
+          durationMs,
+          failed: false as const,
+        };
+      })
     );
-    const flat = flattenTriadChunksWithDurations(chunks);
+    panelChunks = chunks.map((c) => ({
+      panelist: c.panelist,
+      value: c.value,
+      durationMs: c.durationMs,
+      failed: c.failed,
+    }));
+    const flat = flattenTriadChunksWithDurations(
+      chunks.map((c) => ({ value: c.value, durationMs: c.durationMs }))
+    );
     candidates = flat.candidates;
     panelDurationsMs = flat.panelDurationsMs;
     meanPanelistMs =
       chunks.reduce((a, c) => a + c.durationMs, 0) / Math.max(chunks.length, 1);
     triadFailureRate = 0;
   }
+
+  const parity = buildTriadParityFields(triadRunMode, panelChunks);
 
   const scored = scoreGatedTriadPool(candidates, prompt, panelDurationsMs, scoreOpts);
 
@@ -343,7 +428,17 @@ export async function runTriad(
     afterGateCount: valid.length,
     triadHealthScore: governance.healthScore,
     triadGovernanceScores: governance.scores,
+    triadParityMode: parity.triadParityMode,
+    triadDegraded: parity.triadDegraded,
   });
+
+  if (options?.throwIfTriadNotFullyLive === true && triadRunMode === "fetcher") {
+    if (parity.triadParityMode !== "fully_live") {
+      throw new Error(
+        `Triad strict full-live enforced: triadParityMode=${parity.triadParityMode} — expected fully_live (three panelists, each with ≥1 candidate, no failures)`
+      );
+    }
+  }
 
   return {
     candidates: valid,
@@ -354,6 +449,9 @@ export async function runTriad(
       triadRunMode,
       rawCandidateCount: candidates.length,
       afterGateCount: valid.length,
+      triadParityMode: parity.triadParityMode,
+      triadDegraded: parity.triadDegraded,
+      triadPanelOutcomes: parity.triadPanelOutcomes,
     },
     ...(validationSummary !== undefined && { validationSummary }),
   };

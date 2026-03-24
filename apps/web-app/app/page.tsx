@@ -35,15 +35,17 @@ export default function Home() {
           setWasmStatus("unavailable");
           return;
         }
-        let j: { status?: string; ok?: boolean };
+        let j: { status?: string; ok?: boolean; wasmArtifactTruth?: string };
         try {
-          j = (await r.json()) as { status?: string; ok?: boolean };
+          j = (await r.json()) as { status?: string; ok?: boolean; wasmArtifactTruth?: string };
         } catch {
           setWasmStatus("unavailable");
           return;
         }
         if (cancelled) return;
-        if (j?.ok && j?.status === "available") setWasmStatus("available");
+        if (j?.ok && j?.status === "available" && j?.wasmArtifactTruth === "real") {
+          setWasmStatus("available");
+        }
         else if (j?.status === "loading") setWasmStatus("loading");
         else setWasmStatus("unavailable");
       })

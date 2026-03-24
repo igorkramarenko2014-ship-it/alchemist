@@ -40,15 +40,30 @@ function resolveEncoderPkgDir(): string | null {
   return null;
 }
 
-/** WASM encoder health — matches client `encodeFxp` prerequisites (see shared-engine/encoder.ts). */
+/**
+ * Mirrors **`scripts/lib/wasm-artifact-truth.mjs`** / **`pnpm assert:wasm`** — auditable mode, not human prose alone.
+ * **`ok: true`** only when **`wasmArtifactTruth === "real"`**.
+ */
 export async function GET() {
   const pkgDir = resolveEncoderPkgDir();
   if (!pkgDir) {
     return NextResponse.json({
       ok: false,
       status: "unavailable" as const,
+      wasmArtifactTruth: "pkg_missing" as const,
       message:
         "fxp-encoder pkg not found — open the monorepo root (folder with apps/ + packages/) and run pnpm dev from there",
+    });
+  }
+
+  const stubMarker = path.join(pkgDir, ".stub");
+  if (fs.existsSync(stubMarker)) {
+    return NextResponse.json({
+      ok: false,
+      status: "unavailable" as const,
+      wasmArtifactTruth: "stub_marker" as const,
+      message:
+        "pkg/.stub present — Rust wasm-pack build was skipped; run pnpm build:wasm for real WASM (same as assert:wasm)",
     });
   }
 
@@ -59,6 +74,7 @@ export async function GET() {
     return NextResponse.json({
       ok: false,
       status: "unavailable" as const,
+      wasmArtifactTruth: "missing_wasm" as const,
       message:
         "WASM binary missing — install Rust (https://rustup.rs), wasm32-unknown-unknown, then: cd packages/fxp-encoder && pnpm run build:wasm",
     });
@@ -68,6 +84,7 @@ export async function GET() {
     return NextResponse.json({
       ok: false,
       status: "unavailable" as const,
+      wasmArtifactTruth: "stub_js" as const,
       message:
         "WASM glue is stubbed — run: cd packages/fxp-encoder && pnpm run build:wasm (requires Rust + wasm-pack)",
     });
@@ -76,6 +93,7 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     status: "available" as const,
+    wasmArtifactTruth: "real" as const,
     message: "WASM encoder artifacts present",
   });
 }

@@ -52,7 +52,10 @@ export async function buildIomOpsCore(requestUrl: string): Promise<IomOpsCorePay
     const wasm = await wasmRes.json();
     const rec =
       typeof wasm === "object" && wasm !== null ? (wasm as Record<string, unknown>) : null;
-    wasmOk = rec?.ok === true && rec?.status === "available";
+    wasmOk =
+      rec?.ok === true &&
+      rec?.status === "available" &&
+      rec?.wasmArtifactTruth === "real";
   } catch {
     wasmOk = false;
   }
