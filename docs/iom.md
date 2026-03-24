@@ -166,6 +166,8 @@ iom(test): <what changed>     # tests for existing cell
 
 ---
 
+**V5 backlog (assessment + hacker moves):** **`docs/iom-v5-next-moves.md`** · Cursor rule **`.cursor/rules/alchemist-iom-v5-next.mdc`**
+
 _Canon (HARD GATE, verify, triad wiring) overrides IOM ethos. Always._  
 _IOM overrides nothing. It aligns engine + assistant._  
 _`pnpm igor:sync` · `pnpm verify:harsh`_

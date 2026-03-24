@@ -1,0 +1,27 @@
+---
+description: >-
+  IOM V5 backlog — triad DNA, circuit breaker wiring, intent alignment, GL
+  intake, pre-commit; see docs/iom-v5-next-moves.md for full matrix.
+alwaysApply: false
+---
+
+# IOM V5 — next moves (reference)
+
+## When to use
+
+User mentions **IOM V5**, **hacker moves**, **panelist DNA** depth, **circuit breaker** on triad routes, **intent alignment**, **Great Library intake**, or **pre-commit ghost** automation.
+
+## Canonical doc
+
+**[`docs/iom-v5-next-moves.md`](docs/iom-v5-next-moves.md)** — full assessment + MOVE 1–5 specs.
+
+## Implementation truth (do not regress)
+
+- **DNA:** **`apps/web-app/lib/triad-panelist-system-prompt.ts`** — lighter seeds shipped; doc proposes stronger ATHENA/HERMES/HESTIA copy (optional upgrade).
+- **Breaker:** **`packages/shared-engine/circuit-breaker.ts`** — use **`TriadCircuitBreaker`**, not fictional **`AlchemistCircuitBreaker`**; **not** wired to **`triad-panel-route.ts`** yet; mind **serverless** instance lifetime.
+- **CI ghosts:** **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** in GitHub **Verify**.
+- **HARD GATE** still governs any **`.fxp`** / offset authority — GL intake must call **`validate-offsets.py`** on real files.
+
+## Suggested ship order
+
+**P0:** finish DNA strength (if product wants) + wire breaker + tests. **P1:** intent alignment heuristic; GL intake script. **P2:** `pnpm iom:ghost:check` + optional `prepare` hook (document opt-out for CI).
