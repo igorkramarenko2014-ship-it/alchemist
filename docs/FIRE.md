@@ -35,6 +35,16 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 <!-- ALCHEMIST:FIRE_METRICS:END -->
 
+### Compact truth matrix (stub/live/tablebase/export reality)
+
+| Path | Stub mode | Fetcher mode | Tablebase hit | WASM export | HARD GATE | verify_post_summary carries |
+|------|-----------|--------------|---------------|-------------|-----------|-----------------------------|
+| Triad candidates | Yes | Yes | Short-circuit | N/A | N/A | `triadMode`, `triadLivePanelists` |
+| TS gates (Undercover/Slavic) | Yes | Yes | Yes | N/A | N/A | `gateDropRate` |
+| Preset share | Yes | Yes | Yes | No bytes | N/A | `preset_shared` telemetry |
+| Browser `.fxp` export | Disabled when unavailable | Disabled when unavailable | Disabled | Requires real `assert:wasm` pass | Enforced for authoritative bytes | `wasmStatus`, `wasmRequired` |
+| VST observe/wrapper | N/A | N/A | N/A | N/A | Enforced | `vstObserverStatus`, `vstWrapperStatus` |
+
 ### Next moves (operator / agent)
 
 **Composer HTML packs** (task prompts + on-page **rejected** anti-patterns): **`docs/alchemist-cursor-prompts.html`** (P0–P3), **`docs/alchemist-high-efficiency-prompts.html`** (per-gate calibration breakdown; optional **`tablebaseMode: 'compete'`**), **`docs/alchemist-cpc-execution-plan.html`** (timeouts / snapshot CI / **`gate:suggest`** / selection telemetry), **`docs/alchemist-full-unblock-plan.html`** (M1–M5 pipeline), **`docs/alchemist-new-moves.html`** (post-queue: circuit breaker, gate baseline regression CI, **`verify_post_summary`** capture), **`docs/alchemist-tablebase-seeding.html`** (offline **`.fxp`** → tablebase, HARD GATE + provenance). **Roles → `FIRESTARTER` §12.**

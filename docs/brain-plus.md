@@ -53,6 +53,18 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 
 ---
 
+## Compact truth matrix
+
+| Path | Stub mode | Fetcher mode | Tablebase hit | WASM export | HARD GATE | verify receipt signal |
+|------|-----------|--------------|---------------|-------------|-----------|-----------------------|
+| Triad candidates | Yes | Yes | Short-circuit | N/A | N/A | `triadMode`, `triadLivePanelists` |
+| TS gates (Undercover/Slavic) | Yes | Yes | Yes | N/A | N/A | `gateDropRate` |
+| Preset share | Yes | Yes | Yes | No bytes | N/A | `preset_shared` telemetry |
+| Browser `.fxp` export | Disabled when unavailable | Disabled when unavailable | Disabled | Requires real `assert:wasm` pass | Enforced for authoritative bytes | `wasmStatus`, `wasmRequired` |
+| VST observe/wrapper | N/A | N/A | N/A | N/A | Enforced | `vstObserverStatus`, `vstWrapperStatus` |
+
+---
+
 ## Stack (at a glance)
 
 - **Frontend:** Next.js 14 App Router, Tailwind, React.
