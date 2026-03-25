@@ -10,7 +10,7 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 
 - **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
-- **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry.
+- **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. Panelist DNA deterministic diversification is shipped in triad-panelist-prompt.ts.
 - **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `constants.ts`, `circuit-breaker.ts`
 
 ### gatekeeper
@@ -64,7 +64,7 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 
 ### prompt_guard
 
-- **Tier:** `tier2_release_truth`
+- **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
 - **Responsibility:** Triad prompt bounds, intent guard (`validateTriadIntent`), and rejection reasons.
 - **Artifacts:** `prompt-guard.ts`, `intent-hardener.ts`, `pnh/pnh-triad-defense.ts`
@@ -75,13 +75,6 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 - **Recommendation:** `KEEP`
 - **Responsibility:** VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (Igor artifacts stay under shared-engine per sync script).
 - **Artifacts:** `vst-observer.ts`, `iom-pulse.ts`, `surgical-repair.ts`
-
-### vst_wrapper
-
-- **Tier:** `tier2_release_truth`
-- **Recommendation:** `KEEP`
-- **Responsibility:** JUCE VST3 FXP bridge skeleton (apps/vst-wrapper) — read-only consumer of validated .fxp; stores chunk as plugin state; does not inject Serum. Pulse: vst-wrapper-pulse.ts.
-- **Artifacts:** `vst-wrapper-pulse.ts`, `iom-pulse.ts`
 
 ### preset_share
 
@@ -102,4 +95,5 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 | `talent_market` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `perf_boss` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `pnh` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
+| `vst_wrapper` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 

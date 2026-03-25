@@ -45,7 +45,7 @@
       "hotPathMutable": true
     },
     "prompt_guard": {
-      "tier": "tier2_release_truth",
+      "tier": "tier1_hot_path",
       "recommendation": "KEEP",
       "advisoryOnly": false,
       "hotPathMutable": true
@@ -63,9 +63,9 @@
       "hotPathMutable": false
     },
     "vst_wrapper": {
-      "tier": "tier2_release_truth",
-      "recommendation": "KEEP",
-      "advisoryOnly": false,
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
       "hotPathMutable": false
     },
     "arbitration": {

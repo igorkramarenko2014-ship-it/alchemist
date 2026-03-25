@@ -7,7 +7,7 @@
 export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "triad",
-    responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry.",
+    responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. Panelist DNA deterministic diversification is shipped in triad-panelist-prompt.ts.",
     artifacts: ["triad.ts", "triad-monitor.ts", "triad-panelist-prompt.ts", "constants.ts", "circuit-breaker.ts"] as const,
   },
   {
@@ -42,7 +42,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "aji_entropy",
-    responsibility: "Entropy seeds + crystallized residue (TS-only distillation).",
+    responsibility: "Entropy seeds + crystallized residue (TS-only distillation). Manages deterministic noise seeds and signature-based entropy analysis for parameter randomization.",
     artifacts: ["entropy.ts", "aji-logic.ts"] as const,
   },
   {

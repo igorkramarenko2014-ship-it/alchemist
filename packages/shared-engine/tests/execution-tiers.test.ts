@@ -9,7 +9,7 @@ import {
 describe("execution tier registry", () => {
   it("classifies canonical cells into expected tiers", () => {
     expect(getExecutionTier("triad")).toBe("tier1_hot_path");
-    expect(getExecutionTier("prompt_guard")).toBe("tier2_release_truth");
+    expect(getExecutionTier("prompt_guard")).toBe("tier1_hot_path");
     expect(getExecutionTier("schism")).toBe("tier3_advisory");
   });
 
