@@ -41,7 +41,7 @@ pnpm --filter @alchemist/web-app start
 | Check | Command / note |
 |-------|----------------|
 | **Environment** | **`pnpm alc:doctor`** |
-| **Fast verify** | **`pnpm verify:harsh`** — types + **`pnpm test:engine`** (60 tests) |
+| **Fast verify** | **`pnpm verify:harsh`** — types + **`pnpm test:engine`** (**`shared-engine`** Vitest; counts in **`docs/FIRE.md`** machine block after **`pnpm fire:sync`**) |
 | **Pre-ship** | **`pnpm harshcheck`** — adds **`next build`** web-app |
 | **Post-verify JSON** | **`verify_post_summary`** on **stderr** (after harsh/web verify) — **`soeHint`**, duration, `failedStep`; auditable ops line |
 | **Engine perf JSON** | **`pnpm perf:boss`** — stderr **`perf_boss_*`** lines |
@@ -64,7 +64,8 @@ pnpm --filter @alchemist/web-app start
 | [`docs/FIRE.md`](./docs/FIRE.md) | **Outside assessment** / LLM surface — snapshot, **next moves**, **harshcheck**, §E–§L, **`pnpm fire:sync`** metrics block |
 | `docs/alchemist-*.html` | **Composer** task packs in **`docs/`** (open in browser) — **FIRESTARTER §12** |
 | [`.cursorrules`](./.cursorrules) | Root Cursor context |
-| [`apps/web-app/docs/MERCURY-BALL.md`](./apps/web-app/docs/MERCURY-BALL.md) | Mercury orb |
+| [`apps/web-app/docs/MERCURY-BALL.md`](./apps/web-app/docs/MERCURY-BALL.md) | Mercury orb + dock (incl. export / share affordances) |
+| [`docs/iom-architecture.md`](./docs/iom-architecture.md) | IOM power cells (**`pnpm igor:docs`**) |
 | [`AGENTS.md`](./AGENTS.md) | Checklist for AI agents |
 | [`research/README.md`](./research/README.md) | **Python research** (strategic fusion, Lava–Aji OSC) — not the TS preset pipeline |
 

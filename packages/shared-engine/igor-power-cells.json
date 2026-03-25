@@ -93,7 +93,7 @@
   {
     "id": "prompt_guard",
     "responsibility": "Triad prompt bounds, intent guard (`validateTriadIntent`), and rejection reasons.",
-    "artifacts": ["prompt-guard.ts", "intent-hardener.ts"]
+    "artifacts": ["prompt-guard.ts", "intent-hardener.ts", "pnh/pnh-triad-defense.ts"]
   },
   {
     "id": "pnh",
@@ -101,6 +101,7 @@
     "artifacts": [
       "pnh/pnh-ghost-run.ts",
       "pnh/pnh-scenarios.ts",
+      "pnh/pnh-triad-defense.ts",
       "pnh/pnh-warfare-model.ts",
       "pnh/pnh-apt-scenarios.ts"
     ]

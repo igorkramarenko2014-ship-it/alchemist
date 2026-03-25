@@ -8,6 +8,8 @@ import {
 } from "@/lib/fetch-llama-candidates";
 import { fetchQwenCandidates } from "@/lib/fetch-qwen-candidates";
 import {
+  applyPnhTriadPromptDefense,
+  auditTriadCandidatesForPnhResponseEcho,
   evaluatePnhContext,
   getDefaultPnhAttackMemoryStore,
   isValidCandidate,
@@ -16,9 +18,9 @@ import {
   PANELIST_ALCHEMIST_CODENAME,
   pnhIntentFailureDecisionWithMemory,
   triadApiPnhLaneFromEnv,
-  validateTriadIntent,
 } from "@alchemist/shared-engine";
 import type { AICandidate, Panelist } from "@alchemist/shared-types";
+import type { IntentHardenerReason } from "@alchemist/shared-engine";
 import { NextResponse } from "next/server";
 
 /** Upstream provider budget per panelist (server-side). */
@@ -115,7 +117,33 @@ export async function triadPanelPost(
   const triadFullyLiveServer = deepseekConfigured && qwenConfigured && llamaConfigured;
   const anyPanelistKeys = deepseekConfigured || qwenConfigured || llamaConfigured;
 
-  const guard = validateTriadIntent({ prompt, userMode });
+  const laneEarly = triadApiPnhLaneFromEnv(
+    deepseekConfigured && panelist === "DEEPSEEK"
+      ? true
+      : qwenConfigured && panelist === "QWEN"
+        ? true
+        : llamaConfigured && panelist === "LLAMA",
+    triadFullyLiveServer,
+  );
+  let promptForTriad = prompt;
+  const defense = applyPnhTriadPromptDefense(
+    { prompt, userMode },
+    {
+      pnhTriadLane: laneEarly,
+      allowSanitizeRecover: true,
+    },
+  );
+  if (defense.ok) {
+    promptForTriad = defense.prompt;
+  }
+  const guard =
+    defense.ok === true
+      ? ({ ok: true as const } as const)
+      : ({
+          ok: false as const,
+          reason: defense.blockedReason as IntentHardenerReason,
+          detail: defense.blockedDetail,
+        } as const);
   if (guard.ok === false) {
     const useDeepSeekLive = panelist === "DEEPSEEK" && deepseekConfigured;
     const useQwenLive = panelist === "QWEN" && qwenConfigured;
@@ -172,7 +200,7 @@ export async function triadPanelPost(
 
   const runId = newTriadRunId();
   const alchemistCodename = PANELIST_ALCHEMIST_CODENAME[panelist];
-  const promptLength = prompt.length;
+  const promptLength = promptForTriad.length;
 
   const useDeepSeekLive = panelist === "DEEPSEEK" && deepseekConfigured;
   const useQwenLive = panelist === "QWEN" && qwenConfigured;
@@ -262,24 +290,28 @@ export async function triadPanelPost(
   let error: string | undefined;
   try {
     if (useDeepSeekLive) {
-      candidates = await fetchDeepSeekCandidates(prompt, env.deepseekApiKey, signal);
+      candidates = await fetchDeepSeekCandidates(promptForTriad, env.deepseekApiKey, signal);
     } else if (useQwenLive) {
       candidates = await fetchQwenCandidates(
-        prompt,
+        promptForTriad,
         env.qwenApiKey,
         signal,
         env.qwenBaseUrl
       );
     } else {
       candidates = await fetchLlamaCandidates(
-        prompt,
+        promptForTriad,
         env.llamaApiKey,
         signal,
         llamaModel,
         runId
       );
     }
-    candidates = candidates.filter(isValidCandidate);
+    const echoAudited = auditTriadCandidatesForPnhResponseEcho(candidates, {
+      runId,
+      panelist,
+    });
+    candidates = echoAudited.candidates.filter(isValidCandidate);
   } catch (e) {
     error = e instanceof Error ? e.message : String(e);
     candidates = [];

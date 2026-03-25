@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-25** |
-| **Vitest** (`@alchemist/shared-engine`) | **219** tests passed, **42** files (runner) · **42** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **263** tests passed, **48** files (runner) · **48** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 | **Canonical metrics JSON** | `docs/fire-metrics.json` — verify: `sha256sum -c docs/fire-metrics.sha256` (repo root) |
 
@@ -82,7 +82,7 @@ _Update this block when outsiders need new context._
 |-------|-------------------|
 | **Top risk today** | WASM stub vs real **`pkg/`** (use **`harshcheck:wasm`** before browser export); triad stub vs fetcher parity; HARD GATE sample **`.fxp`** local/CI-secret; taxonomy pools **>200** still need **`rankTaxonomy`** or **`oversizeKeywordFallback`** — not silent by default. |
 | **What we want from reviewers** | **`igor:ci`** in CI (ghost **`shared-engine`** files); optional **`ALCHEMIST_SOE_*`** env on **`GET /api/health`** for **`iomPulse` + SOE** schisms; Panelist **DNA** lines in **`triad-panelist-system-prompt.ts`**. |
-| **Last manual refresh (date)** | **2026-03-24** — roadmap sync: WASM chain, IOM CI, taxonomy fallback, IOM+SOE schisms, health SOE injection, triad DNA prompts |
+| **Last manual refresh (date)** | **2026-03-25** — preset share (`/presets/[slug]`, **`preset_share`** IOM cell, **`preset_shared`** telemetry); metrics via **`pnpm fire:sync`** |
 | **Release / branch under review** | _e.g. main @ abc1234_ |
 
 ---

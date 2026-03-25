@@ -91,6 +91,10 @@ Encoder work needs validated **`packages/fxp-encoder/serum-offset-map.ts`** — 
 | Arbitration | `transparent-arbitration.test.ts` |
 | Talent / AGL | `talent-market-scout.test.ts`, `learning-great-library.test.ts` |
 | Perf boss (JSON telemetry) | `compliant-perf-boss.test.ts` |
+| IOM test↔cell map | `iom-coverage.test.ts` (+ per-cell maps in `iom-coverage.ts`) |
+| Preset share (IOM bridge; types only) | `preset-share-cell.test.ts` |
+
+**Web-app Vitest** (`pnpm --filter @alchemist/web-app test`) covers **`sharePreset`** etc. — **not** invoked by default **`verify:harsh`**.
 
 ## Optional: engine perf JSON (not harshcheck)
 

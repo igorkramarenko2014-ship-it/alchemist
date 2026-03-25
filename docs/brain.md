@@ -14,6 +14,7 @@
 | **`brain-plus.md`** | Minimal outside-assessment shell + synced metrics |
 | **`inner-circle-agent.md`** | Full peer prompt + Canon FIREWALL (tone layer) |
 | **`iom.md`** | IOM — §9c + §9d discipline, growth protocol, §9c.1 fast-path moves |
+| **`iom-architecture.md`** | Auto-generated power-cell digest — **`pnpm igor:docs`** after **`igor-power-cells.json`** edits |
 | **`cursor-universal-habits.md`** | Cursor User Rules template (any repo) |
 | **`alchemist-*.html`** | Composer / task prompt packs — index **`FIRESTARTER` §12** |
 
@@ -35,7 +36,7 @@ Web dev “won’t start” ladder: **`FIRE.md` §L** subsection *Web app not ru
 
 | Path | Purpose |
 |------|---------|
-| `apps/web-app` | Next.js 14 App Router, Mercury orb, PromptAudioDock, `/api/triad/*`, `/api/health/*` |
+| `apps/web-app` | Next.js 14 App Router, Mercury orb, PromptAudioDock, `/api/triad/*`, `/api/health/*`, **`POST /api/presets/share`**, **`/presets/[slug]`** |
 | `packages/shared-types` | Schemas: `Panelist`, `AICandidate`, `SerumState` skeleton, etc. |
 | `packages/shared-engine` | `runTriad`, gates (`validate.ts`, `score.ts`), encoder glue, Vitest, taxonomy / optional arbitration, SOE, telemetry |
 | `packages/fxp-encoder` | Rust → wasm-pack; **`serum-offset-map.ts`** (HARD GATE) |
@@ -57,8 +58,9 @@ Web dev “won’t start” ladder: **`FIRE.md` §L** subsection *Web app not ru
 3. **`runTriad`** merges panelists → **`filterValid`** → **Undercover**-style distribution / adversarial checks → up to **8** candidates (cosine dedupe is **not** here; see below).
 4. Client **`scoreCandidates`:** **`filterValid`** (e.g. **reasoning** length ≥ **15** chars) → **Slavic** dedupe (param cosine **> 0.80**; with legible text also **Dice(bigram) > 0.75** on `description` || `reasoning`) → weighted order.
 5. UI: Mercury / dock; **export** via **`encodeFxp`** when **`GET /api/health/wasm`** reports **`available`**.
+6. **Share (optional):** user **Share preset** when the top gated row qualifies → **`POST /api/presets/share`** → slug URL **`/presets/[slug]`**. Payload is **`SharedPreset`** (**`packages/shared-types/preset-share.ts`**) — **no** `.fxp` bytes; store is in-memory per Node process unless you wire persistence.
 
-**Telemetry:** structured **`logEvent`** lines on stderr (`triad_run_*`, `triad_panelist_end`, etc.). **Greek codenames** in UI/logs (ATHENA / HERMES / HESTIA) map to wire IDs **DEEPSEEK / LLAMA / QWEN**.
+**Telemetry:** structured **`logEvent`** lines on stderr (`triad_run_*`, `triad_panelist_end`, `preset_shared`, etc.). **Greek codenames** in UI/logs (ATHENA / HERMES / HESTIA) map to wire IDs **DEEPSEEK / LLAMA / QWEN**.
 
 ---
 

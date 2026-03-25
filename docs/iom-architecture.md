@@ -1,6 +1,6 @@
 # IOM architecture (auto-generated)
 
-Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
+Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
 
 ## Power cells
 
@@ -82,12 +82,12 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 ### prompt_guard
 
 - **Responsibility:** Triad prompt bounds, intent guard (`validateTriadIntent`), and rejection reasons.
-- **Artifacts:** `prompt-guard.ts`, `intent-hardener.ts`
+- **Artifacts:** `prompt-guard.ts`, `intent-hardener.ts`, `pnh/pnh-triad-defense.ts`
 
 ### pnh
 
 - **Responsibility:** Predictive Network Hardening — deterministic ghost probes, warfare model, APT-pattern catalog (TS gates + triad surface; no prod auto-patch).
-- **Artifacts:** `pnh/pnh-ghost-run.ts`, `pnh/pnh-scenarios.ts`, `pnh/pnh-warfare-model.ts`, `pnh/pnh-apt-scenarios.ts`
+- **Artifacts:** `pnh/pnh-ghost-run.ts`, `pnh/pnh-scenarios.ts`, `pnh/pnh-triad-defense.ts`, `pnh/pnh-warfare-model.ts`, `pnh/pnh-apt-scenarios.ts`
 
 ### vst_observer
 
@@ -98,4 +98,9 @@ Last sync: **2026-03-24** — run `pnpm igor:docs` to refresh after editing `igo
 
 - **Responsibility:** JUCE VST3 FXP bridge skeleton (apps/vst-wrapper) — read-only consumer of validated .fxp; stores chunk as plugin state; does not inject Serum. Pulse: vst-wrapper-pulse.ts.
 - **Artifacts:** `vst-wrapper-pulse.ts`, `iom-pulse.ts`
+
+### preset_share
+
+- **Responsibility:** User-consented shareable preset pages — slug generation, score gate (≥0.85), OG metadata from real candidate fields, paramArray visual only (no .fxp bytes exposed).
+- **Artifacts:** `../../apps/web-app/lib/share-preset.ts`, `../../apps/web-app/lib/preset-store.ts`, `../../apps/web-app/app/presets/[slug]/page.tsx`, `../../apps/web-app/app/api/presets/share/route.ts`
 

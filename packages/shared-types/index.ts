@@ -128,6 +128,15 @@ export interface TriadRunTelemetry {
     environment: "safe" | "uncertain" | "hostile";
     fragilityScore01: number;
   };
+  /**
+   * PNH triad defense — prompt sanitization / response drops / scoring guard (hashes only; no raw prompt).
+   */
+  pnhTriadDefense?: {
+    pnhIntervention: boolean;
+    pnhInterventionTypes: string[];
+    originalPromptHash: string;
+    executionPromptHash: string;
+  };
 }
 
 export interface AIAnalysis {
@@ -136,6 +145,12 @@ export interface AIAnalysis {
   validationSummary?: string;
   /** Optional: wall-time + gate stats from this run for dashboards and `computeAgentAjiChatFusionFromTriadTelemetry`. */
   triadRunTelemetry?: TriadRunTelemetry;
+  /**
+   * After PNH prompt defense, the prompt string passed into triad gates / panel fetches.
+   * Present only when it differs from the caller-supplied string (e.g. strip recover). Clients should
+   * pass this to **`scoreCandidates`** so intent alignment matches execution.
+   */
+  triadExecutionPrompt?: string;
 }
 
 /**

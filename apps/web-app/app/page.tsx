@@ -104,7 +104,21 @@ export default function Home() {
         signal,
       });
       if (signal.aborted || triadGenRef.current !== gen) return;
-      const sorted = scoreCandidates(analysis.candidates, text);
+      const tel = analysis.triadRunTelemetry;
+      const pnhScoringLane =
+        tel?.pnhContextSurface?.triadLaneClass === "stub"
+          ? ("stub" as const)
+          : tel?.pnhContextSurface?.triadLaneClass === "mixed"
+            ? ("mixed" as const)
+            : tel?.pnhContextSurface?.triadLaneClass === "fully_live"
+              ? ("fully_live" as const)
+              : ("fully_live" as const);
+      const sorted = scoreCandidates(
+        analysis.candidates,
+        analysis.triadExecutionPrompt ?? text,
+        undefined,
+        { pnhScoringLane },
+      );
       lastRunPromptRef.current = text;
       lastAnalysisRef.current = analysis;
       setRanked(sorted);

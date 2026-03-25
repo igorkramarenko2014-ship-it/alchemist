@@ -24,7 +24,7 @@
 
 **Alchemist** turns a **natural-language prompt** (typed or spoken) into **Serum preset candidates**, scored and ranked, with optional **client-side `.fxp` encoding** (Rust→WASM when built) and a path toward a **desktop bridge** (JUCE + sidecar — separate from the TS preset pipeline).
 
-**Web spine:** Prompt → **AI triad** (three panelists) → **Mercury orb** + **PromptAudioDock** → **Export .fxp** when WASM health reports available → ranked candidates in UI.
+**Web spine:** Prompt → **AI triad** (three panelists) → **Mercury orb** + **PromptAudioDock** → **Export .fxp** when WASM health reports available → ranked candidates in UI → optional **Share preset** (**`POST /api/presets/share`**) → read-only **`/presets/[slug]`** (metadata + param visualization; **no** `.fxp` bytes on the shared record).
 
 **Design:** Dark-first — **`#111827`**, **`#5EEAD4`**, flat geometric. **Fail loudly**; **`shared-types`** is schema source of truth.
 
@@ -36,7 +36,7 @@
 
 | Path | Role |
 |------|------|
-| `apps/web-app` | Next.js 14 App Router, Tailwind, Mercury UI, `/api/*` triad + health |
+| `apps/web-app` | Next.js 14 App Router, Tailwind, Mercury UI, `/api/*` triad + health + **`/api/presets/share`**, App Router **`/presets/[slug]`** |
 | `apps/mobile-app` | Expo (optional; excluded from default typecheck filter) |
 | `packages/shared-types` | Canonical TS types (`Panelist`, `AICandidate`, `SerumState` skeleton) |
 | `packages/shared-engine` | Triad, gates, encoder export, Vitest; **`taxonomy/`**, **`arbitration/`**, **`perf/`**, **`talent/`**, **`learning/`** (**`mergeGreatLibraryIntoSoeSnapshot`**, AGL boundary — **offline** only) |
@@ -114,9 +114,10 @@
 | **`POST /api/triad/llama`** | **Fetcher (live, key required):** with **`GROQ_API_KEY`** or **`LLAMA_API_KEY`**, Groq **`https://api.groq.com/openai/v1/chat/completions`** (default **`llama-3.3-70b-versatile`**, override **`LLAMA_GROQ_MODEL`**) → **`lib/fetch-llama-candidates.ts`** — validates Groq envelope, strips triple-backtick code fences before assistant JSON parse, **`llama_parse_error`** / **`llama_raw_response_debug`** on stderr. Same telemetry + **`AI_TIMEOUT_MS`** + **`nodejs`** runtime. Without: **`stub`**. |
 | **`runTriad` + gates** | **Real:** per-panelist client **`fetch`** timeouts (**`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`** — **QWEN** **18_000** ms so browser does not abort before the Qwen route’s **16_000** ms upstream); optional **keyword tablebase** (**`reliability/checkers-fusion.ts`**, **`TABLEBASE_RECORDS`** — default **empty**; HARD GATE still governs real preset rows); then **`filterValid`**, distribution + adversarial filters on optional **`paramArray`**; stubs attach synthetic **`paramArray`** so the pipeline is exercised end-to-end. Telemetry: **`preset_tablebase_hit`** on match; **`triad_run_start` / `triad_run_end`** **`mode`**: **`tablebase`** \| **`fetcher`** \| **`stub`**. |
 | **`scoreCandidates` (web)** | **Real:** **`filterValid`** (incl. **≥15** char **`reasoning`**), Slavic dedupe (**param** cosine **> 0.80**; when both sides have legible text, also **Dice(bigram) > 0.75** on **`description` || `reasoning`**), preserve score order — used from **`apps/web-app/app/page.tsx`** after triad analysis. |
+| **`POST /api/presets/share`** | **User-triggered** share flow: gates (**score** ≥ **0.85**, **reasoning** ≥ **15** chars trimmed, non-empty **`paramArray`**); **`saveSharedPreset`** in **`lib/preset-store.ts`** (in-memory per Node process); slug → **`/presets/[slug]`**; **`logEvent`** **`preset_shared`**. **`SharedPreset`** (**`packages/shared-types/preset-share.ts`**) — **no** `.fxp` bytes on the payload. |
 | **Telemetry** | **`logEvent`** → **stderr JSON** lines (`packages/shared-engine/telemetry.ts`), not dev-only `console.log` for those events. |
 | **HARD GATE** | **`serum-offset-map.ts`** + **`validate-offsets.py`** ship in-repo; full Python validation requires a **local** **`tools/sample_init.fxp`** (often gitignored). Use **`pnpm validate:offsets`** / **`pnpm test:gate`**. |
-| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, **`igorOrchestrator`** (Igor manifest), **`iomPulse`** (**`getIOMHealthPulse`** — manifest digest + **`schisms[]`** + optional **`SoeTriadSnapshot`** from env **`ALCHEMIST_SOE_*`** when all required vars set — **`soeSnapshotInjected`**), **`agentAjiChatFusion`**, plus **`hardGate`**, **`telemetry`**, **`ops`** (paths: **`/api/health/iom`**, **`/api/iom/dashboard`**, **`/api/metrics/iom`** — Prometheus text with **`ALCHEMIST_OPS_TOKEN`** + **`X-Ops-Token`**). |
+| **Discovery** | **`GET /api/health`** JSON includes **`triad.panelistRoutes`** (**`stub`** \| **`mixed`**), **`triad.livePanelists`** (**`deepseek`**, **`qwen`**, **`llama`** — whichever are keyed), **`triad.triadFullyLive`**, **`triad.note`**, **`igorOrchestrator`** (Igor manifest; includes **`preset_share`** when registered), **`iomPulse`** (**`getIOMHealthPulse`** — manifest digest + **`schisms[]`** + optional **`SoeTriadSnapshot`** from env **`ALCHEMIST_SOE_*`** when all required vars set — **`soeSnapshotInjected`**), **`agentAjiChatFusion`**, plus **`hardGate`**, **`telemetry`**, **`ops`** (paths: **`/api/health/iom`**, **`/api/iom/dashboard`**, **`/api/metrics/iom`** — Prometheus text with **`ALCHEMIST_OPS_TOKEN`** + **`X-Ops-Token`**). Public preset pages: **§8** (**`/presets/[slug]`**). |
 
 ### 5b. Shared-engine — implementation truth (crucial & sane)
 
@@ -223,7 +224,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 ## 7. Triad monitoring, governance & SOE
 
-**Telemetry:** `triad_run_start` / `triad_panelist_end` / `triad_run_end` (payload includes **`mode`**: **`stub`** \| **`fetcher`** \| **`tablebase`**); **`preset_tablebase_hit`** when a keyword tablebase row short-circuits **`runTriad`**; **`athena_soe_recalibration`** with `[ATHENA_SOE_ACTIVE]: Recalibrating Triad Weights...` under stress.
+**Telemetry:** `triad_run_start` / `triad_panelist_end` / `triad_run_end` (payload includes **`mode`**: **`stub`** \| **`fetcher`** \| **`tablebase`**); **`preset_tablebase_hit`** when a keyword tablebase row short-circuits **`runTriad`**; **`preset_shared`** when the user shares a gated candidate to **`/presets/[slug]`**; **`athena_soe_recalibration`** with `[ATHENA_SOE_ACTIVE]: Recalibrating Triad Weights...` under stress.
 
 **Governance:** **45% / 35% / 20%** on fidelity / velocity / frugality; **`triadHealthScore`** on `triad_run_end`.
 
@@ -299,7 +300,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **One-liners (root):** **`pnpm go`**, **`pnpm go:fresh`**, **`./scripts/go.sh`**. From **`vst/`**: **`pnpm go`** / **`go:fresh`** forward to root (via **`with-pnpm.mjs`**).
 
-**APIs:** `/api/health`, **`GET /api/health/wasm`** (JSON **`ok`**, **`status`**: **`available`** \| **`unavailable`**, **`message`** — aligns **Export .fxp** with real wasm-pack artifacts; **`force-dynamic`**), `/api/usage`, `/api/triad/*`. **`TriadStatusBadge`** on **`PromptAudioDock`** polls **`GET /api/health`** ( **`cache: no-store`**, ~30s) for **`triad.triadFullyLive`** and **`triad.livePanelists`** — UI only; does not change response shape. **Middleware:** `x-request-id` on `/api/*`.
+**APIs:** `/api/health`, **`GET /api/health/wasm`** (JSON **`ok`**, **`status`**: **`available`** \| **`unavailable`**, **`message`** — aligns **Export .fxp** with real wasm-pack artifacts; **`force-dynamic`**), `/api/usage`, `/api/triad/*`, **`POST /api/presets/share`** (JSON body → slug; in-memory store per server process). **Pages:** **`/presets/[slug]`** — Open Graph from real **`SharedPreset`** fields; **no** Serum **`.fxp`** bytes on the page type. **`TriadStatusBadge`** on **`PromptAudioDock`** polls **`GET /api/health`** ( **`cache: no-store`**, ~30s) for **`triad.triadFullyLive`** and **`triad.livePanelists`** — UI only; does not change response shape. **Middleware:** `x-request-id` on `/api/*`.
 
 **Env:** **`apps/web-app/env.ts`** — secrets + **`qwenBaseUrl`** from **`QWEN_BASE_URL`** (trimmed; default DashScope-compatible root). Expand with Zod/t3-env for prod if desired.
 
@@ -318,7 +319,9 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`pnpm igor:ci`** | Ghost scan: advisory by default; **`IOM_ENFORCE_COVERAGE=1`** fails when **`packages/shared-engine`** `*.ts` is not listed in **`igor-power-cells.json`** — wired in **`.github/workflows/verify.yml`** |
 | **`node scripts/with-pnpm.mjs`** | Run any pnpm subcommand from repo root; **`npx pnpm@9.14.2`** fallback when **`pnpm`** missing (**`ALCHEMIST_PNPM_FALLBACK_QUIET=1`** during verify suppresses repeated warnings) |
 | **`verify_post_summary`** | Final **stderr** JSON line: **`event`**, **`mode`** (`verify-harsh` \| `verify-web`), **`exitCode`**, **`durationMs`**, **`failedStep`** (`shared-types:build` \| `turbo:typecheck` \| `test:engine` \| `turbo:build:web-app` or **`null`**), **`monorepoRoot`**, **`soeHint`**, **`note`**. Vitest may emit other JSON lines first — parse/grep **`verify_post_summary`** for the rollup. |
-| **`pnpm fire:sync`** | **`node scripts/sync-fire-md.mjs`** — runs **`pnpm test:engine`**; on success, rewrites **`docs/FIRE.md`** between **`ALCHEMIST:FIRE_METRICS`** comments (Vitest counts, Next version, sync date). Optional **`ALCHEMIST_FIRE_SYNC=1`** with **`pnpm harshcheck`** / **`verify:harsh`** to run automatically after green verify. |
+| **`pnpm fire:sync`** | **`node scripts/sync-fire-md.mjs`** — runs **`pnpm test:engine`**; on success, rewrites **`docs/FIRE.md`** + **`brain-plus.md`** machine blocks (Vitest counts, Next version, sync date) and **`docs/fire-metrics.json`**. Optional **`ALCHEMIST_FIRE_SYNC=1`** with **`pnpm harshcheck`** / **`verify:harsh`** to run automatically after green verify. |
+| **`pnpm igor:docs`** | **`node scripts/igor-docs.mjs`** — refreshes **`docs/iom-architecture.md`** from **`igor-power-cells.json`** (run after cell edits; commit the diff). |
+| **`pnpm --filter @alchemist/web-app test`** | Web-app Vitest (**e.g.** **`sharePreset`** in **`__tests__/preset-share.test.ts`**) — not part of default **`verify:harsh`**; run before relying on web-only test coverage. |
 | **`pnpm save`** / **`pnpm git:save`** | **`node scripts/git-save.mjs`** — stage all, commit (message from argv or prompt), **`git push`** when **`origin`** exists |
 | **`pnpm github:first-push`** | **`node scripts/github-first-push.mjs`** — **`git remote add origin <url>`** + **`git push -u`** (first time); **`RUN.txt`**, **§2a** |
 | **`pnpm test:engine`** | Vitest `shared-engine` only (incl. taxonomy, arbitration, **compliant-perf-boss**, **talent-market-scout**, **learning-great-library**, **reliability-tablebase**, undercover/slavic, triad governance, SOE, engine-harsh) |

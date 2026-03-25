@@ -83,12 +83,12 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "prompt_guard",
     responsibility: "Triad prompt bounds, intent guard (`validateTriadIntent`), and rejection reasons.",
-    artifacts: ["prompt-guard.ts", "intent-hardener.ts"] as const,
+    artifacts: ["prompt-guard.ts", "intent-hardener.ts", "pnh/pnh-triad-defense.ts"] as const,
   },
   {
     id: "pnh",
     responsibility: "Predictive Network Hardening — deterministic ghost probes, warfare model, APT-pattern catalog (TS gates + triad surface; no prod auto-patch).",
-    artifacts: ["pnh/pnh-ghost-run.ts", "pnh/pnh-scenarios.ts", "pnh/pnh-warfare-model.ts", "pnh/pnh-apt-scenarios.ts"] as const,
+    artifacts: ["pnh/pnh-ghost-run.ts", "pnh/pnh-scenarios.ts", "pnh/pnh-triad-defense.ts", "pnh/pnh-warfare-model.ts", "pnh/pnh-apt-scenarios.ts"] as const,
   },
   {
     id: "vst_observer",

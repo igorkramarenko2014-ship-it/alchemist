@@ -14,6 +14,8 @@
 
 **Branching:** `PromptAudioDock` renders **`EarModeController`** (compact) when there are no presets — that component includes **its own** `MercuryBall`. After triad, **`hasPresets`** switches the dock to a **separate** results subtree with another `MercuryBall` for preview/export. Same **`MERCURY_ORB_FRAME_CLASS`** keeps **layout** consistent; **WebGL may remount** when switching branches.
 
+**Share preset (home `page.tsx`):** When the winning gated row meets share thresholds, **Share preset** calls **`POST /api/presets/share`** and surfaces an absolute URL to **`/presets/[slug]`**. Shared pages show metadata + param heatmap only — **no** Serum **`.fxp`** bytes on the shared record (**`docs/FIRESTARTER.md` §8**).
+
 ---
 
 ## File map

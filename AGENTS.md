@@ -35,6 +35,7 @@
 - **Browser export** needs wasm-pack output in **`packages/fxp-encoder/pkg/`** (`pnpm run build:wasm` with Rust). Health: **`GET /api/health/wasm`**. CI/deploy: **`pnpm assert:wasm`** (same checks on disk); **`REQUIRE_WASM=1`** fails closed if stub/missing. See **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C / §E1.17**.  
 - **`shared-types`** is schema source of truth; after edits run **`pnpm --filter @alchemist/shared-types build`** (or **`pnpm harshcheck`**).  
 - Open workspace **repo root** *Vibe Projects*, not only **`vst/`**, when editing `apps/` or `packages/`.
+- **Preset share:** **`POST /api/presets/share`**, **`/presets/[slug]`** — **`SharedPreset`** only (no `.fxp` on the type); IOM **`preset_share`**; **`pnpm --filter @alchemist/web-app test`** for **`sharePreset`**; **`iom-coverage.ts`** needs a **`shared-engine`** Vitest map entry (bridge test) for **`verify:harsh`** IOM score **1.0**.
 
 ## Commands
 
