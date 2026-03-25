@@ -6,6 +6,7 @@ import { validateTriadIntent } from "../intent-hardener";
 import type { ImmunityReport, PnhScenarioResult } from "./pnh-ghost-run";
 import type { PnhWarfareReport, WarfareSequenceResult } from "./pnh-warfare-model";
 import { PNH_APT_SCENARIO_CATALOG } from "./pnh-apt-scenarios";
+import { severityFromFindingId, verifyOutcomeFromFindingId } from "./pnh-triage-matrix";
 
 /** Fingerprint value: defense posture at a stable probe id (`allow` = stub path too permissive vs expected warn). */
 export type PnhFingerprintOutcome = "immune" | "breach" | "skipped" | "warn" | "allow";
@@ -92,25 +93,27 @@ export function securityVerdictFromPnhState(
  */
 export function computePnhVerifyTruthStatus(report: PnhSimulationReport): PnhVerifyTruthStatus {
   const failed = report.rows.filter((r) => !r.pass);
-  const failedHighRows = failed.filter((r) => r.severity === "high");
-  const failedMediumRows = failed.filter((r) => r.severity === "medium");
   const regressionList = report.diff?.regressions ?? [];
   const regressionCount = regressionList.length;
   const missingBaselineKeys = report.diff?.missingKeys.length ?? 0;
   const newOpKeys = (report.diff?.newKeys ?? []).filter((k) => isOperationalPnhFingerprintKey(k));
 
-  const highSeverityCount =
-    failedHighRows.length + regressionCount + (missingBaselineKeys > 0 ? 1 : 0);
+  const highFailRows = failed.filter((r) => verifyOutcomeFromFindingId(r.id) === "fail");
+  const degradedFailRows = failed.filter((r) => verifyOutcomeFromFindingId(r.id) === "degraded");
+
+  const highSeverityCount = highFailRows.length + regressionCount + (missingBaselineKeys > 0 ? 1 : 0);
+  const mediumSeverityFailCount = degradedFailRows.length;
 
   const failureDetails: PnhSecurityFailureDetail[] = failed.map((r) => {
     const location = `${r.suite} :: ${r.id}`;
+    const sev = severityFromFindingId(r.id) ?? r.severity;
     return {
       id: r.id,
       suite: r.suite,
-      severity: r.severity,
+      severity: sev,
       location,
       detail: r.detail,
-      message: `[${r.severity.toUpperCase()}] ${location} — ${r.detail}`,
+      message: `[${String(sev).toUpperCase()}] ${location} — ${r.detail}`,
     };
   });
 
@@ -151,7 +154,7 @@ export function computePnhVerifyTruthStatus(report: PnhSimulationReport): PnhVer
   return {
     state: report.pnhStatus,
     highSeverityCount,
-    mediumSeverityFailCount: failedMediumRows.length,
+    mediumSeverityFailCount,
     scenariosTriggered: Array.from(new Set(scenariosTriggered)),
     failureDetails,
   };
@@ -170,7 +173,9 @@ const WARFARE_SEVERITY: Record<string, "high" | "medium" | "low" | "info"> = {
 };
 
 function warfareRow(seq: WarfareSequenceResult): PnhSimulationRow {
-  const sev = WARFARE_SEVERITY[seq.id] ?? "medium";
+  const sev =
+    severityFromFindingId(`warfare:${seq.id}`) ??
+    (WARFARE_SEVERITY[seq.id] ?? "medium");
   const expectation: PnhSimulationExpectation =
     seq.outcome === "skipped" ? "skipped_ok" : "defended";
   const actual: PnhSimulationRow["actual"] =
@@ -189,7 +194,9 @@ function warfareRow(seq: WarfareSequenceResult): PnhSimulationRow {
 }
 
 function ghostProbeRow(scenario: PnhScenarioResult, probeId: string, outcome: "immune" | "breach", detail: string): PnhSimulationRow {
-  const sev = scenario.severity === "high" ? "high" : "medium";
+  const sev =
+    severityFromFindingId(`ghost:${scenario.scenarioId}:${probeId}`) ??
+    (scenario.severity === "high" ? "high" : "medium");
   return {
     id: `ghost:${scenario.scenarioId}:${probeId}`,
     suite: "ghost",
@@ -351,9 +358,8 @@ export function comparePnhFingerprints(
 /** Rows that must never regress for “green” PNH posture (ghost + triad prompt probes + stub contract). */
 export function isPnhPipelineBreachRow(row: PnhSimulationRow): boolean {
   if (row.pass) return false;
-  if (row.suite === "ghost" || row.suite === "intent_stub") return true;
-  if (row.suite === "warfare" && /^warfare:B[456]$/.test(row.id)) return true;
-  return false;
+  // Deterministic: pipeline breach === triage verifyImpact is `fail`
+  return verifyOutcomeFromFindingId(row.id) === "fail";
 }
 
 function severityBreakdown(rows: readonly PnhSimulationRow[]): PnhSimulationReport["severityBreakdown"] {

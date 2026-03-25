@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AICandidate, SerumState } from "@alchemist/shared-types";
 import { scoreCandidates } from "../score";
 import * as telemetry from "../telemetry";
+import { triagePolicyForFindingId } from "../pnh/pnh-triage-matrix";
 import {
   consensusValidateCandidate,
   filterValid,
@@ -134,11 +135,14 @@ describe("filterValid + PNH high-severity", () => {
     const bad = baseCand({ paramArray: Array.from({ length: 16 }, () => 0.5) });
     const out = filterValid([bad]);
     expect(out).toHaveLength(0);
+    const p = triagePolicyForFindingId("GATE_BYPASS_PAYLOAD");
+    const expectedSeverity =
+      p?.severity === "high" ? "high" : p?.severity === "medium" ? "medium" : "high";
     expect(logSpy).toHaveBeenCalledWith(
       "pnh_gate_bypass_reject",
       expect.objectContaining({
         scenarioId: "GATE_BYPASS_PAYLOAD",
-        severity: "high",
+        severity: expectedSeverity,
         reason: "param_array_zero_variance",
       }),
     );

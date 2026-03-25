@@ -9,6 +9,7 @@
 import type { AICandidate, Panelist } from "@alchemist/shared-types";
 import { getSegmentEntropyFloor, inferGateSegment } from "./gates";
 import { logEvent } from "./telemetry";
+import { triagePolicyForFindingId } from "./pnh/pnh-triage-matrix";
 
 /** Undercover legibility: agents must explain choices (FIRE — auditable, not empty slogans). */
 export const REASONING_LEGIBILITY_MIN_CHARS = 15;
@@ -411,13 +412,21 @@ export const isDataPure = isTelemetryPureFromCandidates;
 
 /** Filter to valid candidates only — gate integrity + PNH **`pnh_gate_bypass_reject`** on high-severity drops. */
 export function filterValid(candidates: AICandidate[]): AICandidate[] {
+  const bypassPolicy = triagePolicyForFindingId("GATE_BYPASS_PAYLOAD");
+  const bypassLogSeverity =
+    bypassPolicy?.severity === "high"
+      ? "high"
+      : bypassPolicy?.severity === "medium"
+        ? "medium"
+        : "high";
+
   return candidates.filter((c) => {
     const fail = getGateIntegrityFailure(c);
     if (fail !== null) {
       if (isHighSeverityGateFailure(fail)) {
         logEvent("pnh_gate_bypass_reject", {
           scenarioId: "GATE_BYPASS_PAYLOAD",
-          severity: "high",
+          severity: bypassLogSeverity,
           reason: fail,
           panelist: c.panelist,
         });

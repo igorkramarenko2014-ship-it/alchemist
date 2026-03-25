@@ -755,6 +755,37 @@ const pnhStatusString =
       ? (pnhLast?.pnhStatus ?? "unknown")
       : "skipped";
 
+let pnhWarGameCompact;
+try {
+  const withPnpm = join(root, "scripts", "with-pnpm.mjs");
+  const wgScript = join(root, "scripts", "pnh-wargame.ts");
+  const wg = spawnSync(process.execPath, [withPnpm, "exec", "tsx", wgScript, "--"], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, ALCHEMIST_PNPM_FALLBACK_QUIET: "1", ALCHEMIST_WARGAME_RELEASE_MODE: "1" },
+    shell: false,
+  });
+  if (wg.status === 0 && wg.stdout && wg.stdout.trim()) {
+    const line = wg.stdout.trim().split("\n").filter(Boolean).pop();
+    const report = JSON.parse(line);
+    pnhWarGameCompact = {
+      generatedAt: report.generatedAt,
+      releaseShouldBeBlocked: report.releaseShouldBeBlocked,
+      releaseBlockReasons: report.releaseBlockReasons,
+      breachedSurfaces: report.breachedSurfaces,
+      results: report.results.map((r) => ({
+        scenarioId: r.scenarioId,
+        classification: r.classification,
+        releaseImpact: r.releaseImpact,
+        whatFailed: r.whatFailed,
+        verifyOutcome: r.verifyOutcome,
+      })),
+    };
+  }
+} catch {
+  pnhWarGameCompact = undefined;
+}
+
 logSummary({
   mode,
   exitCode: finalExitCode,
@@ -775,6 +806,7 @@ logSummary({
   ...iomPulseMeta,
   pnhVerifyContext,
   ...pnhRollup,
+  pnhWarGame: pnhWarGameCompact,
   pnhStatus: pnhStatusString,
   pnhSimulation:
     pnhLast != null

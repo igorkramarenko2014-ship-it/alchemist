@@ -15,6 +15,13 @@ import type {
 import { MAX_CANDIDATES, TRIAD_PANELIST_CLIENT_TIMEOUT_MS } from "./constants";
 import { validatePromptForTriad } from "./prompt-guard";
 import {
+  applyPnhTriadPromptDefense,
+  auditTriadCandidatesForPnhResponseEcho,
+  hashPromptForTelemetry,
+  type PnhTriadIntervention,
+} from "./pnh/pnh-triad-defense";
+import type { PnhTriadLane } from "./pnh/pnh-context-types";
+import {
   logAthenaSoeRecalibration,
   logTriadRunEnd,
   logTriadRunStart,
@@ -35,7 +42,7 @@ import {
 } from "./validate";
 import { logDegradedFallback } from "./integrity";
 import { lookupTablebaseCandidate } from "./reliability/checkers-fusion";
-import { scoreCandidatesWithGate } from "./score";
+import { scoreCandidatesWithGate, type ScoreCandidatesOptions } from "./score";
 import { STATUS_NOISY } from "./validate";
 import { evaluatePnhContext, pnhContextFragilityScore } from "./pnh/pnh-context-evaluator";
 import type { PnhContextInput } from "./pnh/pnh-context-types";
@@ -120,7 +127,7 @@ function scoreGatedTriadPool(
   raw: AICandidate[],
   prompt: string,
   panelDurationsMs: number[] | undefined,
-  scoreOptions?: { userMode?: UserMode }
+  scoreOptions?: ScoreCandidatesOptions
 ): AICandidate[] {
   if (raw.length === 0) return [];
   const useTemporal =
@@ -275,19 +282,48 @@ export async function runTriad(
      * (**`triadParityMode !== "fully_live"`**). Ignored for stub / tablebase.
      */
     throwIfTriadNotFullyLive?: boolean;
+    /**
+     * Skip PNH prompt defense + response echo audit — **tests / harness only**; default **`false`**.
+     */
+    skipPnhTriadDefense?: boolean;
+    /** Intent lane for **`validateTriadIntent`** (default **`fully_live`** — strict). */
+    pnhIntentGuardLane?: PnhTriadLane;
+    /** When **`false`**, do not attempt jailbreak marker strip + re-validate. Default **`true`**. */
+    pnhAllowPromptSanitize?: boolean;
   }
 ): Promise<AIAnalysis> {
-  const pg = validatePromptForTriad(prompt);
-  if (pg.ok === false) {
-    throw new Error(`Prompt rejected: ${pg.reason}`);
+  const skipPnh = options?.skipPnhTriadDefense === true;
+  let promptInterventions: PnhTriadIntervention[] = [];
+  let originalPromptHash = hashPromptForTelemetry(prompt);
+  let executionPromptHash = originalPromptHash;
+
+  if (!skipPnh) {
+    const lane: PnhTriadLane = options?.pnhIntentGuardLane ?? "fully_live";
+    const defense = applyPnhTriadPromptDefense(
+      { prompt, userMode: options?.userMode },
+      {
+        pnhTriadLane: lane,
+        allowSanitizeRecover: options?.pnhAllowPromptSanitize !== false,
+      },
+    );
+    prompt = defense.prompt;
+    promptInterventions = defense.interventions;
+    originalPromptHash = defense.originalPromptHash;
+    executionPromptHash = defense.executionPromptHash;
+    if (!defense.ok) {
+      throw new Error(`Prompt rejected: ${defense.blockedReason ?? "intent_guard"}`);
+    }
+  } else {
+    const pg = validatePromptForTriad(prompt);
+    if (pg.ok === false) {
+      throw new Error(`Prompt rejected: ${pg.reason}`);
+    }
   }
 
   const signal = options?.signal;
   const fetcher = options?.fetcher;
   const runConsensus = options?.runConsensusValidation === true;
   const useConsensusFilter = options?.useConsensusFilter === true;
-  const scoreOpts =
-    options?.userMode !== undefined ? { userMode: options.userMode } : undefined;
 
   const runId = newTriadRunId();
   const tRun0 = nowMs();
@@ -399,8 +435,20 @@ export async function runTriad(
     triadFailureRate = 0;
   }
 
+  let responseInterventions: PnhTriadIntervention[] = [];
+  if (!skipPnh && candidates.length > 0) {
+    const audited = auditTriadCandidatesForPnhResponseEcho(candidates, { runId });
+    candidates = audited.candidates;
+    responseInterventions = audited.interventions;
+  }
+
   const parity = buildTriadParityFields(triadRunMode, panelChunks);
 
+  const scoringLaneForPool: PnhTriadLane = triadRunMode === "stub" ? "stub" : "fully_live";
+  const scoreOpts: ScoreCandidatesOptions = {
+    ...(options?.userMode !== undefined ? { userMode: options.userMode } : {}),
+    pnhScoringLane: scoringLaneForPool,
+  };
   const scored = scoreGatedTriadPool(candidates, prompt, panelDurationsMs, scoreOpts);
 
   let valid = scored
@@ -458,6 +506,28 @@ export async function runTriad(
   const pnhEval = evaluatePnhContext(pnhInput);
   const frag01 = pnhContextFragilityScore(pnhInput);
 
+  const mergedPnh = [...promptInterventions, ...responseInterventions];
+  const pnhInterventionTypes = Array.from(new Set(mergedPnh.map((i) => i.type)));
+  const pnhTriadDefense =
+    !skipPnh && pnhInterventionTypes.length > 0
+      ? {
+          pnhIntervention: true,
+          pnhInterventionTypes,
+          originalPromptHash,
+          executionPromptHash,
+        }
+      : !skipPnh
+        ? {
+            pnhIntervention: false,
+            pnhInterventionTypes: [] as string[],
+            originalPromptHash,
+            executionPromptHash,
+          }
+        : undefined;
+
+  const triadExecutionPrompt =
+    !skipPnh && originalPromptHash !== executionPromptHash ? prompt : undefined;
+
   return {
     candidates: valid,
     triadRunTelemetry: {
@@ -476,7 +546,9 @@ export async function runTriad(
         environment: pnhEval.environment,
         fragilityScore01: frag01,
       },
+      ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
     },
+    ...(triadExecutionPrompt !== undefined && { triadExecutionPrompt }),
     ...(validationSummary !== undefined && { validationSummary }),
   };
 }

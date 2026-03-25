@@ -29,6 +29,10 @@ pnh-report.json
 tools/pnh-history.jsonl
 # Last PNH simulation run (verify:harsh + pnh:simulate)
 tools/pnh-simulation-last.json
+# PNH enforcement proposal artifact (pnpm pnh:simulate / pnpm pnh:proposals)
+tools/pnh-proposals.jsonl
+# PNH war game report (pnpm pnh:wargame)
+tools/pnh-wargame-last.json
 __pycache__
 *.pyc
 .venv

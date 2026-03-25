@@ -36,6 +36,7 @@
     "pnh:model-warfare": "tsx scripts/pnh-model-warfare.ts",
     "pnh:simulate": "tsx scripts/pnh-simulate.ts --",
     "pnh:proposals": "tsx scripts/pnh-proposals.ts",
+    "pnh:wargame": "tsx scripts/pnh-wargame.ts",
     "test:engine:grep": "pnpm --filter @alchemist/shared-engine exec vitest run",
     "verify:harsh": "node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:harsh:fire": "ALCHEMIST_FIRE_SYNC=1 node scripts/run-verify-with-summary.mjs verify-harsh",

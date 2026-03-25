@@ -6,6 +6,7 @@
 import type { IntentHardenerReason } from "../intent-hardener";
 import type { PnhAdaptiveDecision, PnhContextEvaluation, PnhTriadLane } from "./pnh-context-types";
 import type { PnhScenarioId } from "./pnh-scenarios";
+import { deterministicRuntimeActionForScenarioBreach } from "./pnh-triage-matrix";
 
 type GuardOk = { ok: true };
 type GuardFail = { ok: false; reason: IntentHardenerReason; detail?: string };
@@ -113,50 +114,13 @@ export function pnhAdaptiveScenarioDecision(
     return { action: "allow", reason: "probe_immune", scenarioId };
   }
   const repeats = opts?.gateBypassRepeatAttempts ?? 0;
-  if (scenarioId === "GATE_BYPASS_PAYLOAD") {
-    if (repeats >= 2 && lane !== "stub") {
-      return {
-        action: "block",
-        reason: "GATE_BYPASS_PAYLOAD: repeated breach attempts — escalate to block-class posture.",
-        scenarioId,
-      };
-    }
-    if (ctx.riskLevel === "critical") {
-      return {
-        action: "block",
-        reason: "GATE_BYPASS_PAYLOAD + critical fragility — block until gates are patched.",
-        scenarioId,
-      };
-    }
-    return {
-      action: "degrade",
-      reason: "GATE_BYPASS_PAYLOAD breach — degrade trust / fail ghost immunity until fixed.",
-      scenarioId,
-    };
-  }
-  if (scenarioId === "PROMPT_HIJACK_TRIAD") {
-    return {
-      action: lane === "stub" ? "warn" : "block",
-      reason:
-        lane === "stub"
-          ? "PROMPT_HIJACK_TRIAD breach in stub lane — warn-only posture."
-          : "PROMPT_HIJACK_TRIAD breach on live lane — block-class.",
-      scenarioId,
-    };
-  }
-  if (scenarioId === "SLAVIC_SWARM_CREDIT_DRAIN") {
-    if (ctx.environment === "hostile" || repeats >= 2) {
-      return {
-        action: "block",
-        reason: "SLAVIC_SWARM breach under hostile context or repeats — escalate.",
-        scenarioId,
-      };
-    }
-    return {
-      action: "degrade",
-      reason: "SLAVIC_SWARM breach — tighten dedupe / scoring review.",
-      scenarioId,
-    };
-  }
-  return { action: "degrade", reason: "unknown_scenario_breach", scenarioId };
+  const action = deterministicRuntimeActionForScenarioBreach(scenarioId, {
+    lane,
+    riskLevel: ctx.riskLevel,
+    environment: ctx.environment,
+    repeats,
+  });
+
+  const reason = `PNH triage matrix: ${scenarioId} breach → ${action} (lane=${lane}, risk=${ctx.riskLevel}, env=${ctx.environment}, repeats=${repeats})`;
+  return { action, reason, scenarioId };
 }

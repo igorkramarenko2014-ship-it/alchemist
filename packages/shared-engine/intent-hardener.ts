@@ -58,8 +58,8 @@ export interface TriadIntentInput {
 
 const USER_MODES = new Set<UserMode>(["PRO", "NEWBIE"]);
 
-/** Case-insensitive substrings → reject before provider (PNH prompt hijack probes). */
-const JAILBREAK_MARKERS = [
+/** Case-insensitive substrings → reject before provider (PNH prompt hijack probes). Exported for strip / response audit — keep in sync with defense. */
+export const JAILBREAK_MARKERS = [
   "ignore all previous",
   "ignore your instructions",
   "ignore previous instructions",

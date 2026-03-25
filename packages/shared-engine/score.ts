@@ -22,6 +22,38 @@ import {
   REASONING_LEGIBILITY_MIN_CHARS,
   STATUS_NOISY,
 } from "./validate";
+import { validateTriadIntent } from "./intent-hardener";
+import { hashPromptForTelemetry } from "./pnh/pnh-triad-defense";
+import type { PnhTriadLane } from "./pnh/pnh-context-types";
+import { logEvent } from "./telemetry";
+
+/** Same panelist + identical param fingerprint (or score+reasoning slice) — second row dropped. */
+function gateDuplicateFingerprint(c: AICandidate): string {
+  if (c.paramArray != null && c.paramArray.length >= 8) {
+    return `${c.panelist}|${c.paramArray.map((x) => x.toFixed(5)).join(",")}`;
+  }
+  const r = c.reasoning.trim().slice(0, 240);
+  return `${c.panelist}|${c.score}|${r}`;
+}
+
+function dropDuplicateGateFingerprints(candidates: AICandidate[]): AICandidate[] {
+  const seen = new Set<string>();
+  const out: AICandidate[] = [];
+  for (const c of candidates) {
+    const fp = gateDuplicateFingerprint(c);
+    if (seen.has(fp)) {
+      logEvent("pnh_gate_duplicate_drop", {
+        scenarioId: "GATE_BYPASS_PAYLOAD",
+        severity: "medium",
+        panelist: c.panelist,
+      });
+      continue;
+    }
+    seen.add(fp);
+    out.push(c);
+  }
+  return out;
+}
 
 export function weightedScore(c: AICandidate): number {
   const w = PANELIST_WEIGHTS[c.panelist] ?? 0;
@@ -133,6 +165,11 @@ export type CreativePivot = GameChanger;
 /** Optional **`userMode`** nudge for **`computeIntentAlignmentScore`** (PRO/NEWBIE lexicon hints). */
 export interface ScoreCandidatesOptions {
   userMode?: UserMode;
+  /**
+   * **`validateTriadIntent`** lane for the pre-scoring PNH guard — match **`runTriad`** / client telemetry
+   * (**`stub`** when **`triadParityMode === "stub"`**) so stub runs are not scored with **`fully_live`** only rules.
+   */
+  pnhScoringLane?: PnhTriadLane;
 }
 
 function clamp01(x: number): number {
@@ -208,6 +245,24 @@ export function scoreCandidatesWithGate(
   durationMs?: number[],
   options?: ScoreCandidatesOptions
 ): ScoreCandidatesGatedResult {
+  const p = prompt?.trim() ?? "";
+  if (p.length > 0) {
+    const scoringLane: PnhTriadLane = options?.pnhScoringLane ?? "fully_live";
+    const gate = validateTriadIntent({ prompt: p }, { pnhTriadLane: scoringLane });
+    if (gate.ok === false) {
+      logEvent("pnh_scoring_guard", {
+        interventionType: "scoring_guard_blocked",
+        reason: gate.reason,
+        detail: gate.detail,
+        originalPromptHash: hashPromptForTelemetry(p),
+      });
+      return {
+        status: "OK",
+        candidates: [],
+        creativePivot: buildCreativePivotForDeadEnd(prompt),
+      };
+    }
+  }
   if (candidates.length === 0) {
     return { status: "OK", candidates: [] };
   }
@@ -218,7 +273,7 @@ export function scoreCandidatesWithGate(
       creativePivot: buildCreativePivotForDeadEnd(prompt),
     };
   }
-  const valid = filterValid(candidates);
+  const valid = dropDuplicateGateFingerprints(filterValid(candidates));
   const deduped = slavicFilterDedupe(valid, prompt);
   if (deduped.length === 0) {
     return {
