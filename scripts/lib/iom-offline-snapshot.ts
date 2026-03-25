@@ -48,6 +48,22 @@ export function countHealProposalLines(toolsDir: string): number {
   return n;
 }
 
+export function countPnhEnforcementProposalLines(toolsDir: string): number {
+  const p = join(toolsDir, "pnh-proposals.jsonl");
+  if (!existsSync(p)) return 0;
+  const lines = readFileSync(p, "utf8").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  let n = 0;
+  for (const line of lines) {
+    try {
+      const o = JSON.parse(line) as { kind?: string };
+      if (o?.kind === "pnh_enforcement") n += 1;
+    } catch {
+      /* skip */
+    }
+  }
+  return n;
+}
+
 export interface IomOfflineSnapshot {
   generatedAtMs: number;
   pulseVersion: number;
@@ -67,6 +83,7 @@ export interface IomOfflineSnapshot {
   /** Suggested follow-up command(s). */
   recommendedNext: string;
   iomPendingProposalCount: number;
+  pnhPendingProposalCount: number;
   iomSoeHintHead: string;
   /**
    * Replacement-cost heuristic — same as **`pnpm estimate`**. Descriptive only; not valuation
@@ -90,6 +107,7 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
     { iomSchismCodes: schismCodes, iomCoverageScore: iomCoverage.iomCoverageScore },
   );
   const proposals = countHealProposalLines(toolsDir);
+  const pnhProposals = countPnhEnforcementProposalLines(toolsDir);
   const engineMetrics = collectEnginePackageMetrics(monorepoRoot);
   const engineValuationHeuristic = computeEngineValuationHeuristic(engineMetrics);
 
@@ -102,21 +120,22 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
   if (crit > 0) {
     iomHealthTier = "critical";
     detail = "critical schisms — triage triad/WASM/SOE before ship";
-  } else if (warn > 0 || iomCoverage.iomCoverageScore < 0.85 || proposals > 0) {
+  } else if (warn > 0 || iomCoverage.iomCoverageScore < 0.85 || proposals > 0 || pnhProposals > 0) {
     iomHealthTier = "watch";
-    detail = "warn schisms, low coverage, and/or pending heal proposals";
+    detail = "warn schisms, low coverage, and/or pending heal/PNH proposals";
   } else {
     iomHealthTier = "strong";
     detail = "no warn/crit schisms; coverage ok; proposal queue empty";
   }
 
-  const iomHealthVerdict = `${iomHealthTier} — ${pulse.schisms.length} schism(s) (crit ${crit}, warn ${warn}, info ${info}); coverage ${iomCoverage.iomCoverageScore.toFixed(2)}; proposals ${proposals}`;
+  const iomHealthVerdict = `${iomHealthTier} — ${pulse.schisms.length} schism(s) (crit ${crit}, warn ${warn}, info ${info}); coverage ${iomCoverage.iomCoverageScore.toFixed(2)}; proposals iom=${proposals}, pnh=${pnhProposals}`;
 
   let recommendedNext: string;
   if (crit > 0 || warn > 0) {
     recommendedNext = "pnpm iom:status && pnpm verify:harsh — review schisms and recent triad telemetry";
-  } else if (proposals > 0) {
-    recommendedNext = "pnpm iom:status && pnpm igor:apply — review pending power-cell proposals";
+  } else if (proposals > 0 || pnhProposals > 0) {
+    recommendedNext =
+      "pnpm iom:status && pnpm igor:apply (IOM) / pnpm pnh:proposals (PNH) — review pending proposal queues";
   } else if (iomCoverage.iomCoverageScore < 0.85) {
     recommendedNext = "pnpm iom:status && pnpm igor:heal — improve Vitest↔cell mapping or add tests";
   } else {
@@ -138,6 +157,7 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
     iomHealthVerdict,
     recommendedNext,
     iomPendingProposalCount: proposals,
+    pnhPendingProposalCount: pnhProposals,
     iomSoeHintHead: soe.message.split("\n")[0] ?? "",
     engineValuationHeuristic,
   };

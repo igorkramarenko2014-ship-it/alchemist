@@ -2,16 +2,73 @@
  * Validate candidates: discard invalid / out-of-range.
  * Normalised score in [0, 1]; state and reasoning must be present.
  * Consensus Validator: check FxCk param array against Serum physical limits (0–1).
+ *
+ * **Gate integrity:** strict schema + param integrity + reasoning structure — fail-closed; PNH
+ * **`GATE_BYPASS_PAYLOAD`** logs on high-severity structural rejects (`pnh_gate_bypass_reject`).
  */
-import type { AICandidate } from "@alchemist/shared-types";
+import type { AICandidate, Panelist } from "@alchemist/shared-types";
 import { getSegmentEntropyFloor, inferGateSegment } from "./gates";
+import { logEvent } from "./telemetry";
 
 /** Undercover legibility: agents must explain choices (FIRE — auditable, not empty slogans). */
 export const REASONING_LEGIBILITY_MIN_CHARS = 15;
 
+/** Hard cap — prevents multi-megabyte reasoning exfil / DoS. */
+export const REASONING_MAX_CHARS = 16_000;
+
+/** FxCk vectors longer than this are rejected as injection / abuse (Serum slot ≈128). */
+export const MAX_PARAM_ARRAY_LENGTH = 256;
+
 /** Serum normalised param range (shared-types: 0.0–1.0 unless units require otherwise). */
 const PARAM_MIN = 0;
 const PARAM_MAX = 1;
+
+const PANELISTS = new Set<Panelist>(["LLAMA", "DEEPSEEK", "QWEN"]);
+
+function isHighSeverityGateFailure(code: string): boolean {
+  if (code.startsWith("param_non_finite_") || code.startsWith("param_out_of_range_")) return true;
+  return (
+    code === "bad_panelist" ||
+    code === "candidate_not_object" ||
+    code === "score_non_finite" ||
+    code === "score_out_of_range" ||
+    code === "state_shape" ||
+    code === "description_type" ||
+    code === "description_too_long" ||
+    code === "paramArray_not_array" ||
+    code === "paramArray_too_long" ||
+    code === "param_array_zero_variance"
+  );
+}
+
+/**
+ * Required top-level **`SerumState`** keys — partial objects fail gate integrity (fail-closed).
+ */
+export function isStrictSerumStateShape(s: unknown): boolean {
+  if (s === null || typeof s !== "object") return false;
+  const o = s as Record<string, unknown>;
+  const needObj = ["meta", "master", "oscA", "oscB", "noise", "filter", "fx"] as const;
+  for (const k of needObj) {
+    const v = o[k];
+    if (v === null || typeof v !== "object" || Array.isArray(v)) return false;
+  }
+  if (!Array.isArray(o.envelopes) || !Array.isArray(o.lfos) || !Array.isArray(o.matrix)) return false;
+  return true;
+}
+
+/**
+ * Reasoning must meet legibility length, max size, contain real letters, and avoid NUL injection.
+ */
+export function validateReasoningStructure(reasoning: string): boolean {
+  if (typeof reasoning !== "string") return false;
+  if (/\0/.test(reasoning)) return false;
+  const t = reasoning.trim();
+  if (t.length < REASONING_LEGIBILITY_MIN_CHARS) return false;
+  if (t.length > REASONING_MAX_CHARS) return false;
+  const letters = t.replace(/[^a-zA-Z]/g, "");
+  if (letters.length < 2) return false;
+  return true;
+}
 
 export interface ParamViolation {
   paramIndex: number;
@@ -64,43 +121,19 @@ export function validateSerumParamArray(params: number[]): {
 }
 
 /**
- * Consensus Validator: sanity-check a candidate (score, state, reasoning, and optional param array).
- * Returns detailed reasoning explaining exactly which Serum offset/param was violated, if any.
+ * Consensus Validator — delegates to **`getGateIntegrityFailure`** (strict schema + params + reasoning).
+ * Param-range detail lines are redundant once integrity passes; violations array stays empty for brevity.
  */
 export function consensusValidateCandidate(candidate: AICandidate): ConsensusValidationResult {
-  const violations: ParamViolation[] = [];
-  const parts: string[] = [];
-
-  if (candidate.score < 0 || candidate.score > 1) {
-    parts.push(`Score ${candidate.score} outside [0, 1].`);
+  const fail = getGateIntegrityFailure(candidate);
+  if (fail !== null) {
+    return {
+      valid: false,
+      reasoning: `Gate integrity rejected: ${fail}`,
+      violations: [],
+    };
   }
-  if (!candidate.state || typeof candidate.reasoning !== "string") {
-    parts.push("Missing state or reasoning.");
-  }
-  if (typeof candidate.reasoning === "string" && candidate.reasoning.trim().length === 0) {
-    parts.push("Empty reasoning.");
-  }
-
-  if (candidate.paramArray != null && Array.isArray(candidate.paramArray)) {
-    const { valid, violations: paramViolations } = validateSerumParamArray(candidate.paramArray);
-    if (!valid) {
-      violations.push(...paramViolations);
-      for (const v of paramViolations) {
-        parts.push(`FxCk param[${v.paramIndex}]=${v.value} out of range [${PARAM_MIN}, ${PARAM_MAX}].`);
-      }
-    }
-  }
-
-  const valid = parts.length === 0;
-  const reasoning = valid
-    ? "Consensus: valid."
-    : `Consensus invalid: ${parts.join(" ")}`;
-
-  return {
-    valid,
-    reasoning,
-    violations,
-  };
+  return { valid: true, reasoning: "Consensus: valid.", violations: [] };
 }
 
 /** Reject degenerate param arrays (FIRE / FIRESTARTER adversarial gate). */
@@ -144,6 +177,60 @@ export function varianceParamArray(arr: number[]): number {
   if (arr.length < 2) return 0;
   const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
   return arr.reduce((s, x) => s + (x - mean) ** 2, 0) / arr.length;
+}
+
+/**
+ * Structural check for **`paramArray`** when present: type, density, finite, in-range, max length.
+ * Empty array is allowed (treated as absent for downstream gates).
+ */
+export function validateParamArrayStructuralIntegrity(
+  paramArray: unknown,
+): { ok: true; values: number[] } | { ok: false; code: string } {
+  if (paramArray === undefined || paramArray === null) return { ok: true, values: [] };
+  if (!Array.isArray(paramArray)) return { ok: false, code: "paramArray_not_array" };
+  if (paramArray.length > MAX_PARAM_ARRAY_LENGTH) {
+    return { ok: false, code: "paramArray_too_long" };
+  }
+  const values: number[] = [];
+  for (let i = 0; i < paramArray.length; i++) {
+    const x = paramArray[i];
+    if (typeof x !== "number" || !Number.isFinite(x)) {
+      return { ok: false, code: `param_non_finite_${i}` };
+    }
+    if (x < PARAM_MIN || x > PARAM_MAX) {
+      return { ok: false, code: `param_out_of_range_${i}` };
+    }
+    values.push(x);
+  }
+  if (values.length >= 8) {
+    const v = varianceParamArray(values);
+    if (v === 0 || v < 1e-15) {
+      return { ok: false, code: "param_array_zero_variance" };
+    }
+  }
+  return { ok: true, values };
+}
+
+/**
+ * Single-candidate gate integrity code, or **`null`** if the row passes structural + core gates.
+ * Used by **`isValidCandidate`**, **`consensusValidateCandidate`**, and PNH-aligned telemetry.
+ */
+export function getGateIntegrityFailure(candidate: AICandidate): string | null {
+  if (candidate == null || typeof candidate !== "object") return "candidate_not_object";
+  if (!PANELISTS.has(candidate.panelist)) return "bad_panelist";
+  if (typeof candidate.score !== "number" || !Number.isFinite(candidate.score)) return "score_non_finite";
+  if (candidate.score < 0 || candidate.score > 1) return "score_out_of_range";
+  if (!isStrictSerumStateShape(candidate.state)) return "state_shape";
+  if (candidate.description != null && typeof candidate.description !== "string") {
+    return "description_type";
+  }
+  if (candidate.description != null && candidate.description.length > REASONING_MAX_CHARS) {
+    return "description_too_long";
+  }
+  const pa = validateParamArrayStructuralIntegrity(candidate.paramArray);
+  if (pa.ok === false) return pa.code;
+  if (!validateReasoningStructure(candidate.reasoning)) return "reasoning_structure";
+  return null;
 }
 
 /**
@@ -192,12 +279,12 @@ export function candidatePassesAdversarial(c: AICandidate, prompt?: string): boo
   return passesAdversarialSanity(c.paramArray, entropyMin);
 }
 
-/** Score must be in [0, 1]. State and reasoning required. No param-array check (use consensusValidateCandidate for that). */
+/**
+ * Triad / panelist entry gate — strict schema, param integrity, reasoning structure (**fail-closed**).
+ * See **`getGateIntegrityFailure`** for rejection codes.
+ */
 export function isValidCandidate(c: AICandidate): boolean {
-  if (c.score < 0 || c.score > 1) return false;
-  if (!c.state || typeof c.reasoning !== "string") return false;
-  if (c.reasoning.trim().length < REASONING_LEGIBILITY_MIN_CHARS) return false;
-  return true;
+  return getGateIntegrityFailure(c) === null;
 }
 
 // ─── Gatekeeper — telemetry (score stream before Slavic / weighting) ─────────
@@ -322,9 +409,23 @@ export function isTelemetryPureFromCandidates(
 /** Sprint alias — same as `isTelemetryPureFromCandidates`. */
 export const isDataPure = isTelemetryPureFromCandidates;
 
-/** Filter to valid candidates only (basic checks; does not run consensus param validation). */
+/** Filter to valid candidates only — gate integrity + PNH **`pnh_gate_bypass_reject`** on high-severity drops. */
 export function filterValid(candidates: AICandidate[]): AICandidate[] {
-  return candidates.filter(isValidCandidate);
+  return candidates.filter((c) => {
+    const fail = getGateIntegrityFailure(c);
+    if (fail !== null) {
+      if (isHighSeverityGateFailure(fail)) {
+        logEvent("pnh_gate_bypass_reject", {
+          scenarioId: "GATE_BYPASS_PAYLOAD",
+          severity: "high",
+          reason: fail,
+          panelist: c.panelist,
+        });
+      }
+      return false;
+    }
+    return true;
+  });
 }
 
 /**

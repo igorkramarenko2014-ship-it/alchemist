@@ -89,6 +89,9 @@ export {
   GATEKEEPER_WINDOW,
   GATEKEEPER_Z_MAX,
   getContextualEntropyThreshold,
+  getGateIntegrityFailure,
+  isStrictSerumStateShape,
+  MAX_PARAM_ARRAY_LENGTH,
   isDataPure,
   isTemporalFlowPure,
   isTelemetryPureFromCandidates,
@@ -96,7 +99,10 @@ export {
   isValidCandidate,
   passesAdversarialSanity,
   passesDistributionGate,
+  REASONING_MAX_CHARS,
   STATUS_NOISY,
+  validateParamArrayStructuralIntegrity,
+  validateReasoningStructure,
   validateSerumParamArray,
   varianceParamArray,
 } from "./validate";
@@ -147,7 +153,7 @@ export {
   validatePromptForTriad,
 } from "./prompt-guard";
 export type { PromptGuardReason } from "./prompt-guard";
-export { validateTriadIntent } from "./intent-hardener";
+export { JAILBREAK_MARKERS, validateTriadIntent } from "./intent-hardener";
 export type {
   IntentHardenerReason,
   TriadIntentInput,
@@ -155,6 +161,18 @@ export type {
   ValidateTriadIntentOptions,
 } from "./intent-hardener";
 export { logEvent } from "./telemetry";
+export {
+  applyPnhTriadPromptDefense,
+  auditTriadCandidatesForPnhResponseEcho,
+  hashPromptForTelemetry,
+  stripPromptJailbreakMarkers,
+} from "./pnh/pnh-triad-defense";
+export type {
+  AuditPnhResponseEchoOptions,
+  PnhTriadIntervention,
+  PnhTriadInterventionType,
+  PnhTriadPromptDefenseResult,
+} from "./pnh/pnh-triad-defense";
 export {
   logTriadPanelistEnd,
   logTriadRunEnd,

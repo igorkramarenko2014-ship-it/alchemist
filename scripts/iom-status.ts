@@ -42,6 +42,7 @@ function main(): void {
     `| **Schisms** | ${mdCell(schismSummary)} |`,
     `| **SOE hint (head)** | ${mdCell(snap.iomSoeHintHead)} |`,
     `| **Heal proposals (\`iom_ghost_cell\` lines)** | ${snap.iomPendingProposalCount} |`,
+    `| **PNH enforcement proposals (\`pnh_enforcement\` lines)** | ${snap.pnhPendingProposalCount} |`,
     "",
     "### Engine scale heuristic (market context — not valuation)",
     "",

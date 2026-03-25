@@ -55,6 +55,108 @@ export interface PnhSimulationReport {
   readonly diff?: PnhSimulationDiff;
 }
 
+/** Structured PNH outcome for **`verify_post_summary`** / CI truth (no string-only “green”). */
+export interface PnhSecurityFailureDetail {
+  readonly id: string;
+  readonly suite: string;
+  readonly severity: string;
+  /** Human scan line — suite + scenario id. */
+  readonly location: string;
+  readonly detail: string;
+  /** Single stderr / SIEM line with severity + location + detail. */
+  readonly message: string;
+}
+
+export interface PnhVerifyTruthStatus {
+  readonly state: PnhSimulationPnhStatus;
+  readonly highSeverityCount: number;
+  readonly mediumSeverityFailCount: number;
+  readonly scenariosTriggered: readonly string[];
+  readonly failureDetails: readonly PnhSecurityFailureDetail[];
+}
+
+/**
+ * Maps simulation **`pnhStatus`** to verify security rollup (**`null`** = PNH not evaluated this run).
+ */
+export function securityVerdictFromPnhState(
+  state: PnhSimulationPnhStatus | "skipped" | "unknown",
+): "pass" | "degraded" | "fail" | null {
+  if (state === "clean") return "pass";
+  if (state === "warning") return "degraded";
+  if (state === "breach") return "fail";
+  return null;
+}
+
+/**
+ * Auditable PNH posture for CI / **`verify_post_summary`** — failed rows, regressions, baseline gaps.
+ */
+export function computePnhVerifyTruthStatus(report: PnhSimulationReport): PnhVerifyTruthStatus {
+  const failed = report.rows.filter((r) => !r.pass);
+  const failedHighRows = failed.filter((r) => r.severity === "high");
+  const failedMediumRows = failed.filter((r) => r.severity === "medium");
+  const regressionList = report.diff?.regressions ?? [];
+  const regressionCount = regressionList.length;
+  const missingBaselineKeys = report.diff?.missingKeys.length ?? 0;
+  const newOpKeys = (report.diff?.newKeys ?? []).filter((k) => isOperationalPnhFingerprintKey(k));
+
+  const highSeverityCount =
+    failedHighRows.length + regressionCount + (missingBaselineKeys > 0 ? 1 : 0);
+
+  const failureDetails: PnhSecurityFailureDetail[] = failed.map((r) => {
+    const location = `${r.suite} :: ${r.id}`;
+    return {
+      id: r.id,
+      suite: r.suite,
+      severity: r.severity,
+      location,
+      detail: r.detail,
+      message: `[${r.severity.toUpperCase()}] ${location} — ${r.detail}`,
+    };
+  });
+
+  for (const reg of regressionList) {
+    const location = `baseline_regression :: ${reg.id}`;
+    failureDetails.push({
+      id: `regression:${reg.id}`,
+      suite: "baseline_regression",
+      severity: "high",
+      location,
+      detail: `fingerprint weakened: ${reg.before} → ${reg.after}`,
+      message: `[HIGH] ${location} — fingerprint weakened: ${reg.before} → ${reg.after}`,
+    });
+  }
+
+  if (missingBaselineKeys > 0) {
+    const sample = report.diff!.missingKeys.slice(0, 8).join(", ");
+    const ell = missingBaselineKeys > 8 ? " …" : "";
+    failureDetails.push({
+      id: "baseline:missing_keys",
+      suite: "baseline",
+      severity: "high",
+      location: "tools/pnh-simulation-baseline.json",
+      detail: `${missingBaselineKeys} fingerprint key(s) missing vs committed baseline`,
+      message: `[HIGH] tools/pnh-simulation-baseline.json — missing keys vs baseline: ${sample}${ell}`,
+    });
+  }
+
+  const scenariosTriggered: string[] = [
+    ...failed.map((r) => r.id),
+    ...regressionList.map((r) => `regression:${r.id}`),
+  ];
+  if (missingBaselineKeys > 0) scenariosTriggered.push("baseline:missing_fingerprint_keys");
+  for (const k of newOpKeys) {
+    scenariosTriggered.push(`new_operational_fingerprint:${k}`);
+  }
+
+  return {
+    state: report.pnhStatus,
+    highSeverityCount,
+    mediumSeverityFailCount: failedMediumRows.length,
+    scenariosTriggered: Array.from(new Set(scenariosTriggered)),
+    failureDetails,
+  };
+}
+
 const WARFARE_SEVERITY: Record<string, "high" | "medium" | "low" | "info"> = {
   A1: "high",
   A2: "high",

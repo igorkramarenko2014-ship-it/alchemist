@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildPnhSimulationReport,
   comparePnhFingerprints,
+  computePnhVerifyTruthStatus,
   isPnhPipelineBreachRow,
+  securityVerdictFromPnhState,
 } from "../pnh/pnh-simulation-engine";
 import { runPnhGhostWar } from "../pnh/pnh-ghost-run";
 import { runPnhModelWarfare } from "../pnh/pnh-warfare-model";
@@ -57,6 +59,23 @@ describe("isPnhPipelineBreachRow", () => {
         detail: "",
       }),
     ).toBe(true);
+  });
+});
+
+describe("computePnhVerifyTruthStatus", () => {
+  it("maps clean posture to pass verdict and lists failed scenario ids", () => {
+    const ghost = runPnhGhostWar();
+    const warfare = runPnhModelWarfare({ maxSequences: 2, target: "all" });
+    const r = buildPnhSimulationReport(ghost, warfare, {});
+    const t = computePnhVerifyTruthStatus(r);
+    expect(t.state).toBe(r.pnhStatus);
+    expect(securityVerdictFromPnhState(t.state)).toBe(
+      r.pnhStatus === "clean" ? "pass" : r.pnhStatus === "warning" ? "degraded" : "fail",
+    );
+    if (r.pnhStatus !== "clean") {
+      expect(t.scenariosTriggered.length).toBeGreaterThan(0);
+      expect(t.failureDetails.every((d) => d.message.includes(d.location))).toBe(true);
+    }
   });
 });
 

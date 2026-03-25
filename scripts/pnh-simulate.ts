@@ -20,12 +20,20 @@ import {
 } from "../packages/shared-engine/pnh/pnh-warfare-model.ts";
 import {
   buildPnhSimulationReport,
+  computePnhVerifyTruthStatus,
   isOperationalPnhFingerprintKey,
+  securityVerdictFromPnhState,
   type PnhSimulationBaselineFile,
 } from "../packages/shared-engine/pnh/pnh-simulation-engine.ts";
+import {
+  buildPnhEnforcementProposals,
+  formatPnhProposalsJsonl,
+  PNH_PROPOSAL_BATCH_KIND,
+} from "../packages/shared-engine/pnh/pnh-proposal-model.ts";
 
 const BASELINE_REL = join("tools", "pnh-simulation-baseline.json");
 const LAST_REL = join("tools", "pnh-simulation-last.json");
+const PROPOSALS_REL = join("tools", "pnh-proposals.jsonl");
 
 function findMonorepoRoot(startDir: string): string | null {
   let dir = startDir;
@@ -136,6 +144,36 @@ async function main(): Promise<void> {
     baseline: ci || !writeBaseline ? baselineOnDisk : null,
   });
 
+  const verifyTruth = computePnhVerifyTruthStatus(report);
+  const securityVerdict = securityVerdictFromPnhState(verifyTruth.state);
+  const enforcementProposals = buildPnhEnforcementProposals(report);
+  const proposalBatch = {
+    kind: PNH_PROPOSAL_BATCH_KIND,
+    generatedAt: report.generatedAt,
+    pnhStatus: report.pnhStatus,
+    securityVerdict,
+    proposalCount: enforcementProposals.length,
+    provenance: "scripts/pnh-simulate.ts",
+    note: "IOM-safe batch header — proposals are not consumed by igor:apply (power cells). Review-only.",
+  };
+  writeFileSync(
+    join(root, PROPOSALS_REL),
+    formatPnhProposalsJsonl(enforcementProposals, proposalBatch),
+    "utf8",
+  );
+  process.stderr.write(
+    `${JSON.stringify({
+      ts: new Date().toISOString(),
+      event: "pnh_enforcement_proposals_emitted",
+      proposalCount: enforcementProposals.length,
+      path: PROPOSALS_REL,
+      pnhStatus: report.pnhStatus,
+    })}\n`,
+  );
+  console.error(
+    `pnh-simulate: wrote ${PROPOSALS_REL} (${enforcementProposals.length} enforcement proposal(s), review-only — not auto-applied)`,
+  );
+
   if (writeBaseline) {
     const baselineOut: PnhSimulationBaselineFile = {
       version: 1,
@@ -152,6 +190,8 @@ async function main(): Promise<void> {
     regressions: report.regressions,
     severityBreakdown: report.severityBreakdown,
     pnhStatus: report.pnhStatus,
+    securityVerdict,
+    verifyTruth,
     ghostPassed: ghost.passed,
     warfareBreaches: warfare.summary.breach,
   };
@@ -167,15 +207,10 @@ async function main(): Promise<void> {
   process.stderr.write(`${line}\n`);
 
   console.error(
-    `pnh-simulate: pnhStatus=${report.pnhStatus} breaches=${report.breaches} regressions=${report.regressions} total=${report.totalScenarios}`,
+    `pnh-simulate: securityVerdict=${securityVerdict ?? "n/a"} pnhStatus=${report.pnhStatus} highSeveritySignals=${verifyTruth.highSeverityCount} breaches=${report.breaches} regressions=${report.regressions} total=${report.totalScenarios}`,
   );
-  if (report.diff && report.diff.regressions.length > 0) {
-    console.error(`pnh-simulate: regressions: ${report.diff.regressions.map((r) => r.id).join(", ")}`);
-  }
-  if (report.rows.filter((r) => !r.pass).length > 0) {
-    console.error(
-      `pnh-simulate: failed rows: ${report.rows.filter((r) => !r.pass).map((r) => r.id).join(", ")}`,
-    );
+  for (const d of verifyTruth.failureDetails) {
+    console.error(`pnh-simulate: ${d.message}`);
   }
 
   if (writeBaseline) {
@@ -195,12 +230,19 @@ async function main(): Promise<void> {
       process.exit(1);
     }
     if (report.pnhStatus === "breach") {
-      console.error("pnh-simulate: --ci failed (high-severity failure or regression vs baseline)");
+      console.error("pnh-simulate: --ci FAIL — breach tier (pipeline breach, regression, or missing baseline keys)");
       process.exit(1);
     }
-    if (report.pnhStatus === "warning") {
+    const allowWarning = process.env.ALCHEMIST_PNH_ALLOW_WARNING === "1";
+    if (report.pnhStatus === "warning" && !allowWarning) {
       console.error(
-        "pnh-simulate: warning tier (medium failures or fingerprint drift) — see tools/pnh-simulation-last.json",
+        "pnh-simulate: --ci FAIL — degraded security posture (warning tier: medium failures and/or fingerprint drift). Fix probes or set ALCHEMIST_PNH_ALLOW_WARNING=1 only as a temporary escape hatch. See tools/pnh-simulation-last.json → verifyTruth.failureDetails.",
+      );
+      process.exit(1);
+    }
+    if (report.pnhStatus === "warning" && allowWarning) {
+      console.error(
+        "pnh-simulate: WARNING tier allowed by ALCHEMIST_PNH_ALLOW_WARNING=1 — not a clean security pass; see verifyTruth.failureDetails",
       );
     }
   }

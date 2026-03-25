@@ -3,7 +3,7 @@ import { customAlphabet } from "nanoid";
 const nanoidSlug = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 6);
 import type { AICandidate } from "@alchemist/shared-types";
 import type { SharedPreset } from "@alchemist/shared-types";
-import { logEvent, PANELIST_ALCHEMIST_CODENAME } from "@alchemist/shared-engine";
+import { getGateIntegrityFailure, logEvent, PANELIST_ALCHEMIST_CODENAME } from "@alchemist/shared-engine";
 import { saveSharedPreset } from "./preset-store";
 
 const SHARE_SCORE_FLOOR = 0.85;
@@ -25,6 +25,9 @@ export function sharePreset(
   wasmAvailable: boolean
 ): SharedPreset | null {
   if (score < SHARE_SCORE_FLOOR) {
+    return null;
+  }
+  if (getGateIntegrityFailure(candidate) !== null) {
     return null;
   }
 

@@ -38,6 +38,9 @@ jobs:
       - name: verify:ci (HARD GATE + verify:harsh)
         run: pnpm verify:ci
         # Same as: assert:hard-gate (warn if no tools/sample_init.fxp) + verify:harsh.
+        # PNH: stderr verify_post_summary includes securityVerdict (pass | degraded | fail | null).
+        # In CI, pnpm pnh:simulate -- --ci fails on breach; also fails on warning tier unless
+        # ALCHEMIST_PNH_ALLOW_WARNING=1 (temporary escape hatch — see tools/pnh-simulation-last.json verifyTruth).
         # Stricter release job: ALCHEMIST_STRICT_OFFSETS=1 + provision tools/sample_init.fxp before assert:hard-gate.
 
       - name: IOM power-cell coverage (ghost .ts must be registered)

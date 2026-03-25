@@ -10,13 +10,28 @@ vi.mock("@alchemist/shared-engine", async (importOriginal) => {
   };
 });
 
+const fullState = (): AICandidate["state"] => ({
+  meta: {},
+  master: {},
+  oscA: {},
+  oscB: {},
+  noise: {},
+  filter: {},
+  envelopes: [],
+  lfos: [],
+  fx: {},
+  matrix: [],
+});
+
+const variedParams = (n: number) => Array.from({ length: n }, (_, i) => ((i * 17) % 100) / 100);
+
 const baseCandidate = {
-  state: {} as AICandidate["state"],
-  panelist: "DEEPSEEK",
+  state: fullState(),
+  panelist: "DEEPSEEK" as const,
   score: 0.9,
   reasoning: "Dark growling bass with heavy sub movement and gritty texture",
   description: "Sub bass with modulated filter",
-  paramArray: Array.from({ length: 128 }, () => 0.5),
+  paramArray: variedParams(128),
 } as AICandidate;
 
 describe("sharePreset", () => {
@@ -52,7 +67,7 @@ describe("sharePreset", () => {
   it("paramArray on SharedPreset is a copy — mutating does not affect candidate", () => {
     const c = {
       ...baseCandidate,
-      paramArray: [0.5, 0.5, 0.5],
+      paramArray: variedParams(16),
     } as AICandidate;
     const result = sharePreset(c, "test", 0.9, false);
     expect(result).not.toBeNull();

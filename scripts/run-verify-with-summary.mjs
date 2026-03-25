@@ -25,7 +25,12 @@
  * `pnpm test:engine` (`tests/pnh-ghost-run.test.ts`); quick slice: `pnpm pnh:ghost`.
  * Nine-sequence model + `pnh-report.json`: `pnpm pnh:model-warfare` (optional `--strict`).
  * **Red-team simulation** (`pnpm pnh:simulate`): ghost + warfare + APT ledger + stub intent; on green
- * **`verify-harsh`**, runs automatically and sets **`pnhStatus`** on **`verify_post_summary`** (CI: `--ci` regression guard vs `tools/pnh-simulation-baseline.json`).
+ * **`verify-harsh`**, runs automatically and sets **`pnhStatus`** (string, legacy), **`pnhSecurityPosture`**
+ * (**`state`**, **`highSeverityCount`**, **`scenariosTriggered`**, **`failureDetails`**), **`securityVerdict`**
+ * (`pass` \| `degraded` \| `fail` \| **`null`** when PNH not evaluated), and **`pnhSecurityMessages`** on
+ * **`verify_post_summary`**. **CI** (`CI=1`): **`--ci`** fails on breach; fails on warning tier unless
+ * **`ALCHEMIST_PNH_ALLOW_WARNING=1`** (escape hatch). Local **`verify-harsh`** runs simulation without **`--ci`**
+ * so medium drift does not block iteration.
  *
  * Optional **VST3 sidecar** (strict): `ALCHEMIST_VST_VERIFY=1` after a green pipeline runs
  * `REQUIRE_VST=1 assert:vst` then `pnpm vst:observe:gate` (HARD GATE preflight). No default in CI.
@@ -583,7 +588,109 @@ function readPnhSimulationLast(r) {
   }
 }
 
+function securityVerdictFromPnhStateJs(state) {
+  if (state === "clean") return "pass";
+  if (state === "warning") return "degraded";
+  if (state === "breach") return "fail";
+  return null;
+}
+
+/**
+ * PNH verify-truth rollup for **`verify_post_summary`** — never treats stale **`last.json`** as fresh when sim did not run.
+ */
+function buildPnhSecurityRollup({ mode, pnhSimInvoked, pnhLast }) {
+  if (mode !== "verify-harsh") {
+    const detail =
+      "PNH security posture is evaluated on verify-harsh only. Re-run pnpm verify:harsh for pnhSecurityPosture / securityVerdict.";
+    return {
+      pnhSecurityPosture: {
+        state: "skipped",
+        highSeverityCount: 0,
+        mediumSeverityFailCount: 0,
+        scenariosTriggered: [],
+        failureDetails: [
+          {
+            id: "pnh:not_applicable",
+            suite: "verify",
+            severity: "info",
+            location: "run-verify-with-summary.mjs :: verify-web",
+            detail,
+            message: `[INFO] run-verify-with-summary.mjs :: verify-web — ${detail}`,
+          },
+        ],
+      },
+      securityVerdict: null,
+      pnhSecurityMessages: [],
+    };
+  }
+  if (!pnhSimInvoked) {
+    const detail =
+      "PNH simulation did not run (a prior verify-harsh step failed). tools/pnh-simulation-last.json is unchanged and may be stale — do not treat pnhStatus as current.";
+    return {
+      pnhSecurityPosture: {
+        state: "skipped",
+        highSeverityCount: 0,
+        mediumSeverityFailCount: 0,
+        scenariosTriggered: [],
+        failureDetails: [
+          {
+            id: "pnh:not_run",
+            suite: "verify",
+            severity: "info",
+            location: "run-verify-with-summary.mjs :: verify-harsh",
+            detail,
+            message: `[INFO] verify :: pnh:not_run — ${detail}`,
+          },
+        ],
+      },
+      securityVerdict: null,
+      pnhSecurityMessages: [],
+    };
+  }
+  const vt = pnhLast?.verifyTruth;
+  if (!vt) {
+    const st = typeof pnhLast?.pnhStatus === "string" ? pnhLast.pnhStatus : "unknown";
+    return {
+      pnhSecurityPosture: {
+        state: st,
+        highSeverityCount: 0,
+        mediumSeverityFailCount: 0,
+        scenariosTriggered: [],
+        failureDetails: [
+          {
+            id: "pnh:artifact_incomplete",
+            suite: "tools",
+            severity: "info",
+            location: "tools/pnh-simulation-last.json",
+            detail:
+              "Missing verifyTruth — run pnpm pnh:simulate on current scripts/pnh-simulate.ts after upgrade.",
+            message:
+              "[INFO] tools/pnh-simulation-last.json — missing verifyTruth; run pnpm pnh:simulate",
+          },
+        ],
+      },
+      securityVerdict: securityVerdictFromPnhStateJs(st),
+      pnhSecurityMessages: [],
+    };
+  }
+  return {
+    pnhSecurityPosture: {
+      state: vt.state,
+      highSeverityCount: vt.highSeverityCount,
+      mediumSeverityFailCount: vt.mediumSeverityFailCount,
+      scenariosTriggered: vt.scenariosTriggered,
+      failureDetails: vt.failureDetails,
+    },
+    securityVerdict: pnhLast.securityVerdict ?? securityVerdictFromPnhStateJs(vt.state),
+    pnhSecurityMessages: Array.isArray(vt.failureDetails)
+      ? vt.failureDetails.map((f) => f.message).slice(0, 48)
+      : [],
+  };
+}
+
+let pnhSimInvoked = false;
 if (mode === "verify-harsh" && finalExitCode === 0) {
+  pnhSimInvoked = true;
   const withPnpm = join(root, "scripts", "with-pnpm.mjs");
   const simScript = join(root, "scripts", "pnh-simulate.ts");
   const simArgs = [withPnpm, "exec", "tsx", simScript, "--"];
@@ -604,6 +711,12 @@ if (mode === "verify-harsh" && finalExitCode === 0) {
 }
 
 const durationMs = Date.now() - t0;
+
+/** When the main pipeline passed but PNH `--ci` / simulation failed, surface an explicit step label. */
+let summaryFailedStep = failedStep;
+if (pnhSimInvoked && finalExitCode !== 0) {
+  summaryFailedStep = summaryFailedStep ?? "pnh_simulate";
+}
 
 const iomSummaryMeta =
   iomVerifyMeta ??
@@ -628,10 +741,19 @@ const pnhVerifyContext = {
   iomSchismCodesCount: Array.isArray(iomPulseMeta?.iomSchismCodes)
     ? iomPulseMeta.iomSchismCodes.length
     : undefined,
+  ciFailsOnPnhWarningTier: Boolean(process.env.CI && process.env.ALCHEMIST_PNH_ALLOW_WARNING !== "1"),
+  pnhAllowWarningEscapeHatch: process.env.ALCHEMIST_PNH_ALLOW_WARNING === "1" ? true : undefined,
   note: "PNH verify slice — operator-supplied repeat counters are not persisted here; see triad telemetry pnhContextSurface on client runs.",
 };
 
 const pnhLast = readPnhSimulationLast(root);
+const pnhRollup = buildPnhSecurityRollup({ mode, pnhSimInvoked, pnhLast });
+const pnhStatusString =
+  mode !== "verify-harsh"
+    ? "n/a"
+    : pnhSimInvoked
+      ? (pnhLast?.pnhStatus ?? "unknown")
+      : "skipped";
 
 logSummary({
   mode,
@@ -640,7 +762,7 @@ logSummary({
   productShippableFromVerifyScriptAlone: false,
   vstVerifyOptIn: process.env.ALCHEMIST_VST_VERIFY === "1" ? true : undefined,
   durationMs,
-  failedStep,
+  failedStep: summaryFailedStep,
   monorepoRoot: root,
   ...wasmTruth,
   ...hardGateFiles,
@@ -652,7 +774,8 @@ logSummary({
   ...iomSummaryMeta,
   ...iomPulseMeta,
   pnhVerifyContext,
-  pnhStatus: pnhLast?.pnhStatus ?? (mode === "verify-harsh" && finalExitCode !== 0 ? "skipped" : "unknown"),
+  ...pnhRollup,
+  pnhStatus: pnhStatusString,
   pnhSimulation:
     pnhLast != null
       ? {
