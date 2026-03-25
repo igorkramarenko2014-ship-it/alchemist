@@ -100,4 +100,9 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
     responsibility: "JUCE VST3 FXP bridge skeleton (apps/vst-wrapper) — read-only consumer of validated .fxp; stores chunk as plugin state; does not inject Serum. Pulse: vst-wrapper-pulse.ts.",
     artifacts: ["vst-wrapper-pulse.ts", "iom-pulse.ts"] as const,
   },
+  {
+    id: "preset_share",
+    responsibility: "User-consented shareable preset pages — slug generation, score gate (≥0.85), OG metadata from real candidate fields, paramArray visual only (no .fxp bytes exposed).",
+    artifacts: ["../../apps/web-app/lib/share-preset.ts", "../../apps/web-app/lib/preset-store.ts", "../../apps/web-app/app/presets/[slug]/page.tsx", "../../apps/web-app/app/api/presets/share/route.ts"] as const,
+  },
 ] as const;

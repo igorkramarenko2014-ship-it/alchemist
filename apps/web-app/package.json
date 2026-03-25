@@ -9,7 +9,8 @@
     "build:fresh": "pnpm run build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@alchemist/shared-engine": "workspace:*",
@@ -19,6 +20,7 @@
     "@react-three/drei": "9",
     "@react-three/fiber": "8",
     "fzstd": "^0.1.1",
+    "nanoid": "^5",
     "next": "14.2.35",
     "prom-client": "^15.1.3",
     "react": "^18.3.1",
@@ -34,6 +36,7 @@
     "eslint": "^9.15.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   }
 }

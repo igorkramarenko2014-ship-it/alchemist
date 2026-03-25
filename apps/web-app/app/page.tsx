@@ -25,6 +25,7 @@ export default function Home() {
   const [validationSummary, setValidationSummary] = useState<string | null>(null);
   const [wasmStatus, setWasmStatus] = useState<WasmHealthStatus>("loading");
   const [postRunAgentFusionLine, setPostRunAgentFusionLine] = useState<string | null>(null);
+  const [shareLink, setShareLink] = useState<string | null>(null);
   const triadAbortRef = useRef<AbortController | null>(null);
   /** Prevents a superseded triad from clearing `loading` while a newer run is active. */
   const triadGenRef = useRef(0);
@@ -92,6 +93,7 @@ export default function Home() {
     setRanked([]);
     setValidationSummary(null);
     setPostRunAgentFusionLine(null);
+    setShareLink(null);
     try {
       const analysis = await runTriad(text, {
         /** Server routes: `app/api/triad/{llama,deepseek,qwen}` (FIRE §B2). */
@@ -128,6 +130,40 @@ export default function Home() {
       if (triadGenRef.current === gen) setLoading(false);
     }
   }, [prompt]);
+
+  const handleShareTop = useCallback(async () => {
+    const c = ranked[0];
+    if (!c) return;
+    const promptNow = prompt.trim();
+    if (promptNow !== lastRunPromptRef.current) {
+      setError("Share blocked: prompt changed since last Generate — run Generate again.");
+      return;
+    }
+    setError(null);
+    try {
+      const res = await fetch("/api/presets/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidate: c,
+          prompt: promptNow,
+          score: c.score,
+          wasmAvailable: wasmStatus === "available",
+        }),
+      });
+      const j = (await res.json()) as { error?: string; url?: string };
+      if (!res.ok) {
+        setError(j.error ?? "Share failed");
+        return;
+      }
+      if (typeof j.url === "string") {
+        const abs = `${window.location.origin}${j.url}`;
+        setShareLink(abs);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }, [ranked, prompt, wasmStatus]);
 
   async function handleExportTop() {
     const c = ranked[0];
@@ -249,6 +285,28 @@ export default function Home() {
           </p>
           {ranked[0].reasoning ? (
             <p className="mt-2 line-clamp-4 text-xs leading-relaxed text-gray-500">{ranked[0].reasoning}</p>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => void handleShareTop()}
+            disabled={
+              ranked[0].score < 0.85 ||
+              (ranked[0].reasoning?.trim().length ?? 0) < 15 ||
+              !Array.isArray(ranked[0].paramArray) ||
+              ranked[0].paramArray.length === 0 ||
+              prompt.trim() !== lastRunPromptRef.current
+            }
+            className="mt-3 w-full rounded-lg border border-[#5EEAD4]/40 bg-transparent px-3 py-2 text-xs font-medium text-[#5EEAD4] transition-colors hover:bg-[#5EEAD4]/10 disabled:cursor-not-allowed disabled:border-gray-700 disabled:text-gray-600"
+          >
+            Share preset (score ≥85%, needs params)
+          </button>
+          {shareLink ? (
+            <p className="mt-2 break-all text-[10px] text-gray-500">
+              Link:{" "}
+              <a href={shareLink} className="text-[#5EEAD4] underline">
+                {shareLink}
+              </a>
+            </p>
           ) : null}
         </section>
       ) : null}

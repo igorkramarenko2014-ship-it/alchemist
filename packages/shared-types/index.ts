@@ -162,3 +162,5 @@ export interface FxpExportProvenanceV1 {
   hardGateRepoArtifactsPresent?: boolean | null;
   notes: string[];
 }
+
+export type { SharedPreset } from "./preset-share";

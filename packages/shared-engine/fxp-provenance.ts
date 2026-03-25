@@ -10,17 +10,22 @@ export const ALCHEMIST_FXP_PROVENANCE_VERSION = 1 as const;
 export const FXP_ENCODER_PROVENANCE_SURFACE =
   "@alchemist/shared-engine/encoder.ts → dynamic import @alchemist/fxp-encoder/wasm → encode_fxp_fxck";
 
+/**
+ * SHA-256 hex via **Web Crypto only** — safe for Next client bundles (no `node:crypto`).
+ * Node 18+ and modern browsers expose `globalThis.crypto.subtle`.
+ */
 export async function sha256HexUtf8(text: string): Promise<string> {
   const data = new TextEncoder().encode(text);
   const subtle = globalThis.crypto?.subtle;
-  if (subtle?.digest) {
-    const buf = await subtle.digest("SHA-256", data);
-    return Array.from(new Uint8Array(buf))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+  if (!subtle?.digest) {
+    throw new Error(
+      "sha256HexUtf8: Web Crypto.subtle unavailable — use Node 18+ or a browser with crypto.subtle",
+    );
   }
-  const { createHash } = await import("node:crypto");
-  return createHash("sha256").update(text, "utf8").digest("hex");
+  const buf = await subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export function buildFxpGateSummary(
