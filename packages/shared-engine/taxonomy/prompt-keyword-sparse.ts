@@ -1,7 +1,6 @@
 /**
- * Keyword sparse pre-filter (Phase 1) — shared by **`rankTaxonomy`** and optional
- * **`narrowTaxonomyPoolToTriadCandidates`** oversize fallback. **No** import from **`engine.ts`**
- * (avoids cycles with **`sparse-rank.ts`**).
+ * Keyword sparse pre-filter (Phase 1) — shared by **`rankTaxonomy`** and **`safeProcessTaxonomy`**.
+ * **No** import from **`engine.ts`** (avoids cycles with **`sparse-rank.ts`**).
  */
 import type { AICandidate } from "@alchemist/shared-types";
 
@@ -28,9 +27,18 @@ export function filterTaxonomyByPromptKeywordsWithCap(
     return fullTaxonomy.slice(0, cap);
   }
 
-  const sparse = fullTaxonomy.filter((item) => {
+  const scored = fullTaxonomy.map((item, index) => {
     const text = item.reasoning.toLowerCase();
-    return keywords.some((k) => text.includes(k));
+    let hits = 0;
+    for (const k of keywords) {
+      if (text.includes(k)) hits += 1;
+    }
+    return { item, hits, index };
   });
-  return sparse.slice(0, cap);
+  const matched = scored.filter((s) => s.hits > 0);
+  matched.sort((a, b) => {
+    if (b.hits !== a.hits) return b.hits - a.hits;
+    return a.index - b.index;
+  });
+  return matched.slice(0, cap).map((s) => s.item);
 }

@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  buildFxpExportProvenanceV1,
   computeAgentAjiChatFusionFromTriadTelemetry,
   encodeFxp,
+  fxpProvenanceSidecarFilename,
   makeTriadFetcher,
   runTriad,
   scoreCandidates,
+  type AIAnalysis,
   type AICandidate,
 } from "@alchemist/shared-engine";
 import { TriadHealth } from "@/components/TriadHealth";
@@ -25,6 +28,9 @@ export default function Home() {
   const triadAbortRef = useRef<AbortController | null>(null);
   /** Prevents a superseded triad from clearing `loading` while a newer run is active. */
   const triadGenRef = useRef(0);
+  /** Last successful Generate — export provenance + lineage gate. */
+  const lastRunPromptRef = useRef<string>("");
+  const lastAnalysisRef = useRef<AIAnalysis | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,6 +103,8 @@ export default function Home() {
       });
       if (signal.aborted || triadGenRef.current !== gen) return;
       const sorted = scoreCandidates(analysis.candidates, text);
+      lastRunPromptRef.current = text;
+      lastAnalysisRef.current = analysis;
       setRanked(sorted);
       if (sorted.length === 0 && !analysis.validationSummary) {
         setError(
@@ -129,17 +137,53 @@ export default function Home() {
 
   async function handleExport(c: AICandidate, name: string) {
     try {
+      const promptNow = prompt.trim();
+      if (promptNow !== lastRunPromptRef.current) {
+        setError("Export blocked: prompt changed since last Generate — run Generate again for a traceable export.");
+        return;
+      }
+      const exportRankIndex = ranked.findIndex(
+        (x) => x.panelist === c.panelist && x.score === c.score && x.reasoning === c.reasoning
+      );
+      let healthJson: unknown | null = null;
+      try {
+        const hr = await fetch("/api/health", { cache: "no-store" });
+        if (hr.ok) healthJson = await hr.json();
+      } catch {
+        healthJson = null;
+      }
+      const wasmReal = wasmStatus === "available";
+      const prov = await buildFxpExportProvenanceV1({
+        prompt: promptNow,
+        analysis: lastAnalysisRef.current,
+        rankedAfterScore: ranked,
+        exportCandidate: c,
+        exportRankIndex: exportRankIndex >= 0 ? exportRankIndex : 0,
+        programName: name,
+        wasmReal,
+        healthResponseJson: healthJson,
+        promptMatchesLastRun: promptNow === lastRunPromptRef.current,
+      });
       const params = new Float32Array(2);
       const bytes = await encodeFxp(params, name);
       const copy = new Uint8Array(bytes.length);
       copy.set(bytes);
+      const fxpBase = `${name.replace(/\s+/g, "-")}.fxp`;
       const blob = new Blob([copy], { type: "application/octet-stream" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${name.replace(/\s+/g, "-")}.fxp`;
+      a.download = fxpBase;
       a.click();
       URL.revokeObjectURL(url);
+      const sideText = JSON.stringify(prov, null, 2);
+      const sideBlob = new Blob([sideText], { type: "application/json" });
+      const sideUrl = URL.createObjectURL(sideBlob);
+      const a2 = document.createElement("a");
+      a2.href = sideUrl;
+      a2.download = fxpProvenanceSidecarFilename(fxpBase);
+      a2.click();
+      URL.revokeObjectURL(sideUrl);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -215,7 +259,12 @@ export default function Home() {
         onAppendPrompt={appendPrompt}
         onListeningChange={onListeningChange}
         onExportTopPreset={handleExportTop}
-        canExportTopPreset={hasPresets && wasmStatus === "available"}
+        canExportTopPreset={
+          hasPresets &&
+          wasmStatus === "available" &&
+          prompt.trim() !== "" &&
+          prompt.trim() === lastRunPromptRef.current
+        }
         wasmStatus={wasmStatus}
       />
 

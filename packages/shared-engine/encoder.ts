@@ -1,6 +1,9 @@
 /**
  * FXP encode: delegates to @alchemist/fxp-encoder WASM.
  * Build fxp-encoder with `pnpm run build:wasm` first.
+ *
+ * **Provenance:** does not embed metadata in FxCk bytes. Callers attach **`*.fxp.provenance.json`**
+ * via **`buildFxpExportProvenanceV1`** (`fxp-provenance.ts`) after **`scoreCandidates`** / triad run.
  */
 let encodeFn: ((params: Float32Array, programName: string) => Uint8Array) | null = null;
 

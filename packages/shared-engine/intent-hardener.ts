@@ -12,6 +12,33 @@ import {
   validatePromptForTriad,
   type PromptGuardReason,
 } from "./prompt-guard";
+import type { PnhTriadLane } from "./pnh/pnh-context-types";
+
+export interface ValidateTriadIntentOptions {
+  /**
+   * **`stub`** relaxes PROMPT_HIJACK-class heuristics only (jailbreak / implausible / low-signal /
+   * pathological repetition) for **local stub triad** — never pass from HTTP panelist routes.
+   */
+  pnhTriadLane?: PnhTriadLane;
+}
+
+const RELAXABLE_IN_STUB = new Set<IntentHardenerReason>([
+  "jailbreak_instruction",
+  "implausible_param_request",
+  "low_signal_prompt",
+  "pathological_repetition",
+]);
+
+export type TriadIntentValidationResult =
+  | { ok: true }
+  | {
+      ok: true;
+      pnhStubSurface: {
+        relaxedFrom: IntentHardenerReason;
+        note: string;
+      };
+    }
+  | { ok: false; reason: IntentHardenerReason; detail?: string };
 
 export type IntentHardenerReason =
   | PromptGuardReason
@@ -99,10 +126,14 @@ function dominantCharRatio(s: string): number {
 /**
  * Validate triad request intent before upstream inference. Returns **`ok: false`** with a stable
  * **`reason`** for **`400`** responses (map in route handlers).
+ *
+ * With **`options.pnhTriadLane === "stub"`**, PROMPT_HIJACK-class checks may return **`ok: true`**
+ * plus **`pnhStubSurface`** — for Vitest / local stub triad only.
  */
 export function validateTriadIntent(
   input: TriadIntentInput,
-): { ok: true } | { ok: false; reason: IntentHardenerReason; detail?: string } {
+  options?: ValidateTriadIntentOptions,
+): TriadIntentValidationResult {
   const prompt = typeof input.prompt === "string" ? input.prompt : "";
   const base = validatePromptForTriad(prompt);
   if (base.ok === false) {
@@ -123,45 +154,67 @@ export function validateTriadIntent(
   const lower = t.toLowerCase();
   for (const m of JAILBREAK_MARKERS) {
     if (lower.includes(m)) {
-      return {
+      const fail: TriadIntentValidationResult = {
         ok: false,
         reason: "jailbreak_instruction",
         detail: "prompt contains disallowed override / exfiltration-style wording",
       };
+      return maybeRelaxStubIntent(fail, options?.pnhTriadLane);
     }
   }
   if (promptHasBase64EmbeddedJailbreak(t)) {
-    return {
+    const fail: TriadIntentValidationResult = {
       ok: false,
       reason: "jailbreak_instruction",
       detail: "prompt embeds override wording inside a base64-like token",
     };
+    return maybeRelaxStubIntent(fail, options?.pnhTriadLane);
   }
   if (IMPLAUSIBLE_PARAM_RE.test(t)) {
-    return {
+    const fail: TriadIntentValidationResult = {
       ok: false,
       reason: "implausible_param_request",
       detail: "prompt requests out-of-range or absurd percentage / numeric param values",
     };
+    return maybeRelaxStubIntent(fail, options?.pnhTriadLane);
   }
 
   if (t.length >= 80 && letterSpaceRatio(t) < 0.12) {
-    return {
+    const fail: TriadIntentValidationResult = {
       ok: false,
       reason: "low_signal_prompt",
       detail: "prompt is mostly non-letters; refine with musical / preset intent",
     };
+    return maybeRelaxStubIntent(fail, options?.pnhTriadLane);
   }
 
   if (t.length >= 24 && dominantCharRatio(t) > 0.45) {
-    return {
+    const fail: TriadIntentValidationResult = {
       ok: false,
       reason: "pathological_repetition",
       detail: "prompt has excessive single-character repetition",
     };
+    return maybeRelaxStubIntent(fail, options?.pnhTriadLane);
   }
 
   return { ok: true };
+}
+
+function maybeRelaxStubIntent(
+  fail: Extract<TriadIntentValidationResult, { ok: false }>,
+  lane: PnhTriadLane | undefined,
+): TriadIntentValidationResult {
+  if (lane === "stub" && RELAXABLE_IN_STUB.has(fail.reason)) {
+    return {
+      ok: true,
+      pnhStubSurface: {
+        relaxedFrom: fail.reason,
+        note:
+          "PNH stub lane: would reject on live HTTP — classify as PROMPT_HIJACK-class for telemetry; do not use on panelist routes.",
+      },
+    };
+  }
+  return fail;
 }
 
 export { TRIAD_PROMPT_MAX_CHARS };

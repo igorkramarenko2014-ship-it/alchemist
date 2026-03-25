@@ -24,6 +24,8 @@
  * **PNH** (Predictive Network Hardening): deterministic probes in `packages/shared-engine/pnh/` run with
  * `pnpm test:engine` (`tests/pnh-ghost-run.test.ts`); quick slice: `pnpm pnh:ghost`.
  * Nine-sequence model + `pnh-report.json`: `pnpm pnh:model-warfare` (optional `--strict`).
+ * **Red-team simulation** (`pnpm pnh:simulate`): ghost + warfare + APT ledger + stub intent; on green
+ * **`verify-harsh`**, runs automatically and sets **`pnhStatus`** on **`verify_post_summary`** (CI: `--ci` regression guard vs `tools/pnh-simulation-baseline.json`).
  *
  * Optional **VST3 sidecar** (strict): `ALCHEMIST_VST_VERIFY=1` after a green pipeline runs
  * `REQUIRE_VST=1 assert:vst` then `pnpm vst:observe:gate` (HARD GATE preflight). No default in CI.
@@ -570,6 +572,37 @@ if (exitCode === 0 && process.env.ALCHEMIST_VST_VERIFY === "1") {
     }
   }
 }
+
+function readPnhSimulationLast(r) {
+  const p = join(r, "tools", "pnh-simulation-last.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+if (mode === "verify-harsh" && finalExitCode === 0) {
+  const withPnpm = join(root, "scripts", "with-pnpm.mjs");
+  const simScript = join(root, "scripts", "pnh-simulate.ts");
+  const simArgs = [withPnpm, "exec", "tsx", simScript, "--"];
+  if (process.env.CI) simArgs.push("--ci");
+  const sim = spawnSync(process.execPath, simArgs, {
+    cwd: root,
+    stdio: "inherit",
+    env: { ...process.env, ALCHEMIST_PNPM_FALLBACK_QUIET: "1" },
+    shell: false,
+  });
+  const simCode = sim.status === null ? 1 : sim.status;
+  if (simCode !== 0) {
+    finalExitCode = simCode;
+    process.stderr.write(
+      "[alchemist] PNH simulation failed — fix probes or refresh tools/pnh-simulation-baseline.json with pnpm pnh:simulate -- --write-baseline\n"
+    );
+  }
+}
+
 const durationMs = Date.now() - t0;
 
 const iomSummaryMeta =
@@ -584,6 +617,21 @@ const iomSummaryMeta =
 const iomPulseMeta = collectIomVerifyMeta(root);
 const wasmTruth = getWasmArtifactTruthForSummary(root);
 const hardGateFiles = getHardGateFilesTruth(root);
+
+const pnhVerifyContext = {
+  verifyMode: process.env.CI
+    ? "ci"
+    : process.env.ALCHEMIST_SELECTIVE_VERIFY === "1"
+      ? "selective"
+      : "local",
+  wasmReal: wasmTruth.wasmArtifactTruth === "real",
+  iomSchismCodesCount: Array.isArray(iomPulseMeta?.iomSchismCodes)
+    ? iomPulseMeta.iomSchismCodes.length
+    : undefined,
+  note: "PNH verify slice — operator-supplied repeat counters are not persisted here; see triad telemetry pnhContextSurface on client runs.",
+};
+
+const pnhLast = readPnhSimulationLast(root);
 
 logSummary({
   mode,
@@ -603,6 +651,19 @@ logSummary({
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
   ...iomSummaryMeta,
   ...iomPulseMeta,
+  pnhVerifyContext,
+  pnhStatus: pnhLast?.pnhStatus ?? (mode === "verify-harsh" && finalExitCode !== 0 ? "skipped" : "unknown"),
+  pnhSimulation:
+    pnhLast != null
+      ? {
+          totalScenarios: pnhLast.totalScenarios,
+          breaches: pnhLast.breaches,
+          regressions: pnhLast.regressions,
+          severityBreakdown: pnhLast.severityBreakdown,
+          ghostPassed: pnhLast.ghostPassed,
+          warfareBreaches: pnhLast.warfareBreaches,
+        }
+      : undefined,
 });
 
 if (process.env.ALCHEMIST_FIRE_SYNC === "1" && finalExitCode === 0) {

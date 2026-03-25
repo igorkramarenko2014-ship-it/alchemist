@@ -37,6 +37,8 @@ import { logDegradedFallback } from "./integrity";
 import { lookupTablebaseCandidate } from "./reliability/checkers-fusion";
 import { scoreCandidatesWithGate } from "./score";
 import { STATUS_NOISY } from "./validate";
+import { evaluatePnhContext, pnhContextFragilityScore } from "./pnh/pnh-context-evaluator";
+import type { PnhContextInput } from "./pnh/pnh-context-types";
 
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
 
@@ -103,6 +105,15 @@ function buildTriadParityFields(
     triadDegraded: !fully,
     triadPanelOutcomes: outcomes,
   };
+}
+
+function pnhTriadLaneClassFromClientRun(
+  triadRunMode: "tablebase" | "fetcher" | "stub",
+  parityMode: TriadParityMode
+): "stub" | "mixed" | "fully_live" | "tablebase" {
+  if (triadRunMode === "stub") return "stub";
+  if (triadRunMode === "tablebase") return "tablebase";
+  return parityMode === "fully_live" ? "fully_live" : "mixed";
 }
 
 function scoreGatedTriadPool(
@@ -440,6 +451,13 @@ export async function runTriad(
     }
   }
 
+  const pnhInput: PnhContextInput = {
+    triadParityMode: parity.triadParityMode,
+    triadFullyLive: parity.triadParityMode === "fully_live",
+  };
+  const pnhEval = evaluatePnhContext(pnhInput);
+  const frag01 = pnhContextFragilityScore(pnhInput);
+
   return {
     candidates: valid,
     triadRunTelemetry: {
@@ -452,6 +470,12 @@ export async function runTriad(
       triadParityMode: parity.triadParityMode,
       triadDegraded: parity.triadDegraded,
       triadPanelOutcomes: parity.triadPanelOutcomes,
+      pnhContextSurface: {
+        triadLaneClass: pnhTriadLaneClassFromClientRun(triadRunMode, parity.triadParityMode),
+        riskLevel: pnhEval.riskLevel,
+        environment: pnhEval.environment,
+        fragilityScore01: frag01,
+      },
     },
     ...(validationSummary !== undefined && { validationSummary }),
   };

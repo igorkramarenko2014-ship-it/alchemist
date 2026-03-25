@@ -118,6 +118,16 @@ export interface TriadRunTelemetry {
   triadDegraded: boolean;
   /** Row order LLAMA → DEEPSEEK → QWEN; omitted for tablebase-only runs. */
   triadPanelOutcomes?: TriadPanelistRunOutcome[];
+  /**
+   * PNH runtime snapshot from **`evaluatePnhContext`** for this run (no session memory).
+   * **`triadLaneClass`** is how the client run maps to stub / mixed / live for policy hints.
+   */
+  pnhContextSurface?: {
+    triadLaneClass: "stub" | "mixed" | "fully_live" | "tablebase";
+    riskLevel: "low" | "elevated" | "critical";
+    environment: "safe" | "uncertain" | "hostile";
+    fragilityScore01: number;
+  };
 }
 
 export interface AIAnalysis {
@@ -126,4 +136,29 @@ export interface AIAnalysis {
   validationSummary?: string;
   /** Optional: wall-time + gate stats from this run for dashboards and `computeAgentAjiChatFusionFromTriadTelemetry`. */
   triadRunTelemetry?: TriadRunTelemetry;
+}
+
+/**
+ * Sidecar metadata for `.fxp` exports (`*.fxp.provenance.json`) — **not** embedded in FxCk bytes.
+ * Browser exports cannot run **`validate-offsets.py`**; **`hardGateValidated`** stays false unless a future
+ * pipeline merges CI attestation without inventing offsets.
+ */
+export interface FxpExportProvenanceV1 {
+  schema: "alchemist.fxp_provenance";
+  version: 1;
+  timestamp: string;
+  promptHash: string;
+  triadMode: TriadParityMode | "unknown";
+  triadFullyLive: boolean | null;
+  gateSummary: string;
+  wasmReal: boolean;
+  hardGateValidated: boolean;
+  encoderSurface: string;
+  exportedProgramName: string;
+  exportedCandidatePanelist: Panelist;
+  triadRunMode?: "tablebase" | "fetcher" | "stub";
+  lineage: { promptMatchesLastRun: boolean; exportRankIndex: number };
+  exportTrustTier: "verified" | "unverified";
+  hardGateRepoArtifactsPresent?: boolean | null;
+  notes: string[];
 }

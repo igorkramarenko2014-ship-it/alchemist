@@ -4,6 +4,7 @@
 export type {
   AICandidate,
   AIAnalysis,
+  FxpExportProvenanceV1,
   Panelist,
   SerumState,
   TriadPanelistRunOutcome,
@@ -126,6 +127,16 @@ export {
 export type { ExistentialChoice, ModuleState } from "./schism";
 export { encodeFxp } from "./encoder";
 export {
+  ALCHEMIST_FXP_PROVENANCE_SCHEMA,
+  ALCHEMIST_FXP_PROVENANCE_VERSION,
+  buildFxpExportProvenanceV1,
+  buildFxpGateSummary,
+  fxpProvenanceSidecarFilename,
+  FXP_ENCODER_PROVENANCE_SURFACE,
+  sha256HexUtf8,
+} from "./fxp-provenance";
+export type { BuildFxpProvenanceContext } from "./fxp-provenance";
+export {
   AI_TIMEOUT_MS,
   MAX_CANDIDATES,
   PANELIST_WEIGHTS,
@@ -137,7 +148,12 @@ export {
 } from "./prompt-guard";
 export type { PromptGuardReason } from "./prompt-guard";
 export { validateTriadIntent } from "./intent-hardener";
-export type { IntentHardenerReason, TriadIntentInput } from "./intent-hardener";
+export type {
+  IntentHardenerReason,
+  TriadIntentInput,
+  TriadIntentValidationResult,
+  ValidateTriadIntentOptions,
+} from "./intent-hardener";
 export { logEvent } from "./telemetry";
 export {
   logTriadPanelistEnd,
@@ -276,7 +292,6 @@ export {
 } from "./triad-panelist-prompt";
 export {
   narrowTaxonomyPoolToTriadCandidates,
-  type NarrowTaxonomyOptions,
   TaxonomyPoolTooLargeError,
   TAXONOMY_PRE_SLAVIC_POOL_MAX,
 } from "./taxonomy/engine";
@@ -285,6 +300,13 @@ export {
   rankTaxonomy,
   TAXONOMY_KEYWORD_SPARSE_MAX,
 } from "./taxonomy/sparse-rank";
+export {
+  safeProcessTaxonomy,
+} from "./taxonomy/safe-process";
+export type {
+  SafeTaxonomyProcessResult,
+  TaxonomyProcessMode,
+} from "./taxonomy/safe-process";
 export { runTransparentArbitration } from "./arbitration/transparent-arbitration";
 export type {
   ArbitrationContext,
@@ -368,6 +390,66 @@ export type {
   AptImplementationStatus,
   PnhAptScenario,
 } from "./pnh/pnh-apt-scenarios";
+export type {
+  PnhAdaptiveAction,
+  PnhContextEvaluation,
+  PnhContextInput,
+  PnhEnvironmentClass,
+  PnhRiskLevel,
+  PnhTriadLane,
+  PnhVerifyMode,
+} from "./pnh/pnh-context-types";
+export { evaluatePnhContext, pnhContextFragilityScore } from "./pnh/pnh-context-evaluator";
+export {
+  pnhAdaptiveDecision,
+  pnhAdaptiveScenarioDecision,
+  triadApiPnhLaneFromEnv,
+} from "./pnh/pnh-adaptive";
+export type { TriadIntentGuardResult } from "./pnh/pnh-adaptive";
+export {
+  buildPnhHealthContextInput,
+  buildPnhHealthSnapshot,
+} from "./pnh/pnh-health-snapshot";
+export {
+  escalationLevelToActionFloor,
+  getDefaultPnhAttackMemoryStore,
+  intentReasonToPnhMemoryScenarioKey,
+  maxPnhAdaptiveAction,
+  PnhAttackMemoryStore,
+  resetPnhAttackMemoryForTests,
+} from "./pnh/pnh-attack-memory";
+export type {
+  PnhAttackEvent,
+  PnhAttackSurface,
+  PnhDetectedPattern,
+  PnhEscalationLevel,
+  PnhMemoryInspection,
+  PnhMemoryScenarioKey,
+  PnhSessionStateSnapshot,
+} from "./pnh/pnh-attack-memory";
+export {
+  pnhIntentFailureDecisionWithMemory,
+} from "./pnh/pnh-decision-with-memory";
+export type { PnhDecisionWithMemory } from "./pnh/pnh-decision-with-memory";
+export {
+  buildPnhSimulationReport,
+  comparePnhFingerprints,
+  fingerprintFromApt,
+  fingerprintFromIntentStubRow,
+  fingerprintsFromGhost,
+  fingerprintsFromWarfare,
+  isOperationalPnhFingerprintKey,
+  isPnhPipelineBreachRow,
+} from "./pnh/pnh-simulation-engine";
+export type {
+  PnhFingerprintOutcome,
+  PnhSimulationBaselineFile,
+  PnhSimulationDiff,
+  PnhSimulationExpectation,
+  PnhSimulationPnhStatus,
+  PnhSimulationReport,
+  PnhSimulationRow,
+} from "./pnh/pnh-simulation-engine";
 export { parseLegacySoeHintMessage } from "./soe-hint-structured";
 export type {
   StructuredSoeHint,

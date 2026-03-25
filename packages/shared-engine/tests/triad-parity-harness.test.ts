@@ -46,6 +46,9 @@ describe("triad parity harness — same prompt, measurable diffs", () => {
     };
     const live = await runTriad(PARITY_PROMPT, { fetcher: fetcherFull, skipTablebase: true });
 
+    expect(stub.triadRunTelemetry?.pnhContextSurface?.triadLaneClass).toBe("stub");
+    expect(live.triadRunTelemetry?.pnhContextSurface?.triadLaneClass).toBe("fully_live");
+
     const sStub = snapshotTriadAnalysis("stub", stub);
     const sLive = snapshotTriadAnalysis("fetcher_fully_live", live);
 

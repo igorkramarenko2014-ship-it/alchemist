@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "note": "Operational PNH fingerprints only (ghost, warfare, intent stub). Regenerate with pnpm pnh:simulate -- --write-baseline",
+  "fingerprints": {
+    "ghost:GATE_BYPASS_PAYLOAD:param_out_of_range": "immune",
+    "ghost:GATE_BYPASS_PAYLOAD:param_nan": "immune",
+    "ghost:GATE_BYPASS_PAYLOAD:param_infinity": "immune",
+    "ghost:GATE_BYPASS_PAYLOAD:score_out_of_band": "immune",
+    "ghost:PROMPT_HIJACK_TRIAD:prompt_markers_DEEPSEEK": "immune",
+    "ghost:PROMPT_HIJACK_TRIAD:prompt_markers_LLAMA": "immune",
+    "ghost:PROMPT_HIJACK_TRIAD:prompt_markers_QWEN": "immune",
+    "ghost:SLAVIC_SWARM_CREDIT_DRAIN:identical_param_swarm": "immune",
+    "warfare:A1": "breach",
+    "warfare:A2": "immune",
+    "warfare:A3": "breach",
+    "warfare:B4": "immune",
+    "warfare:B5": "immune",
+    "warfare:B6": "immune",
+    "warfare:C7": "immune",
+    "warfare:C8": "immune",
+    "warfare:C9": "skipped",
+    "intent:stub:jailbreak_relax": "warn"
+  }
+}

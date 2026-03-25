@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
+import { appendPnhHistoryJsonl, triadIntentPnhPartition } from "@/lib/pnh-triad-attack-log";
 import { getTriadCircuitBreakerForPanelist } from "@/lib/triad-circuit-breakers";
 import {
   DEFAULT_LLAMA_GROQ_MODEL,
@@ -7,10 +8,14 @@ import {
 } from "@/lib/fetch-llama-candidates";
 import { fetchQwenCandidates } from "@/lib/fetch-qwen-candidates";
 import {
+  evaluatePnhContext,
+  getDefaultPnhAttackMemoryStore,
   isValidCandidate,
   logEvent,
   newTriadRunId,
   PANELIST_ALCHEMIST_CODENAME,
+  pnhIntentFailureDecisionWithMemory,
+  triadApiPnhLaneFromEnv,
   validateTriadIntent,
 } from "@alchemist/shared-engine";
 import type { AICandidate, Panelist } from "@alchemist/shared-types";
@@ -104,14 +109,64 @@ export async function triadPanelPost(
       ? (body as { userMode: unknown }).userMode
       : undefined;
 
+  const deepseekConfigured = env.deepseekApiKey.length > 0;
+  const qwenConfigured = env.qwenApiKey.length > 0;
+  const llamaConfigured = env.llamaApiKey.length > 0;
+  const triadFullyLiveServer = deepseekConfigured && qwenConfigured && llamaConfigured;
+  const anyPanelistKeys = deepseekConfigured || qwenConfigured || llamaConfigured;
+
   const guard = validateTriadIntent({ prompt, userMode });
   if (guard.ok === false) {
+    const useDeepSeekLive = panelist === "DEEPSEEK" && deepseekConfigured;
+    const useQwenLive = panelist === "QWEN" && qwenConfigured;
+    const useLlamaLive = panelist === "LLAMA" && llamaConfigured;
+    const thisPanelistLive = useDeepSeekLive || useQwenLive || useLlamaLive;
+    const pnhCtxEval = evaluatePnhContext({
+      triadParityMode: !anyPanelistKeys ? "stub" : triadFullyLiveServer ? "fully_live" : "mixed",
+      triadFullyLive: triadFullyLiveServer,
+    });
+    const lane = triadApiPnhLaneFromEnv(thisPanelistLive, triadFullyLiveServer);
+    const { storeKey, opaqueId } = triadIntentPnhPartition(request);
+    const store = getDefaultPnhAttackMemoryStore();
+    const decision = pnhIntentFailureDecisionWithMemory(storeKey, guard, lane, pnhCtxEval, store);
+    logEvent("pnh_intent_adaptive", {
+      panelist,
+      intentReason: guard.reason,
+      pnhAction: decision.action,
+      pnhEffectiveAction: decision.effectiveAction,
+      pnhEscalationLevel: decision.escalationLevel,
+      pnhPatterns: decision.patterns.map((p) => ({ id: p.id, level: p.level })),
+      pnhReason: decision.reason,
+      pnhScenarioId: decision.scenarioId,
+      riskLevel: pnhCtxEval.riskLevel,
+      environment: pnhCtxEval.environment,
+      pnhMemorySnapshot: {
+        opaquePartitionId: opaqueId,
+        recentEventCount: decision.memory.snapshot.recentEvents.length,
+        scenarioCountsBurst: decision.memory.snapshot.scenarioCountsBurst,
+      },
+    });
+    appendPnhHistoryJsonl({
+      event: "pnh_triad_intent_failure",
+      opaquePartitionId: opaqueId,
+      panelist,
+      intentReason: guard.reason,
+      escalationLevel: decision.escalationLevel,
+      effectiveAction: decision.effectiveAction,
+      patternIds: decision.patterns.map((p) => p.id),
+    });
     return NextResponse.json(
       {
         error: guard.reason,
         ...(guard.detail !== undefined ? { message: guard.detail } : {}),
       },
-      { status: 400 },
+      {
+        status: 400,
+        headers: {
+          "x-alchemist-pnh-escalation": decision.escalationLevel,
+          "x-alchemist-pnh-effective-action": decision.effectiveAction,
+        },
+      },
     );
   }
 
@@ -119,9 +174,9 @@ export async function triadPanelPost(
   const alchemistCodename = PANELIST_ALCHEMIST_CODENAME[panelist];
   const promptLength = prompt.length;
 
-  const useDeepSeekLive = panelist === "DEEPSEEK" && env.deepseekApiKey.length > 0;
-  const useQwenLive = panelist === "QWEN" && env.qwenApiKey.length > 0;
-  const useLlamaLive = panelist === "LLAMA" && env.llamaApiKey.length > 0;
+  const useDeepSeekLive = panelist === "DEEPSEEK" && deepseekConfigured;
+  const useQwenLive = panelist === "QWEN" && qwenConfigured;
+  const useLlamaLive = panelist === "LLAMA" && llamaConfigured;
   const llamaModel =
     env.llamaGroqModel.length > 0 ? env.llamaGroqModel : DEFAULT_LLAMA_GROQ_MODEL;
 

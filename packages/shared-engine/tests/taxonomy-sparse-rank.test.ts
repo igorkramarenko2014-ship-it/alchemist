@@ -39,6 +39,16 @@ function cand(
 }
 
 describe("taxonomy/sparse-rank", () => {
+  it("filterTaxonomyByPromptKeywords ranks higher multi-token hits first (deterministic)", () => {
+    const pool = [
+      cand("LLAMA", 0.5, "bass only one keyword in reasoning text here."),
+      cand("QWEN", 0.5, "bass wobble texture keyword rich reasoning text here."),
+    ];
+    const out = filterTaxonomyByPromptKeywords("bass texture", pool);
+    expect(out.length).toBeGreaterThanOrEqual(1);
+    expect(out[0]?.reasoning).toContain("rich");
+  });
+
   it("filterTaxonomyByPromptKeywords matches reasoning tokens", () => {
     const pool = [
       cand("LLAMA", 0.5, "dark bass rumble — legible taxonomy filter test reasoning."),

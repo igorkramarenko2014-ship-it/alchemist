@@ -25,6 +25,10 @@ dist
 *.fxp
 # PNH warfare CLI output (pnpm pnh:model-warfare)
 pnh-report.json
+# Opt-in PNH attack audit (ALCHEMIST_PNH_HISTORY_JSONL=1)
+tools/pnh-history.jsonl
+# Last PNH simulation run (verify:harsh + pnh:simulate)
+tools/pnh-simulation-last.json
 __pycache__
 *.pyc
 .venv

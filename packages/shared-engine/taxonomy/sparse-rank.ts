@@ -39,5 +39,5 @@ export function rankTaxonomy(
   fullTaxonomy: AICandidate[]
 ): AICandidate[] {
   const sparse = filterTaxonomyByPromptKeywords(prompt, fullTaxonomy);
-  return narrowTaxonomyPoolToTriadCandidates(sparse, { prompt });
+  return narrowTaxonomyPoolToTriadCandidates(sparse);
 }

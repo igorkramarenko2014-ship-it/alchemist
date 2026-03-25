@@ -5,6 +5,7 @@ import { getVstHealthSnapshot } from "@/lib/vst-bundle-health";
 import fs from "node:fs";
 import path from "node:path";
 import {
+  buildPnhHealthSnapshot,
   computeHealthAgentAjiChatFusion,
   getIgorOrchestratorManifest,
   getIOMHealthPulse,
@@ -95,6 +96,26 @@ export async function GET(request: Request) {
   const hardGateOffsetMapFilePresent = repoRoot ? fs.existsSync(offsetMapPath) : false;
   const hardGateValidateScriptPresent = repoRoot ? fs.existsSync(validatePyPath) : false;
   const hardGateSampleInitFxpPresent = repoRoot ? fs.existsSync(sampleFxpPath) : false;
+
+  const iomPulse = getIOMHealthPulse({
+    triad: {
+      triadFullyLive: allLive,
+      anyPanelistLive: anyLive,
+      livePanelists: liveList as string[],
+    },
+    wasmOk: wasmOk,
+    openTriadCircuitPanelists: listOpenTriadCircuitPanelists(),
+    ...(soeSnapshot !== undefined && { soeSnapshot }),
+  });
+
+  const pnhHealth = buildPnhHealthSnapshot({
+    triadFullyLive: allLive,
+    anyPanelistLive: anyLive,
+    wasmOk,
+    iomSchismCount: iomPulse.schisms.length,
+    verifyMode: process.env.CI ? "ci" : "local",
+  });
+
   return NextResponse.json({
     ok: true,
     wasm,
@@ -147,16 +168,15 @@ export async function GET(request: Request) {
       note: "Operator-only: set ALCHEMIST_OPS_TOKEN and X-Ops-Token — GET /api/health/iom (core), GET /api/iom/dashboard (+ snapshots), GET /api/metrics/iom (Prometheus text).",
     },
     igorOrchestrator: getIgorOrchestratorManifest(),
-    iomPulse: getIOMHealthPulse({
-      triad: {
-        triadFullyLive: allLive,
-        anyPanelistLive: anyLive,
-        livePanelists: liveList as string[],
-      },
-      wasmOk: wasmOk,
-      openTriadCircuitPanelists: listOpenTriadCircuitPanelists(),
-      ...(soeSnapshot !== undefined && { soeSnapshot }),
-    }),
+    pnh: {
+      riskLevel: pnhHealth.evaluation.riskLevel,
+      environment: pnhHealth.evaluation.environment,
+      fragilityScore01: pnhHealth.fragilityScore01,
+      triadParityModeHint: pnhHealth.input.triadParityMode,
+      iomSchismCount: iomPulse.schisms.length,
+      note: "PNH context snapshot from aggregate health signals — same model as shared-engine evaluatePnhContext.",
+    },
+    iomPulse,
     soeSnapshotInjected: soeSnapshot !== undefined,
     agentAjiChatFusion,
     generatedAtMs: Date.now(),

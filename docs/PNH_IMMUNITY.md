@@ -1,6 +1,6 @@
 # PNH immunity ledger (manual)
 
-**Predictive Network Hardening** probes live in `packages/shared-engine/pnh/` and run on every `pnpm test:engine` via `tests/pnh-ghost-run.test.ts`.
+**Predictive Network Hardening** probes live in `packages/shared-engine/pnh/` and run on every `pnpm test:engine` via `tests/pnh-ghost-run.test.ts` (alongside the full shared-engine Vitest suite — metrics in `docs/FIRE.md` / `pnpm fire:sync`).
 
 | Scenario ID | Severity | Surface |
 |-------------|----------|---------|
@@ -31,3 +31,25 @@ Long-horizon attacker patterns (slow enumeration, supply chain, log exfil, timin
 That catalog **does not** perform 30-day log mining, self-patching production, or “AI that attacks prod nightly.” It links each pattern to **real layers** (edge logs, CI, logger hygiene, gates, calibration) and to **existing** PNH sequences where relevant.
 
 **We intentionally do not** add random `sleep()` on hot Slavic/gate paths — that would fight `perf:boss` and user latency budgets. Mitigate timing probes with constant-work designs and **offline** tests if needed.
+
+## Triad parity (stub / mixed / fully live)
+
+End-to-end **`runTriad`** runs attach **`triadRunTelemetry.triadParityMode`**, **`triadDegraded`**, and **`triadPanelOutcomes`** so reviewers are not fooled by identical JSON shapes across stub vs HTTP fetcher paths. Harness: **`pnpm test:triad-parity`** (`tests/triad-parity-harness.test.ts`, `triad-parity-report.ts`). HTTP panelist responses include **`triadModeTag`** + **`triadPanelist`** (`apps/web-app/lib/triad-panel-route.ts`). **`GET /api/health`** adds **`triad.triadParityWarnings`** when server key coverage is not full.
+
+## IOM alignment
+
+Power-cell layout and operator-facing IOM text are regenerated with **`pnpm igor:sync`** and **`pnpm igor:docs`** → **`docs/iom-architecture.md`**. PNH is an explicit cell in that manifest; schisms and pulse behavior stay **telemetry-first**, not auto-governance of gates.
+
+## APT catalog IDs (quick index)
+
+| ID | Label (summary) |
+|----|-----------------|
+| `bamboo_sprout` | Slow enumeration / edge trends |
+| `empty_bowl` | Supply-chain nudges |
+| `mirror_image` | Secret leakage via logs/errors |
+| `silk_thread` | Timing curiosity vs gates (no hot-path sleep) |
+| `paper_tiger` | Calibration / distribution drift |
+| `dragons_breath` | CI workflow abuse |
+| `jade_rabbit` | Runtime tampering / immutable deploy |
+
+Full rows: **`packages/shared-engine/pnh/pnh-apt-scenarios.ts`** (`PNH_APT_SCENARIO_CATALOG`).
