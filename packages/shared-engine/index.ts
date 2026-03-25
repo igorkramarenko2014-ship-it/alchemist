@@ -74,6 +74,26 @@ export {
 } from "./gates";
 export type { GateSegment } from "./gates";
 export {
+  assertNoAdvisoryMutationBridge,
+  EXECUTION_TIER_NOTE,
+  EXECUTION_TIER_REGISTRY,
+  EXECUTION_TIER_VERSION,
+  getExecutionTier,
+  getExecutionTierEntry,
+  isAdvisoryOnlyCell,
+  isTier1,
+  isTier2,
+  isTier3,
+  summarizeExecutionTiers,
+} from "./execution-tiers";
+export type {
+  ExecutionRecommendation,
+  ExecutionTier,
+  ExecutionTierEntry,
+  ExecutionTierRegistry,
+  ExecutionTierSummary,
+} from "./execution-tiers";
+export {
   ADVERSARIAL_ENTROPY_MIN,
   ADVERSARIAL_VARIANCE_MIN,
   buildValidationSummary,

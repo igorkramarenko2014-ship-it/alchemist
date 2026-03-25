@@ -5,11 +5,14 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
+  EXECUTION_TIER_VERSION,
   computeEngineValuationHeuristic,
   computeSoeRecommendations,
   getIgorOrchestratorManifest,
+  getExecutionTier,
   getIOMCoverageReport,
   getIOMHealthPulse,
+  isAdvisoryOnlyCell,
   type EngineValuationHeuristicResult,
 } from "@alchemist/shared-engine";
 import { collectEnginePackageMetrics } from "./engine-package-scan";
@@ -69,6 +72,10 @@ export interface IomOfflineSnapshot {
   pulseVersion: number;
   igorLayerVersion: number;
   powerCellCount: number;
+  executionTierVersion: number;
+  tier1CellCount: number;
+  tier2CellCount: number;
+  tier3CellCount: number;
   iomCoverageScore: number;
   /** Total schism findings in offline pulse (`getIOMHealthPulse({})`). */
   iomActiveSchisms: number;
@@ -98,6 +105,13 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
   const generatedAtMs = Date.now();
 
   const manifest = getIgorOrchestratorManifest();
+  const tierCounts = { tier1: 0, tier2: 0, tier3: 0 };
+  for (const c of manifest.sharedEnginePowerCells) {
+    const tier = getExecutionTier(c.id);
+    if (tier === "tier1_hot_path") tierCounts.tier1 += 1;
+    else if (tier === "tier2_release_truth") tierCounts.tier2 += 1;
+    else tierCounts.tier3 += 1;
+  }
   const executed = collectAllEngineTestRelPaths(engineRoot);
   const iomCoverage = getIOMCoverageReport(manifest.sharedEnginePowerCells, executed);
   const pulse = getIOMHealthPulse({});
@@ -128,7 +142,8 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
     detail = "no warn/crit schisms; coverage ok; proposal queue empty";
   }
 
-  const iomHealthVerdict = `${iomHealthTier} — ${pulse.schisms.length} schism(s) (crit ${crit}, warn ${warn}, info ${info}); coverage ${iomCoverage.iomCoverageScore.toFixed(2)}; proposals iom=${proposals}, pnh=${pnhProposals}`;
+  const advisoryCount = manifest.sharedEnginePowerCells.filter((c) => isAdvisoryOnlyCell(c.id)).length;
+  const iomHealthVerdict = `${iomHealthTier} — ${pulse.schisms.length} schism(s) (crit ${crit}, warn ${warn}, info ${info}); coverage ${iomCoverage.iomCoverageScore.toFixed(2)}; proposals iom=${proposals}, pnh=${pnhProposals}; tiers t1=${tierCounts.tier1} t2=${tierCounts.tier2} t3=${tierCounts.tier3} (advisory=${advisoryCount})`;
 
   let recommendedNext: string;
   if (crit > 0 || warn > 0) {
@@ -147,6 +162,10 @@ export function buildIomOfflineSnapshot(monorepoRoot: string): IomOfflineSnapsho
     pulseVersion: pulse.pulseVersion,
     igorLayerVersion: manifest.layerVersion,
     powerCellCount: manifest.sharedEnginePowerCells.length,
+    executionTierVersion: EXECUTION_TIER_VERSION,
+    tier1CellCount: tierCounts.tier1,
+    tier2CellCount: tierCounts.tier2,
+    tier3CellCount: tierCounts.tier3,
     iomCoverageScore: iomCoverage.iomCoverageScore,
     iomActiveSchisms: pulse.schisms.length,
     iomSchismCodes: schismCodes,

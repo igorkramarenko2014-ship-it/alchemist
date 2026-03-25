@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "note": "Execution tiers: Tier 1 hot-path outcome, Tier 2 ship-blocking release truth, Tier 3 advisory/diagnostic only.",
+  "cells": {
+    "triad": {
+      "tier": "tier1_hot_path",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "gatekeeper": {
+      "tier": "tier1_hot_path",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "slavic_score": {
+      "tier": "tier1_hot_path",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "undercover_adversarial": {
+      "tier": "tier1_hot_path",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "taxonomy": {
+      "tier": "tier1_hot_path",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "preset_share": {
+      "tier": "tier1_hot_path",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "integrity": {
+      "tier": "tier2_release_truth",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "prompt_guard": {
+      "tier": "tier2_release_truth",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "tablebase": {
+      "tier": "tier2_release_truth",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": true
+    },
+    "vst_observer": {
+      "tier": "tier2_release_truth",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": false
+    },
+    "vst_wrapper": {
+      "tier": "tier2_release_truth",
+      "recommendation": "KEEP",
+      "advisoryOnly": false,
+      "hotPathMutable": false
+    },
+    "arbitration": {
+      "tier": "tier2_release_truth",
+      "recommendation": "KEEP_TRANSPARENT_ONLY",
+      "advisoryOnly": false,
+      "hotPathMutable": false
+    },
+    "soe": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    },
+    "triad_governance": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    },
+    "perf_boss": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    },
+    "talent_market": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    },
+    "agent_fusion": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    },
+    "aji_entropy": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    },
+    "schism": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    },
+    "pnh": {
+      "tier": "tier3_advisory",
+      "recommendation": "QUARANTINE",
+      "advisoryOnly": true,
+      "hotPathMutable": false
+    }
+  }
+}
