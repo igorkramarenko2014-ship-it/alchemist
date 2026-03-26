@@ -12,6 +12,11 @@ import {
 import { saveSharedPreset } from "./preset-store";
 
 const SHARE_SCORE_FLOOR = 0.85;
+const IOM_ALLOW_STUB_LEARNING = process.env.ALCHEMIST_IOM_ALLOW_STUB_LEARNING === "1";
+
+interface SharePresetOptions {
+  learningEligible?: boolean;
+}
 
 function slugBaseFromPrompt(prompt: string): string {
   const base = prompt
@@ -27,7 +32,8 @@ export function sharePreset(
   candidate: AICandidate,
   prompt: string,
   score: number,
-  wasmAvailable: boolean
+  wasmAvailable: boolean,
+  options?: SharePresetOptions
 ): SharedPreset | null {
   if (score < SHARE_SCORE_FLOOR) {
     return null;
@@ -62,6 +68,7 @@ export function sharePreset(
   };
 
   saveSharedPreset(preset);
+  const learningEligible = (options?.learningEligible ?? true) || IOM_ALLOW_STUB_LEARNING;
 
   // Reality Loop: user-consented share event (outcome signal).
   logRealitySignal("PRESET_SHARED", {
@@ -69,12 +76,18 @@ export function sharePreset(
     slug,
     score,
     panelist: candidate.panelist,
+    learningEligible,
+    learningPolicy: learningEligible ? "live_only_default" : "stub_blocked_unless_iom",
   });
-  // Also mark the flow as "used" from an adoption standpoint.
-  logRealitySignal("OUTPUT_USED", {
-    surface: "share",
-    panelist: candidate.panelist,
-  });
+  // OUTPUT_USED is a learning signal; block stub-lane cases unless IOM explicitly allows.
+  if (learningEligible) {
+    logRealitySignal("OUTPUT_USED", {
+      surface: "share",
+      panelist: candidate.panelist,
+      learningEligible: true,
+      learningPolicy: "live_only_default",
+    });
+  }
 
   logEvent("preset_shared", {
     slug,

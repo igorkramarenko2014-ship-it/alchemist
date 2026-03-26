@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
   const prompt = o.prompt;
   const score = o.score;
   const wasmAvailable = o.wasmAvailable;
+  const learningEligible = o.learningEligible;
 
   if (
     !candidate ||
@@ -36,7 +37,11 @@ export async function POST(req: NextRequest) {
     candidate,
     prompt.trim(),
     score,
-    typeof wasmAvailable === "boolean" ? wasmAvailable : false
+    typeof wasmAvailable === "boolean" ? wasmAvailable : false,
+    {
+      learningEligible:
+        typeof learningEligible === "boolean" ? learningEligible : true,
+    }
   );
 
   if (!preset) {

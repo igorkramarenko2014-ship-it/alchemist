@@ -19,6 +19,8 @@ import { TokenUsageIndicator } from "@/components/ui/TokenUsageIndicator";
 import { formatPanelistDisplayName } from "@/lib/panelist-ui";
 
 export default function Home() {
+  const iomAllowsStubLearning =
+    process.env.NEXT_PUBLIC_ALCHEMIST_IOM_ALLOW_STUB_LEARNING === "1";
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +35,8 @@ export default function Home() {
   /** Last successful Generate — export provenance + lineage gate. */
   const lastRunPromptRef = useRef<string>("");
   const lastAnalysisRef = useRef<AIAnalysis | null>(null);
+  /** Learning eligibility for the last run: stub lanes are blocked unless explicitly IOM-allowed. */
+  const lastRunLearningEligibleRef = useRef<boolean>(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,18 +126,47 @@ export default function Home() {
       );
       lastRunPromptRef.current = text;
       lastAnalysisRef.current = analysis;
-      setRanked(sorted);
+      let finalSorted = sorted;
+      let finalAnalysis = analysis;
+      let usedStubFallback = false;
       if (sorted.length === 0 && !analysis.validationSummary) {
-        setError(
-          "No preset candidates returned. The triad requests may have failed (network or timeout), or every candidate was filtered by preset gates. Confirm the dev server is running and try again.",
+        // Plan Z only: stub is a last-resort continuity path when live triad cannot return usable output.
+        // Product/learning decisions must continue to optimize for live lanes first.
+        const fallback = await runTriad(text, {
+          fetcher: makeTriadFetcher(true, ""),
+          runConsensusValidation: false,
+          signal,
+        });
+        const fallbackSorted = scoreCandidates(
+          fallback.candidates,
+          fallback.triadExecutionPrompt ?? text,
+          undefined,
+          { pnhScoringLane: "stub" },
         );
+        if (fallbackSorted.length > 0) {
+          finalSorted = fallbackSorted;
+          finalAnalysis = fallback;
+          usedStubFallback = true;
+          setError(
+            "Live triad degraded (provider/breaker path). Plan Z continuity activated: deterministic stub fallback output (minimize usage, investigate live lane health).",
+          );
+        } else {
+          setError(
+            "No preset candidates returned. Live triad failed and stub fallback also produced no candidates.",
+          );
+        }
       }
+      setRanked(finalSorted);
+      lastAnalysisRef.current = finalAnalysis;
+      const finalLane = finalAnalysis.triadRunTelemetry?.pnhContextSurface?.triadLaneClass;
+      const finalRunIsStub = usedStubFallback || finalLane === "stub";
+      lastRunLearningEligibleRef.current = !finalRunIsStub || iomAllowsStubLearning;
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("alchemist:usage-update"));
       }
-      if (analysis.validationSummary) setValidationSummary(analysis.validationSummary);
-      if (analysis.triadRunTelemetry) {
-        const fusion = computeAgentAjiChatFusionFromTriadTelemetry(analysis.triadRunTelemetry);
+      if (finalAnalysis.validationSummary) setValidationSummary(finalAnalysis.validationSummary);
+      if (finalAnalysis.triadRunTelemetry) {
+        const fusion = computeAgentAjiChatFusionFromTriadTelemetry(finalAnalysis.triadRunTelemetry);
         setPostRunAgentFusionLine(fusion.fusionLines[0] ?? null);
       }
     } catch (e) {
@@ -144,7 +177,7 @@ export default function Home() {
     } finally {
       if (triadGenRef.current === gen) setLoading(false);
     }
-  }, [prompt]);
+  }, [iomAllowsStubLearning, prompt]);
 
   const handleShareTop = useCallback(async () => {
     const c = ranked[0];
@@ -164,6 +197,11 @@ export default function Home() {
           prompt: promptNow,
           score: c.score,
           wasmAvailable: wasmStatus === "available",
+          learningEligible: lastRunLearningEligibleRef.current,
+          learningPolicy:
+            lastRunLearningEligibleRef.current
+              ? "live_only_default"
+              : "stub_blocked_unless_iom",
         }),
       });
       const j = (await res.json()) as { error?: string; url?: string };
@@ -222,13 +260,19 @@ export default function Home() {
       const wasmReal = wasmStatus === "available";
 
       // Outcome/observability signals (RLL) — hinting only; no gate law mutation.
-      // OUTPUT_USED here means: user selected the candidate by initiating export.
-      const outputUsedPayload = { surface: "export", panelist: c.panelist } as const;
-      void postReality("OUTPUT_USED", outputUsedPayload);
+      // OUTPUT_USED is a learning signal. Stub runs are excluded unless IOM explicitly allows it.
+      if (lastRunLearningEligibleRef.current) {
+        const outputUsedPayload = { surface: "export", panelist: c.panelist } as const;
+        void postReality("OUTPUT_USED", outputUsedPayload);
+      }
       const exportAttemptPayload = {
         wasmAvailable: wasmReal,
         candidateRank: exportRankIndex >= 0 ? exportRankIndex : 0,
         panelist: c.panelist,
+        learningEligible: lastRunLearningEligibleRef.current,
+        learningPolicy: lastRunLearningEligibleRef.current
+          ? "live_only_default"
+          : "stub_blocked_unless_iom",
       } as const;
       void postReality("EXPORT_ATTEMPTED", exportAttemptPayload);
 
