@@ -28,7 +28,7 @@ import { NextResponse } from "next/server";
 /** Upstream provider budget per panelist (server-side). */
 const PANELIST_UPSTREAM_TIMEOUT_MS: Record<Panelist, number> = {
   DEEPSEEK: 12_000,
-  LLAMA: 5_000,
+  LLAMA: 12_000,
   QWEN: 12_000,
 };
 
