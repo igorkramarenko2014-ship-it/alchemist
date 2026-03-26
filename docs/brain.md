@@ -11,8 +11,8 @@
 | **`FIRESTARTER.md`** | Recovery bible, workflow appendices, INIT paste |
 | **`FIRE.md`** | Assessment contracts §A–L + **`pnpm fire:sync`** metrics |
 | **`brain.md`** | This file — deep orientation, §9a fusion, §9c–§9d Igor / IOM |
-| **`brain-plus.md`** | Minimal outside-assessment shell + synced metrics |
-| **`inner-circle-agent.md`** | Full peer prompt + Canon FIREWALL (tone layer) |
+| **`FIRE.md`** (Assessment snapshot + §N) | Outside-assessment shell + synced metrics (ex–Brain+) |
+| **`docs/internal/inner-circle-agent.md`** | Full peer prompt + Canon FIREWALL (tone layer) |
 | **`iom.md`** | IOM — §9c + §9d discipline, growth protocol, §9c.1 fast-path moves |
 | **`iom-architecture.md`** | Auto-generated power-cell digest — **`pnpm igor:docs`** after **`igor-power-cells.json`** edits |
 | **`cursor-universal-habits.md`** | Cursor User Rules template (any repo) |
@@ -118,7 +118,7 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 | Pre-ship + real WASM pkg (browser `.fxp`) | **`pnpm harshcheck:wasm`** or **`pnpm verify:harsh:wasm`** |
 | Env / workspace doctor | **`pnpm alc:doctor`** |
 | GitHub **Verify** (root CI) | **`pnpm verify:ci`** — includes **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** (power-cell registry) |
-| Refresh **FIRE.md** + **brain-plus** metrics block | **`pnpm fire:sync`** (requires green **`shared-engine`** Vitest) |
+| Refresh **FIRE.md** metrics block | **`pnpm fire:sync`** (requires green **`shared-engine`** Vitest) |
 | Regenerate **brain fusion** TypeScript after editing **§9a** JSON | **`pnpm brain:sync`** |
 | Regenerate **Igor manifest** (workspace packages + power cells) | **`pnpm igor:sync`** — see **§9d** |
 | Optional auto-sync metrics after green verify | **`ALCHEMIST_FIRE_SYNC=1`** with harsh verify |
@@ -245,7 +245,7 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 1. **Self-healing registry (P0)** — Before inventing a new engine slice, read **`igor-power-cells.json`**. Run **`pnpm igor:heal`**: stderr **`iom_self_heal_proposal`** + gitignored **`tools/iom-proposals.jsonl`** (one **`iom_ghost_cell`** line per proposal). Promote with **`pnpm igor:apply`** (**`scripts/igor-apply-proposal.mjs`**) — shows diff, **`y`/`n`** per row, appends to **`igor-power-cells.json`** only on **yes**; then **`pnpm igor:sync`**. **Do not** auto-edit the JSON in the agent without operator consent. **`logIomSelfHealProposal()`** remains available for ad-hoc proposals. **Headroom:** **`IOM_POLICY_CELL_MAX` = 12** (consolidation target). If **`currentCellCount` ≥ 12**, propose a **transmutation** (merge/retire cells) before adding. Machine sync may allow more rows until **`IOM_CELL_MAX`** is lowered — see **`docs/iom.md`**.
 
-2. **Selective verify (P0)** — Local **`pnpm harshcheck`** sets **`ALCHEMIST_SELECTIVE_VERIFY`**: when only registered **power-cell** sources change, verify may run an **IOM-mapped subset** of Vitest files (`scripts/run-verify-with-summary.mjs`); otherwise it runs the full **`shared-engine`** suite. For manual scoping, use **`pnpm test:engine:grep -- --grep <pattern>`**. Before release / ambiguous edits, still run **`pnpm verify:harsh`** or **`pnpm harshcheck`**. After a **green** full or scoped run used for metrics, run **`pnpm fire:sync`** so **`FIRE.md`** / **`brain-plus.md`** machine blocks stay honest.
+2. **Selective verify (P0)** — Local **`pnpm harshcheck`** sets **`ALCHEMIST_SELECTIVE_VERIFY`**: when only registered **power-cell** sources change, verify may run an **IOM-mapped subset** of Vitest files (`scripts/run-verify-with-summary.mjs`); otherwise it runs the full **`shared-engine`** suite. For manual scoping, use **`pnpm test:engine:grep -- --grep <pattern>`**. Before release / ambiguous edits, still run **`pnpm verify:harsh`** or **`pnpm harshcheck`**. After a **green** full or scoped run used for metrics, run **`pnpm fire:sync`** so **`FIRE.md`** machine block stays honest.
 
 3. **Schism / silent degradation (P1)** — If logs or behavior suggest a panelist path is **slow**, **erroring**, or returning **malformed** candidate payloads, surface it: cite **`triad_panelist_end`** / **`triad_run_end`**, and recommend checking **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`** and related constants in **`packages/shared-engine/constants.ts`** (with measured evidence — not automatic timeout mutation). Tie to **SOE** / **`computeSoeRecommendations`** hints where relevant (**telemetry only**).
 
@@ -255,9 +255,9 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **IOM V4 (refinery ethos):** Prefer **upstream motivation** (clearer prompts, negative-space intent) and **bounded salvage** (schema-safe nudges) over pure cancel culture — see **`docs/iom.md` *IOM high-water mark*** and root **`.cursorrules`**. **HARD GATE** and **TS gate law** are not negotiable; “repair” never means invented Serum offsets.
 
-**Full inner-circle peer prompt (voice + Alchemist Canon FIREWALL):** **`docs/inner-circle-agent.md`** — **`truth first → task second → tone third`**; distilled operational habits remain in **`.cursor/skills/inner-circle-voice/SKILL.md`**.
+**Full inner-circle peer prompt (voice + Alchemist Canon FIREWALL):** **`docs/internal/inner-circle-agent.md`** — **`truth first → task second → tone third`**; distilled operational habits remain in **`.cursor/skills/inner-circle-voice/SKILL.md`**.
 
-**Cursor skills = what you teach “Igor” in chat (§9c, not §9d):** When you extend **`.cursor/skills/`** (e.g. **`inner-circle-voice`**, **`harshcheck`**), **`docs/inner-circle-agent.md`**, or the always-on **`.cursor/rules/alchemist-inner-circle-default.mdc`** / **`alchemist-apex-orchestrator.mdc`**, you are training the **assistant’s orchestration ethos** — Digital Igor / Apex: dense execution, peer tone, verify discipline, Canon FIREWALL. **`shared-engine` does not `import` skill files**; they are **Cursor-side**. **`brain.md` §14** is the human map of that layer.
+**Cursor skills = what you teach “Igor” in chat (§9c, not §9d):** When you extend **`.cursor/skills/`** (e.g. **`inner-circle-voice`**, **`harshcheck`**), **`docs/internal/inner-circle-agent.md`**, or the always-on **`.cursor/rules/alchemist-inner-circle-default.mdc`** / **`alchemist-apex-orchestrator.mdc`**, you are training the **assistant’s orchestration ethos** — Digital Igor / Apex: dense execution, peer tone, verify discipline, Canon FIREWALL. **`shared-engine` does not `import` skill files**; they are **Cursor-side**. **`brain.md` §14** is the human map of that layer.
 
 **Monorepo power map (code, not law):** **`packages/shared-engine/igor-orchestrator-layer.ts`** exposes **`getIgorOrchestratorManifest()`** — workspace packages + power cells both flow through **`pnpm igor:sync`** (**`igor-orchestrator-meta.json`** → packages gen, **`igor-power-cells.json`** → cells gen); **`apps/web-app`** surfaces it on **`GET /api/health`** as **`igorOrchestrator`**. **`iom-pulse.ts`** adds **`getIOMHealthPulse`** / **`detectSchisms`** — same route exposes **`iomPulse`** (manifest digest + **`schisms[]`** + optional SOE summary when **`soeSnapshot`** is wired). Same boundaries as §9c: no gate overrides, no shadow governance. This **manifest** and **pulse** are the **operator/health picture** of shipped TS modules; they are **not** the skill runtime.
 
@@ -265,7 +265,7 @@ All stay **explicit** and **auditable** — no shadow governance.
 
 **What it is:** A **typed manifest** of (1) every **`@alchemist/*`** workspace under **`apps/*`** and **`packages/*`**, and (2) **`shared-engine` “power cells”** — named responsibility slices (triad, gatekeeper, Slavic/score, SOE, integrity, Aji, schism, etc.). **Not** a runtime governor: it does **not** change triad weights, gates, or encoder bytes. **Purpose:** operator clarity, health JSON, stderr audit (`igor_orchestrator_manifest`), **naming alignment** with **§9c** Apex stance.
 
-**Not the same as “teaching Igor” via skills:** Extending **`igor-power-cells.json`** / **`igor-orchestrator-meta.json`** describes **engine + workspace** slices for **audit and health**. Teaching **behavior** (inner circle, humor shape, harshcheck habits) lives in **§9c**, **§14**, **`.cursor/skills/`**, and **`docs/inner-circle-agent.md`** — run **`pnpm igor:sync`** only when **those JSON** files or workspace packages change, not when you edit a skill alone.
+**Not the same as “teaching Igor” via skills:** Extending **`igor-power-cells.json`** / **`igor-orchestrator-meta.json`** describes **engine + workspace** slices for **audit and health**. Teaching **behavior** (inner circle, humor shape, harshcheck habits) lives in **§9c**, **§14**, **`.cursor/skills/`**, and **`docs/internal/inner-circle-agent.md`** — run **`pnpm igor:sync`** only when **those JSON** files or workspace packages change, not when you edit a skill alone.
 
 **IOM (Igor Orchestration Module):** **`docs/iom.md`** — single name for **§9c + §9d** under one **canon firewall** (FIRESTARTER → FIRE → HARD GATE → ethos → tone). **`.cursor/rules/alchemist-iom.mdc`** loads the compress; **`scripts/sync-igor-orchestrator.mjs`** enforces **artifact paths on disk** + **`IOM_CELL_MAX`** (default **32**; lower when consolidating cells per IOM policy).
 
@@ -317,28 +317,28 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 ## 12. Related files
 
 - **Doc inventory:** opening **Doc map** table in this file + **`pnpm docs:list`**
-- **Outside assessment shell (minimal + auto metrics):** `docs/brain-plus.md`
+- **Outside assessment shell (minimal + auto metrics):** `docs/FIRE.md` Assessment snapshot + **§N**
 - **Contracts & §E suggest loop:** `docs/FIRE.md`
 - **Full recovery bible:** `docs/FIRESTARTER.md`
 - **Cursor / agents:** `AGENTS.md`, `.cursorrules`, `.cursor/rules/alchemist-*.mdc` (incl. **`alchemist-security-posture.mdc`** — HARD GATE, keys, triad/WASM parity, LLM boundaries, verify chain)
-- **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md`; **English** default for assistant replies unless the user writes RU/UA. **Does not** override HARD GATE, types, or security. **Long-form source:** **`docs/inner-circle-agent.md`**.
+- **Default Cursor chat tone (always-on rule → skill, not product law):** `.cursor/rules/alchemist-inner-circle-default.mdc` loads peer habits from `.cursor/skills/inner-circle-voice/SKILL.md`; **English** default for assistant replies unless the user writes RU/UA. **Does not** override HARD GATE, types, or security. **Long-form source:** **`docs/internal/inner-circle-agent.md`**.
 - **Commit/push after meta edits:** `.cursor/rules/alchemist-git-save-after-meta.mdc` — use `node scripts/git-save.mjs` from root; for **other** repos see **`docs/cursor-universal-habits.md`** (User Rules template).
 
 ---
 
 ## 13. Brain doc maintenance
 
-- **`brain-plus.md` machine block:** never hand-edit between **`ALCHEMIST:BRAIN_PLUS_METRICS`** markers — **`pnpm fire:sync`** (§8).
-- **`brain-plus.md` § Human deltas:** edit manually per release or before external review.
+- **`FIRE.md` machine block:** never hand-edit between **`ALCHEMIST:FIRE_METRICS`** markers — **`pnpm fire:sync`** (§8).
+- **`FIRE.md` §N Human deltas:** edit manually per release or before external review.
 - **`brain.md` §9a fusion JSON:** edit the fenced JSON between **`ALCHEMIST:BRAIN_FUSION_CALIBRATION:BEGIN`** / **`END`**, then **`pnpm brain:sync`** — see §9a.
-- **`brain.md` §9c–§9d:** §9c = Apex / Digital Igor **ethos** (Cursor skills + rules + **`inner-circle-agent.md`** — what you “teach” the assistant); §9d = **power layer** (manifest pipeline — TS health map, not skill execution). Run **`pnpm igor:sync`** after workspace churn or edits to **`igor-orchestrator-meta.json`** / **`igor-power-cells.json`**; **not** required for skill-only edits. Verify enforces **`--check`**. See **`.cursor/rules/alchemist-apex-orchestrator.mdc`**. **IOM umbrella:** **`docs/iom.md`**, **`alchemist-iom.mdc`**.
+- **`brain.md` §9c–§9d:** §9c = Apex / Digital Igor **ethos** (Cursor skills + rules + **`docs/internal/inner-circle-agent.md`** — what you “teach” the assistant); §9d = **power layer** (manifest pipeline — TS health map, not skill execution). Run **`pnpm igor:sync`** after workspace churn or edits to **`igor-orchestrator-meta.json`** / **`igor-power-cells.json`**; **not** required for skill-only edits. Verify enforces **`--check`**. See **`.cursor/rules/alchemist-apex-orchestrator.mdc`**. **IOM umbrella:** **`docs/iom.md`**, **`alchemist-iom.mdc`**.
 - **This file (`brain.md`):** narrative orientation only; law stays **`FIRESTARTER.md`** / **`FIRE.md`**.
 
 ---
 
 ## 14. Agent thinking (trusted-peer merge)
 
-**What this is:** A **non-contract** layer for **how** an assistant reasons **after** canon— distilled from long **trusted-peer** chat patterns (music, logistics, events, playful curiosity) and merged into **`.cursor/skills/inner-circle-voice/`**. This is the main **“teach Igor”** surface in Cursor (with **§9c** Apex + **`inner-circle-agent.md`**). It does **not** change **HARD GATE**, **verify** meaning, **triad** wiring, or **TS gate** facts.
+**What this is:** A **non-contract** layer for **how** an assistant reasons **after** canon— distilled from long **trusted-peer** chat patterns (music, logistics, events, playful curiosity) and merged into **`.cursor/skills/inner-circle-voice/`**. This is the main **“teach Igor”** surface in Cursor (with **§9c** Apex + **`docs/internal/inner-circle-agent.md`**). It does **not** change **HARD GATE**, **verify** meaning, **triad** wiring, or **TS gate** facts.
 
 **Thinking order (for humans + LLMs):**
 
@@ -348,7 +348,7 @@ Canonical summary: **`FIRESTARTER.md` §14**. Full prose: root **`LEGAL.md`**, *
 
 **Merged motifs (abstract — no impersonation):** studio-friend **WIP sharing**; **schedule + work-constraint** realism; **social triangulation** only from facts the user gave; **event / live-plan** logistics as plain steps; **personality tests and riddles** as **conversation / self-insight only**, not hiring or product scoring; **multi-year zone DMs** — **thread clarity** when history looks “empty,” **low-friction** repair after slow replies, **music-as-daily** texture without importing chat profanity as default agent voice.
 
-**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets) — canonical behavior. **`docs/inner-circle-agent.md`** — full peer prompt + **Canon FIREWALL** (same precedence as this section). **`reference.md`** is a **stub** (no chat provenance stored in git).
+**Sources of detail:** **`inner-circle-voice/SKILL.md`** (**Agent thinking anchor** + numbered facets) — canonical behavior. **`docs/internal/inner-circle-agent.md`** — full peer prompt + **Canon FIREWALL** (same precedence as this section). **`reference.md`** is a **stub** (no chat provenance stored in git).
 
 **Ongoing:** When you **attach** new exports, expect **abstract** merges **into `SKILL.md` only** unless you explicitly ask for a labeled appendix—see **Standing instruction** in that skill. Canon (HARD GATE, verify) stays unchanged.
 

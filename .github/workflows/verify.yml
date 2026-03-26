@@ -37,7 +37,10 @@ jobs:
 
       - name: verify:ci (verify:harsh + strict release gates when export paths touched)
         run: pnpm verify:ci
-        # Includes verify:harsh and scripts/enforce-release-strict-gates.mjs.
+        env:
+          # main / release/* (push or PR target): strict HARD GATE — sample .fxp required + Python validate.
+          ALCHEMIST_STRICT_OFFSETS: ${{ (github.ref_name == 'main' || startsWith(github.ref_name, 'release/') || github.base_ref == 'main' || startsWith(github.base_ref, 'release/')) && '1' || '' }}
+        # Includes assert-encoder-diff-prerequisites.mjs, verify:harsh, enforce-release-strict-gates.mjs.
         # When export/encoder-sensitive paths change, strict mode is enforced:
         # ALCHEMIST_STRICT_OFFSETS=1 pnpm assert:hard-gate and REQUIRE_WASM=1 pnpm assert:wasm.
         # PNH: stderr verify_post_summary includes securityVerdict (pass | degraded | fail | null).

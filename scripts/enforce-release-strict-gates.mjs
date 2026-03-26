@@ -43,9 +43,14 @@ function changedPaths(root) {
 
 function isReleaseSensitivePath(file) {
   const p = file.replace(/\\/g, "/");
+  const browserExportUi =
+    p.startsWith("apps/web-app/app/api/health/wasm/") ||
+    p === "apps/web-app/app/page.tsx" ||
+    p.includes("PromptAudioDock.tsx") ||
+    p.startsWith("apps/web-app/app/presets/");
   return (
     p.startsWith("packages/fxp-encoder/") ||
-    p.startsWith("apps/web-app/app/api/health/wasm/") ||
+    browserExportUi ||
     p.includes("/encoder.") ||
     p.includes("/serum-offset-map.ts") ||
     p.includes("validate-offsets.py") ||

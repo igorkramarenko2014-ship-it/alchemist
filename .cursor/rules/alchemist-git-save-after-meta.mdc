@@ -9,7 +9,7 @@ alwaysApply: true
 
 ## When to run (same session as the edits, unless user said **no commit** / **don’t push**)
 
-1. **You changed** any of: **`.cursor/`** (rules, skills), **`.cursorrules`**, **`AGENTS.md`**, **`docs/brain.md`**, **`docs/brain-plus.md`**, or this file.
+1. **You changed** any of: **`.cursor/`** (rules, skills), **`.cursorrules`**, **`AGENTS.md`**, **`docs/brain.md`**, **`docs/FIRE.md`**, or this file.
 2. **The user explicitly asks** to commit/push (e.g. **`cmt`**, **`psh`**, **`git:agent`**, **`git-save`**, “commit and push”).
 
 Do **not** auto-commit for **secrets** (`.env`, keys): if those appear in the diff, **stop** and warn the user; never commit credentials.

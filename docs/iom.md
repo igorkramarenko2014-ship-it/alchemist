@@ -14,7 +14,7 @@ Two manifestations. One discipline:
 
 | Layer | What it is | Where it lives |
 |-------|-----------|----------------|
-| **Apex ethos (§9c)** | How the assistant reasons, talks, and executes inside this repo | **`.cursor/rules/alchemist-apex-orchestrator.mdc`** + **`docs/inner-circle-agent.md`** + **`.cursor/skills/`** |
+| **Apex ethos (§9c)** | How the assistant reasons, talks, and executes inside this repo | **`.cursor/rules/alchemist-apex-orchestrator.mdc`** + **`docs/internal/inner-circle-agent.md`** + **`.cursor/skills/`** |
 | **Power manifest (§9d)** | Typed inventory of shipped `shared-engine` modules + cells | **`igor-power-cells.json`** → **`igor-orchestrator-cells.gen.ts`** → **`GET /api/health` → `igorOrchestrator`** |
 
 **IOM is not:**
@@ -41,7 +41,7 @@ IOM never overrides types, security posture, or engineering truth.
 
 **Vitest↔cell map (verify):** **`packages/shared-engine/iom-coverage.ts`** (**`IOM_CELL_VITEST_MAP`**) and **`scripts/lib/iom-coverage-report.mjs`** must list every **`igor-power-cells.json`** **`id`** with at least one Vitest path **relative to `packages/shared-engine/`** that the full engine suite runs — e.g. web-only **`preset_share`** still maps to **`tests/preset-share-cell.test.ts`** (type contract) so **`iom-coverage.test.ts`** stays green. **`pnpm igor:docs`** refreshes **`docs/iom-architecture.md`**.
 
-**Monorepo CI (GitHub Actions):** **`pnpm verify:ci`** — HARD GATE, **`verify:harsh`**, and WASM predeploy via **`scripts/predeploy-wasm.mjs`** (local mirror: **`pnpm predeploy`**). Contract and failure modes: **`docs/FIRE.md`** §M.
+**Monorepo CI (GitHub Actions):** **`pnpm verify:ci`** — HARD GATE, encoder-diff prerequisite, **`verify:harsh`**, **`enforce-release-strict-gates.mjs`** (export paths → strict WASM). Browser ship: **`pnpm predeploy`**. Contract: **`docs/FIRE.md`** §M.
 
 **Operator HTTP (token-gated):** Set **`ALCHEMIST_OPS_TOKEN`**; send header **`X-Ops-Token`**. **`GET /api/health/iom`** — Igor manifest + **`iomPulse`** + talent hints. **`GET /api/iom/dashboard`** — same core plus recent snapshot tail (if JSONL present on host), offline **`iomCoverage`** when monorepo paths resolve from the server cwd. **`GET /api/metrics/iom`** — **Prometheus** text exposition (`prom-client` in **`web-app`** only): `alchemist_iom_*` gauges (coverage, schisms, cells, triad/WASM flags, pending heal proposals, per-cell schism map). Scraping needs the same ops header (use a reverse proxy or Prometheus **`authorization`** if the scraper cannot send **`X-Ops-Token`**). Grafana import: **`tools/grafana-iom-dashboard.json`** (uid **`alchemist-iom-health`**). Example Prometheus alert rules: **`tools/prometheus-alchemist-iom-alerts.yaml`** (coverage gated on **`alchemist_iom_coverage_available`**, critical/warn schism tiers, heal-proposal backlog, optional triad/WASM info rules — validate with **`promtool check rules`**). **`GET /api/health`** lists paths under **`ops`**.
 
@@ -75,11 +75,11 @@ IOM never overrides types, security posture, or engineering truth.
 
 **The soul test:** Genuinely new engine responsibility, or rename/split? Rename = edit existing cell.
 
-**The ethos coherence test (§9c):** After changing **`inner-circle-agent.md`** or **`SKILL.md`**, does §9c still read as one voice?
+**The ethos coherence test (§9c):** After changing **`docs/internal/inner-circle-agent.md`** or **`SKILL.md`**, does §9c still read as one voice?
 
 **The facet ceiling (`SKILL.md`):** Policy target **15** numbered facets under **Core communication logic**; **consolidate** before sprawl (current count may be higher — treat excess as backlog).
 
-**The behavioral retirement rule:** No new rule in **`inner-circle-agent.md`** without retiring a superseded rule or a one-line note why coverage is new.
+**The behavioral retirement rule:** No new rule in **`docs/internal/inner-circle-agent.md`** without retiring a superseded rule or a one-line note why coverage is new.
 
 ---
 
@@ -100,7 +100,7 @@ IOM never overrides types, security posture, or engineering truth.
 - Adding a Cursor skill or inner-circle facet (ethos, not **`igor-power-cells.json`**)
 - Editing §9a fusion JSON (**`pnpm brain:sync`**, not **`igor:sync`**)
 - Refactors without responsibility change
-- Tone-only edits to **`inner-circle-agent.md`**
+- Tone-only edits to **`docs/internal/inner-circle-agent.md`**
 
 ---
 

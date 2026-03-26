@@ -14,7 +14,7 @@
 6. **[`.cursor/rules/alchemist-quality.mdc`](.cursor/rules/alchemist-quality.mdc)** — scoped edit checklist (HARD GATE, triad, scripts)  
 7. **[`.cursor/rules/alchemist-role-mission.mdc`](.cursor/rules/alchemist-role-mission.mdc)** — always-on **Lead Architect** role, mission, **`/plan` / `/fix` / `/refactor` / `/audit`** overrides (align with Cursor user rules)  
 8. **[`.cursor/rules/alchemist-inner-circle-default.mdc`](.cursor/rules/alchemist-inner-circle-default.mdc)** — **always-on** default Cursor chat tone (**English** default; peer habits from **`.cursor/skills/inner-circle-voice/`**) — **after** canon; **not** HARD GATE / verify / gate facts  
-8a. **[`docs/inner-circle-agent.md`](docs/inner-circle-agent.md)** — **full** inner-circle prompt (RU/UA/EN, feedback philosophy, teaching variant) + **Canon FIREWALL**; **`truth first → task second → tone third`** — tone layer only; **HARD GATE** still wins  
+8a. **[`docs/internal/inner-circle-agent.md`](docs/internal/inner-circle-agent.md)** — **full** inner-circle prompt (RU/UA/EN, feedback philosophy, teaching variant) + **Canon FIREWALL**; **`truth first → task second → tone third`** — tone layer only; **HARD GATE** still wins  
 8b. **[`.cursor/rules/alchemist-git-save-after-meta.mdc`](.cursor/rules/alchemist-git-save-after-meta.mdc)** — **always-on** commit+push after **`.cursor/`** / brain / `AGENTS` edits or when user says **cmt/psh** (`node scripts/git-save.mjs`); **never** commit secrets  
 8c. **[`docs/cursor-universal-habits.md`](docs/cursor-universal-habits.md)** — copy-paste for **Cursor User Rules** (same habits on **all** projects)  
 8d. **[`.cursor/rules/alchemist-apex-orchestrator.mdc`](.cursor/rules/alchemist-apex-orchestrator.mdc)** — **§9c** Digital Igor / Apex Alchemist mercury-engine stance; **after** brief / security / dsp-vs-ts / inner-circle  
@@ -22,7 +22,7 @@
 8e. **`igor-orchestrator-layer.ts`** + **`igor-orchestrator-meta.json`** + **`igor-power-cells.json`** → **`pnpm igor:sync`** writes **`igor-orchestrator-packages.gen.ts`** + **`igor-orchestrator-cells.gen.ts`**; **`getIgorOrchestratorManifest()`**; **`GET /api/health`** → **`igorOrchestrator`** (map only — not gate law)  
 8f. **[`docs/iom.md`](docs/iom.md)** + **[`.cursor/rules/alchemist-iom.mdc`](.cursor/rules/alchemist-iom.mdc)** — **IOM** (Igor Orchestration Module): **§9c + §9d** under one name, canon firewall, growth protocol; sync script enforces **`IOM_CELL_MAX`** + artifact paths on disk  
 8f2. **[`docs/iom-v5-next-moves.md`](docs/iom-v5-next-moves.md)** + **[`.cursor/rules/alchemist-iom-v5-next.mdc`](.cursor/rules/alchemist-iom-v5-next.mdc)** — IOM V5 backlog (DNA / breaker / alignment / GL / pre-commit); **enable rule** when planning those moves  
-9. **[`docs/brain.md`](docs/brain.md)** — opening **Doc map** table; **§14** human-readable map (incl. RU); **§9a–§9c** (**brain-fusion** + soul + Apex / IOM). **[`docs/brain-plus.md`](docs/brain-plus.md)** — metrics shell for external review  
+9. **[`docs/brain.md`](docs/brain.md)** — opening **Doc map** table; **§14** human-readable map (incl. RU); **§9a–§9c** (**brain-fusion** + soul + Apex / IOM). Outside-assessment shell + metrics: **`docs/FIRE.md`** (Assessment snapshot + **§N**)  
 10. **[`.cursor/rules/alchemist-aji-fluidic.mdc`](.cursor/rules/alchemist-aji-fluidic.mdc)** — optional **OpenCV + OSC** “Lava–Aji” bridge (**`research/lava-aji-bridge/`**) — **not** TS triad/gates; see **`alchemist-dsp-vs-ts-gates.mdc`**  
 11. **[`LEGAL.md`](LEGAL.md)** — not legal advice; trademarks (Serum / Xfer), AI provider ToS, telemetry, warranty, consumer-product gaps  
 12. **[`PRIVACY.md`](PRIVACY.md)** — draft privacy template (fill before public beta)  
@@ -51,8 +51,10 @@ pnpm dev              # or pnpm dev:web
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
 pnpm harshcheck:wasm  # harshcheck + REQUIRE_WASM=1 assert:wasm — before browser .fxp export (needs pnpm build:wasm)
 pnpm verify:harsh:wasm # verify:harsh + REQUIRE_WASM assert (faster; no next build)
-pnpm harshcheck:fire  # harshcheck + ALCHEMIST_FIRE_SYNC=1 (refresh FIRE / brain-plus metrics after green)
-pnpm verify:ci        # assert:hard-gate + verify:harsh + enforce-release-strict-gates (GitHub Verify also runs IOM_ENFORCE_COVERAGE=1 igor:ci)
+pnpm harshcheck:fire  # harshcheck + ALCHEMIST_FIRE_SYNC=1 (refresh FIRE.md metrics after green)
+pnpm verify:ci        # assert:hard-gate + encoder-diff prereq + verify:harsh + enforce-release-strict-gates (main/release PRs: ALCHEMIST_STRICT_OFFSETS=1 in workflow)
+pnpm health:audit     # read latest verify_post_summary artifact; ALCHEMIST_RELEASE_AUDIT=1 enforces release posture
+pnpm triad:parity-diff # stub vs live triad snapshots JSON (needs keys + running app for live)
 pnpm verify:harsh     # faster: no next build
 pnpm verify:harsh:fire # verify:harsh + ALCHEMIST_FIRE_SYNC=1 after green
 pnpm predeploy        # build:wasm + REQUIRE_WASM assert:wasm — before shipping browser .fxp
@@ -83,7 +85,7 @@ See **[`RUN.txt`](RUN.txt)** for a copy-paste one-liner.
 
 ## Composer prompt packs (browser)
 
-**[`docs/alchemist-cursor-prompts.html`](docs/alchemist-cursor-prompts.html)** · **[`docs/alchemist-high-efficiency-prompts.html`](docs/alchemist-high-efficiency-prompts.html)** · **[`docs/alchemist-cpc-execution-plan.html`](docs/alchemist-cpc-execution-plan.html)** · **[`docs/alchemist-full-unblock-plan.html`](docs/alchemist-full-unblock-plan.html)** · **[`docs/alchemist-new-moves.html`](docs/alchemist-new-moves.html)** · **[`docs/alchemist-tablebase-seeding.html`](docs/alchemist-tablebase-seeding.html)** — index **`docs/FIRESTARTER.md` §12**; **next moves** summary **`docs/FIRE.md`** Assessment snapshot.
+**[`docs/archive/alchemist-cursor-prompts.html`](docs/archive/alchemist-cursor-prompts.html)** · **[`docs/archive/alchemist-high-efficiency-prompts.html`](docs/archive/alchemist-high-efficiency-prompts.html)** · **[`docs/archive/alchemist-cpc-execution-plan.html`](docs/archive/alchemist-cpc-execution-plan.html)** · **[`docs/archive/alchemist-full-unblock-plan.html`](docs/archive/alchemist-full-unblock-plan.html)** · **[`docs/archive/alchemist-new-moves.html`](docs/archive/alchemist-new-moves.html)** · **[`docs/archive/alchemist-tablebase-seeding.html`](docs/archive/alchemist-tablebase-seeding.html)** — index **`docs/FIRESTARTER.md` §12**; **next moves** summary **`docs/FIRE.md`** Assessment snapshot.
 
 ## UI / Mercury
 

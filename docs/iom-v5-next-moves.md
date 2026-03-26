@@ -8,7 +8,7 @@
 > - **Intent alignment / GL intake / auto pre-commit (MOVE 3–5):** **Not** shipped.
 > - **CI IOM ghosts:** **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** on GitHub **Verify**; pre-commit sample: **`tools/git-hooks/pre-commit-iom.sample`** (manual install).
 
-**Machine snapshot (typical):** run **`pnpm fire:sync`** for Vitest / Next block in **`FIRE.md`** / **`brain-plus.md`**.
+**Machine snapshot (typical):** run **`pnpm fire:sync`** for Vitest / Next block in **`FIRE.md`**.
 
 ---
 

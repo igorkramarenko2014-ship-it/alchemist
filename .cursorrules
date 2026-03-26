@@ -60,7 +60,7 @@ pnpm alc:doctor    # env (NOT pnpm doctor)
 pnpm dev           # or pnpm dev:web if Turbo fails
 pnpm verify:harsh  # fast: types + Vitest
 pnpm harshcheck    # + next build (spell: harshcheck not harshchek)
-pnpm fire:sync     # after green verify — FIRE.md / brain-plus metrics
+pnpm fire:sync     # after green verify — FIRE.md metrics block
 pnpm igor:heal     # proposals → tools/iom-proposals.jsonl (gitignored)
 pnpm igor:apply    # interactive append cells — then igor:sync
 ```

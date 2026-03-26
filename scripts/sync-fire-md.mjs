@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Refreshes machine-maintained metric blocks in docs/FIRE.md and docs/brain-plus.md
+ * Refreshes machine-maintained metric blocks in docs/FIRE.md
  * (Vitest counts, Next version, sync time).
  * Narrative / contracts stay in FIRESTARTER.md and FIRE §E–L — edit those by hand when behavior shifts.
  *
@@ -23,9 +23,6 @@ import { findVst3BuildBundlePath } from "./lib/vst-bundle-resolve.mjs";
 /** Must not appear elsewhere in FIRE.md (intro prose used to duplicate this and broke `indexOf`). */
 const MARK_BEGIN = "<!-- ALCHEMIST:FIRE_METRICS:BEGIN -->";
 const MARK_END = "<!-- ALCHEMIST:FIRE_METRICS:END -->";
-
-const BRAIN_PLUS_BEGIN = "<!-- ALCHEMIST:BRAIN_PLUS_METRICS:BEGIN -->";
-const BRAIN_PLUS_END = "<!-- ALCHEMIST:BRAIN_PLUS_METRICS:END -->";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -228,12 +225,3 @@ process.stderr.write(
   `sync-fire-md: updated docs/FIRE.md (${engine.testCount} tests, Next ${nextVersion})\n`
 );
 
-const brainPlusPath = join(root, "docs", "brain-plus.md");
-if (existsSync(brainPlusPath)) {
-  const bp = readFileSync(brainPlusPath, "utf8");
-  if (bp.includes(BRAIN_PLUS_BEGIN) && bp.includes(BRAIN_PLUS_END)) {
-    const afterBp = patchMarkedBlock(bp, BRAIN_PLUS_BEGIN, BRAIN_PLUS_END, inner, "docs/brain-plus.md");
-    writeFileSync(brainPlusPath, afterBp, "utf8");
-    process.stderr.write("sync-fire-md: updated docs/brain-plus.md (same metrics block)\n");
-  }
-}

@@ -32,7 +32,7 @@ Rules:
 - `pnpm env:check` must pass before any triad route runs.
 - `pnpm verify:keys` smoke-tests key presence **without** logging values.
 - If a key is missing → stub path activates silently. Flag this as a **security/parity risk** in any review comment; never treat stub as prod.
-- Never add secrets to `brain.md`, `brain-plus.md`, `FIRE.md`, or any doc that could be committed — even as placeholders.
+- Never add secrets to `brain.md`, `FIRE.md`, or any doc that could be committed — even as placeholders.
 
 ## Triad stub vs prod parity
 
@@ -67,7 +67,7 @@ This repo uses LLM calls in the hot path (triad) and in dev tooling (Cursor, bra
 - Panelist **blend** weights (DEEPSEEK **0.40** / LLAMA **0.35** / QWEN **0.25**) are fixed in code (`constants.ts` / triad contract — see `alchemist-brief.mdc`). Never accept weight overrides from LLM output or user prompt fields.
 - **Prompt injection:** user NL input passes through `validatePromptForTriad` before hitting the triad. That function is a security gate — any relaxation (max length, no markdown fences) requires explicit sign-off and a new Vitest case.
 - Greek codename mapping (ATHENA=DEEPSEEK, HERMES=LLAMA, HESTIA=QWEN) is internal only. Never expose wire IDs (model strings, base URLs) in client-facing logs, UI, or error messages.
-- `brain.md` / `brain-plus.md` influence agent reasoning order (§14). These files must not contain secrets, real user data, or PII. The inner-circle-voice skill similarly: **abstract patterns only**, no raw DMs, no names, no card/address data from exports.
+- `brain.md` / `FIRE.md` influence agent reasoning order (§14). These files must not contain secrets, real user data, or PII. The inner-circle-voice skill similarly: **abstract patterns only**, no raw DMs, no names, no card/address data from exports.
 - `verify_post_summary` JSON (stderr, end of harshcheck) is the audit trail. If your SIEM or log pipeline does not capture stderr, that is a gap — flag it.
 
 ## Verification chain (do not skip steps)

@@ -51,6 +51,6 @@ More **signal per token**: file paths, commands (`pnpm verify:harsh`, `pnpm hars
 
 - Law / verify: **`docs/FIRE.md`**, **`docs/FIRESTARTER.md`**
 - Brain + flow: **`docs/brain.md`**
-- Reviewer shell: **`docs/brain-plus.md`**
+- Reviewer shell: **`docs/FIRE.md`** (Assessment snapshot + §N)
 - IOM: **`docs/iom.md`**
-- Peer tone layer: **`docs/inner-circle-agent.md`** + **`inner-circle-voice`** skill
+- Peer tone layer: **`docs/internal/inner-circle-agent.md`** + **`inner-circle-voice`** skill

@@ -2,7 +2,7 @@
 
 **Path:** `docs/FIRESTARTER.md` (repo root: **Vibe Projects**).  
 **Companion:** **`docs/FIRE.md`** — outside assessment, optimisation surface, **§E–§L** contracts (see **Doc logic** below).  
-**`docs/` policy:** Canonical **laws** are **`FIRESTARTER.md`** + **`FIRE.md`** (Markdown only). **Supplementary** orientation: **`brain.md`**, **`brain-plus.md`** (minimal outside shell; metrics synced with **`pnpm fire:sync`**). **Composer prompt packs** (**`docs/alchemist-*.html`**) are indexed in **§12** — same folder, not a third “law” layer. Optional agent multi-step flow → **Appendix C**.  
+**`docs/` policy:** Canonical **laws** are **`FIRESTARTER.md`** + **`FIRE.md`** (Markdown only). **Supplementary** orientation: **`brain.md`**. Outside-assessment shell + truth matrix: **`FIRE.md`** Assessment snapshot + **§N**. **Composer prompt packs** (**`docs/archive/alchemist-*.html`**) are indexed in **§12**. Optional agent multi-step flow → **Appendix C**.  
 **Cursor:** **`.cursorrules`** + **`.cursor/rules/alchemist-brief.mdc`** + **`alchemist-dsp-vs-ts-gates.mdc`**.
 
 ---
@@ -14,7 +14,7 @@
 | **`FIRESTARTER.md` (this file)** | **Recovery bible** — if other docs are missing, you can **reconstruct the product from this file**: what Alchemist is, monorepo layout, build order, HARD GATE, triad, gates, monitoring, optional modules (arbitration, talent, AGL, taxonomy), web app, verification scripts, WASM, mobile/`vst`, doc index, roadmap, legal summary (**§14**), appendices (workflow, INIT). **Anyone** onboarding or implementing features reads here first. |
 | **`FIRE.md`** | **Lightweight outside assessment** — **§E** verify → assess → suggest, **§F–§L** contract tables, **§A–C** invariants. **Machine block:** Vitest counts + Next version between **`ALCHEMIST:FIRE_METRICS`** HTML comments — refresh with **`pnpm fire:sync`** (runs engine tests; optional **`ALCHEMIST_FIRE_SYNC=1`** on **`pnpm harshcheck`** / **`verify:harsh`**). **Auditable hooks:** **`verify_post_summary`** / **`soeHint`** on stderr, SOE (**no** shadow state). **Do not** duplicate FIRESTARTER’s long narrative in FIRE — link sections instead. |
 | **`brain.md`** | **Detailed project brain** — single-file deep orientation (product, monorepo map, data flow, HARD GATE, commands). Does not replace FIRE / FIRESTARTER. |
-| **`brain-plus.md`** | **Minimal outside-assessment shell** — essentials, reviewer prompts, and **`ALCHEMIST:BRAIN_PLUS_METRICS`** (same machine block as FIRE; **`pnpm fire:sync`**). |
+| **`FIRE.md` §N + Assessment snapshot** | **Outside-assessment shell** (ex–Brain+): human deltas, improvement prompts, compact truth matrix; machine metrics only in **`FIRE.md`** (**`pnpm fire:sync`**). |
 
 **After a material move:** (1) **This file** — full narrative, tables, INIT if workflows change. (2) **`FIRE.md`** — update **§E–§L** only when **contracts** change (gates, legal, taxonomy rules, etc.); run **`pnpm fire:sync`** after a green verify to refresh the **sync block** (not hand-edited). **Cosmetic / typo-only** may touch one file. **Ship or compliance claims** must reconcile **FIRE** + **FIRESTARTER** §14 + root **`LEGAL.md`**.
 
@@ -319,7 +319,7 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **`pnpm igor:ci`** | Ghost scan: advisory by default; **`IOM_ENFORCE_COVERAGE=1`** fails when **`packages/shared-engine`** `*.ts` is not listed in **`igor-power-cells.json`** — wired in **`.github/workflows/verify.yml`** |
 | **`node scripts/with-pnpm.mjs`** | Run any pnpm subcommand from repo root; **`npx pnpm@9.14.2`** fallback when **`pnpm`** missing (**`ALCHEMIST_PNPM_FALLBACK_QUIET=1`** during verify suppresses repeated warnings) |
 | **`verify_post_summary`** | Final **stderr** JSON line: **`event`**, **`mode`** (`verify-harsh` \| `verify-web`), **`exitCode`**, **`durationMs`**, **`failedStep`** (`shared-types:build` \| `turbo:typecheck` \| `test:engine` \| `turbo:build:web-app` or **`null`**), **`monorepoRoot`**, **`soeHint`**, **`note`**. Vitest may emit other JSON lines first — parse/grep **`verify_post_summary`** for the rollup. |
-| **`pnpm fire:sync`** | **`node scripts/sync-fire-md.mjs`** — runs **`pnpm test:engine`**; on success, rewrites **`docs/FIRE.md`** + **`brain-plus.md`** machine blocks (Vitest counts, Next version, sync date) and **`docs/fire-metrics.json`**. Optional **`ALCHEMIST_FIRE_SYNC=1`** with **`pnpm harshcheck`** / **`verify:harsh`** to run automatically after green verify. |
+| **`pnpm fire:sync`** | **`node scripts/sync-fire-md.mjs`** — runs **`pnpm test:engine`**; on success, rewrites **`docs/FIRE.md`** machine block (Vitest counts, Next version, sync date) and **`docs/fire-metrics.json`**. Optional **`ALCHEMIST_FIRE_SYNC=1`** with **`pnpm harshcheck`** / **`verify:harsh`** to run automatically after green verify. |
 | **`pnpm igor:docs`** | **`node scripts/igor-docs.mjs`** — refreshes **`docs/iom-architecture.md`** from **`igor-power-cells.json`** (run after cell edits; commit the diff). |
 | **`pnpm --filter @alchemist/web-app test`** | Web-app Vitest (**e.g.** **`sharePreset`** in **`__tests__/preset-share.test.ts`**) — not part of default **`verify:harsh`**; run before relying on web-only test coverage. |
 | **`pnpm save`** / **`pnpm git:save`** | **`node scripts/git-save.mjs`** — stage all, commit (message from argv or prompt), **`git push`** when **`origin`** exists |
@@ -382,9 +382,9 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | File | Role |
 |------|------|
 | **FIRESTARTER.md** | This file — **comprehensive** orientation + **Doc logic** (vs FIRE) + **Appendix C** (optional agent workflow) + **Appendix D** (Aji / strategy notes) |
-| **FIRE.md** | **Outside assessment** + optimisation surface + harshcheck + **`verify_post_summary`** + §E–§G + **§H–§L**; machine metrics via **`pnpm fire:sync`**; **Assessment snapshot** → **next moves** + **`docs/alchemist-*.html`** |
+| **FIRE.md** | **Outside assessment** + optimisation surface + harshcheck + **`verify_post_summary`** + §E–§G + **§H–§N**; machine metrics via **`pnpm fire:sync`**; **Assessment snapshot** → **next moves** + **`docs/archive/alchemist-*.html`** |
 
-**HTML:** **`docs/alchemist-*.html`** (Composer prompt packs) — rows in **Elsewhere** below.
+**HTML:** **`docs/archive/alchemist-*.html`** (Composer prompt packs) — rows in **Elsewhere** below.
 
 ### Elsewhere
 
@@ -396,12 +396,12 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 | **Root `README.md`**, **`AGENTS.md`**, **`RUN.txt`** | Quick start, agents, one-liner |
 | **`.cursorrules`** | Cursor root context |
 | **`.cursor/rules/*.mdc`** (incl. **`alchemist-quality.mdc`** — edit checklist), **`.cursor/skills/harshcheck/SKILL.md`** | Rules + harshcheck |
-| **`docs/alchemist-cursor-prompts.html`** | Open in browser: ordered **Composer** prompts (P0–P3). **P0** (OpenRouter **`QWEN_BASE_URL`**) is **shipped**; **P1** partial-mode banner optional; **P2** calibration / **P3** timeout per data |
-| **`docs/alchemist-high-efficiency-prompts.html`** | **v2** moves: per-gate calibration diagnostics (`calibrate-gates.ts`); optional **`tablebaseMode: 'compete'`** (tablebase vs triad, default unchanged). FIRE §E3 / §I aligned |
-| **`docs/alchemist-cpc-execution-plan.html`** | **CPC+** plan: M1 per-provider timeouts (data-driven); M2 snapshot gate CI; M3 **`gate:suggest`** read-only report; M4 **`triad_candidate_selected`** telemetry. Rejected anti-patterns listed on page |
-| **`docs/alchemist-full-unblock-plan.html`** | **Full unblock** (5 moves): OpenRouter Qwen (**M1** largely shipped), partial-mode UI banner (**M2**), per-provider timeouts (**M3**), **`gate:suggest`** loop (**M4**), **`REQUIRE_WASM` / assert:wasm** (**M5**). Master pipeline + rejected list on page |
-| **`docs/alchemist-new-moves.html`** | **Post-queue** (3 moves): panelist **circuit breaker** (in-memory, **`circuit_breaker_*`** telemetry); committed **`gate-baseline.json`** + **`gate:check-regression`** vs calibration output; **`verify:capture`** / **`soe:review`** — append **`verify_post_summary`** **`soeHint`** to **`soe-hints.jsonl`** (dev, gitignored). Queued items listed as “already in queue” on page |
-| **`docs/alchemist-tablebase-seeding.html`** | **Tablebase seeding** (offline): extract **`paramArray`** from real **`.fxp`** (HARD GATE + **`validateSerumParamArray`**), build **`TABLEBASE_RECORDS`** via scripts + **manual review**; **`sourcePack`** / license provenance; legal strip on-page — **§H · §K · §D** |
+| **`docs/archive/alchemist-cursor-prompts.html`** | Open in browser: ordered **Composer** prompts (P0–P3). **P0** (OpenRouter **`QWEN_BASE_URL`**) is **shipped**; **P1** partial-mode banner optional; **P2** calibration / **P3** timeout per data |
+| **`docs/archive/alchemist-high-efficiency-prompts.html`** | **v2** moves: per-gate calibration diagnostics (`calibrate-gates.ts`); optional **`tablebaseMode: 'compete'`** (tablebase vs triad, default unchanged). FIRE §E3 / §I aligned |
+| **`docs/archive/alchemist-cpc-execution-plan.html`** | **CPC+** plan: M1 per-provider timeouts (data-driven); M2 snapshot gate CI; M3 **`gate:suggest`** read-only report; M4 **`triad_candidate_selected`** telemetry. Rejected anti-patterns listed on page |
+| **`docs/archive/alchemist-full-unblock-plan.html`** | **Full unblock** (5 moves): OpenRouter Qwen (**M1** largely shipped), partial-mode UI banner (**M2**), per-provider timeouts (**M3**), **`gate:suggest`** loop (**M4**), **`REQUIRE_WASM` / assert:wasm** (**M5**). Master pipeline + rejected list on page |
+| **`docs/archive/alchemist-new-moves.html`** | **Post-queue** (3 moves): panelist **circuit breaker** (in-memory, **`circuit_breaker_*`** telemetry); committed **`gate-baseline.json`** + **`gate:check-regression`** vs calibration output; **`verify:capture`** / **`soe:review`** — append **`verify_post_summary`** **`soeHint`** to **`soe-hints.jsonl`** (dev, gitignored). Queued items listed as “already in queue” on page |
+| **`docs/archive/alchemist-tablebase-seeding.html`** | **Tablebase seeding** (offline): extract **`paramArray`** from real **`.fxp`** (HARD GATE + **`validateSerumParamArray`**), build **`TABLEBASE_RECORDS`** via scripts + **manual review**; **`sourcePack`** / license provenance; legal strip on-page — **§H · §K · §D** |
 
 **List markdown:** **`pnpm docs:list`**.
 

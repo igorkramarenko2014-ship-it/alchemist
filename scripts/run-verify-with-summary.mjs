@@ -785,6 +785,14 @@ const iomSummaryMeta =
 const iomPulseMeta = collectIomVerifyMeta(root);
 const wasmTruth = getWasmArtifactTruthForSummary(root);
 const hardGateFiles = getHardGateFilesTruth(root);
+const hardGateStrict = process.env.ALCHEMIST_STRICT_OFFSETS === "1";
+const wasmAvailable = Boolean(wasmTruth.wasmBrowserFxpEncodeReady);
+const releaseReadyFromSummary = Boolean(
+  wasmAvailable &&
+    hardGateFiles.hardGateSampleInitFxpPresent &&
+    hardGateStrict &&
+    wasmTruth.wasmArtifactTruth === "real",
+);
 
 const pnhVerifyContext = {
   verifyMode: pnhCiStrict
@@ -874,9 +882,16 @@ const verifySummaryBody = {
   triadPanelistModeExpected,
   ...wasmTruth,
   ...hardGateFiles,
-  hardGate:
-    process.env.ALCHEMIST_STRICT_OFFSETS === "1" ? "enforced" : "best_effort",
-  wasmStatus: wasmTruth.wasmBrowserFxpEncodeReady ? "available" : "unavailable",
+  hardGate: hardGateStrict ? "enforced" : "best_effort",
+  /** True when **`ALCHEMIST_STRICT_OFFSETS=1`** for this verify run (Python validation required if sample present). */
+  hardGateStrict,
+  wasmStatus: wasmAvailable ? "available" : "unavailable",
+  /**
+   * **`green_core`** — types + engine tests (+ optional PNH) from this script alone.
+   * **`releaseReadyFromSummary`** — stricter: real WASM pkg, sample **`.fxp`**, strict HARD GATE env — not implied by **`exitCode: 0`** alone.
+   */
+  verifyLaneLabel: "green_core",
+  releaseReadyFromSummary,
   presetShareReadiness,
   paritySummary,
   selectiveVerify:
