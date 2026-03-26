@@ -1,3 +1,32 @@
+# PNH Immunity Ledger
+
+Purpose: auditable record of which deterministic checks ("vaccines") blocked which probe classes in `pnpm pnh:ghost`.
+
+Scope: evidence only. This ledger does not mutate runtime policy, triad weights, gate thresholds, or HARD GATE behavior.
+
+## Canonical vaccines
+
+| Scenario ID | Probe ID | Vaccine | Check location |
+|---|---|---|---|
+| `GATE_BYPASS_PAYLOAD` | `param_out_of_range` | Consensus serum param range enforcement | `packages/shared-engine/validate.ts` |
+| `GATE_BYPASS_PAYLOAD` | `param_nan` | Consensus finite-number guard | `packages/shared-engine/validate.ts` |
+| `GATE_BYPASS_PAYLOAD` | `param_infinity` | Consensus finite-number guard | `packages/shared-engine/validate.ts` |
+| `GATE_BYPASS_PAYLOAD` | `score_out_of_band` | `filterValid` score band validation `[0,1]` | `packages/shared-engine/validate.ts` |
+| `PROMPT_HIJACK_TRIAD` | `prompt_markers_DEEPSEEK` | PNH prompt defense markers in panelist system prompt | `packages/shared-engine/triad-panelist-prompt.ts` |
+| `PROMPT_HIJACK_TRIAD` | `prompt_markers_LLAMA` | PNH prompt defense markers in panelist system prompt | `packages/shared-engine/triad-panelist-prompt.ts` |
+| `PROMPT_HIJACK_TRIAD` | `prompt_markers_QWEN` | PNH prompt defense markers in panelist system prompt | `packages/shared-engine/triad-panelist-prompt.ts` |
+| `SLAVIC_SWARM_CREDIT_DRAIN` | `identical_param_swarm` | Slavic cosine/text dedupe collapse | `packages/shared-engine/score.ts` |
+
+## How to refresh evidence
+
+1. Run `pnpm pnh:ghost`.
+2. If needed, print ledger rows from code (`buildPnhImmunityLedger(runPnhGhostWar())`) in local tooling.
+3. Keep this file and `pnh/immunity-ledger.ts` synchronized when probe IDs change.
+
+## Governance note
+
+This ledger is part of the PNH audit surface. It is not an auto-patch mechanism and does not grant production mutation rights.
+
 # PNH immunity ledger (manual)
 
 **Predictive Network Hardening** probes live in `packages/shared-engine/pnh/` and run on every `pnpm test:engine` via `tests/pnh-ghost-run.test.ts` (alongside the full shared-engine Vitest suite — metrics in `docs/FIRE.md` / `pnpm fire:sync`).

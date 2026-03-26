@@ -87,8 +87,8 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "pnh",
-    responsibility: "Predictive Network Hardening — deterministic ghost probes, warfare model, APT-pattern catalog (TS gates + triad surface; no prod auto-patch). Triad HTTP rate limit lives in web-app; stderr redaction in telemetry-redact.ts.",
-    artifacts: ["pnh/pnh-ghost-run.ts", "pnh/pnh-scenarios.ts", "pnh/pnh-triad-defense.ts", "pnh/pnh-warfare-model.ts", "pnh/pnh-apt-scenarios.ts", "pnh/triad-rate-limit-core.ts", "telemetry-redact.ts"] as const,
+    responsibility: "Predictive Network Hardening: deterministic ghost probes, APT-pattern catalog, immunity ledger. No runtime auto-patch. Triad HTTP rate limit lives in web-app; stderr redaction in telemetry-redact.ts.",
+    artifacts: ["pnh/pnh-ghost-run.ts", "pnh/immunity-ledger.ts", "pnh/pnh-scenarios.ts", "pnh/pnh-triad-defense.ts", "pnh/pnh-warfare-model.ts", "pnh/pnh-apt-scenarios.ts", "pnh/triad-rate-limit-core.ts", "telemetry-redact.ts"] as const,
   },
   {
     id: "vst_observer",

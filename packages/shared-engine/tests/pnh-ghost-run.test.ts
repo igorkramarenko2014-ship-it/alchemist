@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { runPnhGhostWar } from "../pnh/pnh-ghost-run";
 import { PNH_SCENARIOS } from "../pnh/pnh-scenarios";
+import { buildPnhImmunityLedger, recordImmunity } from "../pnh/immunity-ledger";
 
 describe("PNH — ghost war (predictive hardening probes)", () => {
   it("registers the canonical scenario set", () => {
@@ -28,5 +29,15 @@ describe("PNH — ghost war (predictive hardening probes)", () => {
       "PROMPT_HIJACK_TRIAD",
       "SLAVIC_SWARM_CREDIT_DRAIN",
     ]);
+  });
+
+  it("writes immunity ledger JSONL rows for ghost probes", () => {
+    const report = runPnhGhostWar();
+    const rows = buildPnhImmunityLedger(report);
+    for (const row of rows) {
+      recordImmunity(row);
+    }
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.some((r) => r.outcome === "immune")).toBe(true);
   });
 });

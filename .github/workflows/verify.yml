@@ -59,6 +59,13 @@ jobs:
         # On GitHub Actions, pnh:simulate runs with --ci (fail on breach; fail on warning tier unless
         # ALCHEMIST_PNH_ALLOW_WARNING=1). Other CI: set ALCHEMIST_PNH_CI=1 for the same behavior.
 
+      - name: assert:wasm (strict release gate)
+        if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') || github.base_ref == 'main' || startsWith(github.base_ref, 'release/') }}
+        env:
+          REQUIRE_WASM: "1"
+          ALCHEMIST_REQUIRE_WASM: "1"
+        run: pnpm assert:wasm
+
       - name: IOM power-cell coverage (ghost .ts must be registered)
         run: IOM_ENFORCE_COVERAGE=1 pnpm igor:ci
         env:
