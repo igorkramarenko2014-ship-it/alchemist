@@ -28,6 +28,8 @@ export const IOM_CELL_VITEST_FILES = {
     "tests/pnh-ghost-run.test.ts",
     "tests/pnh-warfare-model.test.ts",
     "tests/pnh-apt-scenarios.test.ts",
+    "tests/telemetry-redact.test.ts",
+    "tests/triad-rate-limit-core.test.ts",
   ],
   vst_observer: ["tests/vst-observer.test.ts", "tests/surgical-repair.test.ts"],
   vst_wrapper: ["tests/vst-wrapper-pulse.test.ts"],

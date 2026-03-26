@@ -21,6 +21,8 @@ export type AptImplementationStatus =
   | "platform_required"
   /** Partially covered by existing PNH / tests / scripts. */
   | "partially_covered"
+  /** In-tree mitigation shipped and tested (still review edge logging). */
+  | "mitigated"
   /** Concept only — document and review periodically. */
   | "concept_only";
 
@@ -69,10 +71,13 @@ export const PNH_APT_SCENARIO_CATALOG: readonly PnhAptScenario[] = [
     label: "Mirror Image (secret leakage via errors/logs)",
     pattern: "Trigger error paths that serialize env, stack, or request bodies into logs.",
     primaryLayer: "runtime_logging",
-    status: "partially_covered",
-    existingPnhLinks: ["triad routes return structured errors without env dumps"],
+    status: "mitigated",
+    existingPnhLinks: [
+      "telemetry-redact.ts + logEvent() redacts API-key-shaped substrings before stderr",
+      "triad routes return structured errors without env dumps",
+    ],
     recommendedAction:
-      "Audit `apps/web-app` catch blocks and `logEvent` payloads; ban raw `process.env` / full `error` objects in client-visible JSON; centralize redaction in one logger wrapper.",
+      "Keep auditing catch blocks and new logEvent fields; extend REDACT_PATTERNS when providers add new secret formats; SIEM should still treat stderr as sensitive.",
   },
   {
     id: "silk_thread",

@@ -181,6 +181,7 @@ export type {
   ValidateTriadIntentOptions,
 } from "./intent-hardener";
 export { logEvent } from "./telemetry";
+export { redactSensitive } from "./telemetry-redact";
 export {
   applyPnhTriadPromptDefense,
   auditTriadCandidatesForPnhResponseEcho,
@@ -429,6 +430,15 @@ export type {
   AptImplementationStatus,
   PnhAptScenario,
 } from "./pnh/pnh-apt-scenarios";
+export {
+  checkTriadRateLimitCore,
+  triadRateLimitConfigFromEnv,
+  __resetTriadRateLimitCoreForTests,
+} from "./pnh/triad-rate-limit-core";
+export type {
+  TriadRateLimitConfig,
+  TriadRateLimitCoreResult,
+} from "./pnh/triad-rate-limit-core";
 export type {
   PnhAdaptiveAction,
   PnhContextEvaluation,

@@ -8,6 +8,12 @@ describe("PNH APT-style catalog", () => {
     expect(new Set(ids).size).toBe(7);
   });
 
+  it("mirror_image lists mitigated stderr redaction path", () => {
+    const m = PNH_APT_SCENARIO_CATALOG.find((s) => s.id === "mirror_image");
+    expect(m?.status).toBe("mitigated");
+    expect(m?.existingPnhLinks.some((x) => x.includes("telemetry-redact"))).toBe(true);
+  });
+
   it("uses expected canonical ids", () => {
     expect(PNH_APT_SCENARIO_CATALOG.map((s) => s.id).sort()).toEqual(
       [

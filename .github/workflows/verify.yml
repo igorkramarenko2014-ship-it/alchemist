@@ -35,6 +35,18 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # Optional: set repo secret SERUM_SAMPLE_FXP_B64 (base64 of real Serum init .fxp) so strict HARD GATE + warfare A1 can run locally in CI when you also provision WASM (see docs/FIRE.md §M).
+      - name: Provision tools/sample_init.fxp from secret (optional)
+        env:
+          SERUM_SAMPLE_FXP_B64: ${{ secrets.SERUM_SAMPLE_FXP_B64 }}
+        run: |
+          if [ -n "${SERUM_SAMPLE_FXP_B64:-}" ]; then
+            echo "$SERUM_SAMPLE_FXP_B64" | base64 -d > tools/sample_init.fxp
+            echo "Provisioned tools/sample_init.fxp from SERUM_SAMPLE_FXP_B64"
+          else
+            echo "No SERUM_SAMPLE_FXP_B64 — skipping sample provision"
+          fi
+
       - name: verify:ci (verify:harsh + strict release gates when export paths touched)
         run: pnpm verify:ci
         env:

@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { checkTriadRateLimit } from "@/lib/triad-rate-limit";
 import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
 import { appendPnhHistoryJsonl, triadIntentPnhPartition } from "@/lib/pnh-triad-attack-log";
 import { getTriadCircuitBreakerForPanelist } from "@/lib/triad-circuit-breakers";
@@ -101,6 +102,20 @@ export async function triadPanelPost(
       : "";
   if (!prompt) {
     return NextResponse.json({ error: "prompt_required" }, { status: 400 });
+  }
+
+  const rate = checkTriadRateLimit(request, prompt);
+  if (rate.allowed === false) {
+    return NextResponse.json(
+      { candidates: [], error: rate.reason },
+      {
+        status: 429,
+        headers: {
+          "x-alchemist-triad-mode": "rate-limited",
+          "x-alchemist-panelist": panelist,
+        },
+      },
+    );
   }
 
   const userMode =

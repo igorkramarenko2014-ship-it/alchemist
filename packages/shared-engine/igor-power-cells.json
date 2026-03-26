@@ -97,13 +97,15 @@
   },
   {
     "id": "pnh",
-    "responsibility": "Predictive Network Hardening — deterministic ghost probes, warfare model, APT-pattern catalog (TS gates + triad surface; no prod auto-patch).",
+    "responsibility": "Predictive Network Hardening — deterministic ghost probes, warfare model, APT-pattern catalog (TS gates + triad surface; no prod auto-patch). Triad HTTP rate limit lives in web-app; stderr redaction in telemetry-redact.ts.",
     "artifacts": [
       "pnh/pnh-ghost-run.ts",
       "pnh/pnh-scenarios.ts",
       "pnh/pnh-triad-defense.ts",
       "pnh/pnh-warfare-model.ts",
-      "pnh/pnh-apt-scenarios.ts"
+      "pnh/pnh-apt-scenarios.ts",
+      "pnh/triad-rate-limit-core.ts",
+      "telemetry-redact.ts"
     ]
   },
   {
