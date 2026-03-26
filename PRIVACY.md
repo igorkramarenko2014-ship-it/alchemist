@@ -18,10 +18,10 @@
 
 | Category | Examples | Purpose |
 |----------|----------|---------|
-| **Prompts & usage** | Text you type or speak for preset generation | Run the triad / ranking features |
+| **Prompt text** | Prompt text submitted to the AI triad for preset generation (processed by third-party LLMs) | Provide triad/ranking results (preset generation) |
 | **Technical data** | IP, user agent, timestamps (if your server logs them) | Security, abuse prevention, debugging |
-| **Telemetry (optional)** | Structured events (e.g. triad timing) as implemented in `shared-engine` | Operations, product improvement |
-| **Shared preset links (if enabled)** | Prompt text, reasoning, param snapshot, score — whatever your **`SharedPreset`** / share UI sends to **`POST /api/presets/share`** | User-chosen link to **`/presets/[slug]`**; treat server memory / logs like other app data (today: in-process store unless you add a DB) |
+| **Telemetry (optional)** | Structured events (e.g. triad timing) as implemented in `shared-engine` | Operations, reliability, product improvement |
+| **Shared preset links** | When you share a preset: prompt + generated parameters (reasoning and `paramArray` snapshot) stored server-side and made accessible via a public URL (`/presets/[slug]`) | Provide a shareable preset link; no account identity required |
 
 ---
 
@@ -29,9 +29,15 @@
 
 If you enable routes that call **external LLM APIs**:
 
-- **What is sent:** Typically **prompt text** (and possibly metadata your code attaches).  
-- **Retention:** Governed by **each provider’s** policy — link them here.  
-- **Location:** Note if data may be processed **outside** your country.
+- **What is sent:** Prompt text (and possibly metadata your code attaches).  
+- **Retention:** Governed by each provider’s policy — link them here.  
+- **Location:** Note if data may be processed outside your country.
+
+Third-party LLM providers (examples; list only what you actually use):
+
+- **DeepSeek** (`deepseek.com`) — processes your prompt.  
+- **Groq / Meta Llama** (`groq.com`) — processes your prompt.  
+- **Alibaba Qwen** (`dashscope.aliyuncs.com`) — processes your prompt.
 
 **Your obligation:** Obtain lawful bases (e.g. consent, contract) and provide **clear notice** before first collection where required.
 
@@ -47,7 +53,8 @@ If you enable routes that call **external LLM APIs**:
 
 ## 5. Retention
 
-- **Server logs:** [e.g. 30 / 90 days] — adjust to practice.  
+- **Shared presets:** [X days / indefinitely / until you request deletion] — adjust to practice.  
+- **Triad telemetry (stderr logs):** [your log retention policy] — adjust to practice.  
 - **Provider-side copies:** Per provider dashboards / terms.  
 - **No “shadow” retention:** Product code should not hide data flows — see **FIRE** / **LEGAL.md**.
 
@@ -55,7 +62,8 @@ If you enable routes that call **external LLM APIs**:
 
 ## 6. Your rights (EEA/UK/CA and similar)
 
-Users may have rights to **access**, **rectify**, **delete**, **export**, or **object** to certain processing. Describe **how to contact** you and **response time**.
+Users may have rights to **access**, **rectify**, **delete**, **export**, or **object** to certain processing. Describe **how to contact** you (e.g. [contact email]) and **response time**.
+For shared preset slugs (`/presets/[slug]`), users can request deletion by contacting **[email]**.
 
 ---
 

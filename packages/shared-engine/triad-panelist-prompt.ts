@@ -20,11 +20,11 @@ const PANELIST_JSON_LITERAL: Record<Panelist, string> = {
  */
 export const PANELIST_DNA_SEED: Record<Panelist, string> = {
   DEEPSEEK:
-    "PANELIST_DNA_SEED [ATHENA / wire DEEPSEEK]: **Harmonic architecture** — complex modulation matrices, stable timbral foundations, interval and macro structure before motion or grit.",
+    "PANELIST_DNA_SEED [ATHENA / wire DEEPSEEK]: **Harmonic architecture** — perfect ratios, clean fundamentals; complex modulation matrices, stable timbral foundations, interval and macro structure before motion or grit.",
   LLAMA:
     "PANELIST_DNA_SEED [HERMES / wire LLAMA]: **Rhythmic movement** — LFO-driven modulation, temporal evolution, pulse and articulation; motion before static timbres.",
   QWEN:
-    "PANELIST_DNA_SEED [HESTIA / wire QWEN]: **Timbral texture** — saturation, noise layers, analog-style grit and filter body; color and grain before abstract harmony or metronomic motion.",
+    "PANELIST_DNA_SEED [HESTIA / wire QWEN]: **Timbral texture** — organic grit, saturation, noise layers, analog-style grit; filter resonance and filter body; color and grain before abstract harmony or metronomic motion.",
 };
 
 /**

@@ -15,6 +15,7 @@ import {
   getDefaultPnhAttackMemoryStore,
   isValidCandidate,
   logEvent,
+  logRealitySignal,
   newTriadRunId,
   PANELIST_ALCHEMIST_CODENAME,
   pnhIntentFailureDecisionWithMemory,
@@ -103,6 +104,9 @@ export async function triadPanelPost(
   if (!prompt) {
     return NextResponse.json({ error: "prompt_required" }, { status: 400 });
   }
+
+  // Reality Loop: the user requested an output (triad view/generation intent).
+  logRealitySignal("OUTPUT_VIEWED", { surface: "dock", panelist });
 
   const rate = checkTriadRateLimit(request, prompt);
   if (rate.allowed === false) {
@@ -348,6 +352,21 @@ export async function triadPanelPost(
     mode: "fetcher",
     ...(error !== undefined ? { error } : {}),
   });
+
+  // Reality Loop: candidate list is empty => flow discarded/failed to produce usable output.
+  if (candidates.length === 0) {
+    const reason =
+      error !== undefined
+        ? error.toLowerCase().includes("timeout") || error.toLowerCase().includes("abort")
+          ? "timeout"
+          : "other"
+        : "gate_rejected";
+    logRealitySignal("OUTPUT_DISCARDED", {
+      surface: "dock",
+      reason,
+      panelist,
+    });
+  }
   return NextResponse.json(
     {
       candidates,

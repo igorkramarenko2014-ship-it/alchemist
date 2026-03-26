@@ -17,10 +17,23 @@ export type RealityExploreMode = "explore" | "exploit";
  * Wire these through `logRealitySignal` in shared-engine (redaction + stderr JSON).
  */
 export const REALITY_TELEMETRY_EVENTS = {
+  /** A user asked to generate / view an output (triad request intent). */
+  OUTPUT_VIEWED: "alchemist_output_viewed",
+  /** An output survived the flow and was selected. */
   OUTPUT_USED: "alchemist_output_used",
+  /** Output was edited before use. */
   OUTPUT_MODIFIED: "alchemist_output_modified",
+  /** Output was abandoned. */
   OUTPUT_DISCARDED: "alchemist_output_discarded",
+  /** Output was reused without re-generating from scratch. */
+  OUTPUT_REUSED_LATER: "alchemist_output_reused_later",
+  /** User recovered from a failure (e.g. retried / re-generated successfully). */
+  USER_RECOVERED_FROM_FAILURE: "alchemist_user_recovered_from_failure",
+  /** User shared a preset to a public slug URL (preset-store). */
+  PRESET_SHARED: "preset_shared",
+  /** Export attempt (ties to WASM / HARD GATE reality). */
   EXPORT_ATTEMPTED: "alchemist_export_attempted",
+  /** Export succeeded (encoder healthy and bytes generated). */
   EXPORT_SUCCEEDED: "alchemist_export_succeeded",
 } as const;
 
@@ -40,6 +53,10 @@ export interface AlchemistOutputUsedPayload extends RealitySignalBase {
   surface: "dock" | "export" | "share" | "vst_bridge" | "unknown";
   candidateRank?: number;
   panelist?: RealitySignalPanelist;
+}
+
+export interface AlchemistOutputViewedPayload extends RealitySignalBase {
+  surface: "dock" | "unknown";
 }
 
 export interface AlchemistOutputModifiedPayload extends RealitySignalBase {
@@ -66,6 +83,16 @@ export interface AlchemistExportSucceededPayload extends RealitySignalBase {
   panelist?: RealitySignalPanelist;
 }
 
+export interface PresetSharedPayload extends RealitySignalBase {
+  slug: string;
+  score?: number;
+}
+
+export interface AlchemistUserRecoveredPayload extends RealitySignalBase {
+  /** Optional reason classification; coarse only. */
+  reason?: "retry" | "gate_relax" | "timeout" | "other";
+}
+
 /**
  * Rollup passed into **`SoeTriadSnapshot.realityGroundTruth`** from log pipelines.
  * **Hints only** — SOE may append human-readable guidance; gates never read this.
@@ -73,6 +100,14 @@ export interface AlchemistExportSucceededPayload extends RealitySignalBase {
 export interface RealityGroundTruthAggregate {
   /** Number of outcome events in the window (used for gating hint text). */
   sampleWindowEvents: number;
+  /** Denominator used by RLL (depends on what events are present). */
+  sampleSize?: number;
+  /** Ratio (0–1) of abandoned outputs vs sample size. */
+  retryRate?: number;
+  /** Ratio (0–1) of presets shared vs sample size. */
+  shareRate?: number;
+  /** Ratio (0–1) of export attempts vs sample size. */
+  exportAttemptRate?: number;
   outputUsedCount?: number;
   outputModifiedCount?: number;
   outputDiscardedCount?: number;

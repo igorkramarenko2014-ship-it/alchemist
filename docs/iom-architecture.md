@@ -11,7 +11,7 @@ Last sync: **2026-03-26** — run `pnpm igor:docs` to refresh after editing `igo
 - **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
 - **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.
-- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `constants.ts`, `circuit-breaker.ts`
+- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `triad-panelist-system-prompt.ts`, `constants.ts`, `circuit-breaker.ts`
 
 ### gatekeeper
 

@@ -69,9 +69,10 @@ describe("sharePreset", () => {
       ...baseCandidate,
       paramArray: variedParams(16),
     } as AICandidate;
+    const originalFirst = c.paramArray?.[0];
     const result = sharePreset(c, "test", 0.9, false);
     expect(result).not.toBeNull();
     result!.paramArray[0] = 999;
-    expect(c.paramArray![0]).toBe(0.5);
+    expect(c.paramArray?.[0]).toBe(originalFirst);
   });
 });

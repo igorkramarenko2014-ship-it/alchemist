@@ -19,6 +19,7 @@ target/
 .next
 .expo
 dist
+.data
 *.tsbuildinfo
 .DS_Store
 .env*.local

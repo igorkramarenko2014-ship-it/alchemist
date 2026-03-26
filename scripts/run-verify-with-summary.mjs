@@ -787,6 +787,40 @@ const wasmTruth = getWasmArtifactTruthForSummary(root);
 const hardGateFiles = getHardGateFilesTruth(root);
 const hardGateStrict = process.env.ALCHEMIST_STRICT_OFFSETS === "1";
 const wasmAvailable = Boolean(wasmTruth.wasmBrowserFxpEncodeReady);
+
+// Baseline "Engine Worth" signal (diagnostic only):
+// - Test density from `docs/fire-metrics.json` (277 tests / 51 files → ~5.43 tests/file)
+// - multiplied by current IOM coverage score from verify.
+//
+// No impact on gates/triad law — pure metadata for operators.
+let engineWorth;
+try {
+  const fmPath = join(root, "docs", "fire-metrics.json");
+  if (existsSync(fmPath)) {
+    const fm = JSON.parse(readFileSync(fmPath, "utf8"));
+    const vitestTestsPassed = fm?.vitestTestsPassed;
+    const vitestTestFilesPassed = fm?.vitestTestFilesPassed;
+    const testDensity =
+      typeof vitestTestsPassed === "number" && typeof vitestTestFilesPassed === "number" && vitestTestFilesPassed > 0
+        ? vitestTestsPassed / vitestTestFilesPassed
+        : undefined;
+    const iomCoverageScore = iomSummaryMeta?.iomCoverageScore;
+    if (typeof testDensity === "number" && typeof iomCoverageScore === "number") {
+      engineWorth = {
+        score: testDensity * iomCoverageScore,
+        testDensity,
+        vitestTestsPassed,
+        vitestTestFilesPassed,
+        iomCoverageScore,
+        unit: "tests/file × iomCoverage(0..1)",
+        source: "docs/fire-metrics.json + iomCoverageScore from verify",
+      };
+    }
+  }
+} catch {
+  engineWorth = undefined;
+}
+
 const releaseReadyFromSummary = Boolean(
   wasmAvailable &&
     hardGateFiles.hardGateSampleInitFxpPresent &&
@@ -836,6 +870,18 @@ const paritySummary = {
   source:
     "pnh.verifyTruth.mediumSeverityFailCount (null when PNH simulation not current for this run)",
 };
+
+// Optional eval telemetry from unit tests.
+// This is deterministic and safe: no raw prompt text is stored, only prompt hash + scalar summary.
+let intentAlignmentStats;
+try {
+  const p = join(root, "artifacts", "verify", "intent-alignment-stats.json");
+  if (existsSync(p)) {
+    intentAlignmentStats = JSON.parse(readFileSync(p, "utf8"));
+  }
+} catch {
+  intentAlignmentStats = undefined;
+}
 
 let pnhWarGameCompact;
 try {
@@ -901,6 +947,14 @@ const verifySummaryBody = {
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
   ...iomSummaryMeta,
   ...iomPulseMeta,
+  ...(engineWorth ? { engineWorth } : {}),
+  ...(intentAlignmentStats
+    ? {
+        intentAlignmentAvg: intentAlignmentStats.meanIntentAlignmentScore,
+        intentAlignmentSampleCount: intentAlignmentStats.sampleCount,
+        intentAlignmentPromptHash: intentAlignmentStats.promptHash,
+      }
+    : {}),
   pnhVerifyContext,
   ...pnhRollup,
   pnhWarGame: pnhWarGameCompact,

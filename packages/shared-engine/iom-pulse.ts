@@ -21,6 +21,7 @@ import { drainSurgicalRepairSchisms } from "./surgical-repair";
 import { getVstObserverPulseSlice, type VstSyncStatusPulse } from "./vst-observer";
 import { getVstWrapperPulseSlice, type VstWrapperStatusPulse } from "./vst-wrapper-pulse";
 import type { Panelist } from "@alchemist/shared-types";
+import { getRealitySignalAggregates } from "./reality-loop-layer";
 
 export const IOM_PULSE_VERSION = 5 as const;
 
@@ -245,6 +246,60 @@ export function detectSchisms(
     }
   }
 
+  // Reality Loop Layer (RLL) — behavioral schisms (process-local ring buffer).
+  const rll = getRealitySignalAggregates({ windowMs: 60 * 60 * 1000 }); // 1h window
+
+  // High retry/discard rate: frequent regeneration implies low product fit.
+  if (rll.retryRate != null && rll.retryRate > 0.4 && rll.sampleSize >= 10) {
+    out.push({
+      code: "slavic_score",
+      severity: "warn",
+      message:
+        `Retry/discard rate ${(rll.retryRate * 100).toFixed(0)}% — users regenerating frequently`,
+      evidence: {
+        retryRate: rll.retryRate,
+        sampleSize: rll.sampleSize,
+        confidence: Math.min(0.9, rll.sampleSize / 50),
+        suggestion:
+          "Check Panelist DNA diversity. Run pnpm test:real-gates. Review gate thresholds.",
+      },
+    });
+  }
+
+  // Zero share events: share score floor may be too restrictive.
+  if (rll.shareRate != null && rll.shareRate === 0 && rll.sampleSize >= 20) {
+    out.push({
+      code: "preset_share",
+      severity: "info",
+      message: "No presets shared in last hour despite sufficient interaction",
+      evidence: {
+        sampleSize: rll.sampleSize,
+        confidence: 0.6,
+        suggestion:
+          "Check SHARE_SCORE_FLOOR (currently 0.85). May be too restrictive.",
+      },
+    });
+  }
+
+  // Export attempts while WASM is unavailable: integrity schism.
+  if (
+    rll.exportAttemptRate != null &&
+    rll.exportAttemptRate > 0.1 &&
+    input.wasmOk === false
+  ) {
+    out.push({
+      code: "integrity",
+      severity: "critical",
+      message: "Users attempting export but WASM unavailable",
+      evidence: {
+        exportAttemptRate: rll.exportAttemptRate,
+        confidence: 0.95,
+        suggestion:
+          "Run pnpm build:wasm then pnpm predeploy. Check GET /api/health/wasm.",
+      },
+    });
+  }
+
   return out;
 }
 
@@ -358,12 +413,15 @@ const SOE_FUSION_SUGGESTION_META: Record<
 
 function schismToSuggestion(s: IomSchismFinding, generatedAtMs: number): IomSuggestion {
   const row = SCHISM_SUGGESTION_META[s.code];
+  const dynamicConfidence =
+    typeof s.evidence?.confidence === "number" ? (s.evidence.confidence as number) : undefined;
+  const confidence = dynamicConfidence ?? row?.confidence ?? 0.65;
   return {
     cellId: s.code,
     severity: row?.severity ?? s.severity,
     message: s.message,
-    action: row?.action ?? "pnpm verify:harsh — review recent triad + gate telemetry",
-    confidence: row?.confidence ?? 0.65,
+    action: row?.action ?? (typeof s.evidence?.suggestion === "string" ? s.evidence.suggestion : "pnpm verify:harsh — review recent triad + gate telemetry"),
+    confidence,
     generatedAtMs,
     provenance: "iom_schism",
   };

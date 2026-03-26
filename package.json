@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "prepare": "node scripts/install-git-hooks.mjs",
     "build": "turbo run build",
     "dev": "node scripts/with-pnpm.mjs --filter @alchemist/web-app dev",
     "dev:3000": "node scripts/dev-alchemist-port.mjs 3000",
@@ -98,7 +99,8 @@
     "talent:sync-whatmodels": "node scripts/sync-whatmodels-vendor.mjs",
     "estimate": "tsx scripts/engine-estimate.ts",
     "engine:estimate": "tsx scripts/engine-estimate.ts",
-    "soe:migrate": "tsx scripts/migrate-structured-soe-hints.ts"
+    "soe:migrate": "tsx scripts/migrate-structured-soe-hints.ts",
+    "iom:ghost:check": "node scripts/iom-ghost-check.mjs"
   },
   "devDependencies": {
     "@alchemist/fxp-encoder": "workspace:*",

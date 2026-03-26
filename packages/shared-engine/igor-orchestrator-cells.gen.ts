@@ -8,7 +8,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "triad",
     responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.",
-    artifacts: ["triad.ts", "triad-monitor.ts", "triad-panelist-prompt.ts", "constants.ts", "circuit-breaker.ts"] as const,
+    artifacts: ["triad.ts", "triad-monitor.ts", "triad-panelist-prompt.ts", "triad-panelist-system-prompt.ts", "constants.ts", "circuit-breaker.ts"] as const,
   },
   {
     id: "gatekeeper",
@@ -28,7 +28,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "soe",
     responsibility: "SOE hints from triad health — telemetry only, not DSP buffers.",
-    artifacts: ["soe.ts", "reality-signals-log.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"] as const,
+    artifacts: ["soe.ts", "reality-signals-log.ts", "reality-loop-layer.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"] as const,
   },
   {
     id: "agent_fusion",
@@ -42,7 +42,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "aji_entropy",
-    responsibility: "Deterministic noise seeds for parameter randomization and signature-based entropy analysis of preset candidates (TS statistical gates only; no DSP fiction).",
+    responsibility: "Deterministic seed generation and signature-based entropy analysis for parameter randomization. Does not influence DSP or Gate logic.",
     artifacts: ["entropy.ts", "aji-logic.ts"] as const,
   },
   {

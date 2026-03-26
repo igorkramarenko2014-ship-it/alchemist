@@ -7,6 +7,7 @@ import {
   encodeFxp,
   fxpProvenanceSidecarFilename,
   makeTriadFetcher,
+  REALITY_TELEMETRY_EVENTS,
   runTriad,
   scoreCandidates,
   type AIAnalysis,
@@ -187,6 +188,22 @@ export default function Home() {
 
   async function handleExport(c: AICandidate, name: string) {
     try {
+      type RealityTelemetryKind = keyof typeof REALITY_TELEMETRY_EVENTS;
+      const postReality = async (
+        kind: RealityTelemetryKind,
+        payload: Record<string, unknown>
+      ): Promise<void> => {
+        try {
+          await fetch("/api/reality/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ kind, payload }),
+          });
+        } catch {
+          // Observability only: export must still succeed even if telemetry endpoint is down.
+        }
+      };
+
       const promptNow = prompt.trim();
       if (promptNow !== lastRunPromptRef.current) {
         setError("Export blocked: prompt changed since last Generate — run Generate again for a traceable export.");
@@ -203,6 +220,18 @@ export default function Home() {
         healthJson = null;
       }
       const wasmReal = wasmStatus === "available";
+
+      // Outcome/observability signals (RLL) — hinting only; no gate law mutation.
+      // OUTPUT_USED here means: user selected the candidate by initiating export.
+      const outputUsedPayload = { surface: "export", panelist: c.panelist } as const;
+      void postReality("OUTPUT_USED", outputUsedPayload);
+      const exportAttemptPayload = {
+        wasmAvailable: wasmReal,
+        candidateRank: exportRankIndex >= 0 ? exportRankIndex : 0,
+        panelist: c.panelist,
+      } as const;
+      void postReality("EXPORT_ATTEMPTED", exportAttemptPayload);
+
       const prov = await buildFxpExportProvenanceV1({
         prompt: promptNow,
         analysis: lastAnalysisRef.current,
@@ -234,6 +263,14 @@ export default function Home() {
       a2.download = fxpProvenanceSidecarFilename(fxpBase);
       a2.click();
       URL.revokeObjectURL(sideUrl);
+
+      // Export succeeded: bytes generated and sidecar provenance produced.
+      void postReality("EXPORT_SUCCEEDED", {
+        exportTrustTier: prov.exportTrustTier,
+        wasmReal,
+        candidateRank: exportRankIndex >= 0 ? exportRankIndex : 0,
+        panelist: c.panelist,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }

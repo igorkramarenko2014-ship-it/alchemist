@@ -6,6 +6,8 @@ import {
   getIOMHealthPulse,
   IOM_PULSE_VERSION,
 } from "../iom-pulse";
+import { logRealitySignal } from "../reality-signals-log";
+import { __resetRealityRingForTests } from "../reality-loop-layer";
 
 describe("iom pulse", () => {
   it("getIOMHealthPulse returns pulseVersion, manifestDigest, and suggestions", () => {
@@ -148,5 +150,50 @@ describe("iom pulse", () => {
     const d = digestIgorManifestForPulse(m);
     expect(d.powerCellCount).toBeGreaterThan(12);
     expect(d.overPolicyCellBudget).toBe(true);
+  });
+
+  it("detectSchisms adds slavic_score when retry/discard rate is high from RLL", () => {
+    __resetRealityRingForTests();
+    const m = getIgorOrchestratorManifest();
+
+    // sampleSize = viewed + used + modified + discarded + reusedLater + recovered
+    // retryRate = discarded / sampleSize
+    for (let i = 0; i < 10; i++) {
+      logRealitySignal("OUTPUT_VIEWED", { surface: "dock" });
+    }
+    for (let i = 0; i < 9; i++) {
+      logRealitySignal("OUTPUT_DISCARDED", { surface: "dock", reason: "gate_rejected" });
+    }
+
+    const s = detectSchisms({ wasmOk: true }, m);
+    expect(s.some((x) => x.code === "slavic_score")).toBe(true);
+  });
+
+  it("detectSchisms adds preset_share when shareRate is zero with enough samples", () => {
+    __resetRealityRingForTests();
+    const m = getIgorOrchestratorManifest();
+
+    // sampleSize must be >= 20; shareRate = preset_shared / sampleSize
+    for (let i = 0; i < 20; i++) {
+      logRealitySignal("OUTPUT_VIEWED", { surface: "dock" });
+    }
+
+    const s = detectSchisms({ wasmOk: true }, m);
+    expect(s.some((x) => x.code === "preset_share")).toBe(true);
+  });
+
+  it("detectSchisms adds integrity when exportAttemptRate is high and WASM unavailable", () => {
+    __resetRealityRingForTests();
+    const m = getIgorOrchestratorManifest();
+
+    // sampleSize comes from output events only (we only log OUTPUT_VIEWED here).
+    for (let i = 0; i < 9; i++) {
+      logRealitySignal("OUTPUT_VIEWED", { surface: "dock" });
+    }
+    // exportAttemptRate > 0.1
+    logRealitySignal("EXPORT_ATTEMPTED", { wasmAvailable: false });
+
+    const s = detectSchisms({ wasmOk: false }, m);
+    expect(s.some((x) => x.code === "integrity")).toBe(true);
   });
 });

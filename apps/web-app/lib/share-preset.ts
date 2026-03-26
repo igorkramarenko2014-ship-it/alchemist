@@ -3,7 +3,12 @@ import { customAlphabet } from "nanoid";
 const nanoidSlug = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 6);
 import type { AICandidate } from "@alchemist/shared-types";
 import type { SharedPreset } from "@alchemist/shared-types";
-import { getGateIntegrityFailure, logEvent, PANELIST_ALCHEMIST_CODENAME } from "@alchemist/shared-engine";
+import {
+  getGateIntegrityFailure,
+  logEvent,
+  logRealitySignal,
+  PANELIST_ALCHEMIST_CODENAME,
+} from "@alchemist/shared-engine";
 import { saveSharedPreset } from "./preset-store";
 
 const SHARE_SCORE_FLOOR = 0.85;
@@ -57,6 +62,19 @@ export function sharePreset(
   };
 
   saveSharedPreset(preset);
+
+  // Reality Loop: user-consented share event (outcome signal).
+  logRealitySignal("PRESET_SHARED", {
+    surface: "share",
+    slug,
+    score,
+    panelist: candidate.panelist,
+  });
+  // Also mark the flow as "used" from an adoption standpoint.
+  logRealitySignal("OUTPUT_USED", {
+    surface: "share",
+    panelist: candidate.panelist,
+  });
 
   logEvent("preset_shared", {
     slug,

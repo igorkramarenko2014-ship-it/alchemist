@@ -3,6 +3,7 @@ import {
   type RealityTelemetryEventName,
 } from "@alchemist/shared-types";
 import { logEvent } from "./telemetry";
+import { recordRealityTelemetryEvent } from "./reality-loop-layer";
 
 type RealityTelemetryKind = keyof typeof REALITY_TELEMETRY_EVENTS;
 
@@ -39,6 +40,7 @@ export function logRealitySignal(
   payload: Record<string, unknown> = {}
 ): void {
   const event: RealityTelemetryEventName = REALITY_TELEMETRY_EVENTS[kind];
+  recordRealityTelemetryEvent(event);
   logEvent(event, {
     layer: "reality_loop",
     ...sanitizeRealitySignalPayload(payload),

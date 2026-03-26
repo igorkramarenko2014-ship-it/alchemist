@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-26** |
-| **Vitest** (`@alchemist/shared-engine`) | **277** tests passed, **51** files (runner) · **51** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **289** tests passed, **54** files (runner) · **54** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 | **Canonical metrics JSON** | `docs/fire-metrics.json` — verify: `sha256sum -c docs/fire-metrics.sha256` (repo root) |
 
@@ -47,7 +47,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 ### Next moves (operator / agent)
 
-**Composer HTML packs** (task prompts + on-page **rejected** anti-patterns): **`docs/archive/alchemist-cursor-prompts.html`** (P0–P3), **`docs/archive/alchemist-high-efficiency-prompts.html`** (per-gate calibration breakdown; optional **`tablebaseMode: 'compete'`**), **`docs/archive/alchemist-cpc-execution-plan.html`** (timeouts / snapshot CI / **`gate:suggest`** / selection telemetry), **`docs/archive/alchemist-full-unblock-plan.html`** (M1–M5 pipeline), **`docs/archive/alchemist-new-moves.html`** (post-queue: circuit breaker, gate baseline regression CI, **`verify_post_summary`** capture), **`docs/archive/alchemist-tablebase-seeding.html`** (offline **`.fxp`** → tablebase, HARD GATE + provenance). **Roles → `FIRESTARTER` §12.**
+**Composer HTML packs** (task prompts + on-page **rejected** anti-patterns): **`docs/archive/alchemist-cursor-prompts.html`** (P0–P3), **`docs/archive/alchemist-high-efficiency-prompts.html`** (per-gate calibration breakdown; optional **`tablebaseMode: 'compete'`**), **`docs/archive/alchemist-cpc-execution-plan.html`** (timeouts / snapshot CI / **`gate:suggest`** / selection telemetry), **`docs/archive/alchemist-full-unblock-plan.html`** (M1–M5 pipeline), **`docs/archive/alchemist-new-moves.html`** (post-queue: circuit breaker, gate baseline regression CI, **`verify_post_summary`** capture), **`docs/archive/alchemist-tablebase-seeding.html`** (offline **`.fxp`** → tablebase, HARD GATE + provenance). **Roles → `FIRESTARTER` §12.** **FIRE v2 roadmap:** **`docs/fire-v2-roadmap.md`** — public-pattern mapping + phased execution plan (outside assessment shell, RLL, two-lane verify).
 
 **Recently shipped:** **Preset share** — **`POST /api/presets/share`**, **`/presets/[slug]`**, **`logEvent`** **`preset_shared`**, IOM power cell **`preset_share`** + **`IOM_CELL_VITEST_MAP`** bridge (**`tests/preset-share-cell.test.ts`**); web tests **`apps/web-app/__tests__/preset-share.test.ts`**. **`pnpm igor:heal`** → gitignored **`tools/iom-proposals.jsonl`** + stderr audit; **`pnpm igor:apply`** — interactive **y/n** append to **`igor-power-cells.json`** only on confirm, then **`pnpm igor:sync`**. **`verify_post_summary`** may include **`iomCoverageScore`** + **`iomSelectiveWarnings`** on local selective **`harshcheck`**. **`iom-pulse.ts`** — **`getIOMHealthPulse`**, **`detectSchisms`**; **`GET /api/health` → `iomPulse`**. **`QWEN_BASE_URL`** wiring; **`pnpm test:real-gates`** + **`logEvent`** **`calibration_*`** (artifact **`tools/gate-calibration-output.json`** — **gitignored**); **`useTriadHealth`** + dock triad status; root **`env:check`**, **`verify:keys`**, **`check:ready`**, **`build:wasm`** — **`FIRESTARTER` §9.**
 
