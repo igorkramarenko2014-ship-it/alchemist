@@ -1,3 +1,12 @@
+/**
+ * **Execution tiers** — classifies IOM power cells so advisory/meta does not read as ship-blocking.
+ *
+ * - **Tier 1:** user-outcome / hot path (`runTriad`, gates, taxonomy, tablebase short-circuit, export honesty signals).
+ * - **Tier 2:** ship-blocking verification (`vst_observer` HARD GATE bridge, release asserts — see scripts, not all are cells).
+ * - **Tier 3:** diagnostic only — **no gate mutation, no export authority, no triad override** unless an explicit tested bridge exists.
+ *
+ * Source: **`execution-tiers.json`**. Guard: **`assertNoAdvisoryMutationBridge`**.
+ */
 import tierData from "./execution-tiers.json";
 
 export type ExecutionTier = "tier1_hot_path" | "tier2_release_truth" | "tier3_advisory";

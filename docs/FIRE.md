@@ -382,11 +382,11 @@ graph LR
 
 ## M. CI/CD contracts (baseline vs strict)
 
-**Baseline PR CI** (`.github/workflows/verify.yml`): **`pnpm verify:ci`** = **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`**. **`assert:hard-gate`** always requires **`packages/fxp-encoder/serum-offset-map.ts`** + **`tools/validate-offsets.py`** on disk; Python validation runs only when **`tools/sample_init.fxp`** exists — otherwise **warn** and exit **0** unless **`ALCHEMIST_STRICT_OFFSETS=1`**. Default clones often **omit** the binary sample — **do not** claim “every PR fails without `.fxp`” unless you **provision** the file (e.g. CI secret → **`tools/sample_init.fxp`**).
+**Baseline PR CI** (`.github/workflows/verify.yml`): **`pnpm verify:ci`** = **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`** + **`node scripts/enforce-release-strict-gates.mjs`** (export-sensitive diffs can force **`ALCHEMIST_STRICT_OFFSETS=1`** on **`assert:hard-gate`** and **`REQUIRE_WASM=1`** on **`assert:wasm`**). The workflow also runs **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** as a separate step. **`assert:hard-gate`** always requires **`packages/fxp-encoder/serum-offset-map.ts`** + **`tools/validate-offsets.py`** on disk; Python validation runs only when **`tools/sample_init.fxp`** exists — otherwise **warn** and exit **0** unless **`ALCHEMIST_STRICT_OFFSETS=1`**. Default clones often **omit** the binary sample — **do not** claim “every PR fails without `.fxp`” unless you **provision** the file (e.g. CI secret → **`tools/sample_init.fxp`**). **Truth matrix** (human-readable): regenerate **`docs/truth-matrix.md`** with **`pnpm truth:matrix`**; machine slice: **`GET /api/health/truth-matrix`**. Durable **`verify_post_summary`** JSON is written under **`.artifacts/verify/`** (and **`artifacts/verify/`**) on green runs — both are **gitignored**.
 
 | Script / step | Fails when | Typical use |
 |---------------|------------|-------------|
-| **`pnpm verify:ci`** | Missing offset map / validate script; or **`verify:harsh`** failure | GitHub Actions **`Verify`** job |
+| **`pnpm verify:ci`** | Missing offset map / validate script; **`verify:harsh`** failure; or strict release gate failure when encoder/WASM paths changed | GitHub Actions **`Verify`** job |
 | **`pnpm assert:hard-gate`** + **`ALCHEMIST_STRICT_OFFSETS=1`** | No **`sample_init.fxp`** or Python validation error | Release / encoder-critical pipelines |
 | **`pnpm harshcheck`** | Same as **`verify:web`** (includes production **`next build`**) | Pre-merge / pre-release |
 | **`pnpm predeploy`** | **`build:wasm`** fails or **`pkg/`** stub / missing WASM ( **`REQUIRE_WASM=1`** during assert ) | Before shipping browser **`.fxp`** |

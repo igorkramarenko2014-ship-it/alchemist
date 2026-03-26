@@ -10,6 +10,9 @@ describe("execution tier registry", () => {
   it("classifies canonical cells into expected tiers", () => {
     expect(getExecutionTier("triad")).toBe("tier1_hot_path");
     expect(getExecutionTier("prompt_guard")).toBe("tier1_hot_path");
+    expect(getExecutionTier("tablebase")).toBe("tier1_hot_path");
+    expect(getExecutionTier("integrity")).toBe("tier1_hot_path");
+    expect(getExecutionTier("arbitration")).toBe("tier3_advisory");
     expect(getExecutionTier("schism")).toBe("tier3_advisory");
   });
 

@@ -45,7 +45,7 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 
 ## Verify (what “green” means here)
 
-- **`pnpm verify:ci`** — **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`** + **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** (GitHub **`Verify`** workflow; sample **`.fxp`** optional unless **`ALCHEMIST_STRICT_OFFSETS=1`**).
+- **`pnpm verify:ci`** — **`pnpm assert:hard-gate`** + **`pnpm verify:harsh`** + **`enforce-release-strict-gates.mjs`** (export-sensitive diffs → stricter offset/WASM asserts). GitHub **`Verify`** runs that script, then **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** as a **separate** step. Sample **`.fxp`** optional unless **`ALCHEMIST_STRICT_OFFSETS=1`**.
 - **`pnpm harshcheck:wasm`** / **`pnpm verify:harsh:wasm`** — same verify chain + **`REQUIRE_WASM=1 assert:wasm`** (real **`fxp-encoder/pkg/`**; run **`pnpm build:wasm`** first).
 - **`pnpm verify:harsh`** — types + **`shared-engine`** Vitest (no production Next build).
 - **`pnpm harshcheck`** — above + **`next build`**; ends with stderr **`verify_post_summary`**.
@@ -54,6 +54,8 @@ Authoritative **Serum / `.fxp`** work requires validated **`serum-offset-map.ts`
 ---
 
 ## Compact truth matrix
+
+Full narrative + script mapping: **`docs/truth-matrix.md`** (regenerate: **`pnpm truth:matrix`**).
 
 | Path | Stub mode | Fetcher mode | Tablebase hit | WASM export | HARD GATE | verify receipt signal |
 |------|-----------|--------------|---------------|-------------|-----------|-----------------------|

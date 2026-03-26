@@ -52,3 +52,7 @@ tools/structured-soe-hints.jsonl
 tools/iom-accepted-proposals/
 # Serum 2 mod discovery output (pnpm serum2:discover-mod-matrix)
 tools/serum2-discovery/
+
+# Verify release receipts (local / CI; regenerate via pnpm verify:harsh)
+artifacts/verify/
+.artifacts/verify/

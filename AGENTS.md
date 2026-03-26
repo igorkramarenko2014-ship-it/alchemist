@@ -52,7 +52,7 @@ pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
 pnpm harshcheck:wasm  # harshcheck + REQUIRE_WASM=1 assert:wasm — before browser .fxp export (needs pnpm build:wasm)
 pnpm verify:harsh:wasm # verify:harsh + REQUIRE_WASM assert (faster; no next build)
 pnpm harshcheck:fire  # harshcheck + ALCHEMIST_FIRE_SYNC=1 (refresh FIRE / brain-plus metrics after green)
-pnpm verify:ci        # assert:hard-gate + verify:harsh (matches default GitHub Verify job; CI also runs IOM_ENFORCE_COVERAGE=1 igor:ci)
+pnpm verify:ci        # assert:hard-gate + verify:harsh + enforce-release-strict-gates (GitHub Verify also runs IOM_ENFORCE_COVERAGE=1 igor:ci)
 pnpm verify:harsh     # faster: no next build
 pnpm verify:harsh:fire # verify:harsh + ALCHEMIST_FIRE_SYNC=1 after green
 pnpm predeploy        # build:wasm + REQUIRE_WASM assert:wasm — before shipping browser .fxp

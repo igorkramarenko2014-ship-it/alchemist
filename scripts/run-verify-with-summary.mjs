@@ -49,7 +49,7 @@
  * **`hardGate*Present`** (from `lib/hard-gate-files-truth.mjs`): offset map file, Python script, sample `.fxp`
  * on disk — **not** a substitute for `pnpm assert:hard-gate` / `validate-offsets.py` success.
  */
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -86,6 +86,57 @@ function logSummary(payload) {
     ...payload,
   });
   process.stderr.write(`${line}\n`);
+}
+
+function readGitMeta(root) {
+  const sha = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" });
+  const branch = spawnSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  return {
+    gitSha: sha.status === 0 ? sha.stdout.trim() : "unknown",
+    gitBranch: branch.status === 0 ? branch.stdout.trim() : "unknown",
+  };
+}
+
+function buildTriadPanelistModeExpected() {
+  const hasDeepseek = Boolean(process.env.DEEPSEEK_API_KEY);
+  const hasLlama = Boolean(process.env.GROQ_API_KEY || process.env.LLAMA_API_KEY);
+  const hasQwen = Boolean(process.env.QWEN_API_KEY);
+  const toMode = (live) => (live ? "fetcher" : "stub");
+  return {
+    DEEPSEEK: toMode(hasDeepseek),
+    LLAMA: toMode(hasLlama),
+    QWEN: toMode(hasQwen),
+  };
+}
+
+/**
+ * Durable release artifact: same JSON as the stderr **`verify_post_summary`** line (includes **`ts`**, **`event`**).
+ * Writes **`artifacts/verify/`** and **`.artifacts/verify/`** (CI may upload either tree).
+ */
+function writeVerifyPostSummaryArtifacts(root, lineObj) {
+  const text = `${JSON.stringify(lineObj, null, 2)}\n`;
+  const primary = join(root, "artifacts", "verify");
+  const secondary = join(root, ".artifacts", "verify");
+  mkdirSync(primary, { recursive: true });
+  mkdirSync(secondary, { recursive: true });
+  const sha = typeof lineObj.gitSha === "string" ? lineObj.gitSha : "unknown";
+  const postSummaryPrimary = join(primary, "verify-post-summary.json");
+  const postSummarySecondary = join(secondary, "verify-post-summary.json");
+  const stamped = join(primary, `verify-receipt-${sha}.json`);
+  const latest = join(primary, "verify-receipt-latest.json");
+  writeFileSync(postSummaryPrimary, text, "utf8");
+  writeFileSync(postSummarySecondary, text, "utf8");
+  writeFileSync(stamped, text, "utf8");
+  writeFileSync(latest, text, "utf8");
+  return {
+    verifyPostSummaryPath: postSummaryPrimary,
+    verifyPostSummaryDotArtifactsPath: postSummarySecondary,
+    verifyReceiptPath: stamped,
+    verifyReceiptLatestPath: latest,
+  };
 }
 
 /** Offline IOM meta via **`tsx`** (shared-engine is TS-only). */
@@ -531,6 +582,10 @@ if (!root) {
   process.exit(1);
 }
 
+/** PNH `--ci` (fail on warning tier) only on GitHub Actions or when explicitly opted in — not generic `CI=1` (Cursor/sandboxes). */
+const pnhCiStrict =
+  process.env.GITHUB_ACTIONS === "true" || process.env.ALCHEMIST_PNH_CI === "1";
+
 if (mode !== "verify-harsh" && mode !== "verify-web") {
   process.stderr.write(
     `Usage: node scripts/run-verify-with-summary.mjs <verify-harsh|verify-web>\n`
@@ -694,7 +749,7 @@ if (mode === "verify-harsh" && finalExitCode === 0) {
   const withPnpm = join(root, "scripts", "with-pnpm.mjs");
   const simScript = join(root, "scripts", "pnh-simulate.ts");
   const simArgs = [withPnpm, "exec", "tsx", simScript, "--"];
-  if (process.env.CI) simArgs.push("--ci");
+  if (pnhCiStrict) simArgs.push("--ci");
   const sim = spawnSync(process.execPath, simArgs, {
     cwd: root,
     stdio: "inherit",
@@ -732,7 +787,7 @@ const wasmTruth = getWasmArtifactTruthForSummary(root);
 const hardGateFiles = getHardGateFilesTruth(root);
 
 const pnhVerifyContext = {
-  verifyMode: process.env.CI
+  verifyMode: pnhCiStrict
     ? "ci"
     : process.env.ALCHEMIST_SELECTIVE_VERIFY === "1"
       ? "selective"
@@ -741,8 +796,11 @@ const pnhVerifyContext = {
   iomSchismCodesCount: Array.isArray(iomPulseMeta?.iomSchismCodes)
     ? iomPulseMeta.iomSchismCodes.length
     : undefined,
-  ciFailsOnPnhWarningTier: Boolean(process.env.CI && process.env.ALCHEMIST_PNH_ALLOW_WARNING !== "1"),
+  ciFailsOnPnhWarningTier: Boolean(
+    pnhCiStrict && process.env.ALCHEMIST_PNH_ALLOW_WARNING !== "1",
+  ),
   pnhAllowWarningEscapeHatch: process.env.ALCHEMIST_PNH_ALLOW_WARNING === "1" ? true : undefined,
+  pnhCiStrictOptIn: pnhCiStrict ? true : undefined,
   note: "PNH verify slice — operator-supplied repeat counters are not persisted here; see triad telemetry pnhContextSurface on client runs.",
 };
 
@@ -754,6 +812,22 @@ const pnhStatusString =
     : pnhSimInvoked
       ? (pnhLast?.pnhStatus ?? "unknown")
       : "skipped";
+
+const gitMeta = readGitMeta(root);
+const triadPanelistModeExpected = buildTriadPanelistModeExpected();
+const presetShareReadiness =
+  existsSync(join(root, "apps", "web-app", "app", "api", "presets", "share", "route.ts")) &&
+  existsSync(join(root, "apps", "web-app", "lib", "share-preset.ts"));
+const verifyModeFlavor =
+  process.env.ALCHEMIST_SELECTIVE_VERIFY === "1" && !process.env.CI ? "selective" : "full";
+const paritySummary = {
+  stubLiveDeltaCount:
+    typeof pnhLast?.verifyTruth?.mediumSeverityFailCount === "number"
+      ? pnhLast.verifyTruth.mediumSeverityFailCount
+      : null,
+  source:
+    "pnh.verifyTruth.mediumSeverityFailCount (null when PNH simulation not current for this run)",
+};
 
 let pnhWarGameCompact;
 try {
@@ -786,8 +860,9 @@ try {
   pnhWarGameCompact = undefined;
 }
 
-logSummary({
+const verifySummaryBody = {
   mode,
+  ...gitMeta,
   exitCode: finalExitCode,
   /** Always false — this script does not run harshcheck, assert:wasm, or assert:hard-gate unless you do separately. */
   productShippableFromVerifyScriptAlone: false,
@@ -795,8 +870,15 @@ logSummary({
   durationMs,
   failedStep: summaryFailedStep,
   monorepoRoot: root,
+  verifyModeFlavor,
+  triadPanelistModeExpected,
   ...wasmTruth,
   ...hardGateFiles,
+  hardGate:
+    process.env.ALCHEMIST_STRICT_OFFSETS === "1" ? "enforced" : "best_effort",
+  wasmStatus: wasmTruth.wasmBrowserFxpEncodeReady ? "available" : "unavailable",
+  presetShareReadiness,
+  paritySummary,
   selectiveVerify:
     process.env.ALCHEMIST_SELECTIVE_VERIFY === "1" && !process.env.CI ? true : undefined,
   soeHint: soeHint(finalExitCode, durationMs, mode, iomSummaryMeta),
@@ -819,7 +901,19 @@ logSummary({
           warfareBreaches: pnhLast.warfareBreaches,
         }
       : undefined,
-});
+};
+
+const verifyPostSummaryLine = {
+  ts: new Date().toISOString(),
+  event: "verify_post_summary",
+  ...verifySummaryBody,
+};
+process.stderr.write(`${JSON.stringify(verifyPostSummaryLine)}\n`);
+
+const verifyArtifactPaths = writeVerifyPostSummaryArtifacts(root, verifyPostSummaryLine);
+process.stderr.write(
+  `[alchemist] verify_post_summary JSON written: ${verifyArtifactPaths.verifyPostSummaryPath} (and verify-receipt-*)\n`,
+);
 
 if (process.env.ALCHEMIST_FIRE_SYNC === "1" && finalExitCode === 0) {
   const syncScript = join(root, "scripts", "sync-fire-md.mjs");

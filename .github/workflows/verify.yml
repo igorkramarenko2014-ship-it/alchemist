@@ -35,13 +35,14 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: verify:ci (HARD GATE + verify:harsh)
+      - name: verify:ci (verify:harsh + strict release gates when export paths touched)
         run: pnpm verify:ci
-        # Same as: assert:hard-gate (warn if no tools/sample_init.fxp) + verify:harsh.
+        # Includes verify:harsh and scripts/enforce-release-strict-gates.mjs.
+        # When export/encoder-sensitive paths change, strict mode is enforced:
+        # ALCHEMIST_STRICT_OFFSETS=1 pnpm assert:hard-gate and REQUIRE_WASM=1 pnpm assert:wasm.
         # PNH: stderr verify_post_summary includes securityVerdict (pass | degraded | fail | null).
-        # In CI, pnpm pnh:simulate -- --ci fails on breach; also fails on warning tier unless
-        # ALCHEMIST_PNH_ALLOW_WARNING=1 (temporary escape hatch — see tools/pnh-simulation-last.json verifyTruth).
-        # Stricter release job: ALCHEMIST_STRICT_OFFSETS=1 + provision tools/sample_init.fxp before assert:hard-gate.
+        # On GitHub Actions, pnh:simulate runs with --ci (fail on breach; fail on warning tier unless
+        # ALCHEMIST_PNH_ALLOW_WARNING=1). Other CI: set ALCHEMIST_PNH_CI=1 for the same behavior.
 
       - name: IOM power-cell coverage (ghost .ts must be registered)
         run: IOM_ENFORCE_COVERAGE=1 pnpm igor:ci

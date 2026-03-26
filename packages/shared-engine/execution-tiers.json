@@ -39,7 +39,7 @@
       "hotPathMutable": true
     },
     "integrity": {
-      "tier": "tier2_release_truth",
+      "tier": "tier1_hot_path",
       "recommendation": "KEEP",
       "advisoryOnly": false,
       "hotPathMutable": true
@@ -51,7 +51,7 @@
       "hotPathMutable": true
     },
     "tablebase": {
-      "tier": "tier2_release_truth",
+      "tier": "tier1_hot_path",
       "recommendation": "KEEP",
       "advisoryOnly": false,
       "hotPathMutable": true
@@ -69,9 +69,9 @@
       "hotPathMutable": false
     },
     "arbitration": {
-      "tier": "tier2_release_truth",
+      "tier": "tier3_advisory",
       "recommendation": "KEEP_TRANSPARENT_ONLY",
-      "advisoryOnly": false,
+      "advisoryOnly": true,
       "hotPathMutable": false
     },
     "soe": {

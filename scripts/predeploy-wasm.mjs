@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * Browser **`.fxp`** shipping helper: **`pnpm build:wasm`** then **`REQUIRE_WASM=1 pnpm assert:wasm`**.
- * Does **not** run **`harshcheck`** or strict HARD GATE — add those in your deploy pipeline explicitly.
+ * Browser **`.fxp`** shipping helper:
+ * 1) strict HARD GATE (**`ALCHEMIST_STRICT_OFFSETS=1 pnpm assert:hard-gate`**)
+ * 2) **`pnpm build:wasm`**
+ * 3) strict WASM (**`REQUIRE_WASM=1 pnpm assert:wasm`**)
  */
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
@@ -23,9 +25,12 @@ function run(label, file, args, env) {
   }
 }
 
+run("assert:hard-gate", "pnpm", ["assert:hard-gate"], {
+  ALCHEMIST_STRICT_OFFSETS: "1",
+});
 run("build:wasm", "pnpm", ["build:wasm"], {});
 run("assert:wasm", "pnpm", ["assert:wasm"], {
   REQUIRE_WASM: "1",
   ALCHEMIST_REQUIRE_WASM: "1",
 });
-console.log("predeploy-wasm: OK — WASM built and non-stub pkg verified");
+console.log("predeploy-wasm: OK — strict HARD GATE + WASM verified");
