@@ -56,6 +56,35 @@ describe("SOE (self-optimizing hints)", () => {
     expect(r.fusionHintCodes).toContain("GOVERNANCE_VELOCITY");
   });
 
+  it("optional realityGroundTruth appends low-adoption hint when window is large enough", () => {
+    const r = computeSoeRecommendations({
+      meanPanelistMs: 800,
+      triadFailureRate: 0,
+      gateDropRate: 0.1,
+      realityGroundTruth: {
+        sampleWindowEvents: 25,
+        outputUsedCount: 1,
+        outputModifiedCount: 2,
+        outputDiscardedCount: 17,
+      },
+    });
+    expect(r.message).toContain("Reality signal: low output adoption");
+  });
+
+  it("realityGroundTruth ignored when sample window too small", () => {
+    const r = computeSoeRecommendations({
+      meanPanelistMs: 800,
+      triadFailureRate: 0,
+      gateDropRate: 0.1,
+      realityGroundTruth: {
+        sampleWindowEvents: 5,
+        outputUsedCount: 0,
+        outputDiscardedCount: 5,
+      },
+    });
+    expect(r.message).not.toContain("Reality signal:");
+  });
+
   it("stub-heavy telemetry adds parity fusion hint", () => {
     const r = computeSoeRecommendations({
       meanPanelistMs: 800,

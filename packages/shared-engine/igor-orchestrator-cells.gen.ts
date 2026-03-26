@@ -28,7 +28,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "soe",
     responsibility: "SOE hints from triad health — telemetry only, not DSP buffers.",
-    artifacts: ["soe.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"] as const,
+    artifacts: ["soe.ts", "reality-signals-log.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"] as const,
   },
   {
     id: "agent_fusion",

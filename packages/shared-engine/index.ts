@@ -6,12 +6,15 @@ export type {
   AIAnalysis,
   FxpExportProvenanceV1,
   Panelist,
+  RealityGroundTruthAggregate,
+  RealityTelemetryEventName,
   SerumState,
   TriadPanelistRunOutcome,
   TriadParityMode,
   TriadRunTelemetry,
   UserMode,
 } from "@alchemist/shared-types";
+export { REALITY_TELEMETRY_EVENTS } from "@alchemist/shared-types";
 
 export {
   flattenTriadChunksWithDurations,
@@ -182,6 +185,7 @@ export type {
 } from "./intent-hardener";
 export { logEvent } from "./telemetry";
 export { redactSensitive } from "./telemetry-redact";
+export { logRealitySignal, sanitizeRealitySignalPayload } from "./reality-signals-log";
 export {
   applyPnhTriadPromptDefense,
   auditTriadCandidatesForPnhResponseEcho,

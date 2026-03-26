@@ -22,7 +22,7 @@
   {
     "id": "soe",
     "responsibility": "SOE hints from triad health — telemetry only, not DSP buffers.",
-    "artifacts": ["soe.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"]
+    "artifacts": ["soe.ts", "reality-signals-log.ts", "iom-schism-impact.ts", "soe-hint-structured.ts"]
   },
   {
     "id": "agent_fusion",

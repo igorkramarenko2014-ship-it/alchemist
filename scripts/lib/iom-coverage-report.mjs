@@ -8,7 +8,7 @@ export const IOM_CELL_VITEST_FILES = {
   gatekeeper: ["tests/gatekeeper-telemetry.test.ts"],
   undercover_adversarial: ["tests/undercover-slavic.test.ts"],
   slavic_score: ["tests/undercover-slavic.test.ts"],
-  soe: ["tests/soe.test.ts"],
+  soe: ["tests/soe.test.ts", "tests/reality-signals-log.test.ts"],
   agent_fusion: ["tests/agent-fusion.test.ts"],
   integrity: ["tests/integrity.test.ts"],
   aji_entropy: ["tests/aji-entropy.test.ts"],

@@ -16,6 +16,7 @@
  * (inner-circle, **alchemist-security-posture**, extra-mile verify). **No** chat transcripts,
  * **no** PII, **no** DSP — hints only.
  */
+import type { RealityGroundTruthAggregate } from "@alchemist/shared-types";
 import {
   BRAIN_SOE_FUSION_HINTS,
   BRAIN_SOE_RECOMMENDATION_MESSAGES,
@@ -42,6 +43,11 @@ export interface SoeTriadSnapshot {
    * When high, fusion hints flag **stub vs prod** parity (security posture).
    */
   triadStubRunFraction?: number;
+  /**
+   * Optional rollups from RLL / ground-truth telemetry (`docs/reality-loop-layer.md`).
+   * **Hints only** — gates do not read this; SOE may append adoption guidance to `message`.
+   */
+  realityGroundTruth?: RealityGroundTruthAggregate;
 }
 
 /** Stable fusion codes for dashboards / SIEM (deterministic from snapshot; no PII). */
@@ -340,6 +346,20 @@ export function computeSoeRecommendations(
     const sch = schismCodes.slice(0, 6).join(", ");
     const schEll = schismCodes.length > 6 ? "…" : "";
     message = `${message} | IOM schisms: ${sch}${schEll} (no mapped power cells)${cov != null ? `; coverage ${cov.toFixed(2)}` : ""}`;
+  }
+
+  const rg = s.realityGroundTruth;
+  if (rg && rg.sampleWindowEvents >= 20) {
+    const u = rg.outputUsedCount ?? 0;
+    const m = rg.outputModifiedCount ?? 0;
+    const d = rg.outputDiscardedCount ?? 0;
+    const denom = u + m + d;
+    if (denom >= 10) {
+      const usedRate = u / denom;
+      if (usedRate < 0.15) {
+        message = `${message}\nReality signal: low output adoption (${(usedRate * 100).toFixed(0)}% marked used in window — product/ops review; hints only).`;
+      }
+    }
   }
 
   return {

@@ -179,3 +179,18 @@ export interface FxpExportProvenanceV1 {
 }
 
 export type { SharedPreset } from "./preset-share";
+export {
+  REALITY_TELEMETRY_EVENTS,
+} from "./reality-signals";
+export type {
+  AlchemistExportAttemptedPayload,
+  AlchemistExportSucceededPayload,
+  AlchemistOutputDiscardedPayload,
+  AlchemistOutputModifiedPayload,
+  AlchemistOutputUsedPayload,
+  RealityExploreMode,
+  RealityGroundTruthAggregate,
+  RealitySignalBase,
+  RealitySignalPanelist,
+  RealityTelemetryEventName,
+} from "./reality-signals";
