@@ -4,6 +4,7 @@ import { getOptionalSoeTriadSnapshotFromEnv } from "@/lib/soe-snapshot-from-env"
 import { getVstHealthSnapshot } from "@/lib/vst-bundle-health";
 import fs from "node:fs";
 import path from "node:path";
+import { getSystemHealthMetricFromArtifacts } from "@/lib/system-health-metric";
 import {
   buildPnhHealthSnapshot,
   computeHealthAgentAjiChatFusion,
@@ -116,6 +117,9 @@ export async function GET(request: Request) {
     verifyMode: process.env.CI ? "ci" : "local",
   });
 
+  const systemHealth =
+    repoRoot != null ? getSystemHealthMetricFromArtifacts(repoRoot) : null;
+
   return NextResponse.json({
     ok: true,
     wasm,
@@ -178,6 +182,7 @@ export async function GET(request: Request) {
       note: "PNH context snapshot from aggregate health signals — same model as shared-engine evaluatePnhContext.",
     },
     iomPulse,
+    systemHealth,
     soeSnapshotInjected: soeSnapshot !== undefined,
     agentAjiChatFusion,
     generatedAtMs: Date.now(),
