@@ -103,7 +103,7 @@
 
 **Prompt guard:** **`validatePromptForTriad`** — max **2000** chars; rejects Markdown code fences.
 
-**Panelist DNA:** **`triadPanelistSystemPrompt`** (**`apps/web-app/lib/triad-panelist-system-prompt.ts`**) adds a **distinct emphasis line** per wire id (**DEEPSEEK / LLAMA / QWEN**) so fetchers explore different angles on the same user prompt; output schema and TS gates are unchanged.
+**Panelist DNA:** **`triadPanelistSystemPrompt`** (**`packages/shared-engine/triad-panelist-prompt.ts`**, re-exported from **`apps/web-app/lib/triad-panelist-system-prompt.ts`**) injects **`PANELIST_DNA_SEED`** plus elaboration per wire id (**DEEPSEEK→ATHENA harmonic architecture**, **LLAMA→HERMES rhythmic movement**, **QWEN→HESTIA timbral texture**); HARD GATE line forbids byte invention; output schema and TS gates are unchanged.
 
 ### 5a. Implementation status (honesty)
 

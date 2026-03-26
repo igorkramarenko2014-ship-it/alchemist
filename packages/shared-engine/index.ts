@@ -325,6 +325,7 @@ export type {
 export { logAthenaSoeRecalibration } from "./triad-monitor";
 export {
   PANELIST_DNA,
+  PANELIST_DNA_SEED,
   panelistDnaText,
   triadPanelistSystemPrompt,
 } from "./triad-panelist-prompt";

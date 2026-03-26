@@ -7,7 +7,7 @@
 export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "triad",
-    responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. Panelist DNA deterministic diversification is shipped in triad-panelist-prompt.ts.",
+    responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.",
     artifacts: ["triad.ts", "triad-monitor.ts", "triad-panelist-prompt.ts", "constants.ts", "circuit-breaker.ts"] as const,
   },
   {
@@ -42,12 +42,12 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "aji_entropy",
-    responsibility: "Entropy seeds + crystallized residue (TS-only distillation). Manages deterministic noise seeds and signature-based entropy analysis for parameter randomization.",
+    responsibility: "Deterministic noise seeds for parameter randomization and signature-based entropy analysis of preset candidates (TS statistical gates only; no DSP fiction).",
     artifacts: ["entropy.ts", "aji-logic.ts"] as const,
   },
   {
     id: "schism",
-    responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative + logs only; IOM pulse schisms.",
+    responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative, logs, and IOM pulse schisms only; does not mutate triad weights, TS gates, encoder bytes, or HARD GATE.",
     artifacts: ["schism.ts", "iom-pulse.ts", "iom-coverage.ts"] as const,
   },
   {

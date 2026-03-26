@@ -1,6 +1,6 @@
 # IOM architecture (auto-generated)
 
-Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
+Last sync: **2026-03-26** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
 
 > Diagnostic firewall: Tier 3 is advisory-only and must never mutate Tier 1 outcomes without an explicit tested bridge.
 
@@ -10,7 +10,7 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 
 - **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
-- **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. Panelist DNA deterministic diversification is shipped in triad-panelist-prompt.ts.
+- **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.
 - **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `constants.ts`, `circuit-breaker.ts`
 
 ### gatekeeper
@@ -36,17 +36,10 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 
 ### integrity
 
-- **Tier:** `tier2_release_truth`
+- **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
 - **Responsibility:** Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.
 - **Artifacts:** `integrity.ts`, `encoder.ts`, `igor-orchestrator-layer.ts`, `engine-valuation-heuristic.ts`
-
-### arbitration
-
-- **Tier:** `tier2_release_truth`
-- **Recommendation:** `KEEP_TRANSPARENT_ONLY`
-- **Responsibility:** Transparent 2-of-3 arbitration — full logEvent trail.
-- **Artifacts:** `arbitration/transparent-arbitration.ts`, `arbitration/types.ts`
 
 ### taxonomy
 
@@ -57,7 +50,7 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 
 ### tablebase
 
-- **Tier:** `tier2_release_truth`
+- **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
 - **Responsibility:** Deterministic short-circuit candidates when tablebase hits; offline learning types + prompt fingerprint.
 - **Artifacts:** `reliability/checkers-fusion.ts`, `reliability/tablebase-db.ts`, `reliability/tablebase-schema.ts`, `reliability/prompt-fingerprint.ts`, `learning/great-library.ts`, `learning/offline-pipeline-types.ts`
@@ -92,6 +85,7 @@ Last sync: **2026-03-25** — run `pnpm igor:docs` to refresh after editing `igo
 | `aji_entropy` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `schism` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `triad_governance` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
+| `arbitration` | `tier3_advisory` | `KEEP_TRANSPARENT_ONLY` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `talent_market` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `perf_boss` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `pnh` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
