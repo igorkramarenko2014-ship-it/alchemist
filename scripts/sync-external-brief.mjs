@@ -75,6 +75,27 @@ function formatMaybe(v) {
   return String(v);
 }
 
+function resolveMon(verifySummary, metrics) {
+  const verifyMon117 = asNumber(verifySummary?.minimumOperatingNumber117);
+  if (verifyMon117 !== null) {
+    return {
+      value: verifyMon117,
+      ready: verifySummary?.minimumOperatingReady === true,
+      source: "verify_post_summary",
+      raw: null,
+    };
+  }
+  const initiationStatus =
+    typeof metrics?.initiationStatus === "string" ? metrics.initiationStatus : null;
+  if (initiationStatus === "117/117_READY") {
+    return { value: 117, ready: true, source: "initiationStatus", raw: initiationStatus };
+  }
+  if (initiationStatus) {
+    return { value: null, ready: false, source: "initiationStatus", raw: initiationStatus };
+  }
+  return { value: null, ready: false, source: "unresolved", raw: null };
+}
+
 const here = dirname(fileURLToPath(import.meta.url));
 const root = findMonorepoRoot(here) ?? findMonorepoRoot(process.cwd());
 if (!root) {
@@ -99,9 +120,7 @@ const metricsHash = createHash("sha256").update(metricsRaw).digest("hex");
 
 const verifySummary = readVerifySummary(root);
 const iomCoverage = asNumber(verifySummary?.iomCoverageScore);
-const mon = asNumber(verifySummary?.minimumOperatingNumber);
-const mon117 = asNumber(verifySummary?.minimumOperatingNumber117);
-const monReady = verifySummary?.minimumOperatingReady === true;
+const mon = resolveMon(verifySummary, metrics);
 const pnhTotal = asNumber(verifySummary?.pnhSimulation?.totalScenarios);
 const pnhBreaches = asNumber(verifySummary?.pnhSimulation?.breaches);
 const pnhImmunityCount =
@@ -117,29 +136,44 @@ const isStale =
   syncAgeMsBase === null ? true : Date.now() - syncAgeMsBase > 24 * 60 * 60 * 1000;
 
 const syncBlock = [
-  "_Machine-synced block — do not edit by hand; run `pnpm fire:sync`._",
+  "Producer: `pnpm fire:sync` (`scripts/sync-fire-md.mjs` + `scripts/sync-external-brief.mjs`)",
+  "Primary sources:",
+  "- `docs/fire-metrics.json`",
+  "- `artifacts/verify/verify-post-summary.json` (or `.artifacts/verify/verify-post-summary.json`)",
   "",
-  "| Signal | Value |",
-  "|--------|-------|",
-  `| Tests Passed | ${formatMaybe(metrics.vitestTestsPassed)} |`,
-  `| IOM Coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} |`,
-  `| Minimum Operating Number (MON) | ${mon === null ? "unknown" : mon.toFixed(3)} (MON117=${mon117 === null ? "unknown" : mon117}, ready=${monReady ? "yes" : "no"}) |`,
-  `| PNH Immunity Count | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount} |`,
-  `| WASM Status | ${wasmStatus} |`,
-  `| Synced (UTC) | ${formatMaybe(metrics.syncedDateUtc)} |`,
-  `| Verification Hash (SHA-256) | \`${metricsHash}\` |`,
+  "| Metric | Value | Definition | Source | Independent check |",
+  "|--------|-------|------------|--------|-------------------|",
+  `| Tests passed | ${formatMaybe(metrics.vitestTestsPassed)} | Total passing tests in latest shared-engine Vitest run | \`docs/fire-metrics.json\` (\`vitestTestsPassed\`) | \`jq '.vitestTestsPassed' docs/fire-metrics.json\` |`,
+  `| IOM coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} | Ratio of mapped IOM cells covered in verify summary | \`artifacts/verify/verify-post-summary.json\` (\`iomCoverageScore\`) | \`jq '.iomCoverageScore' artifacts/verify/verify-post-summary.json\` |`,
+  `| MON | ${mon.value === null ? `unknown${mon.raw ? ` (value=${mon.raw})` : ""}` : `${mon.value} (ready=${mon.ready ? "yes" : "no"})`} | Unified operating number resolved from verify summary first, then initiation status fallback | \`artifacts/verify/verify-post-summary.json\` or \`docs/fire-metrics.json\` (\`initiationStatus\`) | \`jq '{minimumOperatingNumber117, minimumOperatingReady}' artifacts/verify/verify-post-summary.json\` and \`jq '.initiationStatus' docs/fire-metrics.json\` |`,
+  `| PNH immunity count | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount} | \`totalScenarios - breaches\` in PNH simulation summary | \`artifacts/verify/verify-post-summary.json\` (\`pnhSimulation\`) | \`jq '.pnhSimulation' artifacts/verify/verify-post-summary.json\` |`,
+  `| WASM status | ${wasmStatus} | Browser encoder artifact availability (\`available\` or \`unavailable\`) | \`artifacts/verify/verify-post-summary.json\` (\`wasmStatus\`) | \`jq '.wasmStatus' artifacts/verify/verify-post-summary.json\` |`,
+  `| Sync date (UTC) | ${formatMaybe(metrics.syncedDateUtc)} | Date written by metrics sync script | \`docs/fire-metrics.json\` (\`syncedDateUtc\`) | \`jq '.syncedDateUtc' docs/fire-metrics.json\` |`,
   "",
-  `Canonical metrics source: \`docs/fire-metrics.json\``,
+  "Re-sync procedure (if any metric shows unknown):",
+  "1. Run `pnpm verify:harsh`",
+  "2. Confirm expected fields exist in `artifacts/verify/verify-post-summary.json`",
+  "3. Run `pnpm fire:sync`",
+  "4. Resolution owner: engineering operator on duty",
 ].join("\n");
 
 const trustBlock = [
-  isStale
-    ? "> [!WARNING]\n> **[DEGRADED DOC STATE]** Metrics are older than 24h. Run `pnpm fire:sync` before sharing this brief externally."
-    : "> [!TIP]\n> **Doc Trust State: nominal** — metrics are synced within the last 24h.",
+  "Data in this document is produced by repository scripts and local verify artifacts.",
   "",
-  `- Last verified UTC: **${formatMaybe(metrics.generatedAtUtc)}**`,
-  `- Synced date UTC: **${formatMaybe(metrics.syncedDateUtc)}**`,
-  `- Metrics SHA-256: \`${metricsHash}\``,
+  `- Last verification timestamp from metrics artifact: \`${formatMaybe(metrics.generatedAtUtc)}\``,
+  `- Metrics sync date from metrics artifact: \`${formatMaybe(metrics.syncedDateUtc)}\``,
+  `- Metrics file hash: \`${metricsHash}\``,
+  "- Source file: `docs/fire-metrics.json`",
+  "",
+  "How to verify independently:",
+  "",
+  "```bash",
+  "sha256sum docs/fire-metrics.json",
+  "```",
+  "",
+  isStale
+    ? "If this metadata is stale (older than 24h), run `pnpm fire:sync` before sharing."
+    : "Metadata freshness is within 24 hours.",
 ].join("\n");
 
 const before = readFileSync(briefPath, "utf8");
@@ -159,9 +193,9 @@ const afterTrust = patchMarkedBlock(
 );
 writeFileSync(briefPath, afterTrust, "utf8");
 
-if (mon === null || mon117 === null) {
+if (mon.value === null) {
   process.stderr.write(
-    "sync-external-brief: warning — MON fields unavailable in verify_post_summary; rendered as unknown in brief\n",
+    `sync-external-brief: warning — MON unresolved (source=${mon.source}${mon.raw ? `, raw=${mon.raw}` : ""}); rendered as unknown in brief\n`,
   );
 }
 

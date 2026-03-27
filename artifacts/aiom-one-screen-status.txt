@@ -1,11 +1,12 @@
 AIOM STATUS
 
-Tests: 301 YES
+Tests: 316 YES
 IOM Coverage: 1.000 YES
+MON: unknown (MON117=unknown) NO
 Triad: live-configured YES
 WASM: real YES
 HARD GATE: best_effort YES
-PNH: 23 attacks blocked NO
+PNH: 25 attacks blocked YES
 Learning: controlled (stub leakage blocked) YES
 
 Decision:
@@ -15,4 +16,4 @@ Decision:
 Outcome:
 - Usage rate: 10.0%
 
-Generated: 2026-03-27T01:39:54.610Z
+Generated: 2026-03-27T16:01:16.275Z
