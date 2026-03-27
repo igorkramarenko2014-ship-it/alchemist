@@ -100,9 +100,10 @@ const tmMetrics =
 const testsPassed = asNumber(tmMetrics.testsPassed);
 const testsTotal = asNumber(tmMetrics.testsTotal);
 const iomCoverage = asNumber(tmMetrics.iomCoverageScore);
-const monValue = asNumber(tmMetrics.mon117);
-const monReady = tmMetrics.monReady === true;
-const monRawStatus = typeof tmMetrics.monRawStatus === "string" ? tmMetrics.monRawStatus : null;
+const monObj = tmMetrics.mon && typeof tmMetrics.mon === "object" ? tmMetrics.mon : {};
+const monValue = asNumber(monObj.value);
+const monIsReady = monObj.ready === true;
+const monRawStatus = typeof monObj.rawStatus === "string" ? monObj.rawStatus : null;
 const divergences = Array.isArray(truthMatrix.divergences) ? truthMatrix.divergences : [];
 const pnhImmunityCount = asNumber(tmMetrics.pnhImmunityCount);
 const pnhTotalScenarios = asNumber(tmMetrics.pnhTotalScenarios);
@@ -122,7 +123,7 @@ const syncBlock = [
   "|--------|-------|----------|------------|--------|-------------------|",
   `| Tests passed | ${testsPassed === null ? "unknown" : `${testsPassed} / ${testsTotal === null ? "unknown" : testsTotal}`} | \`metrics.testsPassed == metrics.testsTotal\` | Total passing tests in latest shared-engine Vitest run | \`artifacts/truth-matrix.json\` (\`metrics.testsPassed\`, \`metrics.testsTotal\`) | \`jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json\` |`,
   `| IOM coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} | \`0.000 <= metrics.iomCoverageScore <= 1.000\` | Ratio of mapped IOM cells covered in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.iomCoverageScore\`) | \`jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json\` |`,
-  `| MON | ${monValue === null ? `unknown${monRawStatus ? ` (raw=${monRawStatus})` : ""}` : `mon117=${monValue}, monReady=${monReady ? "true" : "false"}`} | \`metrics.mon117 == 117 and metrics.monReady == true\` for release-ready posture | Unified operating number resolved in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.mon117\`, \`metrics.monReady\`) | \`jq '.metrics | { mon117, monReady, monSource, monRawStatus }' artifacts/truth-matrix.json\` |`,
+  `| MON | ${monValue === null ? `unknown${monRawStatus ? ` (raw=${monRawStatus})` : ""}` : `value=${monValue}, ready=${monIsReady ? "true" : "false"}`} | \`metrics.mon.value == 117 and metrics.mon.ready == true\` for release-ready posture | Unified operating number resolved in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.mon\`) | \`jq '.metrics.mon' artifacts/truth-matrix.json\` |`,
   `| PNH immunity | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount}${pnhTotalScenarios === null ? "" : ` / ${pnhTotalScenarios}`}${pnhBreaches === null ? "" : ` (breaches: ${pnhBreaches})`} | \`metrics.pnhImmunityCount == metrics.pnhTotalScenarios - metrics.pnhBreaches\` | Scenario-based resilience result from canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.pnhImmunityCount\`, \`metrics.pnhTotalScenarios\`, \`metrics.pnhBreaches\`) | \`jq '.metrics | { pnhImmunityCount, pnhTotalScenarios, pnhBreaches }' artifacts/truth-matrix.json\` |`,
   `| WASM status | ${wasmStatus} | Value is one of \`available\` or \`unavailable\` | Browser encoder artifact availability | \`artifacts/truth-matrix.json\` (\`metrics.wasmStatus\`) | \`jq '.metrics.wasmStatus' artifacts/truth-matrix.json\` |`,
   `| Sync date (UTC) | ${formatMaybe(tmMetrics.syncedDateUtc)} | Matches format \`YYYY-MM-DD\` | Date written by truth aggregation script | \`artifacts/truth-matrix.json\` (\`metrics.syncedDateUtc\`) | \`jq '.metrics.syncedDateUtc' artifacts/truth-matrix.json\` |`,

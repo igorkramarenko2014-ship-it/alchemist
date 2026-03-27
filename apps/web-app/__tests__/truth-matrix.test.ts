@@ -13,6 +13,9 @@ describe("truth matrix snapshot", () => {
     expect(s.rows.length).toBe(5);
     expect(s.wasmStatus).toBe("available");
     expect(s.hardGate).toBe("enforced");
+    expect(["fresh", "stale_data", "unknown"]).toContain(s.freshnessStatus);
+    expect(["ok", "integrity_failure"]).toContain(s.integrityStatus);
+    expect(Array.isArray(s.contractDivergences)).toBe(true);
     expect(s.triadFullyLive).toBe(false);
     expect(s.rows[0]?.path).toContain("Triad");
     expect(Array.isArray(s.runtimeChecks?.checks)).toBe(true);
@@ -23,6 +26,19 @@ describe("truth matrix snapshot", () => {
       expect(typeof s.divergenceCheckedAtUtc === "string" || s.divergenceCheckedAtUtc === null).toBe(true);
       if (s.canonicalMetrics.testsTotal != null) {
         expect(s.canonicalMetrics.testsPassed).toBe(s.canonicalMetrics.testsTotal);
+      }
+      if (s.canonicalMetrics.iomCoverageScore != null) {
+        expect(s.canonicalMetrics.iomCoverageScore).toBeGreaterThanOrEqual(0);
+        expect(s.canonicalMetrics.iomCoverageScore).toBeLessThanOrEqual(1);
+      }
+      if (s.canonicalMetrics.divergences != null) {
+        expect(typeof s.canonicalMetrics.divergences).toBe("number");
+      }
+      if (s.canonicalMetrics.pnhImmunity && typeof s.canonicalMetrics.pnhImmunity === "object") {
+        const p = s.canonicalMetrics.pnhImmunity as { passed?: number; total?: number; breaches?: number };
+        expect(p.passed).toBeDefined();
+        expect(p.total).toBeDefined();
+        expect(p.breaches).toBeDefined();
       }
     }
   });

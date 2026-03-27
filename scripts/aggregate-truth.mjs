@@ -54,7 +54,8 @@ function toStringValue(v, label, required = false) {
   return null;
 }
 
-function resolveMonFromVerifyOrInitiation(verify, metrics) {
+/** Canonical MON: single stored shape; human strings like `117/117_READY` are derived for display only. */
+function resolveMonFromVerify(verify) {
   const verifyMon117 = toFiniteNumber(
     verify?.minimumOperatingNumber117,
     "verify.minimumOperatingNumber117",
@@ -67,28 +68,16 @@ function resolveMonFromVerifyOrInitiation(verify, metrics) {
   );
   if (verifyMon117 !== null && verifyMonReady !== null) {
     return {
-      mon117: verifyMon117,
-      monReady: verifyMonReady,
-      monSource: "verify_post_summary",
-      monRawStatus: null,
-    };
-  }
-
-  const initiationStatus = toStringValue(metrics?.initiationStatus, "metrics.initiationStatus", false);
-  if (initiationStatus === "117/117_READY") {
-    return {
-      mon117: 117,
-      monReady: true,
-      monSource: "initiationStatus",
-      monRawStatus: initiationStatus,
+      value: verifyMon117,
+      ready: verifyMonReady,
+      source: "verify_post_summary",
     };
   }
 
   return {
-    mon117: null,
-    monReady: false,
-    monSource: "unresolved",
-    monRawStatus: initiationStatus,
+    value: null,
+    ready: false,
+    source: "unresolved",
   };
 }
 
@@ -124,7 +113,7 @@ try {
   const wasmStatus = toStringValue(verify?.wasmStatus, "verify.wasmStatus", true);
   const syncedDateUtc = toStringValue(metrics?.syncedDateUtc, "metrics.syncedDateUtc", true);
   const pnhImmunityCount = Math.max(0, pnhTotal - pnhBreaches);
-  const mon = resolveMonFromVerifyOrInitiation(verify, metrics);
+  const mon = resolveMonFromVerify(verify);
 
   const verifyMon117 = toFiniteNumber(
     verify?.minimumOperatingNumber117,
@@ -137,9 +126,9 @@ try {
     false,
   );
   let monDivergenceStatus = "missing";
-  if (verifyMon117 !== null && verifyMonReady !== null && mon.mon117 !== null) {
+  if (verifyMon117 !== null && verifyMonReady !== null && mon.value !== null) {
     monDivergenceStatus =
-      verifyMon117 === mon.mon117 && verifyMonReady === mon.monReady ? "match" : "mismatch";
+      verifyMon117 === mon.value && verifyMonReady === mon.ready ? "match" : "mismatch";
   }
   const divergences =
     monDivergenceStatus === "match"
@@ -148,17 +137,18 @@ try {
           {
             field: "MON",
             verify: verifyMon117,
-            metrics: mon.mon117,
+            metrics: mon.value,
             status: monDivergenceStatus,
           },
         ];
 
   const generatedAtUtc = new Date().toISOString();
   const payload = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAtUtc,
     // Same instant as generation; audit trail that divergences were evaluated this run.
     divergenceCheckedAtUtc: generatedAtUtc,
+    verification: "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
     sources: {
       verifyPostSummary: "artifacts/verify/verify-post-summary.json",
       metrics: "docs/fire-metrics.json",
@@ -167,10 +157,11 @@ try {
       testsPassed,
       testsTotal: testsPassed,
       iomCoverageScore,
-      mon117: mon.mon117,
-      monReady: mon.monReady,
-      monSource: mon.monSource,
-      monRawStatus: mon.monRawStatus,
+      mon: {
+        value: mon.value,
+        ready: mon.ready,
+        source: mon.source,
+      },
       pnhImmunityCount,
       pnhTotalScenarios: pnhTotal,
       pnhBreaches,

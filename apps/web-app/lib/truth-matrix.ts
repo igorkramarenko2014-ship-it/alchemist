@@ -13,6 +13,12 @@ export interface TruthMatrixRow {
 
 export interface TruthMatrixSnapshot {
   generatedAtMs: number;
+  /** 24h freshness SLA of canonical truth artifact timestamp. */
+  freshnessStatus: "fresh" | "stale_data" | "unknown";
+  /** Contract posture for runtime-vs-artifact integrity checks. */
+  integrityStatus: "ok" | "integrity_failure";
+  /** Human-readable contract mismatches detected at runtime. */
+  contractDivergences: string[];
   triadLivePanelists: string[];
   triadFullyLive: boolean;
   wasmStatus: "available" | "unavailable";
@@ -22,6 +28,9 @@ export interface TruthMatrixSnapshot {
   truthArtifactGeneratedAtUtc?: string | null;
   /** When divergences were last evaluated (same file; ISO-8601). */
   divergenceCheckedAtUtc?: string | null;
+  /**
+   * Enriched view of canonical truth from artifact metrics + normalized summary fields.
+   */
   canonicalMetrics?: Record<string, unknown>;
   rows: TruthMatrixRow[];
   runtimeChecks?: TruthMatrixRuntimeChecks;
@@ -44,6 +53,14 @@ export interface TruthMatrixRuntimeChecks {
   source: "verify_post_summary" | "runtime";
   verifyPostSummaryPath: string | null;
   checks: TruthMatrixRuntimeCheck[];
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function resolveMonorepoRoot(): string | null {
@@ -76,6 +93,133 @@ function loadVerifyPostSummary():
   } catch {
     return { path: null, data: null };
   }
+}
+
+/** Builds API-facing canonical metrics from `artifacts/truth-matrix.json` contents. */
+export function buildCanonicalMetricsFromArtifact(
+  artifact: Record<string, unknown> | null | undefined,
+): Record<string, unknown> | undefined {
+  if (!artifact || typeof artifact !== "object") return undefined;
+  const metrics =
+    artifact.metrics && typeof artifact.metrics === "object"
+      ? (artifact.metrics as Record<string, unknown>)
+      : {};
+  const divergences = Array.isArray(artifact.divergences) ? artifact.divergences : [];
+  const mon =
+    metrics.mon && typeof metrics.mon === "object" ? (metrics.mon as Record<string, unknown>) : {};
+  const pnhPassed =
+    typeof metrics.pnhImmunityCount === "number" && Number.isFinite(metrics.pnhImmunityCount)
+      ? metrics.pnhImmunityCount
+      : null;
+  const pnhTotal =
+    typeof metrics.pnhTotalScenarios === "number" && Number.isFinite(metrics.pnhTotalScenarios)
+      ? metrics.pnhTotalScenarios
+      : null;
+  const pnhBreaches =
+    typeof metrics.pnhBreaches === "number" && Number.isFinite(metrics.pnhBreaches)
+      ? metrics.pnhBreaches
+      : null;
+  const iom =
+    typeof metrics.iomCoverageScore === "number" && Number.isFinite(metrics.iomCoverageScore)
+      ? metrics.iomCoverageScore
+      : null;
+
+  return {
+    ...metrics,
+    iomCoverageScore: iom,
+    divergences: divergences.length,
+    pnhImmunity:
+      pnhPassed != null && pnhTotal != null && pnhBreaches != null
+        ? { passed: pnhPassed, total: pnhTotal, breaches: pnhBreaches }
+        : undefined,
+    artifactVerification:
+      typeof artifact.verification === "string"
+        ? {
+            method: "sha256",
+            artifactPath: "artifacts/truth-matrix.json",
+          }
+        : undefined,
+  };
+}
+
+function validateTruthArtifactSchemaShape(artifact: Record<string, unknown> | null | undefined): string[] {
+  const issues: string[] = [];
+  if (!artifact) return ["artifact missing"];
+  if (artifact.schemaVersion !== 2) issues.push("schemaVersion must be 2");
+  if (typeof artifact.generatedAtUtc !== "string" || !Number.isFinite(Date.parse(artifact.generatedAtUtc))) {
+    issues.push("generatedAtUtc must be ISO datetime");
+  }
+  if (
+    typeof artifact.divergenceCheckedAtUtc !== "string" ||
+    !Number.isFinite(Date.parse(artifact.divergenceCheckedAtUtc))
+  ) {
+    issues.push("divergenceCheckedAtUtc must be ISO datetime");
+  }
+  if (typeof artifact.verification !== "string" || artifact.verification.length === 0) {
+    issues.push("verification must be non-empty string");
+  }
+  if (!isObjectRecord(artifact.metrics)) {
+    issues.push("metrics object missing");
+    return issues;
+  }
+  const metrics = artifact.metrics;
+  if (!isFiniteNumber(metrics.testsPassed)) issues.push("metrics.testsPassed must be number");
+  if (!isFiniteNumber(metrics.testsTotal)) issues.push("metrics.testsTotal must be number");
+  if (!isFiniteNumber(metrics.iomCoverageScore)) issues.push("metrics.iomCoverageScore must be number");
+  if (!isObjectRecord(metrics.mon)) {
+    issues.push("metrics.mon object missing");
+  } else {
+    if (!isFiniteNumber(metrics.mon.value)) issues.push("metrics.mon.value must be number");
+    if (typeof metrics.mon.ready !== "boolean") issues.push("metrics.mon.ready must be boolean");
+    if (typeof metrics.mon.source !== "string" || metrics.mon.source.length === 0) {
+      issues.push("metrics.mon.source must be non-empty string");
+    }
+  }
+  if (!isFiniteNumber(metrics.pnhImmunityCount)) issues.push("metrics.pnhImmunityCount must be number");
+  if (!isFiniteNumber(metrics.pnhTotalScenarios)) issues.push("metrics.pnhTotalScenarios must be number");
+  if (!isFiniteNumber(metrics.pnhBreaches)) issues.push("metrics.pnhBreaches must be number");
+  if (metrics.wasmStatus !== "available" && metrics.wasmStatus !== "unavailable") {
+    issues.push("metrics.wasmStatus must be available|unavailable");
+  }
+  if (typeof metrics.syncedDateUtc !== "string") issues.push("metrics.syncedDateUtc must be string");
+  if (!Array.isArray(artifact.divergences)) issues.push("divergences must be array");
+  return issues;
+}
+
+function evaluateRuntimeArtifactParity(input: {
+  artifact: Record<string, unknown> | null;
+  canonicalMetrics: Record<string, unknown> | undefined;
+  freshnessStatus: TruthMatrixSnapshot["freshnessStatus"];
+}): string[] {
+  const issues = validateTruthArtifactSchemaShape(input.artifact);
+  if (!input.artifact || !input.canonicalMetrics || !isObjectRecord(input.artifact.metrics)) {
+    return issues.length ? issues : ["canonical metrics unavailable"];
+  }
+  const metrics = input.artifact.metrics;
+  const cm = input.canonicalMetrics;
+  if (cm.testsPassed !== metrics.testsPassed) issues.push("canonicalMetrics.testsPassed mismatch");
+  if (cm.testsTotal !== metrics.testsTotal) issues.push("canonicalMetrics.testsTotal mismatch");
+  if (cm.iomCoverageScore !== metrics.iomCoverageScore) issues.push("canonicalMetrics.iomCoverageScore mismatch");
+  if (!isObjectRecord(cm.mon) || !isObjectRecord(metrics.mon)) {
+    issues.push("canonicalMetrics.mon missing");
+  } else {
+    if (cm.mon.value !== metrics.mon.value) issues.push("canonicalMetrics.mon.value mismatch");
+    if (cm.mon.ready !== metrics.mon.ready) issues.push("canonicalMetrics.mon.ready mismatch");
+    if (cm.mon.source !== metrics.mon.source) issues.push("canonicalMetrics.mon.source mismatch");
+  }
+  const expectedDivergences = Array.isArray(input.artifact.divergences) ? input.artifact.divergences.length : null;
+  if (cm.divergences !== expectedDivergences) issues.push("canonicalMetrics.divergences mismatch");
+  if (isObjectRecord(cm.pnhImmunity)) {
+    if (cm.pnhImmunity.passed !== metrics.pnhImmunityCount) issues.push("canonicalMetrics.pnhImmunity.passed mismatch");
+    if (cm.pnhImmunity.total !== metrics.pnhTotalScenarios) issues.push("canonicalMetrics.pnhImmunity.total mismatch");
+    if (cm.pnhImmunity.breaches !== metrics.pnhBreaches) issues.push("canonicalMetrics.pnhImmunity.breaches mismatch");
+  } else {
+    issues.push("canonicalMetrics.pnhImmunity missing");
+  }
+  if (input.freshnessStatus === "stale_data") {
+    issues.push("freshness SLA violated (>24h) — stale_data");
+  }
+  return issues;
 }
 
 function loadTruthMatrixArtifact():
@@ -183,18 +327,31 @@ export function buildTruthMatrixSnapshot(input: {
   const wasmStatus = input.wasmAvailable ? "available" : "unavailable";
   const hardGate = input.strictOffsetsEnabled ? "enforced" : "best_effort";
   const canonical = loadTruthMatrixArtifact();
-  const canonicalMetrics =
-    canonical.data && typeof canonical.data.metrics === "object"
-      ? (canonical.data.metrics as Record<string, unknown>)
-      : undefined;
+  const canonicalMetrics = buildCanonicalMetricsFromArtifact(canonical.data ?? null);
   const truthArtifactGeneratedAtUtc =
     typeof canonical.data?.generatedAtUtc === "string" ? canonical.data.generatedAtUtc : null;
+  const freshnessStatus: TruthMatrixSnapshot["freshnessStatus"] = (() => {
+    if (!truthArtifactGeneratedAtUtc) return "unknown";
+    const ts = Date.parse(truthArtifactGeneratedAtUtc);
+    if (!Number.isFinite(ts)) return "unknown";
+    return Date.now() - ts <= 24 * 60 * 60 * 1000 ? "fresh" : "stale_data";
+  })();
   const divergenceCheckedAtUtc =
     typeof canonical.data?.divergenceCheckedAtUtc === "string"
       ? canonical.data.divergenceCheckedAtUtc
       : null;
+  const contractDivergences = evaluateRuntimeArtifactParity({
+    artifact: canonical.data ?? null,
+    canonicalMetrics,
+    freshnessStatus,
+  });
+  const integrityStatus: TruthMatrixSnapshot["integrityStatus"] =
+    contractDivergences.length === 0 ? "ok" : "integrity_failure";
   return {
     generatedAtMs: Date.now(),
+    freshnessStatus,
+    integrityStatus,
+    contractDivergences,
     triadLivePanelists: input.triadLivePanelists,
     triadFullyLive: input.triadFullyLive,
     wasmStatus,

@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "syncedDateUtc": "2026-03-27",
-  "generatedAtUtc": "2026-03-27T17:33:55.225Z",
+  "generatedAtUtc": "2026-03-27T18:05:07.589Z",
   "vitestTestsPassed": 316,
   "vitestTestFilesPassed": 66,
   "vitestTestTsOnDisk": 66,
@@ -9,11 +9,13 @@
   "vst3BundlePresent": false,
   "vst3BundleBasename": null,
   "vst3MainBinarySha256": null,
-  "initiationStatus": "117/117_READY",
-  "mon117": 117,
-  "monReady": true,
-  "monSource": "verify_post_summary",
-  "initiatorSkillsSha256": "40130cf7b8c778a2d02521f8cd21d45942f7ea86b8d6623eba57df4a692d49c0",
-  "note": "Generated file — edits will be overwritten on next pnpm fire:sync. Verify contents via jq and sha256sum commands in AIOM-Technical-Brief.md.",
+  "initiatorManifestStatus": "117/117_READY",
+  "mon": {
+    "value": 117,
+    "ready": true,
+    "source": "verify_post_summary"
+  },
+  "initiatorSkillsSha256": "63b69412a0336f6f4e31f0b4e4ea99911b9189e9c31b443e50cfc6b38be9c105",
+  "verification": "Recompute via `pnpm fire:sync` (Vitest + truth consumers). Validate with `jq` and `sha256sum -c docs/fire-metrics.sha256` per docs/AIOM-Technical-Brief.md.",
   "divergences": []
 }

@@ -167,17 +167,16 @@ function writeFireMetricsArtifacts(
   }
   const tmMetrics =
     truthMatrix?.metrics && typeof truthMatrix.metrics === "object" ? truthMatrix.metrics : {};
+  const rawMon = tmMetrics.mon && typeof tmMetrics.mon === "object" ? tmMetrics.mon : {};
   const monResolved = {
-    mon117:
-      typeof tmMetrics.mon117 === "number" && Number.isFinite(tmMetrics.mon117)
-        ? tmMetrics.mon117
-        : null,
-    monReady: tmMetrics.monReady === true,
-    monSource: typeof tmMetrics.monSource === "string" ? tmMetrics.monSource : "unresolved",
-    monRawStatus: typeof tmMetrics.monRawStatus === "string" ? tmMetrics.monRawStatus : null,
+    value:
+      typeof rawMon.value === "number" && Number.isFinite(rawMon.value) ? rawMon.value : null,
+    ready: rawMon.ready === true,
+    source: typeof rawMon.source === "string" ? rawMon.source : "unresolved",
+    rawStatus: typeof rawMon.rawStatus === "string" ? rawMon.rawStatus : null,
   };
   const payload = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     syncedDateUtc: isoDate,
     generatedAtUtc: new Date().toISOString(),
     vitestTestsPassed: testCount,
@@ -187,13 +186,16 @@ function writeFireMetricsArtifacts(
     vst3BundlePresent,
     vst3BundleBasename,
     vst3MainBinarySha256,
-    initiationStatus,
-    mon117: monResolved.mon117,
-    monReady: monResolved.monReady,
-    monSource: monResolved.monSource,
-    ...(monResolved.monRawStatus != null ? { monRawStatus: monResolved.monRawStatus } : {}),
+    initiatorManifestStatus: initiationStatus,
+    mon: {
+      value: monResolved.value,
+      ready: monResolved.ready,
+      source: monResolved.source,
+      ...(monResolved.rawStatus != null ? { rawStatus: monResolved.rawStatus } : {}),
+    },
     initiatorSkillsSha256,
-    note: "Generated file — edits will be overwritten on next pnpm fire:sync. Verify contents via jq and sha256sum commands in AIOM-Technical-Brief.md.",
+    verification:
+      "Recompute via `pnpm fire:sync` (Vitest + truth consumers). Validate with `jq` and `sha256sum -c docs/fire-metrics.sha256` per docs/AIOM-Technical-Brief.md.",
   };
   payload.divergences = Array.isArray(truthMatrix?.divergences) ? truthMatrix.divergences : [];
   const jsonPath = join(root, "docs", "fire-metrics.json");
