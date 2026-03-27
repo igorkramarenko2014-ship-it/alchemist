@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { buildTruthMatrixSnapshot } from "@/lib/truth-matrix";
+import { buildTruthMatrixSnapshot, isUltimateAuditPass } from "@/lib/truth-matrix";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    ok: snapshot.runtimeChecks?.summary === "pass",
+    ok: isUltimateAuditPass(snapshot),
     scope: "ultimate_audit",
     generatedAtMs: Date.now(),
     snapshot,

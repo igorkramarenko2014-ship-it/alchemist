@@ -324,6 +324,19 @@ export function buildTruthMatrixRuntimeChecks(): TruthMatrixRuntimeChecks {
   };
 }
 
+/**
+ * Ultimate audit: green when truth artifact parity holds, latest verify was green (`verify_ci`),
+ * and no other runtime gate reports **fail**. (Summary may still be **unknown** if some checks are N/A.)
+ */
+export function isUltimateAuditPass(snapshot: TruthMatrixSnapshot): boolean {
+  if (snapshot.integrityStatus !== "ok") return false;
+  const rc = snapshot.runtimeChecks;
+  if (!rc?.checks?.length) return false;
+  if (rc.checks.some((c) => c.status === "fail")) return false;
+  const verifyCi = rc.checks.find((c) => c.id === "verify_ci");
+  return verifyCi?.status === "pass";
+}
+
 export function buildTruthMatrixSnapshot(input: {
   triadLivePanelists: string[];
   triadFullyLive: boolean;
