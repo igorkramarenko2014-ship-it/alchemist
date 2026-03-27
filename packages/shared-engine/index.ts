@@ -50,11 +50,14 @@ export {
 export {
   DEFAULT_CREATIVE_CONFIG,
   creativePromptHash,
+  getCreativeTelemetry,
+  resetCreativeTelemetry,
   selectCreativeStance,
 } from "./creative-diversity-layer";
 export type {
   CreativeConfig,
   CreativeDecision,
+  CreativeTelemetrySummary,
   CreativeStance,
 } from "./creative-diversity-layer";
 export {

@@ -23,6 +23,12 @@ export interface CreativeDecision {
   instruction: string;
 }
 
+export interface CreativeTelemetrySummary {
+  creativeSignals: number;
+  creativeEscalations: number;
+  stancesUsed: CreativeStance[];
+}
+
 export const DEFAULT_CREATIVE_CONFIG: CreativeConfig = {
   enabled: true,
   stances: [
@@ -37,6 +43,25 @@ export const DEFAULT_CREATIVE_CONFIG: CreativeConfig = {
   ],
   probability: 0.35,
 };
+
+const CREATIVE_ESCALATION_STANCES: ReadonlySet<CreativeStance> = new Set<CreativeStance>([
+  "contrary",
+  "question",
+  "rhythm",
+]);
+
+const creativeStanceCounts: Record<CreativeStance, number> = {
+  mirror: 0,
+  constraint: 0,
+  analogy: 0,
+  contrary: 0,
+  minimal: 0,
+  ritual: 0,
+  question: 0,
+  rhythm: 0,
+};
+let creativeSignals = 0;
+let creativeEscalations = 0;
 
 function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
@@ -95,10 +120,35 @@ export function selectCreativeStance(
   }
   const idx = hash32(`${promptHash}:${panelist}:stance`) % config.stances.length;
   const stance = config.stances[idx];
+  creativeSignals += 1;
+  creativeStanceCounts[stance] = (creativeStanceCounts[stance] ?? 0) + 1;
+  if (CREATIVE_ESCALATION_STANCES.has(stance)) {
+    creativeEscalations += 1;
+  }
   return {
     applied: true,
     stance,
     promptHash,
     instruction: stanceInstruction(stance),
+  };
+}
+
+export function resetCreativeTelemetry(): void {
+  creativeSignals = 0;
+  creativeEscalations = 0;
+  (Object.keys(creativeStanceCounts) as CreativeStance[]).forEach((k) => {
+    creativeStanceCounts[k] = 0;
+  });
+}
+
+export function getCreativeTelemetry(): CreativeTelemetrySummary {
+  const stancesUsed = (Object.entries(creativeStanceCounts) as [CreativeStance, number][])
+    .filter(([, count]) => count > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([stance]) => stance);
+  return {
+    creativeSignals,
+    creativeEscalations,
+    stancesUsed,
   };
 }

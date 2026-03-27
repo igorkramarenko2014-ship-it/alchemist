@@ -59,6 +59,13 @@ function readJsonIfExists(path) {
   }
 }
 
+function readVerifySummary(rootDir) {
+  return (
+    readJsonIfExists(join(rootDir, "artifacts", "verify", "verify-post-summary.json")) ??
+    readJsonIfExists(join(rootDir, ".artifacts", "verify", "verify-post-summary.json"))
+  );
+}
+
 function asNumber(v) {
   return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
@@ -90,7 +97,7 @@ const metricsRaw = readFileSync(metricsPath, "utf8");
 const metrics = JSON.parse(metricsRaw);
 const metricsHash = createHash("sha256").update(metricsRaw).digest("hex");
 
-const verifySummary = readJsonIfExists(join(root, "artifacts", "verify", "verify-post-summary.json"));
+const verifySummary = readVerifySummary(root);
 const iomCoverage = asNumber(verifySummary?.iomCoverageScore);
 const mon = asNumber(verifySummary?.minimumOperatingNumber);
 const mon117 = asNumber(verifySummary?.minimumOperatingNumber117);
@@ -151,6 +158,12 @@ const afterTrust = patchMarkedBlock(
   "docs/AIOM-Technical-Brief.md",
 );
 writeFileSync(briefPath, afterTrust, "utf8");
+
+if (mon === null || mon117 === null) {
+  process.stderr.write(
+    "sync-external-brief: warning — MON fields unavailable in verify_post_summary; rendered as unknown in brief\n",
+  );
+}
 
 process.stderr.write(
   `sync-external-brief: updated docs/AIOM-Technical-Brief.md (stale=${isStale ? "yes" : "no"})\n`,

@@ -97,6 +97,13 @@ const verify = readLatestVerifySummary(root);
 const truthMatrix = readTruthMatrixDoc(root);
 const pnhLedger = readPnhLedger(root);
 const initiatorManifest = readInitiatorManifest(root);
+const creative = {
+  creativeSignals: Number(verify?.creativeSignals ?? 0),
+  creativeEscalations: Number(verify?.creativeEscalations ?? 0),
+  stancesUsed: Array.isArray(verify?.creativeStancesUsed)
+    ? verify.creativeStancesUsed.filter((x) => typeof x === "string")
+    : [],
+};
 
 const receipt = {
   version: "1.0",
@@ -123,6 +130,7 @@ const receipt = {
     spirit: "YNWA",
     pace: "elite",
   },
+  creative,
   stubLearningPolicy: "disabled",
   checks: steps,
 };
@@ -140,6 +148,7 @@ const auditLockPayload = {
     initiatorManifest != null
       ? createHash("sha256").update(JSON.stringify(initiatorManifest)).digest("hex")
       : null,
+  creative: receipt.creative,
 };
 const auditLockHash = createHash("sha256")
   .update(JSON.stringify(auditLockPayload))
@@ -170,6 +179,11 @@ const mdRows = [
   ["WASM Export", receipt.wasm.available && receipt.wasm.real ? "PASS" : "FAIL", "assert:wasm + verify_post_summary"],
   ["Truth Matrix", receipt.truthMatrix.found ? "PASS" : "FAIL", "docs/truth-matrix.md"],
   ["PNH Immunity", receipt.pnh.passed ? "PASS" : "FAIL", "pnpm pnh:ghost -- --strict"],
+  [
+    "Creative telemetry",
+    receipt.creative.creativeSignals >= 0 ? "PASS" : "FAIL",
+    `creativeSignals=${receipt.creative.creativeSignals}, creativeEscalations=${receipt.creative.creativeEscalations}, stancesUsed=${receipt.creative.stancesUsed.join(",") || "none"}`,
+  ],
   ["Stub Learning Policy", "PASS", "reality-signals-log.ts"],
 ];
 const md = [
