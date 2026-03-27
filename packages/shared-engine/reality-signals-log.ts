@@ -41,6 +41,12 @@ export function logRealitySignal(
   payload: Record<string, unknown> = {}
 ): void {
   if (payload.mode === "stub" && !ALLOW_STUB_LEARNING) {
+    logEvent("reality_stub_ignored", {
+      layer: "reality_loop",
+      kind,
+      policy: "stub_learning_disabled",
+      ...sanitizeRealitySignalPayload(payload),
+    });
     return;
   }
   const event: RealityTelemetryEventName = REALITY_TELEMETRY_EVENTS[kind];

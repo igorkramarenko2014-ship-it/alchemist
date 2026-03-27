@@ -80,6 +80,7 @@ type TriadPanelChunk = {
 };
 
 const TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR = 0.9;
+const TRIAD_FAST_RESOLVE_DEFAULT_FLOOR = 0.85;
 
 /**
  * Fetcher path: optionally resolve after **two** panelists produce gate-passing candidates with scores
@@ -432,6 +433,8 @@ export async function runTriad(
      * remaining upstream fetch for lower latency (parity **mixed**). Default **off**.
      */
     triadEarlyResolveTwo?: boolean;
+    /** Alias for **`triadEarlyResolveTwo`** with default floor **0.85** when floor not provided. */
+    fastResolve?: boolean;
     /** Default **0.9** when **`triadEarlyResolveTwo`** is enabled. */
     triadEarlyResolveScoreFloor?: number;
   }
@@ -505,8 +508,12 @@ export async function runTriad(
       ...(options?.userMode !== undefined ? { userMode: options.userMode } : {}),
       pnhScoringLane: scoringLaneForFetch,
     };
+    const earlyEnabled = options?.triadEarlyResolveTwo === true || options?.fastResolve === true;
     const earlyFloor =
-      options?.triadEarlyResolveScoreFloor ?? TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR;
+      options?.triadEarlyResolveScoreFloor ??
+      (options?.fastResolve === true
+        ? TRIAD_FAST_RESOLVE_DEFAULT_FLOOR
+        : TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR);
     const { chunks, earlyResolvedTwo } = await runFetcherChunksWithOptionalEarlyTwo(
       runId,
       prompt,
@@ -514,7 +521,7 @@ export async function runTriad(
       signal,
       scoreOptsForFetch,
       {
-        enabled: options?.triadEarlyResolveTwo === true,
+        enabled: earlyEnabled,
         scoreFloor: earlyFloor,
       }
     );
@@ -680,7 +687,10 @@ export async function runTriad(
         ? {
             triadEarlyResolveTwo: true,
             triadEarlyResolveScoreFloor:
-              options?.triadEarlyResolveScoreFloor ?? TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR,
+              options?.triadEarlyResolveScoreFloor ??
+              (options?.fastResolve === true
+                ? TRIAD_FAST_RESOLVE_DEFAULT_FLOOR
+                : TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR),
           }
         : {}),
     },

@@ -92,4 +92,29 @@ describe("runTriad triadEarlyResolveTwo", () => {
     });
     expect(a.triadRunTelemetry?.triadEarlyResolveTwo).toBeUndefined();
   });
+
+  it("supports fastResolve alias with default floor 0.85", async () => {
+    const fetcher = async (_prompt: string, panelist: Panelist, signal: AbortSignal) => {
+      if (panelist === "LLAMA") {
+        await delay(30, signal);
+        if (signal.aborted) return [];
+        return [cand("LLAMA", 0.95, 1)];
+      }
+      if (panelist === "DEEPSEEK") {
+        await delay(30, signal);
+        if (signal.aborted) return [];
+        return [cand("DEEPSEEK", 0.95, 10)];
+      }
+      await delay(10_000, signal);
+      if (signal.aborted) return [];
+      return [cand("QWEN", 0.9, 20)];
+    };
+    const a = await runTriad(`triad-fast-resolve-${Date.now()}`, {
+      fetcher,
+      skipTablebase: true,
+      fastResolve: true,
+    });
+    expect(a.triadRunTelemetry?.triadEarlyResolveTwo).toBe(true);
+    expect(a.triadRunTelemetry?.triadEarlyResolveScoreFloor).toBe(0.85);
+  });
 });

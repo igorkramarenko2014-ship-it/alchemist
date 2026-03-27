@@ -37,7 +37,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "integrity",
-    responsibility: "Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.",
+    responsibility: "Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; AIOM manifest layer.",
     artifacts: ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts", "engine-valuation-heuristic.ts", "fxp-provenance.ts"] as const,
   },
   {
@@ -47,7 +47,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "schism",
-    responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative, logs, and IOM pulse schisms only; does not mutate triad weights, TS gates, encoder bytes, or HARD GATE.",
+    responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative, logs, and AIOM pulse schisms only; does not mutate triad weights, TS gates, encoder bytes, or HARD GATE.",
     artifacts: ["schism.ts", "iom-pulse.ts", "iom-coverage.ts", "execution-tiers.ts"] as const,
   },
   {
@@ -92,7 +92,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   },
   {
     id: "vst_observer",
-    responsibility: "VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (Igor artifacts stay under shared-engine per sync script).",
+    responsibility: "VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (AIOM artifacts stay under shared-engine per sync script).",
     artifacts: ["vst-observer.ts", "iom-pulse.ts", "surgical-repair.ts"] as const,
   },
   {

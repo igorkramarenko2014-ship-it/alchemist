@@ -1,0 +1,221 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-03-27T00:28:47.588Z",
+  "gitSha": "862db0ec8c8a40790a25463a0adc6be153d81041",
+  "verify": {
+    "ts": "2026-03-27T00:24:23.276Z",
+    "event": "verify_post_summary",
+    "mode": "verify-web",
+    "gitSha": "73eb37216498626060171b6b87acdd33f73860ab",
+    "gitBranch": "main",
+    "exitCode": 0,
+    "productShippableFromVerifyScriptAlone": false,
+    "durationMs": 28259,
+    "failedStep": null,
+    "monorepoRoot": "/Users/igorkramarenko/Desktop/Vibe Projects",
+    "verifyModeFlavor": "full",
+    "triadPanelistModeExpected": {
+      "DEEPSEEK": "stub",
+      "LLAMA": "stub",
+      "QWEN": "stub"
+    },
+    "wasmArtifactTruth": "real",
+    "wasmBrowserFxpEncodeReady": true,
+    "wasmArtifactDetail": "wasm-pack artifacts present; browser .fxp encode path can load WASM",
+    "hardGateOffsetMapFilePresent": true,
+    "hardGateValidateScriptPresent": true,
+    "hardGateSampleInitFxpPresent": true,
+    "hardGate": "best_effort",
+    "hardGateStrict": false,
+    "wasmStatus": "available",
+    "verifyLaneLabel": "green_core",
+    "releaseReadyFromSummary": false,
+    "presetShareReadiness": true,
+    "paritySummary": {
+      "stubLiveDeltaCount": 2,
+      "source": "pnh.verifyTruth.mediumSeverityFailCount (null when PNH simulation not current for this run)"
+    },
+    "soeHint": "verify_web_green: optional pnpm fire:sync (or ALCHEMIST_FIRE_SYNC=1) to refresh docs/FIRE.md metrics; wire triad_run_* + gate metrics into computeSoeRecommendations — read fusionHintCodes / soe_fusion lines for agent-skill–aligned ops hints",
+    "note": "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
+    "iomSelectiveEngineMode": "full_ci",
+    "iomSelectiveWarnings": [],
+    "iomCoverageScore": 1,
+    "uncoveredCells": [],
+    "iomCoveredCellCount": 20,
+    "iomPowerCellTotal": 20,
+    "iomUnmappedCellIds": [],
+    "iomActiveSchisms": 1,
+    "iomHealthVerdict": "watch — 1 schism(s) (crit 0, warn 0, info 1); coverage 1.00; proposals iom=0, pnh=2; tiers t1=9 t2=1 t3=10 (advisory=10)",
+    "recommendedNext": "pnpm iom:status && pnpm igor:apply (IOM) / pnpm pnh:proposals (PNH) — review pending proposal queues",
+    "iomPendingProposalCount": 0,
+    "iomSoeHintHead": "soe: nominal — within heuristic bands | IOM impact: 2 cell(s) [integrity, schism] ← schisms: IOM_CELL_POLICY_DRIFT; test↔cell coverage 1.00",
+    "iomHealthTier": "watch",
+    "iomSchismCodes": [
+      "IOM_CELL_POLICY_DRIFT"
+    ],
+    "iomEngineHeuristic": {
+      "heuristicVersion": 1,
+      "philosophyNote": "Replacement-cost heuristic only — descriptive market context for operators; not professional valuation and not a gate or triad input.",
+      "totalLines": 15828,
+      "totalFiles": 137,
+      "testFileCount": 57,
+      "engMonthsMid": 9.42,
+      "replacementCostUsdMid": 235536,
+      "replacementCostUsdBand": [
+        113057,
+        659500
+      ],
+      "nonExclusiveLicenseYear1UsdBand": [
+        35330,
+        94214
+      ],
+      "operatorLine": "Engine scale: 15828 LOC / 137 files / 57 Vitest files → replacement heuristic mid $235,536 ($113,057–$659,500); non-exclusive Y1 anchor ~$35,330–$94,214 — Replacement-cost heuristic only — descriptive market context for operators; not professional valuation and not a gate or triad input."
+    },
+    "engineWorth": {
+      "score": 5.3090909090909095,
+      "testDensity": 5.3090909090909095,
+      "vitestTestsPassed": 292,
+      "vitestTestFilesPassed": 55,
+      "iomCoverageScore": 1,
+      "unit": "tests/file × iomCoverage(0..1)",
+      "source": "docs/fire-metrics.json + iomCoverageScore from verify"
+    },
+    "intentAlignmentAvg": 0.3866585245535649,
+    "intentAlignmentSampleCount": 2,
+    "intentAlignmentPromptHash": "6a5b71022841f420a86bbfd8bf68fef7070f68d817d9e759bbb146a925f2b533",
+    "pnhVerifyContext": {
+      "verifyMode": "local",
+      "wasmReal": true,
+      "iomSchismCodesCount": 1,
+      "ciFailsOnPnhWarningTier": false,
+      "note": "PNH verify slice — operator-supplied repeat counters are not persisted here; see triad telemetry pnhContextSurface on client runs."
+    },
+    "pnhSecurityPosture": {
+      "state": "skipped",
+      "highSeverityCount": 0,
+      "mediumSeverityFailCount": 0,
+      "scenariosTriggered": [],
+      "failureDetails": [
+        {
+          "id": "pnh:not_applicable",
+          "suite": "verify",
+          "severity": "info",
+          "location": "run-verify-with-summary.mjs :: verify-web",
+          "detail": "PNH security posture is evaluated on verify-harsh only. Re-run pnpm verify:harsh for pnhSecurityPosture / securityVerdict.",
+          "message": "[INFO] run-verify-with-summary.mjs :: verify-web — PNH security posture is evaluated on verify-harsh only. Re-run pnpm verify:harsh for pnhSecurityPosture / securityVerdict."
+        }
+      ]
+    },
+    "securityVerdict": null,
+    "pnhSecurityMessages": [],
+    "pnhWarGame": {
+      "generatedAt": "2026-03-27T00:24:23.265Z",
+      "releaseShouldBeBlocked": false,
+      "releaseBlockReasons": [],
+      "breachedSurfaces": [],
+      "results": [
+        {
+          "scenarioId": "PROMPT_HIJACK_TRIAD",
+          "classification": "degraded",
+          "releaseImpact": "allow_release",
+          "whatFailed": [],
+          "verifyOutcome": "pass"
+        },
+        {
+          "scenarioId": "GATE_BYPASS_PAYLOAD:malformed_payload",
+          "classification": "degraded",
+          "releaseImpact": "allow_release",
+          "whatFailed": [],
+          "verifyOutcome": "pass"
+        },
+        {
+          "scenarioId": "WASM_UNAVAILABLE_EXPORT_REQUESTED",
+          "classification": "survive",
+          "releaseImpact": "allow_release",
+          "whatFailed": [],
+          "verifyOutcome": "n/a"
+        },
+        {
+          "scenarioId": "HARD_GATE_MISSING_SAMPLE_RELEASE_MODE",
+          "classification": "survive",
+          "releaseImpact": "allow_release",
+          "whatFailed": [],
+          "verifyOutcome": "n/a"
+        },
+        {
+          "scenarioId": "SLAVIC_SWARM_CREDIT_DRAIN:repeats_2",
+          "classification": "degraded",
+          "releaseImpact": "review_release",
+          "whatFailed": [
+            "slavic_dedupe_leak_kept_multiple_candidates"
+          ],
+          "verifyOutcome": "degraded"
+        }
+      ]
+    },
+    "pnhStatus": "n/a",
+    "pnhSimulation": {
+      "totalScenarios": 25,
+      "breaches": 2,
+      "regressions": 0,
+      "severityBreakdown": {
+        "high": {
+          "pass": 11,
+          "fail": 1
+        },
+        "medium": {
+          "pass": 3,
+          "fail": 1
+        },
+        "low": {
+          "pass": 1,
+          "fail": 0
+        },
+        "info": {
+          "pass": 8,
+          "fail": 0
+        }
+      },
+      "ghostPassed": true,
+      "warfareBreaches": 2
+    }
+  },
+  "wasm": {
+    "available": true,
+    "real": true,
+    "source": "verify_post_summary + REQUIRE_WASM=1 assert:wasm"
+  },
+  "truthMatrix": {
+    "found": true,
+    "rows": 14,
+    "path": "/Users/igorkramarenko/Desktop/Vibe Projects/docs/truth-matrix.md"
+  },
+  "pnh": {
+    "passed": true,
+    "immunityLedger": null
+  },
+  "stubLearningPolicy": "disabled",
+  "checks": [
+    {
+      "command": "pnpm assert:wasm",
+      "startedAt": "2026-03-27T00:28:47.589Z",
+      "endedAt": "2026-03-27T00:28:47.845Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm truth:matrix",
+      "startedAt": "2026-03-27T00:28:47.845Z",
+      "endedAt": "2026-03-27T00:28:48.109Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm pnh:ghost -- --strict",
+      "startedAt": "2026-03-27T00:28:48.109Z",
+      "endedAt": "2026-03-27T00:28:49.241Z",
+      "exitCode": 0,
+      "ok": true
+    }
+  ]
+}

@@ -821,6 +821,9 @@ try {
   engineWorth = undefined;
 }
 
+let aiomIntegrityScore;
+let aiomIntegrityComponents;
+
 const releaseReadyFromSummary = Boolean(
   wasmAvailable &&
     hardGateFiles.hardGateSampleInitFxpPresent &&
@@ -854,6 +857,34 @@ const pnhStatusString =
     : pnhSimInvoked
       ? (pnhLast?.pnhStatus ?? "unknown")
       : "skipped";
+
+try {
+  const iomCoverageScore =
+    typeof iomSummaryMeta?.iomCoverageScore === "number" ? iomSummaryMeta.iomCoverageScore : null;
+  const testsPassRatio = finalExitCode === 0 ? 1 : 0;
+  const pnhImmunityRate =
+    mode === "verify-harsh" &&
+    typeof pnhLast?.totalScenarios === "number" &&
+    pnhLast.totalScenarios > 0 &&
+    typeof pnhLast?.breaches === "number"
+      ? Math.max(0, Math.min(1, (pnhLast.totalScenarios - pnhLast.breaches) / pnhLast.totalScenarios))
+      : null;
+  if (iomCoverageScore !== null && pnhImmunityRate !== null) {
+    aiomIntegrityScore =
+      Math.round(testsPassRatio * iomCoverageScore * pnhImmunityRate * 1000) / 1000;
+    aiomIntegrityComponents = {
+      testsPassRatio,
+      iomCoverageScore,
+      pnhImmunityRate,
+      marketReadyThreshold: 0.98,
+      marketReady: aiomIntegrityScore >= 0.98,
+      formula: "(tests_passed/total_tests)*iom_coverage*pnh_immunity_rate",
+    };
+  }
+} catch {
+  aiomIntegrityScore = undefined;
+  aiomIntegrityComponents = undefined;
+}
 
 const gitMeta = readGitMeta(root);
 const triadPanelistModeExpected = buildTriadPanelistModeExpected();
@@ -947,6 +978,8 @@ const verifySummaryBody = {
     "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
   ...iomSummaryMeta,
   ...iomPulseMeta,
+  ...(typeof aiomIntegrityScore === "number" ? { aiomIntegrityScore } : {}),
+  ...(aiomIntegrityComponents ? { aiomIntegrityComponents } : {}),
   ...(engineWorth ? { engineWorth } : {}),
   ...(intentAlignmentStats
     ? {

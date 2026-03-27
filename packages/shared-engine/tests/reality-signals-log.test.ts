@@ -38,14 +38,18 @@ describe("reality-signals-log", () => {
     expect(j.promptHash).toBe("90fe0536");
   });
 
-  it("ignores stub-mode reality signals when stub learning is disabled", () => {
+  it("emits auditable ignore event for stub-mode signals when learning is disabled", () => {
     const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
     logRealitySignal("OUTPUT_USED", {
       mode: "stub",
       surface: "dock",
       promptHash: "stub-hash",
     });
+    const line = spy.mock.calls[0]?.[0];
     spy.mockRestore();
-    expect(spy.mock.calls.length).toBe(0);
+    expect(typeof line).toBe("string");
+    const j = JSON.parse(String(line).trim()) as Record<string, unknown>;
+    expect(j.event).toBe("reality_stub_ignored");
+    expect(j.policy).toBe("stub_learning_disabled");
   });
 });

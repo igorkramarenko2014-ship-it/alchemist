@@ -168,6 +168,7 @@ export async function GET(request: Request) {
     ops: {
       iomDashboardPath: "/api/health/iom",
       truthMatrixPath: "/api/health/truth-matrix",
+      truthOpsPath: "/api/health/truth",
       ultimateAuditPath: "/api/health/ultimate",
       iomExtendedDashboardPath: "/api/iom/dashboard",
       iomPrometheusMetricsPath: "/api/metrics/iom",

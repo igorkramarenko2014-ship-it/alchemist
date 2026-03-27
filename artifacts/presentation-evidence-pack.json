@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-03-27T00:48:53.152Z",
+  "gitSha": "862db0ec8c8a40790a25463a0adc6be153d81041",
+  "verify": {
+    "testsPassed": 292,
+    "testFiles": 55,
+    "iomCoverageScore": 1,
+    "aiomIntegrityScore": 0.92,
+    "wasmStatus": "available",
+    "wasmArtifactTruth": "real",
+    "pnhStatus": "warning"
+  },
+  "pnh": {
+    "totalScenarios": 25,
+    "breaches": 2,
+    "securityVerdict": "degraded",
+    "verifyTruthState": "warning"
+  },
+  "receipt": {
+    "exists": true,
+    "generatedAt": "2026-03-27T00:28:47.588Z",
+    "path": "artifacts/release-audit-receipt-latest.json"
+  },
+  "integrationSnippet": "const triad = await fetch(\"http://127.0.0.1:3000/api/triad/deepseek\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify({ prompt }) });\nconst triadJson = await triad.json();\nconst truth = await fetch(\"http://127.0.0.1:3000/api/health/truth\", { headers: { \"X-Ops-Token\": process.env.ALCHEMIST_OPS_TOKEN ?? \"\" } });\nconst truthJson = await truth.json();\nconst receipt = JSON.parse(await fs.promises.readFile(\"artifacts/release-audit-receipt-latest.json\", \"utf8\"));"
+}
