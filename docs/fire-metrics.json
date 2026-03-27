@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "syncedDateUtc": "2026-03-27",
-  "generatedAtUtc": "2026-03-27T18:05:07.589Z",
+  "generatedAtUtc": "2026-03-27T18:09:01.470Z",
   "vitestTestsPassed": 316,
   "vitestTestFilesPassed": 66,
   "vitestTestTsOnDisk": 66,
@@ -9,13 +9,12 @@
   "vst3BundlePresent": false,
   "vst3BundleBasename": null,
   "vst3MainBinarySha256": null,
-  "initiatorManifestStatus": "117/117_READY",
   "mon": {
     "value": 117,
     "ready": true,
     "source": "verify_post_summary"
   },
-  "initiatorSkillsSha256": "63b69412a0336f6f4e31f0b4e4ea99911b9189e9c31b443e50cfc6b38be9c105",
+  "initiatorSkillsSha256": "fc976eb04088f4c3e51e2e8832a6b4928f2da6036a091771b3602758c0c9354a",
   "verification": "Recompute via `pnpm fire:sync` (Vitest + truth consumers). Validate with `jq` and `sha256sum -c docs/fire-metrics.sha256` per docs/AIOM-Technical-Brief.md.",
   "divergences": []
 }

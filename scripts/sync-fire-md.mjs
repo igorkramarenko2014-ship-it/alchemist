@@ -151,18 +151,14 @@ function writeFireMetricsArtifacts(
     truthMatrix,
   }
 ) {
-  let initiationStatus = null;
   let initiatorSkillsSha256 = null;
   try {
     const p = join(root, "artifacts", "initiator", "skills-117-manifest.json");
     if (existsSync(p)) {
       const mRaw = readFileSync(p, "utf8");
-      const m = JSON.parse(mRaw);
-      initiationStatus = typeof m?.initiationStatus === "string" ? m.initiationStatus : null;
       initiatorSkillsSha256 = createHash("sha256").update(mRaw).digest("hex");
     }
   } catch {
-    initiationStatus = null;
     initiatorSkillsSha256 = null;
   }
   const tmMetrics =
@@ -186,7 +182,6 @@ function writeFireMetricsArtifacts(
     vst3BundlePresent,
     vst3BundleBasename,
     vst3MainBinarySha256,
-    initiatorManifestStatus: initiationStatus,
     mon: {
       value: monResolved.value,
       ready: monResolved.ready,
