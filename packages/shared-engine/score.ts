@@ -85,6 +85,11 @@ export const SLAVIC_FILTER_COSINE_THRESHOLD = getSegmentCosineThreshold("DEFAULT
  * (Not neural “semantic” similarity — deterministic string geometry only.)
  */
 export const SLAVIC_TEXT_DICE_THRESHOLD = 0.75;
+/**
+ * If params are effectively identical, collapse regardless of descriptive copy.
+ * This closes "same DSP DNA, different metadata" mirror leakage.
+ */
+export const SLAVIC_PARAMS_MIRROR_THRESHOLD = 0.9999;
 
 /** Normalized legibility slice: optional `description`, else `reasoning`. */
 export function slavicLegibilityText(c: AICandidate): string {
@@ -149,6 +154,8 @@ export function slavicFilterDedupe(candidates: AICandidate[], prompt?: string): 
       if (pk == null || !Array.isArray(pk) || pk.length === 0) return false;
       const paramClose = cosineSimilarityParamArrays(pa, pk) > cosineThreshold;
       if (!paramClose) return false;
+      const paramMirror = cosineSimilarityParamArrays(pa, pk) > SLAVIC_PARAMS_MIRROR_THRESHOLD;
+      if (paramMirror) return true;
       const ts = slavicTextSimilarityFromStrings(legibility.get(c)!, legibility.get(k)!);
       if (ts === null) return true;
       return ts > SLAVIC_TEXT_DICE_THRESHOLD;

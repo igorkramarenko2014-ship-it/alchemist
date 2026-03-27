@@ -92,6 +92,9 @@ const metricsHash = createHash("sha256").update(metricsRaw).digest("hex");
 
 const verifySummary = readJsonIfExists(join(root, "artifacts", "verify", "verify-post-summary.json"));
 const iomCoverage = asNumber(verifySummary?.iomCoverageScore);
+const mon = asNumber(verifySummary?.minimumOperatingNumber);
+const mon117 = asNumber(verifySummary?.minimumOperatingNumber117);
+const monReady = verifySummary?.minimumOperatingReady === true;
 const pnhTotal = asNumber(verifySummary?.pnhSimulation?.totalScenarios);
 const pnhBreaches = asNumber(verifySummary?.pnhSimulation?.breaches);
 const pnhImmunityCount =
@@ -113,6 +116,7 @@ const syncBlock = [
   "|--------|-------|",
   `| Tests Passed | ${formatMaybe(metrics.vitestTestsPassed)} |`,
   `| IOM Coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} |`,
+  `| Minimum Operating Number (MON) | ${mon === null ? "unknown" : mon.toFixed(3)} (MON117=${mon117 === null ? "unknown" : mon117}, ready=${monReady ? "yes" : "no"}) |`,
   `| PNH Immunity Count | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount} |`,
   `| WASM Status | ${wasmStatus} |`,
   `| Synced (UTC) | ${formatMaybe(metrics.syncedDateUtc)} |`,

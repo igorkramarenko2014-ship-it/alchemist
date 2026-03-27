@@ -24,6 +24,8 @@ If this repository is **private** or has **no** advisory channel yet, use your o
 
 **Product note:** Shipped preset/triad paths are intended to use structured **`logEvent`** telemetry (see **`docs/FIRE.md`**). Features that deliberately **disable** audit logs for production inference would be a design concern — not part of the canonical codebase.
 
+**Operational note:** `verify_post_summary` may include MON fields (`minimumOperatingNumber`, `minimumOperatingNumber117`, `minimumOperatingReady`) for risk triage. Treat MON as an auditable signal, not a replacement for vulnerability handling.
+
 ## After reporting
 
 Maintainers should acknowledge receipt when possible and coordinate a fix and release note (or advisory) as appropriate.

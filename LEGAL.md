@@ -44,6 +44,8 @@ The **HARD GATE** (`serum-offset-map.ts` + `validate-offsets.py`) is an **engine
 
 Operational telemetry (e.g. triad timing, governance scores, optional **`preset_shared`**) is described in **`docs/FIRE.md`** / **`docs/FIRESTARTER.md`**. **Share URLs** (**`/presets/[slug]`**) can expose whatever fields you put in **`SharedPreset`** (e.g. prompt text) to anyone who receives the link — disclose that in your product copy and **`PRIVACY.md`**. Configure collection, retention, and notices to match **your** product and **applicable law** (e.g. GDPR, CCPA) if you ship to end users.
 
+Operational readiness scalar: **MON** (`minimumOperatingNumber`, `minimumOperatingNumber117`, `minimumOperatingReady`) is an engineering status metric emitted by `verify_post_summary`; it is not a legal representation or warranty.
+
 ---
 
 ## Open-source dependencies

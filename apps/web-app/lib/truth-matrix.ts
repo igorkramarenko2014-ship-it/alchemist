@@ -122,7 +122,12 @@ export function buildTruthMatrixRuntimeChecks(): TruthMatrixRuntimeChecks {
     },
     {
       id: "pnh_ghost_strict",
-      status: pnhStatus === "ok" ? "pass" : pnhStatus === "skipped" ? "unknown" : "fail",
+      status:
+        pnhStatus === "clean" || pnhStatus === "ok" || pnhStatus === "pass"
+          ? "pass"
+          : pnhStatus === "skipped"
+            ? "unknown"
+            : "fail",
       proof: `pnhStatus=${pnhStatus}`,
     },
     {

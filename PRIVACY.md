@@ -4,6 +4,8 @@
 
 **Status:** Draft template. The web app may send **prompts** and **telemetry** to **your** configured services. You must publish a final policy at your **product URL** when you ship to end users.
 
+Operational metric note: readiness fields such as `minimumOperatingNumber` / `minimumOperatingNumber117` / `minimumOperatingReady` (MON) are aggregate engineering telemetry and should not contain personal data.
+
 ---
 
 ## 1. Who is responsible?

@@ -8,7 +8,7 @@
 
 **Explicit hooks (no shadow state):** **`verify_post_summary`** + **`soeHint`** on stderr after verify; **`soe.ts`** / governance telemetry — **forbidden:** unauditable loops (**§I**, **`pnpm check:transparent`**).
 
-**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain + **doc map** table), **`iom.md`** (IOM — §9c + §9d discipline + growth protocol), **`reality-loop-layer.md`** (RLL — ground-truth telemetry contracts + SOE hint boundary; **no** shadow gate mutation), **`fire-v2-roadmap.md`** (public-pattern mapping + phased FIRE v2 execution plan), **`iom-architecture.md`** (**`pnpm igor:docs`** — power-cell digest), **`critical-fix-keynote-automation.md`** (presentation automation incident + runbook), **`docs/internal/inner-circle-agent.md`** (peer prompt + Canon FIREWALL — tone only), **`cursor-universal-habits.md`** (User Rules template), **`vst-wrapper.md`** (optional JUCE VST3 read-only `.fxp` consumer + CLI/daemon pointers). **`docs/archive/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). **Web app recovery ladder:** **§L** *Web app not running*. Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
+**Index:** Canonical **`docs/`** laws: **`FIRE.md`** (this file) + **`FIRESTARTER.md`**. **Supplementary:** **`brain.md`** (detailed project brain + **doc map** table), **`iom.md`** (IOM — §9c + §9d discipline + growth protocol), **`reality-loop-layer.md`** (RLL — ground-truth telemetry contracts + SOE hint boundary; **no** shadow gate mutation), **`fire-v2-roadmap.md`** (public-pattern mapping + phased FIRE v2 execution plan), **`iom-architecture.md`** (**`pnpm igor:docs`** — power-cell digest), **`critical-fix-keynote-automation.md`** (presentation automation incident + runbook), **`MINIMUM-OPERATING-NUMBER.md`** (single readiness scalar contract), **`docs/internal/inner-circle-agent.md`** (peer prompt + Canon FIREWALL — tone only), **`cursor-universal-habits.md`** (User Rules template), **`vst-wrapper.md`** (optional JUCE VST3 read-only `.fxp` consumer + CLI/daemon pointers). **`docs/archive/alchemist-*.html`** — Composer prompt packs (**`FIRESTARTER` §12**). **Web app recovery ladder:** **§L** *Web app not running*. Optional multi-step agent flow: **`FIRESTARTER` Appendix C**. Root **`README.md`**, **`AGENTS.md`**, **`.cursorrules`**. **Legal:** **`LEGAL.md`**, **`PRIVACY.md`**, **`LICENSE`**, **`SECURITY.md`**.
 
 **Maintenance:** **Narrative / implementation truth** → **`FIRESTARTER.md`**. **Contract changes** (gates, legal hooks, taxonomy rules) → edit **§E–§N** here. **Vitest counts & Next version** → **`pnpm fire:sync`** (do not hand-edit inside **`ALCHEMIST:FIRE_METRICS`**). **Markdown** under **`docs/`**: **`FIRE.md`** + **`FIRESTARTER.md`** + optional **`brain.md`**; **HTML** packs → **`docs/archive/`**, **§12**, **Appendix C–D**.
 
@@ -27,13 +27,26 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-03-27** |
-| **Vitest** (`@alchemist/shared-engine`) | **314** tests passed, **65** files (runner) · **65** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **316** tests passed, **66** files (runner) · **66** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 | **Canonical metrics JSON** | `docs/fire-metrics.json` — verify: `sha256sum -c docs/fire-metrics.sha256` (repo root) |
 
 **Commands:** `pnpm fire:sync` · optional `ALCHEMIST_FIRE_SYNC=1` on `pnpm harshcheck` / `pnpm verify:harsh` to refresh after a green run.
 
 <!-- ALCHEMIST:FIRE_METRICS:END -->
+
+### Minimum Operating Number (MON)
+
+`MON` is the single operating-readiness number emitted by `verify_post_summary`.
+
+| Field | Meaning |
+|------|---------|
+| `minimumOperatingNumber` | Same as `aiomIntegrityScore` in `[0,1]` |
+| `minimumOperatingNumber117` | `round(MON * 117)` for compact operator display |
+| `minimumOperatingReady` | `true` when `MON >= 0.9` |
+| `minimumOperatingFormula` | `MON=aiomIntegrityScore; MON117=round(MON*117); ready when MON>=0.9` |
+
+Contract: MON is descriptive and auditable; it does not bypass HARD GATE, triad gates, or release checks.
 
 ### Compact truth matrix (stub/live/tablebase/export reality)
 

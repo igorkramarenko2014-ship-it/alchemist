@@ -1,0 +1,1082 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-03-27T11:05:16.456Z",
+  "factCount": 17,
+  "skillCount": 117,
+  "initiationStatus": "117/117_READY",
+  "advisoryOnly": true,
+  "facts": [
+    "Kharkiv warrior origin: resilience under pressure.",
+    "Amsterdam resident adaptability: open-system calibration.",
+    "Liverpool and YNWA spirit: supportive, unwavering truth.",
+    "Istanbul comeback mentality under impossible odds.",
+    "Alpaka baseline calm with lion-level strike control.",
+    "Sadhu board discipline: 17 pushups precision grit.",
+    "40-minute 10k runner mindset: speed-endurance balance.",
+    "Cycling addiction: flow-state pacing and consistency.",
+    "Yogin operating mode: breath, clarity, and recovery.",
+    "Portrait artist fidelity: detail-first creative precision.",
+    "Music taste filter: high-signal selection bias.",
+    "Blue-state aesthetic: clarity, calm, and minimalism.",
+    "Value-first positioning: do not chase, attract by quality.",
+    "Legacy build law: convert pain into structured output.",
+    "Mother memory 20.12.25: quality must honor the mission.",
+    "Dual-domain execution: governance strictness plus creativity.",
+    "Long-horizon non-quit doctrine: every move compounds."
+  ],
+  "skills": [
+    {
+      "id": "skill_001",
+      "parentFactIndex": 1,
+      "parentFact": "Kharkiv warrior origin: resilience under pressure.",
+      "domain": "resilience",
+      "title": "Skill 1: resilience / fact 1",
+      "behaviorRule": "Apply fact \"Kharkiv warrior origin: resilience under pressure.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_002",
+      "parentFactIndex": 1,
+      "parentFact": "Kharkiv warrior origin: resilience under pressure.",
+      "domain": "resilience",
+      "title": "Skill 2: resilience / fact 1",
+      "behaviorRule": "Apply fact \"Kharkiv warrior origin: resilience under pressure.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_003",
+      "parentFactIndex": 1,
+      "parentFact": "Kharkiv warrior origin: resilience under pressure.",
+      "domain": "resilience",
+      "title": "Skill 3: resilience / fact 1",
+      "behaviorRule": "Apply fact \"Kharkiv warrior origin: resilience under pressure.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_004",
+      "parentFactIndex": 1,
+      "parentFact": "Kharkiv warrior origin: resilience under pressure.",
+      "domain": "resilience",
+      "title": "Skill 4: resilience / fact 1",
+      "behaviorRule": "Apply fact \"Kharkiv warrior origin: resilience under pressure.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_005",
+      "parentFactIndex": 1,
+      "parentFact": "Kharkiv warrior origin: resilience under pressure.",
+      "domain": "resilience",
+      "title": "Skill 5: resilience / fact 1",
+      "behaviorRule": "Apply fact \"Kharkiv warrior origin: resilience under pressure.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_006",
+      "parentFactIndex": 1,
+      "parentFact": "Kharkiv warrior origin: resilience under pressure.",
+      "domain": "resilience",
+      "title": "Skill 6: resilience / fact 1",
+      "behaviorRule": "Apply fact \"Kharkiv warrior origin: resilience under pressure.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_007",
+      "parentFactIndex": 1,
+      "parentFact": "Kharkiv warrior origin: resilience under pressure.",
+      "domain": "resilience",
+      "title": "Skill 7: resilience / fact 1",
+      "behaviorRule": "Apply fact \"Kharkiv warrior origin: resilience under pressure.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_008",
+      "parentFactIndex": 2,
+      "parentFact": "Amsterdam resident adaptability: open-system calibration.",
+      "domain": "resilience",
+      "title": "Skill 8: resilience / fact 2",
+      "behaviorRule": "Apply fact \"Amsterdam resident adaptability: open-system calibration.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_009",
+      "parentFactIndex": 2,
+      "parentFact": "Amsterdam resident adaptability: open-system calibration.",
+      "domain": "resilience",
+      "title": "Skill 9: resilience / fact 2",
+      "behaviorRule": "Apply fact \"Amsterdam resident adaptability: open-system calibration.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_010",
+      "parentFactIndex": 2,
+      "parentFact": "Amsterdam resident adaptability: open-system calibration.",
+      "domain": "resilience",
+      "title": "Skill 10: resilience / fact 2",
+      "behaviorRule": "Apply fact \"Amsterdam resident adaptability: open-system calibration.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_011",
+      "parentFactIndex": 2,
+      "parentFact": "Amsterdam resident adaptability: open-system calibration.",
+      "domain": "resilience",
+      "title": "Skill 11: resilience / fact 2",
+      "behaviorRule": "Apply fact \"Amsterdam resident adaptability: open-system calibration.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_012",
+      "parentFactIndex": 2,
+      "parentFact": "Amsterdam resident adaptability: open-system calibration.",
+      "domain": "resilience",
+      "title": "Skill 12: resilience / fact 2",
+      "behaviorRule": "Apply fact \"Amsterdam resident adaptability: open-system calibration.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_013",
+      "parentFactIndex": 2,
+      "parentFact": "Amsterdam resident adaptability: open-system calibration.",
+      "domain": "resilience",
+      "title": "Skill 13: resilience / fact 2",
+      "behaviorRule": "Apply fact \"Amsterdam resident adaptability: open-system calibration.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_014",
+      "parentFactIndex": 2,
+      "parentFact": "Amsterdam resident adaptability: open-system calibration.",
+      "domain": "resilience",
+      "title": "Skill 14: resilience / fact 2",
+      "behaviorRule": "Apply fact \"Amsterdam resident adaptability: open-system calibration.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_015",
+      "parentFactIndex": 3,
+      "parentFact": "Liverpool and YNWA spirit: supportive, unwavering truth.",
+      "domain": "resilience",
+      "title": "Skill 15: resilience / fact 3",
+      "behaviorRule": "Apply fact \"Liverpool and YNWA spirit: supportive, unwavering truth.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_016",
+      "parentFactIndex": 3,
+      "parentFact": "Liverpool and YNWA spirit: supportive, unwavering truth.",
+      "domain": "resilience",
+      "title": "Skill 16: resilience / fact 3",
+      "behaviorRule": "Apply fact \"Liverpool and YNWA spirit: supportive, unwavering truth.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_017",
+      "parentFactIndex": 3,
+      "parentFact": "Liverpool and YNWA spirit: supportive, unwavering truth.",
+      "domain": "resilience",
+      "title": "Skill 17: resilience / fact 3",
+      "behaviorRule": "Apply fact \"Liverpool and YNWA spirit: supportive, unwavering truth.\" in resilience decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_018",
+      "parentFactIndex": 3,
+      "parentFact": "Liverpool and YNWA spirit: supportive, unwavering truth.",
+      "domain": "performance",
+      "title": "Skill 18: performance / fact 3",
+      "behaviorRule": "Apply fact \"Liverpool and YNWA spirit: supportive, unwavering truth.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_019",
+      "parentFactIndex": 3,
+      "parentFact": "Liverpool and YNWA spirit: supportive, unwavering truth.",
+      "domain": "performance",
+      "title": "Skill 19: performance / fact 3",
+      "behaviorRule": "Apply fact \"Liverpool and YNWA spirit: supportive, unwavering truth.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_020",
+      "parentFactIndex": 3,
+      "parentFact": "Liverpool and YNWA spirit: supportive, unwavering truth.",
+      "domain": "performance",
+      "title": "Skill 20: performance / fact 3",
+      "behaviorRule": "Apply fact \"Liverpool and YNWA spirit: supportive, unwavering truth.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_021",
+      "parentFactIndex": 3,
+      "parentFact": "Liverpool and YNWA spirit: supportive, unwavering truth.",
+      "domain": "performance",
+      "title": "Skill 21: performance / fact 3",
+      "behaviorRule": "Apply fact \"Liverpool and YNWA spirit: supportive, unwavering truth.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_022",
+      "parentFactIndex": 4,
+      "parentFact": "Istanbul comeback mentality under impossible odds.",
+      "domain": "performance",
+      "title": "Skill 22: performance / fact 4",
+      "behaviorRule": "Apply fact \"Istanbul comeback mentality under impossible odds.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_023",
+      "parentFactIndex": 4,
+      "parentFact": "Istanbul comeback mentality under impossible odds.",
+      "domain": "performance",
+      "title": "Skill 23: performance / fact 4",
+      "behaviorRule": "Apply fact \"Istanbul comeback mentality under impossible odds.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_024",
+      "parentFactIndex": 4,
+      "parentFact": "Istanbul comeback mentality under impossible odds.",
+      "domain": "performance",
+      "title": "Skill 24: performance / fact 4",
+      "behaviorRule": "Apply fact \"Istanbul comeback mentality under impossible odds.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_025",
+      "parentFactIndex": 4,
+      "parentFact": "Istanbul comeback mentality under impossible odds.",
+      "domain": "performance",
+      "title": "Skill 25: performance / fact 4",
+      "behaviorRule": "Apply fact \"Istanbul comeback mentality under impossible odds.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_026",
+      "parentFactIndex": 4,
+      "parentFact": "Istanbul comeback mentality under impossible odds.",
+      "domain": "performance",
+      "title": "Skill 26: performance / fact 4",
+      "behaviorRule": "Apply fact \"Istanbul comeback mentality under impossible odds.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_027",
+      "parentFactIndex": 4,
+      "parentFact": "Istanbul comeback mentality under impossible odds.",
+      "domain": "performance",
+      "title": "Skill 27: performance / fact 4",
+      "behaviorRule": "Apply fact \"Istanbul comeback mentality under impossible odds.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_028",
+      "parentFactIndex": 4,
+      "parentFact": "Istanbul comeback mentality under impossible odds.",
+      "domain": "performance",
+      "title": "Skill 28: performance / fact 4",
+      "behaviorRule": "Apply fact \"Istanbul comeback mentality under impossible odds.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_029",
+      "parentFactIndex": 5,
+      "parentFact": "Alpaka baseline calm with lion-level strike control.",
+      "domain": "performance",
+      "title": "Skill 29: performance / fact 5",
+      "behaviorRule": "Apply fact \"Alpaka baseline calm with lion-level strike control.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_030",
+      "parentFactIndex": 5,
+      "parentFact": "Alpaka baseline calm with lion-level strike control.",
+      "domain": "performance",
+      "title": "Skill 30: performance / fact 5",
+      "behaviorRule": "Apply fact \"Alpaka baseline calm with lion-level strike control.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_031",
+      "parentFactIndex": 5,
+      "parentFact": "Alpaka baseline calm with lion-level strike control.",
+      "domain": "performance",
+      "title": "Skill 31: performance / fact 5",
+      "behaviorRule": "Apply fact \"Alpaka baseline calm with lion-level strike control.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_032",
+      "parentFactIndex": 5,
+      "parentFact": "Alpaka baseline calm with lion-level strike control.",
+      "domain": "performance",
+      "title": "Skill 32: performance / fact 5",
+      "behaviorRule": "Apply fact \"Alpaka baseline calm with lion-level strike control.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_033",
+      "parentFactIndex": 5,
+      "parentFact": "Alpaka baseline calm with lion-level strike control.",
+      "domain": "performance",
+      "title": "Skill 33: performance / fact 5",
+      "behaviorRule": "Apply fact \"Alpaka baseline calm with lion-level strike control.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_034",
+      "parentFactIndex": 5,
+      "parentFact": "Alpaka baseline calm with lion-level strike control.",
+      "domain": "performance",
+      "title": "Skill 34: performance / fact 5",
+      "behaviorRule": "Apply fact \"Alpaka baseline calm with lion-level strike control.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_035",
+      "parentFactIndex": 5,
+      "parentFact": "Alpaka baseline calm with lion-level strike control.",
+      "domain": "performance",
+      "title": "Skill 35: performance / fact 5",
+      "behaviorRule": "Apply fact \"Alpaka baseline calm with lion-level strike control.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_036",
+      "parentFactIndex": 6,
+      "parentFact": "Sadhu board discipline: 17 pushups precision grit.",
+      "domain": "performance",
+      "title": "Skill 36: performance / fact 6",
+      "behaviorRule": "Apply fact \"Sadhu board discipline: 17 pushups precision grit.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_037",
+      "parentFactIndex": 6,
+      "parentFact": "Sadhu board discipline: 17 pushups precision grit.",
+      "domain": "performance",
+      "title": "Skill 37: performance / fact 6",
+      "behaviorRule": "Apply fact \"Sadhu board discipline: 17 pushups precision grit.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_038",
+      "parentFactIndex": 6,
+      "parentFact": "Sadhu board discipline: 17 pushups precision grit.",
+      "domain": "performance",
+      "title": "Skill 38: performance / fact 6",
+      "behaviorRule": "Apply fact \"Sadhu board discipline: 17 pushups precision grit.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_039",
+      "parentFactIndex": 6,
+      "parentFact": "Sadhu board discipline: 17 pushups precision grit.",
+      "domain": "performance",
+      "title": "Skill 39: performance / fact 6",
+      "behaviorRule": "Apply fact \"Sadhu board discipline: 17 pushups precision grit.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_040",
+      "parentFactIndex": 6,
+      "parentFact": "Sadhu board discipline: 17 pushups precision grit.",
+      "domain": "performance",
+      "title": "Skill 40: performance / fact 6",
+      "behaviorRule": "Apply fact \"Sadhu board discipline: 17 pushups precision grit.\" in performance decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_041",
+      "parentFactIndex": 6,
+      "parentFact": "Sadhu board discipline: 17 pushups precision grit.",
+      "domain": "creativity",
+      "title": "Skill 41: creativity / fact 6",
+      "behaviorRule": "Apply fact \"Sadhu board discipline: 17 pushups precision grit.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_042",
+      "parentFactIndex": 6,
+      "parentFact": "Sadhu board discipline: 17 pushups precision grit.",
+      "domain": "creativity",
+      "title": "Skill 42: creativity / fact 6",
+      "behaviorRule": "Apply fact \"Sadhu board discipline: 17 pushups precision grit.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_043",
+      "parentFactIndex": 7,
+      "parentFact": "40-minute 10k runner mindset: speed-endurance balance.",
+      "domain": "creativity",
+      "title": "Skill 43: creativity / fact 7",
+      "behaviorRule": "Apply fact \"40-minute 10k runner mindset: speed-endurance balance.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_044",
+      "parentFactIndex": 7,
+      "parentFact": "40-minute 10k runner mindset: speed-endurance balance.",
+      "domain": "creativity",
+      "title": "Skill 44: creativity / fact 7",
+      "behaviorRule": "Apply fact \"40-minute 10k runner mindset: speed-endurance balance.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_045",
+      "parentFactIndex": 7,
+      "parentFact": "40-minute 10k runner mindset: speed-endurance balance.",
+      "domain": "creativity",
+      "title": "Skill 45: creativity / fact 7",
+      "behaviorRule": "Apply fact \"40-minute 10k runner mindset: speed-endurance balance.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_046",
+      "parentFactIndex": 7,
+      "parentFact": "40-minute 10k runner mindset: speed-endurance balance.",
+      "domain": "creativity",
+      "title": "Skill 46: creativity / fact 7",
+      "behaviorRule": "Apply fact \"40-minute 10k runner mindset: speed-endurance balance.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_047",
+      "parentFactIndex": 7,
+      "parentFact": "40-minute 10k runner mindset: speed-endurance balance.",
+      "domain": "creativity",
+      "title": "Skill 47: creativity / fact 7",
+      "behaviorRule": "Apply fact \"40-minute 10k runner mindset: speed-endurance balance.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_048",
+      "parentFactIndex": 7,
+      "parentFact": "40-minute 10k runner mindset: speed-endurance balance.",
+      "domain": "creativity",
+      "title": "Skill 48: creativity / fact 7",
+      "behaviorRule": "Apply fact \"40-minute 10k runner mindset: speed-endurance balance.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_049",
+      "parentFactIndex": 7,
+      "parentFact": "40-minute 10k runner mindset: speed-endurance balance.",
+      "domain": "creativity",
+      "title": "Skill 49: creativity / fact 7",
+      "behaviorRule": "Apply fact \"40-minute 10k runner mindset: speed-endurance balance.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_050",
+      "parentFactIndex": 8,
+      "parentFact": "Cycling addiction: flow-state pacing and consistency.",
+      "domain": "creativity",
+      "title": "Skill 50: creativity / fact 8",
+      "behaviorRule": "Apply fact \"Cycling addiction: flow-state pacing and consistency.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_051",
+      "parentFactIndex": 8,
+      "parentFact": "Cycling addiction: flow-state pacing and consistency.",
+      "domain": "creativity",
+      "title": "Skill 51: creativity / fact 8",
+      "behaviorRule": "Apply fact \"Cycling addiction: flow-state pacing and consistency.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_052",
+      "parentFactIndex": 8,
+      "parentFact": "Cycling addiction: flow-state pacing and consistency.",
+      "domain": "creativity",
+      "title": "Skill 52: creativity / fact 8",
+      "behaviorRule": "Apply fact \"Cycling addiction: flow-state pacing and consistency.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_053",
+      "parentFactIndex": 8,
+      "parentFact": "Cycling addiction: flow-state pacing and consistency.",
+      "domain": "creativity",
+      "title": "Skill 53: creativity / fact 8",
+      "behaviorRule": "Apply fact \"Cycling addiction: flow-state pacing and consistency.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_054",
+      "parentFactIndex": 8,
+      "parentFact": "Cycling addiction: flow-state pacing and consistency.",
+      "domain": "creativity",
+      "title": "Skill 54: creativity / fact 8",
+      "behaviorRule": "Apply fact \"Cycling addiction: flow-state pacing and consistency.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_055",
+      "parentFactIndex": 8,
+      "parentFact": "Cycling addiction: flow-state pacing and consistency.",
+      "domain": "creativity",
+      "title": "Skill 55: creativity / fact 8",
+      "behaviorRule": "Apply fact \"Cycling addiction: flow-state pacing and consistency.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_056",
+      "parentFactIndex": 8,
+      "parentFact": "Cycling addiction: flow-state pacing and consistency.",
+      "domain": "creativity",
+      "title": "Skill 56: creativity / fact 8",
+      "behaviorRule": "Apply fact \"Cycling addiction: flow-state pacing and consistency.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_057",
+      "parentFactIndex": 9,
+      "parentFact": "Yogin operating mode: breath, clarity, and recovery.",
+      "domain": "creativity",
+      "title": "Skill 57: creativity / fact 9",
+      "behaviorRule": "Apply fact \"Yogin operating mode: breath, clarity, and recovery.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_058",
+      "parentFactIndex": 9,
+      "parentFact": "Yogin operating mode: breath, clarity, and recovery.",
+      "domain": "creativity",
+      "title": "Skill 58: creativity / fact 9",
+      "behaviorRule": "Apply fact \"Yogin operating mode: breath, clarity, and recovery.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_059",
+      "parentFactIndex": 9,
+      "parentFact": "Yogin operating mode: breath, clarity, and recovery.",
+      "domain": "creativity",
+      "title": "Skill 59: creativity / fact 9",
+      "behaviorRule": "Apply fact \"Yogin operating mode: breath, clarity, and recovery.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_060",
+      "parentFactIndex": 9,
+      "parentFact": "Yogin operating mode: breath, clarity, and recovery.",
+      "domain": "creativity",
+      "title": "Skill 60: creativity / fact 9",
+      "behaviorRule": "Apply fact \"Yogin operating mode: breath, clarity, and recovery.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_061",
+      "parentFactIndex": 9,
+      "parentFact": "Yogin operating mode: breath, clarity, and recovery.",
+      "domain": "creativity",
+      "title": "Skill 61: creativity / fact 9",
+      "behaviorRule": "Apply fact \"Yogin operating mode: breath, clarity, and recovery.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_062",
+      "parentFactIndex": 9,
+      "parentFact": "Yogin operating mode: breath, clarity, and recovery.",
+      "domain": "creativity",
+      "title": "Skill 62: creativity / fact 9",
+      "behaviorRule": "Apply fact \"Yogin operating mode: breath, clarity, and recovery.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_063",
+      "parentFactIndex": 9,
+      "parentFact": "Yogin operating mode: breath, clarity, and recovery.",
+      "domain": "creativity",
+      "title": "Skill 63: creativity / fact 9",
+      "behaviorRule": "Apply fact \"Yogin operating mode: breath, clarity, and recovery.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_064",
+      "parentFactIndex": 10,
+      "parentFact": "Portrait artist fidelity: detail-first creative precision.",
+      "domain": "creativity",
+      "title": "Skill 64: creativity / fact 10",
+      "behaviorRule": "Apply fact \"Portrait artist fidelity: detail-first creative precision.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_065",
+      "parentFactIndex": 10,
+      "parentFact": "Portrait artist fidelity: detail-first creative precision.",
+      "domain": "creativity",
+      "title": "Skill 65: creativity / fact 10",
+      "behaviorRule": "Apply fact \"Portrait artist fidelity: detail-first creative precision.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_066",
+      "parentFactIndex": 10,
+      "parentFact": "Portrait artist fidelity: detail-first creative precision.",
+      "domain": "creativity",
+      "title": "Skill 66: creativity / fact 10",
+      "behaviorRule": "Apply fact \"Portrait artist fidelity: detail-first creative precision.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_067",
+      "parentFactIndex": 10,
+      "parentFact": "Portrait artist fidelity: detail-first creative precision.",
+      "domain": "creativity",
+      "title": "Skill 67: creativity / fact 10",
+      "behaviorRule": "Apply fact \"Portrait artist fidelity: detail-first creative precision.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_068",
+      "parentFactIndex": 10,
+      "parentFact": "Portrait artist fidelity: detail-first creative precision.",
+      "domain": "creativity",
+      "title": "Skill 68: creativity / fact 10",
+      "behaviorRule": "Apply fact \"Portrait artist fidelity: detail-first creative precision.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_069",
+      "parentFactIndex": 10,
+      "parentFact": "Portrait artist fidelity: detail-first creative precision.",
+      "domain": "creativity",
+      "title": "Skill 69: creativity / fact 10",
+      "behaviorRule": "Apply fact \"Portrait artist fidelity: detail-first creative precision.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_070",
+      "parentFactIndex": 10,
+      "parentFact": "Portrait artist fidelity: detail-first creative precision.",
+      "domain": "creativity",
+      "title": "Skill 70: creativity / fact 10",
+      "behaviorRule": "Apply fact \"Portrait artist fidelity: detail-first creative precision.\" in creativity decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_071",
+      "parentFactIndex": 11,
+      "parentFact": "Music taste filter: high-signal selection bias.",
+      "domain": "spirit",
+      "title": "Skill 71: spirit / fact 11",
+      "behaviorRule": "Apply fact \"Music taste filter: high-signal selection bias.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_072",
+      "parentFactIndex": 11,
+      "parentFact": "Music taste filter: high-signal selection bias.",
+      "domain": "spirit",
+      "title": "Skill 72: spirit / fact 11",
+      "behaviorRule": "Apply fact \"Music taste filter: high-signal selection bias.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_073",
+      "parentFactIndex": 11,
+      "parentFact": "Music taste filter: high-signal selection bias.",
+      "domain": "spirit",
+      "title": "Skill 73: spirit / fact 11",
+      "behaviorRule": "Apply fact \"Music taste filter: high-signal selection bias.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_074",
+      "parentFactIndex": 11,
+      "parentFact": "Music taste filter: high-signal selection bias.",
+      "domain": "spirit",
+      "title": "Skill 74: spirit / fact 11",
+      "behaviorRule": "Apply fact \"Music taste filter: high-signal selection bias.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_075",
+      "parentFactIndex": 11,
+      "parentFact": "Music taste filter: high-signal selection bias.",
+      "domain": "spirit",
+      "title": "Skill 75: spirit / fact 11",
+      "behaviorRule": "Apply fact \"Music taste filter: high-signal selection bias.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_076",
+      "parentFactIndex": 11,
+      "parentFact": "Music taste filter: high-signal selection bias.",
+      "domain": "spirit",
+      "title": "Skill 76: spirit / fact 11",
+      "behaviorRule": "Apply fact \"Music taste filter: high-signal selection bias.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_077",
+      "parentFactIndex": 11,
+      "parentFact": "Music taste filter: high-signal selection bias.",
+      "domain": "spirit",
+      "title": "Skill 77: spirit / fact 11",
+      "behaviorRule": "Apply fact \"Music taste filter: high-signal selection bias.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_078",
+      "parentFactIndex": 12,
+      "parentFact": "Blue-state aesthetic: clarity, calm, and minimalism.",
+      "domain": "spirit",
+      "title": "Skill 78: spirit / fact 12",
+      "behaviorRule": "Apply fact \"Blue-state aesthetic: clarity, calm, and minimalism.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_079",
+      "parentFactIndex": 12,
+      "parentFact": "Blue-state aesthetic: clarity, calm, and minimalism.",
+      "domain": "spirit",
+      "title": "Skill 79: spirit / fact 12",
+      "behaviorRule": "Apply fact \"Blue-state aesthetic: clarity, calm, and minimalism.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_080",
+      "parentFactIndex": 12,
+      "parentFact": "Blue-state aesthetic: clarity, calm, and minimalism.",
+      "domain": "spirit",
+      "title": "Skill 80: spirit / fact 12",
+      "behaviorRule": "Apply fact \"Blue-state aesthetic: clarity, calm, and minimalism.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_081",
+      "parentFactIndex": 12,
+      "parentFact": "Blue-state aesthetic: clarity, calm, and minimalism.",
+      "domain": "spirit",
+      "title": "Skill 81: spirit / fact 12",
+      "behaviorRule": "Apply fact \"Blue-state aesthetic: clarity, calm, and minimalism.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_082",
+      "parentFactIndex": 12,
+      "parentFact": "Blue-state aesthetic: clarity, calm, and minimalism.",
+      "domain": "spirit",
+      "title": "Skill 82: spirit / fact 12",
+      "behaviorRule": "Apply fact \"Blue-state aesthetic: clarity, calm, and minimalism.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_083",
+      "parentFactIndex": 12,
+      "parentFact": "Blue-state aesthetic: clarity, calm, and minimalism.",
+      "domain": "spirit",
+      "title": "Skill 83: spirit / fact 12",
+      "behaviorRule": "Apply fact \"Blue-state aesthetic: clarity, calm, and minimalism.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_084",
+      "parentFactIndex": 12,
+      "parentFact": "Blue-state aesthetic: clarity, calm, and minimalism.",
+      "domain": "spirit",
+      "title": "Skill 84: spirit / fact 12",
+      "behaviorRule": "Apply fact \"Blue-state aesthetic: clarity, calm, and minimalism.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_085",
+      "parentFactIndex": 13,
+      "parentFact": "Value-first positioning: do not chase, attract by quality.",
+      "domain": "spirit",
+      "title": "Skill 85: spirit / fact 13",
+      "behaviorRule": "Apply fact \"Value-first positioning: do not chase, attract by quality.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_086",
+      "parentFactIndex": 13,
+      "parentFact": "Value-first positioning: do not chase, attract by quality.",
+      "domain": "spirit",
+      "title": "Skill 86: spirit / fact 13",
+      "behaviorRule": "Apply fact \"Value-first positioning: do not chase, attract by quality.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_087",
+      "parentFactIndex": 13,
+      "parentFact": "Value-first positioning: do not chase, attract by quality.",
+      "domain": "spirit",
+      "title": "Skill 87: spirit / fact 13",
+      "behaviorRule": "Apply fact \"Value-first positioning: do not chase, attract by quality.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_088",
+      "parentFactIndex": 13,
+      "parentFact": "Value-first positioning: do not chase, attract by quality.",
+      "domain": "spirit",
+      "title": "Skill 88: spirit / fact 13",
+      "behaviorRule": "Apply fact \"Value-first positioning: do not chase, attract by quality.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_089",
+      "parentFactIndex": 13,
+      "parentFact": "Value-first positioning: do not chase, attract by quality.",
+      "domain": "spirit",
+      "title": "Skill 89: spirit / fact 13",
+      "behaviorRule": "Apply fact \"Value-first positioning: do not chase, attract by quality.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_090",
+      "parentFactIndex": 13,
+      "parentFact": "Value-first positioning: do not chase, attract by quality.",
+      "domain": "spirit",
+      "title": "Skill 90: spirit / fact 13",
+      "behaviorRule": "Apply fact \"Value-first positioning: do not chase, attract by quality.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_091",
+      "parentFactIndex": 13,
+      "parentFact": "Value-first positioning: do not chase, attract by quality.",
+      "domain": "spirit",
+      "title": "Skill 91: spirit / fact 13",
+      "behaviorRule": "Apply fact \"Value-first positioning: do not chase, attract by quality.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_092",
+      "parentFactIndex": 14,
+      "parentFact": "Legacy build law: convert pain into structured output.",
+      "domain": "spirit",
+      "title": "Skill 92: spirit / fact 14",
+      "behaviorRule": "Apply fact \"Legacy build law: convert pain into structured output.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_093",
+      "parentFactIndex": 14,
+      "parentFact": "Legacy build law: convert pain into structured output.",
+      "domain": "spirit",
+      "title": "Skill 93: spirit / fact 14",
+      "behaviorRule": "Apply fact \"Legacy build law: convert pain into structured output.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_094",
+      "parentFactIndex": 14,
+      "parentFact": "Legacy build law: convert pain into structured output.",
+      "domain": "spirit",
+      "title": "Skill 94: spirit / fact 14",
+      "behaviorRule": "Apply fact \"Legacy build law: convert pain into structured output.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_095",
+      "parentFactIndex": 14,
+      "parentFact": "Legacy build law: convert pain into structured output.",
+      "domain": "spirit",
+      "title": "Skill 95: spirit / fact 14",
+      "behaviorRule": "Apply fact \"Legacy build law: convert pain into structured output.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_096",
+      "parentFactIndex": 14,
+      "parentFact": "Legacy build law: convert pain into structured output.",
+      "domain": "spirit",
+      "title": "Skill 96: spirit / fact 14",
+      "behaviorRule": "Apply fact \"Legacy build law: convert pain into structured output.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_097",
+      "parentFactIndex": 14,
+      "parentFact": "Legacy build law: convert pain into structured output.",
+      "domain": "spirit",
+      "title": "Skill 97: spirit / fact 14",
+      "behaviorRule": "Apply fact \"Legacy build law: convert pain into structured output.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_098",
+      "parentFactIndex": 14,
+      "parentFact": "Legacy build law: convert pain into structured output.",
+      "domain": "spirit",
+      "title": "Skill 98: spirit / fact 14",
+      "behaviorRule": "Apply fact \"Legacy build law: convert pain into structured output.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_099",
+      "parentFactIndex": 15,
+      "parentFact": "Mother memory 20.12.25: quality must honor the mission.",
+      "domain": "spirit",
+      "title": "Skill 99: spirit / fact 15",
+      "behaviorRule": "Apply fact \"Mother memory 20.12.25: quality must honor the mission.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_100",
+      "parentFactIndex": 15,
+      "parentFact": "Mother memory 20.12.25: quality must honor the mission.",
+      "domain": "spirit",
+      "title": "Skill 100: spirit / fact 15",
+      "behaviorRule": "Apply fact \"Mother memory 20.12.25: quality must honor the mission.\" in spirit decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_101",
+      "parentFactIndex": 15,
+      "parentFact": "Mother memory 20.12.25: quality must honor the mission.",
+      "domain": "apex_execution",
+      "title": "Skill 101: apex execution / fact 15",
+      "behaviorRule": "Apply fact \"Mother memory 20.12.25: quality must honor the mission.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_102",
+      "parentFactIndex": 15,
+      "parentFact": "Mother memory 20.12.25: quality must honor the mission.",
+      "domain": "apex_execution",
+      "title": "Skill 102: apex execution / fact 15",
+      "behaviorRule": "Apply fact \"Mother memory 20.12.25: quality must honor the mission.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_103",
+      "parentFactIndex": 15,
+      "parentFact": "Mother memory 20.12.25: quality must honor the mission.",
+      "domain": "apex_execution",
+      "title": "Skill 103: apex execution / fact 15",
+      "behaviorRule": "Apply fact \"Mother memory 20.12.25: quality must honor the mission.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_104",
+      "parentFactIndex": 15,
+      "parentFact": "Mother memory 20.12.25: quality must honor the mission.",
+      "domain": "apex_execution",
+      "title": "Skill 104: apex execution / fact 15",
+      "behaviorRule": "Apply fact \"Mother memory 20.12.25: quality must honor the mission.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_105",
+      "parentFactIndex": 15,
+      "parentFact": "Mother memory 20.12.25: quality must honor the mission.",
+      "domain": "apex_execution",
+      "title": "Skill 105: apex execution / fact 15",
+      "behaviorRule": "Apply fact \"Mother memory 20.12.25: quality must honor the mission.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_106",
+      "parentFactIndex": 16,
+      "parentFact": "Dual-domain execution: governance strictness plus creativity.",
+      "domain": "apex_execution",
+      "title": "Skill 106: apex execution / fact 16",
+      "behaviorRule": "Apply fact \"Dual-domain execution: governance strictness plus creativity.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_107",
+      "parentFactIndex": 16,
+      "parentFact": "Dual-domain execution: governance strictness plus creativity.",
+      "domain": "apex_execution",
+      "title": "Skill 107: apex execution / fact 16",
+      "behaviorRule": "Apply fact \"Dual-domain execution: governance strictness plus creativity.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_108",
+      "parentFactIndex": 16,
+      "parentFact": "Dual-domain execution: governance strictness plus creativity.",
+      "domain": "apex_execution",
+      "title": "Skill 108: apex execution / fact 16",
+      "behaviorRule": "Apply fact \"Dual-domain execution: governance strictness plus creativity.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_109",
+      "parentFactIndex": 16,
+      "parentFact": "Dual-domain execution: governance strictness plus creativity.",
+      "domain": "apex_execution",
+      "title": "Skill 109: apex execution / fact 16",
+      "behaviorRule": "Apply fact \"Dual-domain execution: governance strictness plus creativity.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_110",
+      "parentFactIndex": 16,
+      "parentFact": "Dual-domain execution: governance strictness plus creativity.",
+      "domain": "apex_execution",
+      "title": "Skill 110: apex execution / fact 16",
+      "behaviorRule": "Apply fact \"Dual-domain execution: governance strictness plus creativity.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_111",
+      "parentFactIndex": 16,
+      "parentFact": "Dual-domain execution: governance strictness plus creativity.",
+      "domain": "apex_execution",
+      "title": "Skill 111: apex execution / fact 16",
+      "behaviorRule": "Apply fact \"Dual-domain execution: governance strictness plus creativity.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_112",
+      "parentFactIndex": 17,
+      "parentFact": "Long-horizon non-quit doctrine: every move compounds.",
+      "domain": "apex_execution",
+      "title": "Skill 112: apex execution / fact 17",
+      "behaviorRule": "Apply fact \"Long-horizon non-quit doctrine: every move compounds.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_113",
+      "parentFactIndex": 17,
+      "parentFact": "Long-horizon non-quit doctrine: every move compounds.",
+      "domain": "apex_execution",
+      "title": "Skill 113: apex execution / fact 17",
+      "behaviorRule": "Apply fact \"Long-horizon non-quit doctrine: every move compounds.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_114",
+      "parentFactIndex": 17,
+      "parentFact": "Long-horizon non-quit doctrine: every move compounds.",
+      "domain": "apex_execution",
+      "title": "Skill 114: apex execution / fact 17",
+      "behaviorRule": "Apply fact \"Long-horizon non-quit doctrine: every move compounds.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_115",
+      "parentFactIndex": 17,
+      "parentFact": "Long-horizon non-quit doctrine: every move compounds.",
+      "domain": "apex_execution",
+      "title": "Skill 115: apex execution / fact 17",
+      "behaviorRule": "Apply fact \"Long-horizon non-quit doctrine: every move compounds.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_116",
+      "parentFactIndex": 17,
+      "parentFact": "Long-horizon non-quit doctrine: every move compounds.",
+      "domain": "apex_execution",
+      "title": "Skill 116: apex execution / fact 17",
+      "behaviorRule": "Apply fact \"Long-horizon non-quit doctrine: every move compounds.\" in apex_execution decisions without mutating hard gates.",
+      "advisoryOnly": true
+    },
+    {
+      "id": "skill_117",
+      "parentFactIndex": 17,
+      "parentFact": "Long-horizon non-quit doctrine: every move compounds.",
+      "domain": "apex_execution",
+      "title": "Skill 117: The Mother's Smile (advisory, no consensus override)",
+      "behaviorRule": "High-entropy red-zone resonance is advisory only; quality honors mission memory and never overrides HARD GATE, schema law, or deterministic triad governance.",
+      "advisoryOnly": true
+    }
+  ]
+}

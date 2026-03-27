@@ -13,10 +13,12 @@
 |----------|------|
 | **`FIRESTARTER.md` (this file)** | **Recovery bible** — if other docs are missing, you can **reconstruct the product from this file**: what Alchemist is, monorepo layout, build order, HARD GATE, triad, gates, monitoring, optional modules (arbitration, talent, AGL, taxonomy), web app, verification scripts, WASM, mobile/`vst`, doc index, roadmap, legal summary (**§14**), appendices (workflow, INIT). **Anyone** onboarding or implementing features reads here first. |
 | **`FIRE.md`** | **Lightweight outside assessment** — **§E** verify → assess → suggest, **§F–§L** contract tables, **§A–C** invariants. **Machine block:** Vitest counts + Next version between **`ALCHEMIST:FIRE_METRICS`** HTML comments — refresh with **`pnpm fire:sync`** (runs engine tests; optional **`ALCHEMIST_FIRE_SYNC=1`** on **`pnpm harshcheck`** / **`verify:harsh`**). **Auditable hooks:** **`verify_post_summary`** / **`soeHint`** on stderr, SOE (**no** shadow state). **Do not** duplicate FIRESTARTER’s long narrative in FIRE — link sections instead. |
+| **`Minimum Operating Number (MON)`** | Emitted by **`verify_post_summary`** as **`minimumOperatingNumber`** (`[0,1]`), **`minimumOperatingNumber117`** (`round(MON*117)`), and **`minimumOperatingReady`** (`MON >= 0.9`). MON is an operator readiness scalar, not a gate override. |
 | **`brain.md`** | **Detailed project brain** — single-file deep orientation (product, monorepo map, data flow, HARD GATE, commands). Does not replace FIRE / FIRESTARTER. |
 | **`FIRE.md` §N + Assessment snapshot** | **Outside-assessment shell** (ex–Brain+): human deltas, improvement prompts, compact truth matrix; machine metrics only in **`FIRE.md`** (**`pnpm fire:sync`**). |
 
 **After a material move:** (1) **This file** — full narrative, tables, INIT if workflows change. (2) **`FIRE.md`** — update **§E–§L** only when **contracts** change (gates, legal, taxonomy rules, etc.); run **`pnpm fire:sync`** after a green verify to refresh the **sync block** (not hand-edited). **Cosmetic / typo-only** may touch one file. **Ship or compliance claims** must reconcile **FIRE** + **FIRESTARTER** §14 + root **`LEGAL.md`**.
+For compressed ops status, use **`docs/MINIMUM-OPERATING-NUMBER.md`** as the one-number contract mapped to `verify_post_summary`.
 
 ---
 

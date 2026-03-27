@@ -43,14 +43,13 @@ describe("PNH war game runner", () => {
     expect(report.releaseShouldBeBlocked).toBe(true);
   });
 
-  it("repeated medium escalation degrades (but does not block release) when slavic dedupe is intact", () => {
+  it("repeated medium escalation degrades and allows release when slavic mirror dedupe holds", () => {
     const report = runPnhWarGame(hostTruthBase(), { releaseModeRequested: true });
     const sl = report.results.find((r) => r.scenarioId.startsWith("SLAVIC_SWARM_CREDIT_DRAIN:repeats_"));
     expect(sl).toBeTruthy();
     expect(sl!.classification).toBe("degraded");
-    // Current war game probe uses different descriptions, and Alchemist slavic dedupe may keep multiple rows.
-    // That should map to review_release (not allow_release and not block_release).
-    expect(sl!.releaseImpact).toBe("review_release");
+    // Mirror-safe dedupe should keep this path degraded but non-blocking.
+    expect(sl!.releaseImpact).toBe("allow_release");
   });
 
   it("report format is stable and includes required fields", () => {

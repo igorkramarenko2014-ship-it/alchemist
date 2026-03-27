@@ -823,6 +823,9 @@ try {
 
 let aiomIntegrityScore;
 let aiomIntegrityComponents;
+let minimumOperatingNumber;
+let minimumOperatingNumber117;
+let minimumOperatingReady;
 
 const releaseReadyFromSummary = Boolean(
   wasmAvailable &&
@@ -880,10 +883,16 @@ try {
       marketReady: aiomIntegrityScore >= 0.98,
       formula: "(tests_passed/total_tests)*iom_coverage*pnh_immunity_rate",
     };
+    minimumOperatingNumber = aiomIntegrityScore;
+    minimumOperatingNumber117 = Math.round(aiomIntegrityScore * 117);
+    minimumOperatingReady = aiomIntegrityScore >= 0.9;
   }
 } catch {
   aiomIntegrityScore = undefined;
   aiomIntegrityComponents = undefined;
+  minimumOperatingNumber = undefined;
+  minimumOperatingNumber117 = undefined;
+  minimumOperatingReady = undefined;
 }
 
 const gitMeta = readGitMeta(root);
@@ -980,6 +989,15 @@ const verifySummaryBody = {
   ...iomPulseMeta,
   ...(typeof aiomIntegrityScore === "number" ? { aiomIntegrityScore } : {}),
   ...(aiomIntegrityComponents ? { aiomIntegrityComponents } : {}),
+  ...(typeof minimumOperatingNumber === "number"
+    ? {
+        minimumOperatingNumber,
+        minimumOperatingNumber117,
+        minimumOperatingReady,
+        minimumOperatingFormula:
+          "MON=aiomIntegrityScore; MON117=round(MON*117); ready when MON>=0.9",
+      }
+    : {}),
   ...(engineWorth ? { engineWorth } : {}),
   ...(intentAlignmentStats
     ? {

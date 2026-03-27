@@ -87,13 +87,22 @@ async function tryLoadHardGateHooks(root: string): Promise<HardGateWarfareHooks 
     };
     mod.initSync(readFileSync(wasmBin));
     const sampleFxpBytes = new Uint8Array(readFileSync(samplePath));
+    const sampleDecoded = mod.decode_fxp_fxck(sampleFxpBytes);
+    const sampleCount = Array.isArray(sampleDecoded.params)
+      ? sampleDecoded.params.length
+      : sampleDecoded.params.length;
     return {
       sampleFxpBytes,
       decodeFxck: (bytes) => {
         const o = mod.decode_fxp_fxck(bytes);
         return { params: o.params, programName: o.programName };
       },
-      encodeFxck: (params, programName) => mod.encode_fxp_fxck(params, programName),
+      encodeFxck: (params, programName) => {
+        if (params.length !== sampleCount) {
+          throw new Error(`param_count_drift_blocked: expected=${sampleCount} got=${params.length}`);
+        }
+        return mod.encode_fxp_fxck(params, programName);
+      },
     };
   } catch {
     return undefined;

@@ -83,6 +83,7 @@ const lines = [
   "",
   `Tests: ${fireMetrics?.vitestTestsPassed ?? verify?.engineWorth?.vitestTestsPassed ?? "unknown"} ${yesNo((verify?.exitCode ?? 1) === 0)}`,
   `IOM Coverage: ${typeof verify?.iomCoverageScore === "number" ? verify.iomCoverageScore.toFixed(3) : "unknown"} ${yesNo((verify?.iomCoverageScore ?? 0) >= 1)}`,
+  `MON: ${typeof verify?.minimumOperatingNumber === "number" ? verify.minimumOperatingNumber.toFixed(3) : "unknown"} (MON117=${verify?.minimumOperatingNumber117 ?? "unknown"}) ${yesNo(Boolean(verify?.minimumOperatingReady))}`,
   `Triad: ${triadFast}${verify?.triadFastPathResolved ? " (fast path)" : ""} ${yesNo(Boolean(verify?.triadPanelistModeExpected))}`,
   `WASM: ${verify?.wasmArtifactTruth === "real" ? "real" : "non-real"} ${yesNo(verify?.wasmArtifactTruth === "real")}`,
   `HARD GATE: ${verify?.hardGateStrict ? "strict" : "best_effort"} ${yesNo(Boolean(verify?.hardGateOffsetMapFilePresent && verify?.hardGateValidateScriptPresent))}`,
