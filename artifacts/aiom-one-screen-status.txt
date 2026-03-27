@@ -1,0 +1,18 @@
+AIOM STATUS
+
+Tests: 301 YES
+IOM Coverage: 1.000 YES
+Triad: live-configured YES
+WASM: real YES
+HARD GATE: best_effort YES
+PNH: 23 attacks blocked NO
+Learning: controlled (stub leakage blocked) YES
+
+Decision:
+- Mode: fetcher/stub mix
+- Why selected: highest score among gate-passing candidates (see receipt panel in UI)
+
+Outcome:
+- Usage rate: 10.0%
+
+Generated: 2026-03-27T01:39:54.610Z

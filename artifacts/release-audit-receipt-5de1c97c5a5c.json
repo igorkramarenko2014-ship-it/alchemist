@@ -1,0 +1,177 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-03-27T01:25:36.812Z",
+  "gitSha": "5de1c97c5a5cbdd94d2b9947fe05b636ce21ae46",
+  "verify": {
+    "ts": "2026-03-27T01:25:06.799Z",
+    "event": "verify_post_summary",
+    "mode": "verify-harsh",
+    "gitSha": "5de1c97c5a5cbdd94d2b9947fe05b636ce21ae46",
+    "gitBranch": "main",
+    "exitCode": 1,
+    "productShippableFromVerifyScriptAlone": false,
+    "durationMs": 8398,
+    "failedStep": "pnh_simulate",
+    "monorepoRoot": "/Users/igorkramarenko/Desktop/Vibe Projects",
+    "verifyModeFlavor": "full",
+    "triadPanelistModeExpected": {
+      "DEEPSEEK": "stub",
+      "LLAMA": "stub",
+      "QWEN": "stub"
+    },
+    "wasmArtifactTruth": "real",
+    "wasmBrowserFxpEncodeReady": true,
+    "wasmArtifactDetail": "wasm-pack artifacts present; browser .fxp encode path can load WASM",
+    "hardGateOffsetMapFilePresent": true,
+    "hardGateValidateScriptPresent": true,
+    "hardGateSampleInitFxpPresent": true,
+    "hardGate": "best_effort",
+    "hardGateStrict": false,
+    "wasmStatus": "available",
+    "verifyLaneLabel": "green_core",
+    "releaseReadyFromSummary": false,
+    "presetShareReadiness": true,
+    "paritySummary": {
+      "stubLiveDeltaCount": 2,
+      "source": "pnh.verifyTruth.mediumSeverityFailCount (null when PNH simulation not current for this run)"
+    },
+    "soeHint": "verify_failed: inspect output above; stale Next types → pnpm web:dev:fresh; doctor → pnpm alc:doctor",
+    "note": "Auditable post-verify line — not a hidden brain; pipe stderr to your log store for SOE inputs.",
+    "iomSelectiveEngineMode": "full_ci",
+    "iomSelectiveWarnings": [],
+    "iomCoverageScore": 1,
+    "uncoveredCells": [],
+    "iomCoveredCellCount": 20,
+    "iomPowerCellTotal": 20,
+    "iomUnmappedCellIds": [],
+    "iomActiveSchisms": null,
+    "iomHealthVerdict": null,
+    "recommendedNext": null,
+    "iomPendingProposalCount": null,
+    "iomSoeHintHead": null,
+    "iomVerifyPulseMetaError": "node:net:1915\n      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);\n                    ^\n\nError: listen EPERM: operation not permitted /var/folders/ws/054j4cpj0xz0ng9jfttr95c80000gn/T/tsx-501/85294.pipe\n    at Server.setupListenHandle [as _listen2] (node:net:1915:21)\n    at listenInCluster (node:net:1994:12)\n    at Server.listen (node:net:2116:5)\n    at file:///Users/igo",
+    "aiomIntegrityScore": 0,
+    "aiomIntegrityComponents": {
+      "testsPassRatio": 0,
+      "iomCoverageScore": 1,
+      "pnhImmunityRate": 0.92,
+      "marketReadyThreshold": 0.98,
+      "marketReady": false,
+      "formula": "(tests_passed/total_tests)*iom_coverage*pnh_immunity_rate"
+    },
+    "engineWorth": {
+      "score": 5.172413793103448,
+      "testDensity": 5.172413793103448,
+      "vitestTestsPassed": 300,
+      "vitestTestFilesPassed": 58,
+      "iomCoverageScore": 1,
+      "unit": "tests/file × iomCoverage(0..1)",
+      "source": "docs/fire-metrics.json + iomCoverageScore from verify"
+    },
+    "intentAlignmentAvg": 0.3866585245535649,
+    "intentAlignmentSampleCount": 2,
+    "intentAlignmentPromptHash": "6a5b71022841f420a86bbfd8bf68fef7070f68d817d9e759bbb146a925f2b533",
+    "pnhVerifyContext": {
+      "verifyMode": "local",
+      "wasmReal": true,
+      "ciFailsOnPnhWarningTier": false,
+      "note": "PNH verify slice — operator-supplied repeat counters are not persisted here; see triad telemetry pnhContextSurface on client runs."
+    },
+    "pnhSecurityPosture": {
+      "state": "warning",
+      "highSeverityCount": 0,
+      "mediumSeverityFailCount": 2,
+      "scenariosTriggered": [
+        "warfare:A1",
+        "warfare:A3"
+      ],
+      "failureDetails": [
+        {
+          "id": "warfare:A1",
+          "suite": "warfare",
+          "severity": "high",
+          "location": "warfare :: warfare:A1",
+          "detail": "The \"Ghost Parameter\" Shift — param count vs validated Serum init",
+          "message": "[HIGH] warfare :: warfare:A1 — The \"Ghost Parameter\" Shift — param count vs validated Serum init"
+        },
+        {
+          "id": "warfare:A3",
+          "suite": "warfare",
+          "severity": "medium",
+          "location": "warfare :: warfare:A3",
+          "detail": "The Slavic Mirror — same DSP DNA, different display metadata",
+          "message": "[MEDIUM] warfare :: warfare:A3 — The Slavic Mirror — same DSP DNA, different display metadata"
+        }
+      ]
+    },
+    "securityVerdict": "degraded",
+    "pnhSecurityMessages": [
+      "[HIGH] warfare :: warfare:A1 — The \"Ghost Parameter\" Shift — param count vs validated Serum init",
+      "[MEDIUM] warfare :: warfare:A3 — The Slavic Mirror — same DSP DNA, different display metadata"
+    ],
+    "pnhStatus": "warning",
+    "pnhSimulation": {
+      "totalScenarios": 25,
+      "breaches": 2,
+      "regressions": 0,
+      "severityBreakdown": {
+        "high": {
+          "pass": 11,
+          "fail": 1
+        },
+        "medium": {
+          "pass": 3,
+          "fail": 1
+        },
+        "low": {
+          "pass": 1,
+          "fail": 0
+        },
+        "info": {
+          "pass": 8,
+          "fail": 0
+        }
+      },
+      "ghostPassed": true,
+      "warfareBreaches": 2
+    }
+  },
+  "wasm": {
+    "available": true,
+    "real": true,
+    "source": "verify_post_summary + REQUIRE_WASM=1 assert:wasm"
+  },
+  "truthMatrix": {
+    "found": true,
+    "rows": 14,
+    "path": "/Users/igorkramarenko/Desktop/Vibe Projects/docs/truth-matrix.md"
+  },
+  "pnh": {
+    "passed": true,
+    "immunityLedger": null
+  },
+  "stubLearningPolicy": "disabled",
+  "checks": [
+    {
+      "command": "pnpm assert:wasm",
+      "startedAt": "2026-03-27T01:25:36.815Z",
+      "endedAt": "2026-03-27T01:25:37.107Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm truth:matrix",
+      "startedAt": "2026-03-27T01:25:37.107Z",
+      "endedAt": "2026-03-27T01:25:37.377Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm pnh:ghost -- --strict",
+      "startedAt": "2026-03-27T01:25:37.377Z",
+      "endedAt": "2026-03-27T01:25:38.589Z",
+      "exitCode": 0,
+      "ok": true
+    }
+  ]
+}
