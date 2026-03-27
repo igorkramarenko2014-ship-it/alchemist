@@ -16,6 +16,7 @@ import { PANELIST_WEIGHTS } from "./constants";
 import { generateEntropy } from "./entropy";
 import { getSegmentCosineThreshold, slavicCosineThresholdForPrompt } from "./gates";
 import { computeIntentAlignmentScore } from "./intent-alignment";
+import { detectCreativeResonance, detectRedZoneResonance } from "./arbitration/social-probe";
 import {
   filterValid,
   isTelemetryPureFromCandidates,
@@ -181,8 +182,11 @@ function clamp01(x: number): number {
  */
 export function intentBlendRankKey(c: AICandidate, intentAlignment: number): number {
   const w = PANELIST_WEIGHTS[c.panelist] ?? 0;
+  const resonance = clamp01(c.socialResonanceScore ?? 0.5);
+  const redZone = clamp01(c.redZoneResonanceScore ?? 0.5);
   const core = 0.7 * clamp01(c.score) + 0.3 * clamp01(intentAlignment);
-  return w * core;
+  const spaBonus = 0.07 * resonance + 0.08 * redZone;
+  return w * Math.min(1, core + spaBonus);
 }
 
 function applyIntentBlendSort(
@@ -197,6 +201,8 @@ function applyIntentBlendSort(
   const enriched = candidates.map((c) => ({
     ...c,
     intentAlignmentScore: computeIntentAlignmentScore(p, c, opts),
+    socialResonanceScore: detectCreativeResonance(p, c),
+    redZoneResonanceScore: detectRedZoneResonance(p, c),
   }));
   enriched.sort((a, b) => {
     const ia = a.intentAlignmentScore ?? 0.5;

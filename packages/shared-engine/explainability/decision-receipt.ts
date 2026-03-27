@@ -57,6 +57,9 @@ function buildRejectionReasons(scoredCandidates: AICandidate[]): DecisionReceipt
       const lowReasoning = detectLegibilityReason(c);
       const reason =
         duplicate ??
+        ((c.socialResonanceScore ?? 0.5) < 0.25
+          ? "Muted response - rejected (Creative Signal Detection / SPA low)"
+          : null) ??
         lowReasoning ??
         `ranked lower than selected (${c.score.toFixed(2)} < ${selected.score.toFixed(2)})`;
       return {
@@ -77,6 +80,12 @@ export function generateDecisionReceipt(
   if (selected) {
     selectionReason.push(`highest ranked score (${selected.score.toFixed(2)})`);
     selectionReason.push("passed Undercover distribution + adversarial gates");
+    selectionReason.push("YNWA spirit: supportive to intent, unwavering in truth and gate law");
+    if ((selected.redZoneResonanceScore ?? 0) >= 0.65) {
+      selectionReason.push(
+        "selected for high-tension creative friction (Amsterdam Signal Detection / Red Zone)"
+      );
+    }
     if (!rejectionReasons.some((r) => r.reason.startsWith("duplicate pattern"))) {
       selectionReason.push("no high-cosine collision among top alternatives");
     }
@@ -91,6 +100,8 @@ export function generateDecisionReceipt(
     selectedCandidateId: selected ? candidateId(selected, 0) : null,
     selectionReason,
     rejectionReasons,
+    socialResonanceScore: selected?.socialResonanceScore,
+    redZoneResonance: selected?.redZoneResonanceScore,
     systemState: {
       wasmStatus: systemState.wasmStatus ?? "unknown",
       hardGateStatus: systemState.hardGateStatus ?? "enforced",

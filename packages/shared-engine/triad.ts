@@ -50,6 +50,14 @@ import { evaluatePnhContext, pnhContextFragilityScore } from "./pnh/pnh-context-
 import type { PnhContextInput } from "./pnh/pnh-context-types";
 import { logEvent } from "./telemetry";
 import { generateDecisionReceipt } from "./explainability/decision-receipt";
+import { CandidatePipelineState, finalizeCandidates } from "./candidate-finalizer";
+import {
+  buildTriadPromptWithContrastConstraint,
+  recordTriadConstraintFeedback,
+} from "./triad-constraint-injection";
+import { computePlfDecision } from "./power-logic-fusion";
+import { selectCreativeStance } from "./creative-diversity-layer";
+import { evaluateProbeResult } from "./probe-intelligence-layer";
 
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
 
@@ -78,6 +86,7 @@ type TriadPanelChunk = {
   value: AICandidate[];
   durationMs: number;
   failed: boolean;
+  creativeStanceApplied: boolean;
 };
 
 const TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR = 0.9;
@@ -118,17 +127,45 @@ async function runFetcherChunksWithOptionalEarlyTwo(
 
   const runOne = async (panelist: Panelist, i: number): Promise<TriadPanelChunk> => {
     const panelClientTimeoutMs = TRIAD_PANELIST_CLIENT_TIMEOUT_MS[panelist];
+    const contrast = buildTriadPromptWithContrastConstraint(prompt, panelist, { enabled: true });
+    const cdl = selectCreativeStance(prompt, panelist);
+    const prompted =
+      contrast.prompt +
+      (cdl.applied && cdl.instruction ? `\n\n[AIOM_CDL_STANCE] ${cdl.instruction}` : "");
+    if (contrast.applied) {
+      logEvent("triad_contrast_constraint_injected", {
+        runId,
+        panelist,
+        recentDropRate: contrast.dropRate,
+        note: "Upstream contrast constraint injected for diversity pressure (Stealth Quest principle).",
+      });
+    }
+    if (cdl.applied && cdl.stance) {
+      logEvent("creative_stance_applied", {
+        runId,
+        panelist,
+        stance: cdl.stance,
+        promptHash: cdl.promptHash,
+      });
+    }
     try {
       const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
-        withTimeout(fetcher(prompt, panelist, controllers[i].signal), panelClientTimeoutMs)
+        withTimeout(fetcher(prompted, panelist, controllers[i].signal), panelClientTimeoutMs)
       );
-      return { panelist, value, durationMs, failed: false };
+      return {
+        panelist,
+        value,
+        durationMs,
+        failed: false,
+        creativeStanceApplied: cdl.applied,
+      };
     } catch {
       return {
         panelist,
         value: [] as AICandidate[],
         durationMs: panelClientTimeoutMs,
         failed: true,
+        creativeStanceApplied: cdl.applied,
       };
     }
   };
@@ -221,6 +258,7 @@ async function runFetcherChunksWithOptionalEarlyTwo(
       value: [] as AICandidate[],
       durationMs: TRIAD_PANELIST_CLIENT_TIMEOUT_MS[TRIAD_PANELISTS[i]],
       failed: true,
+      creativeStanceApplied: false,
     };
   });
 
@@ -546,6 +584,7 @@ export async function runTriad(
       value: c.value,
       durationMs: c.durationMs,
       failed: c.failed,
+      creativeStanceApplied: c.creativeStanceApplied,
     }));
     const flat = flattenTriadChunksWithDurations(
       chunks.map((c) => ({ value: c.value, durationMs: c.durationMs }))
@@ -567,6 +606,7 @@ export async function runTriad(
           value,
           durationMs,
           failed: false as const,
+          creativeStanceApplied: false,
         };
       })
     );
@@ -575,6 +615,7 @@ export async function runTriad(
       value: c.value,
       durationMs: c.durationMs,
       failed: c.failed,
+      creativeStanceApplied: c.creativeStanceApplied,
     }));
     const flat = flattenTriadChunksWithDurations(
       chunks.map((c) => ({ value: c.value, durationMs: c.durationMs }))
@@ -602,10 +643,23 @@ export async function runTriad(
   };
   const scored = scoreGatedTriadPool(candidates, prompt, panelDurationsMs, scoreOpts);
 
-  let valid = scored
-    .filter(candidatePassesDistributionGate)
-    .filter((c) => candidatePassesAdversarial(c, prompt))
-    .slice(0, MAX_CANDIDATES);
+  const pipelineStates: CandidatePipelineState[] = scored.map((c, idx) => ({
+    raw: c,
+    repaired: c,
+    final: c,
+    provenance: {
+      repairedAt: "none",
+      scoredBy: "combined",
+      panelist: c.panelist,
+      revision: idx + 1,
+    },
+  }));
+
+  let valid = finalizeCandidates(pipelineStates, {
+    scoreFloor: 0,
+    maxCandidates: MAX_CANDIDATES,
+    predicate: (c) => candidatePassesDistributionGate(c) && candidatePassesAdversarial(c, prompt),
+  });
 
   let validationSummary: string | undefined;
   if (runConsensus) {
@@ -620,6 +674,7 @@ export async function runTriad(
     candidates.length > 0
       ? Math.min(1, Math.max(0, 1 - valid.length / candidates.length))
       : 0;
+  recordTriadConstraintFeedback(valid[0] ?? null, gateDropRate);
   const governance = computeTriadGovernance({
     meanPanelistMs,
     triadFailureRate,
@@ -659,6 +714,34 @@ export async function runTriad(
 
   const mergedPnh = [...promptInterventions, ...responseInterventions];
   const pnhInterventionTypes = Array.from(new Set(mergedPnh.map((i) => i.type)));
+  const plf = computePlfDecision(
+    {
+      gateDropRate,
+      triadFailureRate,
+      pnhInterventionCount: mergedPnh.length,
+      candidateCount: valid.length,
+    },
+    (valid[0]?.intentAlignmentScore ?? 0.5) >= 0.5
+  );
+  logEvent("plf_decision", {
+    runId,
+    confidence: plf.confidence,
+    probe: plf.probe,
+    classification: plf.classification,
+    candidateCount: valid.length,
+  });
+  const probeResult = evaluateProbeResult({
+    signal: plf.probe,
+    candidates: valid,
+    triadFailureRate,
+    gateDropRate,
+  });
+  logEvent("probe_intelligence_result", {
+    runId,
+    signal: probeResult.signal,
+    responseQuality: Number(probeResult.responseQuality.toFixed(3)),
+    classification: probeResult.classification,
+  });
   const pnhTriadDefense =
     !skipPnh && pnhInterventionTypes.length > 0
       ? {
@@ -700,6 +783,8 @@ export async function runTriad(
             environment: pnhEval.environment,
             fragilityScore01: frag01,
           },
+          plf,
+          probeIntelligence: probeResult,
           ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
           ...(triadEarlyResolvedTwo
             ? {
@@ -738,6 +823,8 @@ export async function runTriad(
         environment: pnhEval.environment,
         fragilityScore01: frag01,
       },
+      plf,
+      probeIntelligence: probeResult,
       ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
       ...(triadEarlyResolvedTwo
         ? {

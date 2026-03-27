@@ -7,6 +7,22 @@
 // ─── User mode (detected per prompt) ─────────────────────────────────────────
 export type UserMode = "PRO" | "NEWBIE";
 
+export type CreativeStance =
+  | "mirror"
+  | "constraint"
+  | "analogy"
+  | "contrary"
+  | "minimal"
+  | "ritual"
+  | "question"
+  | "rhythm";
+
+export interface CreativeConfig {
+  enabled: boolean;
+  stances: CreativeStance[];
+  probability: number;
+}
+
 // ─── Serum preset state (skeleton; bodies filled post offset-map validation) ─
 export interface SerumState {
   meta: SerumMeta;
@@ -87,6 +103,13 @@ export interface AICandidate {
    * Set by **`scoreCandidates`** when a non-empty **`prompt`** is passed; omitted otherwise.
    */
   intentAlignmentScore?: number;
+  /**
+   * Social Probe Arbitration (SPA): deterministic creative-resonance score in [0,1].
+   * Pure ranking signal from existing candidate/prompt data (no new model calls).
+   */
+  socialResonanceScore?: number;
+  /** SPA v2: Amsterdam logic score in [0,1] (grooming penalty + inverse-aggression bonus). */
+  redZoneResonanceScore?: number;
 }
 
 /** Per-panelist outcome for **`runTriad`** parity audits (fetcher + stub paths). */
@@ -149,6 +172,17 @@ export interface TriadRunTelemetry {
   triadLateJoinerPanelist?: Panelist;
   /** Explicit marker for fast-path observability (`triad_fast_path_resolved` on stderr telemetry). */
   triadFastPathResolved?: boolean;
+  /** Power Logic Fusion: detect -> validate -> probe -> confirm classification. */
+  plf?: {
+    confidence: "low" | "medium" | "high";
+    probe: "none" | "creative_stance" | "contrast_constraint";
+    classification: "valid" | "noise";
+  };
+  probeIntelligence?: {
+    signal: string;
+    responseQuality: number;
+    classification: "strong" | "weak" | "uncertain";
+  };
 }
 
 export interface DecisionReceiptRejectionReason {
@@ -161,6 +195,10 @@ export interface DecisionReceipt {
   selectedCandidateId: string | null;
   selectionReason: string[];
   rejectionReasons: DecisionReceiptRejectionReason[];
+  /** Creative Signal Detection (SPA): top candidate resonance score [0,1]. */
+  socialResonanceScore?: number;
+  /** Amsterdam Signal Detection (Aggression/Grooming): top candidate resonance score [0,1]. */
+  redZoneResonance?: number;
   systemState: {
     wasmStatus: "available" | "unavailable" | "unknown";
     hardGateStatus: "enforced" | "unknown";

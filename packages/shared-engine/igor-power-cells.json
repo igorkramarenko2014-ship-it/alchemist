@@ -5,6 +5,11 @@
     "artifacts": [
       "triad.ts",
       "triad-monitor.ts",
+      "candidate-finalizer.ts",
+      "triad-constraint-injection.ts",
+      "creative-diversity-layer.ts",
+      "power-logic-fusion.ts",
+      "arbitration/social-probe.ts",
       "triad-panelist-prompt.ts",
       "triad-panelist-system-prompt.ts",
       "explainability/decision-receipt.ts",

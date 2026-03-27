@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -73,6 +74,9 @@ function readTruthMatrixDoc(root) {
 function readPnhLedger(root) {
   return readJsonMaybe(join(root, "tools", "pnh-immunity-ledger.json"));
 }
+function readInitiatorManifest(root) {
+  return readJsonMaybe(join(root, "artifacts", "initiator", "skills-117-manifest.json"));
+}
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = findMonorepoRoot(here) ?? findMonorepoRoot(process.cwd());
@@ -92,6 +96,7 @@ steps.push(run(root, "pnpm", ["pnh:ghost", "--", "--strict"]));
 const verify = readLatestVerifySummary(root);
 const truthMatrix = readTruthMatrixDoc(root);
 const pnhLedger = readPnhLedger(root);
+const initiatorManifest = readInitiatorManifest(root);
 
 const receipt = {
   version: "1.0",
@@ -108,8 +113,35 @@ const receipt = {
     passed: steps.find((s) => s.command.includes("pnpm pnh:ghost"))?.ok === true,
     immunityLedger: pnhLedger ?? null,
   },
+  initiator: {
+    initiationStatus: initiatorManifest?.initiationStatus ?? null,
+    skillCount: initiatorManifest?.skillCount ?? null,
+  },
   stubLearningPolicy: "disabled",
   checks: steps,
+};
+
+const auditLockPayload = {
+  gitSha: receipt.gitSha,
+  generatedAt: receipt.generatedAt,
+  wasm: receipt.wasm,
+  truthMatrix: receipt.truthMatrix,
+  pnhPassed: receipt.pnh.passed,
+  hardGateStrict: receipt.verify?.hardGateStrict === true,
+  socialResonanceScore: receipt.verify?.decisionReceipt?.socialResonanceScore ?? null,
+  redZoneResonance: receipt.verify?.decisionReceipt?.redZoneResonance ?? null,
+  initiatorSkillsSha256:
+    initiatorManifest != null
+      ? createHash("sha256").update(JSON.stringify(initiatorManifest)).digest("hex")
+      : null,
+};
+const auditLockHash = createHash("sha256")
+  .update(JSON.stringify(auditLockPayload))
+  .digest("hex");
+receipt.auditLock = {
+  algorithm: "sha256",
+  hash: auditLockHash,
+  includesSocialResonance: true,
 };
 
 const ok =

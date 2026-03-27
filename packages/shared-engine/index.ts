@@ -31,6 +31,51 @@ export {
 } from "./triad";
 export type { TriadPanelistChunk } from "./triad";
 export {
+  finalizeCandidates,
+} from "./candidate-finalizer";
+export type {
+  CandidatePipelineState,
+  CandidateRepairStage,
+  CandidateScoringStage,
+  FinalizeCandidatesOptions,
+} from "./candidate-finalizer";
+export {
+  buildContrastConstraint,
+  buildTriadPromptWithContrastConstraint,
+  getRecentSlavicDropRate,
+  inferDominantCharacteristic,
+  recordTriadConstraintFeedback,
+  __resetTriadConstraintInjectionStateForTests,
+} from "./triad-constraint-injection";
+export {
+  DEFAULT_CREATIVE_CONFIG,
+  creativePromptHash,
+  selectCreativeStance,
+} from "./creative-diversity-layer";
+export type {
+  CreativeConfig,
+  CreativeDecision,
+  CreativeStance,
+} from "./creative-diversity-layer";
+export {
+  classifySignalOutcome,
+  computePlfDecision,
+  evaluateSignals,
+  generateLowCostProbe,
+} from "./power-logic-fusion";
+export type {
+  PlfClassification,
+  PlfConfidence,
+  PlfDecision,
+  PlfProbe,
+  PlfSignals,
+} from "./power-logic-fusion";
+export { detectCreativeResonance, detectRedZoneResonance, isMutedResponse } from "./arbitration/social-probe";
+export { evaluateProbeResult } from "./probe-intelligence-layer";
+export type { ProbeClassification, ProbeResult } from "./probe-intelligence-layer";
+export { computeVibeMismatchPenalty, generate117Skills } from "./initiator/skills-117";
+export type { InitiatorDomain, InitiatorSkill } from "./initiator/skills-117";
+export {
   buildTriadParityHarnessRecord,
   diffTriadParitySnapshots,
   snapshotTriadAnalysis,
