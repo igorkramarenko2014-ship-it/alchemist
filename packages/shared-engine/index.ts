@@ -4,6 +4,8 @@
 export type {
   AICandidate,
   AIAnalysis,
+  DecisionReceipt,
+  DecisionReceiptRejectionReason,
   FxpExportProvenanceV1,
   Panelist,
   RealityGroundTruthAggregate,
@@ -16,6 +18,10 @@ export type {
 } from "@alchemist/shared-types";
 export { REALITY_TELEMETRY_EVENTS } from "@alchemist/shared-types";
 
+export {
+  generateAIOMReceipt,
+  generateDecisionReceipt,
+} from "./explainability/decision-receipt";
 export {
   flattenTriadChunksWithDurations,
   makeTriadFetcher,

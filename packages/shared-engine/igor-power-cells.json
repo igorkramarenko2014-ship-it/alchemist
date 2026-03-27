@@ -7,6 +7,7 @@
       "triad-monitor.ts",
       "triad-panelist-prompt.ts",
       "triad-panelist-system-prompt.ts",
+      "explainability/decision-receipt.ts",
       "constants.ts",
       "circuit-breaker.ts",
       "triad-parity-report.ts"
@@ -34,6 +35,7 @@
       "soe.ts",
       "reality-signals-log.ts",
       "reality-loop-layer.ts",
+      "rll/outcome-sink.ts",
       "iom-schism-impact.ts",
       "soe-hint-structured.ts"
     ]

@@ -78,6 +78,8 @@ describe("runTriad triadEarlyResolveTwo", () => {
 
     expect(a.triadRunTelemetry?.triadEarlyResolveTwo).toBe(true);
     expect(a.triadRunTelemetry?.triadEarlyResolveScoreFloor).toBe(0.55);
+    expect(a.triadRunTelemetry?.triadFastPathResolved).toBe(true);
+    expect(a.triadRunTelemetry?.triadLateJoinerPanelist).toBe("QWEN");
     expect(a.candidates.length).toBeGreaterThan(0);
   });
 
@@ -116,5 +118,7 @@ describe("runTriad triadEarlyResolveTwo", () => {
     });
     expect(a.triadRunTelemetry?.triadEarlyResolveTwo).toBe(true);
     expect(a.triadRunTelemetry?.triadEarlyResolveScoreFloor).toBe(0.85);
+    expect(a.triadRunTelemetry?.triadFastPathResolved).toBe(true);
+    expect(a.triadRunTelemetry?.triadLateJoinerPanelist).toBe("QWEN");
   });
 });

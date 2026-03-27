@@ -145,6 +145,27 @@ export interface TriadRunTelemetry {
   triadEarlyResolveTwo?: boolean;
   /** Default **0.9** when **`triadEarlyResolveTwo`** is used. */
   triadEarlyResolveScoreFloor?: number;
+  /** Fetcher fast path: remaining panelist that was aborted after 2/3 high-confidence resolve. */
+  triadLateJoinerPanelist?: Panelist;
+  /** Explicit marker for fast-path observability (`triad_fast_path_resolved` on stderr telemetry). */
+  triadFastPathResolved?: boolean;
+}
+
+export interface DecisionReceiptRejectionReason {
+  candidateId: string;
+  reason: string;
+}
+
+export interface DecisionReceipt {
+  triadMode: string;
+  selectedCandidateId: string | null;
+  selectionReason: string[];
+  rejectionReasons: DecisionReceiptRejectionReason[];
+  systemState: {
+    wasmStatus: "available" | "unavailable" | "unknown";
+    hardGateStatus: "enforced" | "unknown";
+    stubUsage: boolean;
+  };
 }
 
 export interface AIAnalysis {
@@ -153,6 +174,8 @@ export interface AIAnalysis {
   validationSummary?: string;
   /** Optional: wall-time + gate stats from this run for dashboards and `computeAgentAjiChatFusionFromTriadTelemetry`. */
   triadRunTelemetry?: TriadRunTelemetry;
+  /** Human-readable projection of existing run truth; no scoring/gate mutation. */
+  decisionReceipt?: DecisionReceipt;
   /**
    * After PNH prompt defense, the prompt string passed into triad gates / panel fetches.
    * Present only when it differs from the caller-supplied string (e.g. strip recover). Clients should

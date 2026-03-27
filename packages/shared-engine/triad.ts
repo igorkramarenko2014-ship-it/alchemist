@@ -49,6 +49,7 @@ import { scoreCandidatesWithGate, type ScoreCandidatesOptions } from "./score";
 import { evaluatePnhContext, pnhContextFragilityScore } from "./pnh/pnh-context-evaluator";
 import type { PnhContextInput } from "./pnh/pnh-context-types";
 import { logEvent } from "./telemetry";
+import { generateDecisionReceipt } from "./explainability/decision-receipt";
 
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
 
@@ -94,7 +95,7 @@ async function runFetcherChunksWithOptionalEarlyTwo(
   parentSignal: AbortSignal | undefined,
   scoreOpts: ScoreCandidatesOptions,
   early: { enabled: boolean; scoreFloor: number }
-): Promise<{ chunks: TriadPanelChunk[]; earlyResolvedTwo: boolean }> {
+): Promise<{ chunks: TriadPanelChunk[]; earlyResolvedTwo: boolean; lateJoinerPanelist?: Panelist }> {
   const controllers = TRIAD_PANELISTS.map(() => new AbortController());
   if (parentSignal) {
     parentSignal.addEventListener(
@@ -147,6 +148,7 @@ async function runFetcherChunksWithOptionalEarlyTwo(
   const indices = new Set([0, 1, 2]);
   const completedOrder: TriadPanelChunk[] = [];
   let earlyResolvedTwo = false;
+  let lateJoinerPanelist: Panelist | undefined;
 
   while (indices.size > 0) {
     const { index, chunk } = await Promise.race(
@@ -185,11 +187,22 @@ async function runFetcherChunksWithOptionalEarlyTwo(
         intentOk &&
         (panelistsPostSlavic.size >= 2 || panelistsPreSlavic.size >= 2)
       ) {
+        const lateIndex = Array.from(indices)[0];
+        lateJoinerPanelist = lateIndex != null ? TRIAD_PANELISTS[lateIndex] : undefined;
         for (const i of Array.from(indices)) controllers[i].abort();
         earlyResolvedTwo = true;
+        logEvent("triad_fast_path_resolved", {
+          runId,
+          scoreFloor: early.scoreFloor,
+          late_joiner: lateJoinerPanelist ?? "unknown",
+          mode: "partial_high_confidence",
+          confidence_class: "provisional",
+          note: "Resolved triad after two high-confidence panelists; remaining panelist marked late_joiner",
+        });
         logEvent("triad_early_resolve_two", {
           runId,
           scoreFloor: early.scoreFloor,
+          late_joiner: lateJoinerPanelist ?? "unknown",
           note:
             panelistsPostSlavic.size >= 2
               ? "Aborted remaining panelist fetch after two high-score gate-passing panelists — latency path; parity mixed"
@@ -211,7 +224,7 @@ async function runFetcherChunksWithOptionalEarlyTwo(
     };
   });
 
-  return { chunks, earlyResolvedTwo };
+  return { chunks, earlyResolvedTwo, lateJoinerPanelist };
 }
 
 function buildTriadParityFields(
@@ -495,6 +508,7 @@ export async function runTriad(
   /** Per-panel rows for parity telemetry; null for tablebase. */
   let panelChunks: TriadPanelChunk[] | null = null;
   let triadEarlyResolvedTwo = false;
+  let triadLateJoinerPanelist: Panelist | undefined;
 
   if (tablebaseCandidate) {
     candidates = [tablebaseCandidate];
@@ -514,7 +528,7 @@ export async function runTriad(
       (options?.fastResolve === true
         ? TRIAD_FAST_RESOLVE_DEFAULT_FLOOR
         : TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR);
-    const { chunks, earlyResolvedTwo } = await runFetcherChunksWithOptionalEarlyTwo(
+    const { chunks, earlyResolvedTwo, lateJoinerPanelist } = await runFetcherChunksWithOptionalEarlyTwo(
       runId,
       prompt,
       fetcher,
@@ -526,6 +540,7 @@ export async function runTriad(
       }
     );
     triadEarlyResolvedTwo = earlyResolvedTwo;
+    triadLateJoinerPanelist = lateJoinerPanelist;
     panelChunks = chunks.map((c) => ({
       panelist: c.panelist,
       value: c.value,
@@ -666,6 +681,47 @@ export async function runTriad(
 
   return {
     candidates: valid,
+    decisionReceipt: generateDecisionReceipt(
+      {
+        candidates: valid,
+        triadRunTelemetry: {
+          meanPanelistMs,
+          triadFailureRate,
+          gateDropRate,
+          triadRunMode,
+          rawCandidateCount: candidates.length,
+          afterGateCount: valid.length,
+          triadParityMode: parity.triadParityMode,
+          triadDegraded: parity.triadDegraded,
+          triadPanelOutcomes: parity.triadPanelOutcomes,
+          pnhContextSurface: {
+            triadLaneClass: pnhTriadLaneClassFromClientRun(triadRunMode, parity.triadParityMode),
+            riskLevel: pnhEval.riskLevel,
+            environment: pnhEval.environment,
+            fragilityScore01: frag01,
+          },
+          ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
+          ...(triadEarlyResolvedTwo
+            ? {
+                triadFastPathResolved: true,
+                triadEarlyResolveTwo: true,
+                triadEarlyResolveScoreFloor:
+                  options?.triadEarlyResolveScoreFloor ??
+                  (options?.fastResolve === true
+                    ? TRIAD_FAST_RESOLVE_DEFAULT_FLOOR
+                    : TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR),
+                ...(triadLateJoinerPanelist !== undefined && {
+                  triadLateJoinerPanelist,
+                }),
+              }
+            : {}),
+        },
+      },
+      valid,
+      {
+        stubUsage: triadRunMode === "stub",
+      }
+    ),
     triadRunTelemetry: {
       meanPanelistMs,
       triadFailureRate,
@@ -685,12 +741,16 @@ export async function runTriad(
       ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
       ...(triadEarlyResolvedTwo
         ? {
+            triadFastPathResolved: true,
             triadEarlyResolveTwo: true,
             triadEarlyResolveScoreFloor:
               options?.triadEarlyResolveScoreFloor ??
               (options?.fastResolve === true
                 ? TRIAD_FAST_RESOLVE_DEFAULT_FLOOR
                 : TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR),
+            ...(triadLateJoinerPanelist !== undefined && {
+              triadLateJoinerPanelist,
+            }),
           }
         : {}),
     },

@@ -28,7 +28,9 @@ describe("reality-signals-log", () => {
       promptHash: "90fe0536",
       runId: "run-1",
     });
-    const line = spy.mock.calls[0]?.[0];
+    const line = spy.mock.calls
+      .map((c) => String(c[0] ?? "").trim())
+      .find((s) => s.includes(`"event":"${REALITY_TELEMETRY_EVENTS.OUTPUT_USED}"`));
     spy.mockRestore();
     expect(typeof line).toBe("string");
     const j = JSON.parse(String(line).trim()) as Record<string, unknown>;

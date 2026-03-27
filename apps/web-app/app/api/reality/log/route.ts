@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { logRealitySignal, REALITY_TELEMETRY_EVENTS } from "@alchemist/shared-engine";
+import { recordRllOutcomeEvent } from "@alchemist/shared-engine/rll/outcome-sink";
 
 type RealityTelemetryKind = keyof typeof REALITY_TELEMETRY_EVENTS;
 
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
 
   // Defense in depth: shared-engine sanitization removes prompt-like keys and limits strings.
   logRealitySignal(kind as RealityTelemetryKind, payloadRecord);
+  recordRllOutcomeEvent(REALITY_TELEMETRY_EVENTS[kind as RealityTelemetryKind]);
   return NextResponse.json({ ok: true });
 }
 

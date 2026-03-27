@@ -6,12 +6,14 @@ import {
   computeAgentAjiChatFusionFromTriadTelemetry,
   encodeFxp,
   fxpProvenanceSidecarFilename,
+  generateDecisionReceipt,
   makeTriadFetcher,
   REALITY_TELEMETRY_EVENTS,
   runTriad,
   scoreCandidates,
   type AIAnalysis,
   type AICandidate,
+  type DecisionReceipt,
 } from "@alchemist/shared-engine";
 import { TriadHealth } from "@/components/TriadHealth";
 import { PromptAudioDock, type WasmHealthStatus } from "@/components/ui/PromptAudioDock";
@@ -29,6 +31,7 @@ export default function Home() {
   const [wasmStatus, setWasmStatus] = useState<WasmHealthStatus>("loading");
   const [postRunAgentFusionLine, setPostRunAgentFusionLine] = useState<string | null>(null);
   const [shareLink, setShareLink] = useState<string | null>(null);
+  const [decisionReceipt, setDecisionReceipt] = useState<DecisionReceipt | null>(null);
   const triadAbortRef = useRef<AbortController | null>(null);
   /** Prevents a superseded triad from clearing `loading` while a newer run is active. */
   const triadGenRef = useRef(0);
@@ -99,6 +102,7 @@ export default function Home() {
     setValidationSummary(null);
     setPostRunAgentFusionLine(null);
     setShareLink(null);
+    setDecisionReceipt(null);
     try {
       const analysis = await runTriad(text, {
         /** Server routes: `app/api/triad/{llama,deepseek,qwen}` (FIRE §B2). */
@@ -161,6 +165,13 @@ export default function Home() {
       const finalLane = finalAnalysis.triadRunTelemetry?.pnhContextSurface?.triadLaneClass;
       const finalRunIsStub = usedStubFallback || finalLane === "stub";
       lastRunLearningEligibleRef.current = !finalRunIsStub || iomAllowsStubLearning;
+      setDecisionReceipt(
+        generateDecisionReceipt(finalAnalysis, finalSorted, {
+          wasmStatus: wasmStatus === "available" ? "available" : "unavailable",
+          hardGateStatus: "enforced",
+          stubUsage: finalRunIsStub,
+        })
+      );
       if (typeof window !== "undefined") {
         window.dispatchEvent(new Event("alchemist:usage-update"));
       }
@@ -177,7 +188,7 @@ export default function Home() {
     } finally {
       if (triadGenRef.current === gen) setLoading(false);
     }
-  }, [iomAllowsStubLearning, prompt]);
+  }, [iomAllowsStubLearning, prompt, wasmStatus]);
 
   const handleShareTop = useCallback(async () => {
     const c = ranked[0];
@@ -202,6 +213,7 @@ export default function Home() {
             lastRunLearningEligibleRef.current
               ? "live_only_default"
               : "stub_blocked_unless_iom",
+          decisionReceipt: decisionReceipt ?? undefined,
         }),
       });
       const j = (await res.json()) as { error?: string; url?: string };
@@ -216,7 +228,7 @@ export default function Home() {
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
-  }, [ranked, prompt, wasmStatus]);
+  }, [decisionReceipt, ranked, prompt, wasmStatus]);
 
   async function handleExportTop() {
     const c = ranked[0];
@@ -402,6 +414,47 @@ export default function Home() {
                 {shareLink}
               </a>
             </p>
+          ) : null}
+          {decisionReceipt ? (
+            <details className="mt-3 rounded-lg border border-gray-800 bg-[#131313] px-3 py-2">
+              <summary className="cursor-pointer text-xs font-semibold text-[#5EEAD4]">
+                Why this result?
+              </summary>
+              <div className="mt-2 space-y-2 text-[11px] text-gray-400">
+                <p>
+                  Triad mode: <span className="text-gray-300">{decisionReceipt.triadMode}</span>
+                </p>
+                <p>
+                  Selected:{" "}
+                  <span className="text-gray-300">
+                    {decisionReceipt.selectedCandidateId ?? "none"}
+                  </span>
+                </p>
+                <p className="text-gray-300">Reason:</p>
+                <ul className="list-disc space-y-1 pl-4">
+                  {decisionReceipt.selectionReason.map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+                {decisionReceipt.rejectionReasons.length > 0 ? (
+                  <>
+                    <p className="text-gray-300">Rejected / lower-ranked:</p>
+                    <ul className="list-disc space-y-1 pl-4">
+                      {decisionReceipt.rejectionReasons.map((r) => (
+                        <li key={`${r.candidateId}:${r.reason}`}>
+                          {r.candidateId}: {r.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+                <p>
+                  System state: wasm={decisionReceipt.systemState.wasmStatus}, hard_gate=
+                  {decisionReceipt.systemState.hardGateStatus}, stub=
+                  {decisionReceipt.systemState.stubUsage ? "used" : "not_used"}
+                </p>
+              </div>
+            </details>
           ) : null}
         </section>
       ) : null}

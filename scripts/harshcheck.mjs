@@ -7,10 +7,11 @@
  * files (fallback: full engine suite). CI always runs the full suite (`ALCHEMIST_SELECTIVE_VERIFY`
  * ignored when `CI` is set).
  */
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { setTimeout as sleep } from "node:timers/promises";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -73,4 +74,74 @@ const r = spawnSync(process.execPath, [withPnpm, "verify:web"], {
   env,
   shell: false,
 });
-process.exit(r.status === null ? 1 : r.status);
+const verifyCode = r.status === null ? 1 : r.status;
+if (verifyCode !== 0) {
+  process.exit(verifyCode);
+}
+
+/** Auto-start ephemeral web server for runtime truth checks (can disable with ALCHEMIST_HARSHCHECK_AUTO_SERVER=0). */
+const autoServer = process.env.ALCHEMIST_HARSHCHECK_AUTO_SERVER !== "0";
+if (!autoServer) {
+  process.exit(0);
+}
+
+const runtimePort = Number.parseInt(process.env.ALCHEMIST_HARSHCHECK_SERVER_PORT ?? "3100", 10);
+const runtimeHost = process.env.ALCHEMIST_HARSHCHECK_SERVER_HOST ?? "127.0.0.1";
+const baseUrl = `http://${runtimeHost}:${runtimePort}`;
+const server = spawn(
+  process.execPath,
+  [
+    withPnpm,
+    "--filter",
+    "@alchemist/web-app",
+    "start",
+    "--hostname",
+    runtimeHost,
+    "--port",
+    String(runtimePort),
+  ],
+  {
+    cwd: root,
+    stdio: "inherit",
+    env: {
+      ...env,
+      NODE_ENV: "production",
+    },
+    shell: false,
+  },
+);
+
+async function waitForHealth(url, timeoutMs = 45_000) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < timeoutMs) {
+    try {
+      const r = await fetch(`${url}/api/health`, { method: "GET" });
+      if (r.ok) return true;
+    } catch {
+      // keep polling
+    }
+    await sleep(800);
+  }
+  return false;
+}
+
+const healthy = await waitForHealth(baseUrl);
+if (!healthy) {
+  process.stderr.write(
+    `[alchemist] harshcheck: timed out waiting for ${baseUrl}/api/health (runtime truth checks skipped)\n`,
+  );
+  server.kill("SIGTERM");
+  process.exit(1);
+}
+
+const truth = spawnSync(process.execPath, [withPnpm, "check:truth"], {
+  cwd: root,
+  stdio: "inherit",
+  env: {
+    ...env,
+    ALCHEMIST_TRUTH_MATRIX_URL: `${baseUrl}/api/health/truth-matrix`,
+  },
+  shell: false,
+});
+server.kill("SIGTERM");
+process.exit(truth.status === null ? 1 : truth.status);
