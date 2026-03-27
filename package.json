@@ -92,6 +92,8 @@
     "health:audit": "node scripts/health-release-audit.mjs",
     "release:audit": "node scripts/release-audit-receipt.mjs",
     "demo:status": "node scripts/demo-status.mjs",
+    "aiom:status": "node scripts/aiom-one-screen-status.mjs",
+    "aiom:habit": "pnpm harshcheck && pnpm aiom:status",
     "presentation:build": "node scripts/presentation-automation.mjs",
     "presentation:keynote": "node scripts/presentation-automation.mjs --apply-keynote",
     "final:audit": "node scripts/final-audit.mjs",

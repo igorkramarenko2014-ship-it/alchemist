@@ -7,9 +7,9 @@ External-facing technical snapshot for architects and auditors.
 > [!TIP]
 > **Doc Trust State: nominal** — metrics are synced within the last 24h.
 
-- Last verified UTC: **2026-03-27T01:14:47.419Z**
+- Last verified UTC: **2026-03-27T01:33:36.668Z**
 - Synced date UTC: **2026-03-27**
-- Metrics SHA-256: `a281c2399438cb5171f5c595022f15a7a8fb04cf185bdb2382ba4ece3b912eca`
+- Metrics SHA-256: `238df74f7983ace980f41438e2430f01bd7f76ad750ae4e9cab980e2f4621b6a`
 
 <!-- DOC_TRUST:END -->
 
@@ -21,12 +21,12 @@ _Machine-synced block — do not edit by hand; run `pnpm fire:sync`._
 
 | Signal | Value |
 |--------|-------|
-| Tests Passed | 300 |
+| Tests Passed | 301 |
 | IOM Coverage | 1.000 |
 | PNH Immunity Count | 23 |
 | WASM Status | available |
 | Synced (UTC) | 2026-03-27 |
-| Verification Hash (SHA-256) | `a281c2399438cb5171f5c595022f15a7a8fb04cf185bdb2382ba4ece3b912eca` |
+| Verification Hash (SHA-256) | `238df74f7983ace980f41438e2430f01bd7f76ad750ae4e9cab980e2f4621b6a` |
 
 Canonical metrics source: `docs/fire-metrics.json`
 

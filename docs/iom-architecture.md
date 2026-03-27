@@ -1,8 +1,8 @@
-# AIOM architecture (auto-generated)
+# IOM architecture (auto-generated)
 
-Last sync: **2026-03-26** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
+Last sync: **2026-03-27** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
 
-> Diagnostic firewall: Tier 3 is advisory-only and must never mutate Tier 1 outcomes without an explicit tested bridge (AIOM policy).
+> Diagnostic firewall: Tier 3 is advisory-only and must never mutate Tier 1 outcomes without an explicit tested bridge.
 
 ## Operational cells (Tier 1 + Tier 2)
 
@@ -11,7 +11,7 @@ Last sync: **2026-03-26** — run `pnpm igor:docs` to refresh after editing `igo
 - **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
 - **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.
-- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `triad-panelist-system-prompt.ts`, `constants.ts`, `circuit-breaker.ts`
+- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `triad-panelist-system-prompt.ts`, `explainability/decision-receipt.ts`, `constants.ts`, `circuit-breaker.ts`, `triad-parity-report.ts`
 
 ### gatekeeper
 
@@ -38,15 +38,15 @@ Last sync: **2026-03-26** — run `pnpm igor:docs` to refresh after editing `igo
 
 - **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
-- **Responsibility:** Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.
-- **Artifacts:** `integrity.ts`, `encoder.ts`, `igor-orchestrator-layer.ts`, `engine-valuation-heuristic.ts`
+- **Responsibility:** Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; AIOM manifest layer.
+- **Artifacts:** `integrity.ts`, `encoder.ts`, `igor-orchestrator-layer.ts`, `engine-valuation-heuristic.ts`, `fxp-provenance.ts`
 
 ### taxonomy
 
 - **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
 - **Responsibility:** Preset taxonomy pool narrow + sparse rank pre-Slavic.
-- **Artifacts:** `taxonomy/engine.ts`, `taxonomy/prompt-keyword-sparse.ts`, `taxonomy/sparse-rank.ts`
+- **Artifacts:** `taxonomy/engine.ts`, `taxonomy/prompt-keyword-sparse.ts`, `taxonomy/sparse-rank.ts`, `taxonomy/safe-process.ts`
 
 ### tablebase
 
@@ -66,7 +66,7 @@ Last sync: **2026-03-26** — run `pnpm igor:docs` to refresh after editing `igo
 
 - **Tier:** `tier2_release_truth`
 - **Recommendation:** `KEEP`
-- **Responsibility:** VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (Igor artifacts stay under shared-engine per sync script).
+- **Responsibility:** VST/Serum trial preset bridge — diagnostic pulse + operator/CLI; HARD GATE before any .fxp bytes; optional surgical-repair clamps; encoder push path in packages/fxp-encoder/vst-bridge.ts (AIOM artifacts stay under shared-engine per sync script).
 - **Artifacts:** `vst-observer.ts`, `iom-pulse.ts`, `surgical-repair.ts`
 
 ### preset_share
