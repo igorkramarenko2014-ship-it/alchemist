@@ -88,6 +88,8 @@
     "github:first-push": "node scripts/github-first-push.mjs",
     "test:real-gates": "tsx scripts/calibrate-gates.ts",
     "test:truth-matrix": "pnpm --filter @alchemist/web-app exec vitest run __tests__/truth-matrix.test.ts",
+    "truth:aggregate": "node scripts/aggregate-truth.mjs",
+    "truth:build": "pnpm verify:harsh && pnpm truth:aggregate && pnpm fire:sync",
     "truth:matrix": "node scripts/generate-truth-matrix.mjs",
     "check:truth": "node scripts/check-truth-parity.mjs",
     "check:parity": "node scripts/check-parity.mjs",

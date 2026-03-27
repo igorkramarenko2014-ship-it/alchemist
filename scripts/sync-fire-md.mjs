@@ -90,61 +90,14 @@ function runEngineTests(root) {
   };
 }
 
-function readVerifySummary(root) {
-  const candidates = [
-    join(root, "artifacts", "verify", "verify-post-summary.json"),
-    join(root, ".artifacts", "verify", "verify-post-summary.json"),
-  ];
-  for (const p of candidates) {
-    if (!existsSync(p)) continue;
-    try {
-      return JSON.parse(readFileSync(p, "utf8"));
-    } catch {
-      // continue
-    }
+function readTruthMatrix(root) {
+  const p = join(root, "artifacts", "truth-matrix.json");
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf8"));
+  } catch {
+    return null;
   }
-  return null;
-}
-
-function deriveMonFromInitiationStatus(initiationStatus) {
-  if (typeof initiationStatus !== "string") {
-    return { value: null, ready: false, raw: null };
-  }
-  if (initiationStatus === "117/117_READY") {
-    return { value: 117, ready: true, raw: initiationStatus };
-  }
-  return { value: null, ready: false, raw: initiationStatus };
-}
-
-function computeDivergences(payload, verifySummary) {
-  const out = [];
-  const verifyMon117 =
-    typeof verifySummary?.minimumOperatingNumber117 === "number" &&
-    Number.isFinite(verifySummary.minimumOperatingNumber117)
-      ? verifySummary.minimumOperatingNumber117
-      : null;
-  const verifyMonReady = verifySummary?.minimumOperatingReady === true;
-  const metricsMon =
-    typeof payload.mon117 === "number" && Number.isFinite(payload.mon117) ? payload.mon117 : null;
-  const metricsMonReady = payload.monReady === true;
-  let status = "missing";
-  if (verifyMon117 === null || metricsMon === null) {
-    status = "missing";
-  } else if (verifyMon117 === metricsMon && verifyMonReady === metricsMonReady) {
-    status = "match";
-  } else {
-    status = "mismatch";
-  }
-  const row = {
-    field: "MON",
-    verify: verifyMon117,
-    metrics: metricsMon,
-    status,
-  };
-  if (row.status !== "match") {
-    out.push(row);
-  }
-  return out;
 }
 
 function buildSyncBlock({ isoDate, testCount, fileCount, nextVersion, testFilesOnDisk }) {
@@ -186,7 +139,17 @@ function sha256VstBundleMainBinary(bundlePath) {
 
 function writeFireMetricsArtifacts(
   root,
-  { isoDate, testCount, fileCount, nextVersion, testFilesOnDisk, vst3BundlePresent, vst3BundleBasename, vst3MainBinarySha256 }
+  {
+    isoDate,
+    testCount,
+    fileCount,
+    nextVersion,
+    testFilesOnDisk,
+    vst3BundlePresent,
+    vst3BundleBasename,
+    vst3MainBinarySha256,
+    truthMatrix,
+  }
 ) {
   let initiationStatus = null;
   let initiatorSkillsSha256 = null;
@@ -202,23 +165,16 @@ function writeFireMetricsArtifacts(
     initiationStatus = null;
     initiatorSkillsSha256 = null;
   }
-  const verifySummary = readVerifySummary(root);
-  const monFromVerify =
-    typeof verifySummary?.minimumOperatingNumber117 === "number" &&
-    Number.isFinite(verifySummary.minimumOperatingNumber117)
-      ? {
-          mon117: verifySummary.minimumOperatingNumber117,
-          monReady: verifySummary?.minimumOperatingReady === true,
-          monSource: "verify_post_summary",
-          monRawStatus: null,
-        }
-      : null;
-  const monFromInitiation = deriveMonFromInitiationStatus(initiationStatus);
-  const monResolved = monFromVerify ?? {
-    mon117: monFromInitiation.value,
-    monReady: monFromInitiation.ready,
-    monSource: "initiationStatus",
-    monRawStatus: monFromInitiation.raw,
+  const tmMetrics =
+    truthMatrix?.metrics && typeof truthMatrix.metrics === "object" ? truthMatrix.metrics : {};
+  const monResolved = {
+    mon117:
+      typeof tmMetrics.mon117 === "number" && Number.isFinite(tmMetrics.mon117)
+        ? tmMetrics.mon117
+        : null,
+    monReady: tmMetrics.monReady === true,
+    monSource: typeof tmMetrics.monSource === "string" ? tmMetrics.monSource : "unresolved",
+    monRawStatus: typeof tmMetrics.monRawStatus === "string" ? tmMetrics.monRawStatus : null,
   };
   const payload = {
     schemaVersion: 1,
@@ -239,7 +195,7 @@ function writeFireMetricsArtifacts(
     initiatorSkillsSha256,
     note: "Generated file — edits will be overwritten on next pnpm fire:sync. Verify contents via jq and sha256sum commands in AIOM-Technical-Brief.md.",
   };
-  payload.divergences = computeDivergences(payload, verifySummary);
+  payload.divergences = Array.isArray(truthMatrix?.divergences) ? truthMatrix.divergences : [];
   const jsonPath = join(root, "docs", "fire-metrics.json");
   const body = `${JSON.stringify(payload, null, 2)}\n`;
   writeFileSync(jsonPath, body, "utf8");
@@ -278,6 +234,14 @@ if (!existsSync(firePath)) {
   process.exit(1);
 }
 
+const truthMatrix = readTruthMatrix(root);
+if (!truthMatrix || typeof truthMatrix !== "object") {
+  console.error(
+    "sync-fire-md: missing artifacts/truth-matrix.json — run pnpm truth:aggregate or pnpm truth:build first.",
+  );
+  process.exit(1);
+}
+
 const engine = runEngineTests(root);
 if (!engine.ok) {
   console.error(
@@ -311,6 +275,7 @@ writeFireMetricsArtifacts(root, {
   vst3BundlePresent,
   vst3BundleBasename,
   vst3MainBinarySha256,
+  truthMatrix,
 });
 process.stderr.write("sync-fire-md: wrote docs/fire-metrics.json + docs/fire-metrics.sha256\n");
 

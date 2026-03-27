@@ -59,13 +59,6 @@ function readJsonIfExists(path) {
   }
 }
 
-function readVerifySummary(rootDir) {
-  return (
-    readJsonIfExists(join(rootDir, "artifacts", "verify", "verify-post-summary.json")) ??
-    readJsonIfExists(join(rootDir, ".artifacts", "verify", "verify-post-summary.json"))
-  );
-}
-
 function asNumber(v) {
   return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
@@ -73,27 +66,6 @@ function asNumber(v) {
 function formatMaybe(v) {
   if (v === null || v === undefined) return "unknown";
   return String(v);
-}
-
-function resolveMon(verifySummary, metrics) {
-  const verifyMon117 = asNumber(verifySummary?.minimumOperatingNumber117);
-  if (verifyMon117 !== null) {
-    return {
-      value: verifyMon117,
-      ready: verifySummary?.minimumOperatingReady === true,
-      source: "verify_post_summary",
-      raw: null,
-    };
-  }
-  const initiationStatus =
-    typeof metrics?.initiationStatus === "string" ? metrics.initiationStatus : null;
-  if (initiationStatus === "117/117_READY") {
-    return { value: 117, ready: true, source: "initiationStatus", raw: initiationStatus };
-  }
-  if (initiationStatus) {
-    return { value: null, ready: false, source: "initiationStatus", raw: initiationStatus };
-  }
-  return { value: null, ready: false, source: "unresolved", raw: null };
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -105,75 +77,89 @@ if (!root) {
 
 const metricsPath = join(root, "docs", "fire-metrics.json");
 const briefPath = join(root, "docs", "AIOM-Technical-Brief.md");
-if (!existsSync(metricsPath)) {
-  console.error(`sync-external-brief: missing ${metricsPath} (run pnpm fire:sync first)`);
-  process.exit(1);
-}
 if (!existsSync(briefPath)) {
   console.error(`sync-external-brief: missing ${briefPath}`);
   process.exit(1);
 }
 
-const metricsRaw = readFileSync(metricsPath, "utf8");
-const metrics = JSON.parse(metricsRaw);
-const metricsHash = createHash("sha256").update(metricsRaw).digest("hex");
+const metrics = readJsonIfExists(metricsPath) ?? {};
+const truthMatrix = readJsonIfExists(join(root, "artifacts", "truth-matrix.json"));
+if (!truthMatrix || typeof truthMatrix !== "object") {
+  console.error(
+    "sync-external-brief: missing artifacts/truth-matrix.json (run pnpm truth:build or pnpm fire:sync)",
+  );
+  process.exit(1);
+}
+const truthRaw = readFileSync(join(root, "artifacts", "truth-matrix.json"), "utf8");
+const truthHash = createHash("sha256").update(truthRaw).digest("hex");
 
-const verifySummary = readVerifySummary(root);
-const iomCoverage = asNumber(verifySummary?.iomCoverageScore);
-const mon = resolveMon(verifySummary, metrics);
-const pnhTotal = asNumber(verifySummary?.pnhSimulation?.totalScenarios);
-const pnhBreaches = asNumber(verifySummary?.pnhSimulation?.breaches);
-const pnhImmunityCount =
-  pnhTotal !== null && pnhBreaches !== null ? Math.max(0, pnhTotal - pnhBreaches) : null;
-const wasmStatus = typeof verifySummary?.wasmStatus === "string"
-  ? verifySummary.wasmStatus
-  : typeof metrics?.vst3BundlePresent === "boolean"
-    ? metrics.vst3BundlePresent ? "available" : "unknown"
-    : "unknown";
+const tmMetrics =
+  truthMatrix.metrics && typeof truthMatrix.metrics === "object"
+    ? truthMatrix.metrics
+    : {};
+const testsPassed = asNumber(tmMetrics.testsPassed);
+const iomCoverage = asNumber(tmMetrics.iomCoverageScore);
+const monValue = asNumber(tmMetrics.mon117);
+const monReady = tmMetrics.monReady === true;
+const monRawStatus = typeof tmMetrics.monRawStatus === "string" ? tmMetrics.monRawStatus : null;
+const divergences = Array.isArray(truthMatrix.divergences) ? truthMatrix.divergences : [];
+const pnhImmunityCount = asNumber(tmMetrics.pnhImmunityCount);
+const pnhTotalScenarios = asNumber(tmMetrics.pnhTotalScenarios);
+const pnhBreaches = asNumber(tmMetrics.pnhBreaches);
+const wasmStatus = typeof tmMetrics.wasmStatus === "string" ? tmMetrics.wasmStatus : "unknown";
 
-const syncAgeMsBase = parseIsoDateToUtcMs(metrics.syncedDateUtc);
+const syncAgeMsBase = parseIsoDateToUtcMs(String(tmMetrics.syncedDateUtc ?? ""));
 const isStale =
   syncAgeMsBase === null ? true : Date.now() - syncAgeMsBase > 24 * 60 * 60 * 1000;
 
 const syncBlock = [
-  "Producer: `pnpm fire:sync` (`scripts/sync-fire-md.mjs` + `scripts/sync-external-brief.mjs`)",
+  "Producer: `pnpm fire:sync` (`scripts/sync-fire-md.mjs` + `scripts/aggregate-truth.mjs` + `scripts/sync-external-brief.mjs`)",
   "Primary sources:",
-  "- `docs/fire-metrics.json`",
-  "- `artifacts/verify/verify-post-summary.json` (or `.artifacts/verify/verify-post-summary.json`)",
+  "- `artifacts/truth-matrix.json`",
   "",
-  "| Metric | Value | Definition | Source | Independent check |",
-  "|--------|-------|------------|--------|-------------------|",
-  `| Tests passed | ${formatMaybe(metrics.vitestTestsPassed)} | Total passing tests in latest shared-engine Vitest run | \`docs/fire-metrics.json\` (\`vitestTestsPassed\`) | \`jq '.vitestTestsPassed' docs/fire-metrics.json\` |`,
-  `| IOM coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} | Ratio of mapped IOM cells covered in verify summary | \`artifacts/verify/verify-post-summary.json\` (\`iomCoverageScore\`) | \`jq '.iomCoverageScore' artifacts/verify/verify-post-summary.json\` |`,
-  `| MON | ${mon.value === null ? `unknown${mon.raw ? ` (value=${mon.raw})` : ""}` : `${mon.value} (ready=${mon.ready ? "yes" : "no"})`} | Unified operating number resolved from verify summary first, then initiation status fallback | \`artifacts/verify/verify-post-summary.json\` or \`docs/fire-metrics.json\` (\`initiationStatus\`) | \`jq '{minimumOperatingNumber117, minimumOperatingReady}' artifacts/verify/verify-post-summary.json\` and \`jq '.initiationStatus' docs/fire-metrics.json\` |`,
-  `| PNH immunity count | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount} | \`totalScenarios - breaches\` in PNH simulation summary | \`artifacts/verify/verify-post-summary.json\` (\`pnhSimulation\`) | \`jq '.pnhSimulation' artifacts/verify/verify-post-summary.json\` |`,
-  `| WASM status | ${wasmStatus} | Browser encoder artifact availability (\`available\` or \`unavailable\`) | \`artifacts/verify/verify-post-summary.json\` (\`wasmStatus\`) | \`jq '.wasmStatus' artifacts/verify/verify-post-summary.json\` |`,
-  `| Sync date (UTC) | ${formatMaybe(metrics.syncedDateUtc)} | Date written by metrics sync script | \`docs/fire-metrics.json\` (\`syncedDateUtc\`) | \`jq '.syncedDateUtc' docs/fire-metrics.json\` |`,
+  "| Metric | Value | Expected | Definition | Source | Independent check |",
+  "|--------|-------|----------|------------|--------|-------------------|",
+  `| Tests passed | ${formatMaybe(testsPassed)} | Equals \`metrics.testsPassed\` in canonical artifact | Total passing tests in latest shared-engine Vitest run | \`artifacts/truth-matrix.json\` (\`metrics.testsPassed\`) | \`jq '.metrics.testsPassed' artifacts/truth-matrix.json\` |`,
+  `| IOM coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} | \`0.000 <= metrics.iomCoverageScore <= 1.000\` | Ratio of mapped IOM cells covered in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.iomCoverageScore\`) | \`jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json\` |`,
+  `| MON | ${monValue === null ? `unknown${monRawStatus ? ` (raw=${monRawStatus})` : ""}` : `mon117=${monValue}, monReady=${monReady ? "true" : "false"}`} | \`metrics.mon117 == 117 and metrics.monReady == true\` for release-ready posture | Unified operating number resolved in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.mon117\`, \`metrics.monReady\`) | \`jq '.metrics | { mon117, monReady, monSource, monRawStatus }' artifacts/truth-matrix.json\` |`,
+  `| PNH immunity | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount}${pnhTotalScenarios === null ? "" : ` / ${pnhTotalScenarios}`}${pnhBreaches === null ? "" : ` (breaches: ${pnhBreaches})`} | \`metrics.pnhImmunityCount == metrics.pnhTotalScenarios - metrics.pnhBreaches\` | Scenario-based resilience result from canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.pnhImmunityCount\`, \`metrics.pnhTotalScenarios\`, \`metrics.pnhBreaches\`) | \`jq '.metrics | { pnhImmunityCount, pnhTotalScenarios, pnhBreaches }' artifacts/truth-matrix.json\` |`,
+  `| WASM status | ${wasmStatus} | Value is one of \`available\` or \`unavailable\` | Browser encoder artifact availability | \`artifacts/truth-matrix.json\` (\`metrics.wasmStatus\`) | \`jq '.metrics.wasmStatus' artifacts/truth-matrix.json\` |`,
+  `| Sync date (UTC) | ${formatMaybe(tmMetrics.syncedDateUtc)} | Matches format \`YYYY-MM-DD\` | Date written by truth aggregation script | \`artifacts/truth-matrix.json\` (\`metrics.syncedDateUtc\`) | \`jq '.metrics.syncedDateUtc' artifacts/truth-matrix.json\` |`,
+  `| Divergences | ${divergences.length === 0 ? "none" : String(divergences.length)} | \`length(divergences) == 0\` for clean state | Canonical divergence array for source consistency checks | \`artifacts/truth-matrix.json\` (\`divergences\`) | \`jq '.divergences | length' artifacts/truth-matrix.json\` |`,
   "",
   "Re-sync procedure (if any metric shows unknown):",
   "1. Run `pnpm verify:harsh`",
-  "2. Confirm expected fields exist in `artifacts/verify/verify-post-summary.json`",
+  "2. Confirm expected fields exist in `artifacts/truth-matrix.json`",
   "3. Run `pnpm fire:sync`",
   "4. Resolution owner: engineering operator on duty",
+  "",
+  "Audit procedure:",
+  "1. Verify artifact hash: `sha256sum artifacts/truth-matrix.json`",
+  "2. Validate fields via `jq` checks in this table",
+  "3. Compare with `GET /api/health/truth-matrix` runtime response",
+  "4. Investigate and resolve any divergence before sharing",
 ].join("\n");
 
 const trustBlock = [
-  "Data in this document is produced by repository scripts and local verify artifacts.",
+  "Data in this document is produced by repository scripts and canonical truth artifacts.",
   "",
-  `- Last verification timestamp from metrics artifact: \`${formatMaybe(metrics.generatedAtUtc)}\``,
-  `- Metrics sync date from metrics artifact: \`${formatMaybe(metrics.syncedDateUtc)}\``,
-  `- Metrics file hash: \`${metricsHash}\``,
-  "- Source file: `docs/fire-metrics.json`",
+  "- Document schema version: `v1.3`",
+  `- Last verification timestamp from canonical truth artifact: \`${formatMaybe(truthMatrix.generatedAtUtc)}\``,
+  `- Metrics sync date from canonical truth artifact: \`${formatMaybe(tmMetrics.syncedDateUtc)}\``,
+  `- Truth file hash: \`${truthHash}\``,
+  "- Source file: `artifacts/truth-matrix.json`",
   "",
   "How to verify independently:",
   "",
   "```bash",
-  "sha256sum docs/fire-metrics.json",
+  "sha256sum artifacts/truth-matrix.json",
   "```",
   "",
   isStale
     ? "If this metadata is stale (older than 24h), run `pnpm fire:sync` before sharing."
     : "Metadata freshness is within 24 hours.",
+  "",
+  "Interpretation note: values listed here are raw system metrics. They do not imply correctness without independent verification.",
 ].join("\n");
 
 const before = readFileSync(briefPath, "utf8");
@@ -193,9 +179,9 @@ const afterTrust = patchMarkedBlock(
 );
 writeFileSync(briefPath, afterTrust, "utf8");
 
-if (mon.value === null) {
+if (monValue === null) {
   process.stderr.write(
-    `sync-external-brief: warning — MON unresolved (source=${mon.source}${mon.raw ? `, raw=${mon.raw}` : ""}); rendered as unknown in brief\n`,
+    `sync-external-brief: warning — MON unresolved${monRawStatus ? ` (raw=${monRawStatus})` : ""}; rendered as unknown in brief\n`,
   );
 }
 

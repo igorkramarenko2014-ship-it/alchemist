@@ -17,6 +17,8 @@ export interface TruthMatrixSnapshot {
   triadFullyLive: boolean;
   wasmStatus: "available" | "unavailable";
   hardGate: "enforced" | "best_effort";
+  canonicalArtifactPath: string | null;
+  canonicalMetrics?: Record<string, unknown>;
   rows: TruthMatrixRow[];
   runtimeChecks?: TruthMatrixRuntimeChecks;
 }
@@ -62,20 +64,29 @@ function loadVerifyPostSummary():
   | { path: null; data: null } {
   const root = resolveMonorepoRoot();
   if (!root) return { path: null, data: null };
-  const candidates = [
-    path.join(root, "artifacts", "verify", "verify-post-summary.json"),
-    path.join(root, ".artifacts", "verify", "verify-post-summary.json"),
-  ];
-  for (const p of candidates) {
-    if (!fs.existsSync(p)) continue;
-    try {
-      const data = JSON.parse(fs.readFileSync(p, "utf8")) as Record<string, unknown>;
-      return { path: p, data };
-    } catch {
-      continue;
-    }
+  const p = path.join(root, "artifacts", "verify", "verify-post-summary.json");
+  if (!fs.existsSync(p)) return { path: null, data: null };
+  try {
+    const data = JSON.parse(fs.readFileSync(p, "utf8")) as Record<string, unknown>;
+    return { path: p, data };
+  } catch {
+    return { path: null, data: null };
   }
-  return { path: null, data: null };
+}
+
+function loadTruthMatrixArtifact():
+  | { path: string; data: Record<string, unknown> }
+  | { path: null; data: null } {
+  const root = resolveMonorepoRoot();
+  if (!root) return { path: null, data: null };
+  const p = path.join(root, "artifacts", "truth-matrix.json");
+  if (!fs.existsSync(p)) return { path: null, data: null };
+  try {
+    const data = JSON.parse(fs.readFileSync(p, "utf8")) as Record<string, unknown>;
+    return { path: p, data };
+  } catch {
+    return { path: null, data: null };
+  }
 }
 
 export function buildTruthMatrixRuntimeChecks(): TruthMatrixRuntimeChecks {
@@ -167,12 +178,19 @@ export function buildTruthMatrixSnapshot(input: {
 }): TruthMatrixSnapshot {
   const wasmStatus = input.wasmAvailable ? "available" : "unavailable";
   const hardGate = input.strictOffsetsEnabled ? "enforced" : "best_effort";
+  const canonical = loadTruthMatrixArtifact();
+  const canonicalMetrics =
+    canonical.data && typeof canonical.data.metrics === "object"
+      ? (canonical.data.metrics as Record<string, unknown>)
+      : undefined;
   return {
     generatedAtMs: Date.now(),
     triadLivePanelists: input.triadLivePanelists,
     triadFullyLive: input.triadFullyLive,
     wasmStatus,
     hardGate,
+    canonicalArtifactPath: canonical.path,
+    canonicalMetrics,
     rows: [
       {
         path: "Triad candidates",

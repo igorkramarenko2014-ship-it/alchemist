@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "syncedDateUtc": "2026-03-27",
-  "generatedAtUtc": "2026-03-27T16:34:18.142Z",
+  "generatedAtUtc": "2026-03-27T17:18:02.259Z",
   "vitestTestsPassed": 316,
   "vitestTestFilesPassed": 66,
   "vitestTestTsOnDisk": 66,
@@ -12,16 +12,8 @@
   "initiationStatus": "117/117_READY",
   "mon117": 117,
   "monReady": true,
-  "monSource": "initiationStatus",
-  "monRawStatus": "117/117_READY",
-  "initiatorSkillsSha256": "709e769e0cdac196f37986cfc3a0f4c990fde8245732ca1f158c97f533c82e26",
+  "monSource": "verify_post_summary",
+  "initiatorSkillsSha256": "c4bcf3dcd341f5e38e0757953e47cf51e80408fe162684e3fe9afae718742fd1",
   "note": "Generated file — edits will be overwritten on next pnpm fire:sync. Verify contents via jq and sha256sum commands in AIOM-Technical-Brief.md.",
-  "divergences": [
-    {
-      "field": "MON",
-      "verify": null,
-      "metrics": 117,
-      "status": "missing"
-    }
-  ]
+  "divergences": []
 }

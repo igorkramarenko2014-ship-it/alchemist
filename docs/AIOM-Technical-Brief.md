@@ -2,24 +2,42 @@
 
 External technical snapshot for architecture review and operations review.
 
+## System Overview
+
+AIOM is a verification-driven metrics system for evaluating runtime integrity and release readiness.
+
+- `shared-engine`: core validation and scoring layer evaluated by verify/test flows
+- `IOM cells`: coverage units used in verification completeness reporting
+- `PNH simulation`: scenario-based resilience checks summarized into immunity metrics
+
+This document is an externally verifiable snapshot derived from repository artifacts.
+
+## Environment
+
+This snapshot reflects a local verification environment.
+Production validation requires querying the deployed runtime endpoint and comparing it to the canonical artifact contract.
+
 ## Synchronization Metadata
 
 <!-- DOC_TRUST:BEGIN -->
 
-Data in this document is produced by repository scripts and local verify artifacts.
+Data in this document is produced by repository scripts and canonical truth artifacts.
 
-- Last verification timestamp from metrics artifact: `2026-03-27T16:34:18.142Z`
-- Metrics sync date from metrics artifact: `2026-03-27`
-- Metrics file hash: `7202a8f543153842c76b57dfc9b6f2099391e56c42249dc909707caf415a2421`
-- Source file: `docs/fire-metrics.json`
+- Document schema version: `v1.3`
+- Last verification timestamp from canonical truth artifact: `2026-03-27T17:17:57.175Z`
+- Metrics sync date from canonical truth artifact: `2026-03-27`
+- Truth file hash: `d4472538d8f93eb68f72480a5a63040dce47535b3ab365c86bc4c27b96af3bb7`
+- Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
 
 ```bash
-sha256sum docs/fire-metrics.json
+sha256sum artifacts/truth-matrix.json
 ```
 
 Metadata freshness is within 24 hours.
+
+Interpretation note: values listed here are raw system metrics. They do not imply correctness without independent verification.
 
 <!-- DOC_TRUST:END -->
 
@@ -27,25 +45,31 @@ Metadata freshness is within 24 hours.
 
 <!-- DOCS_SYNC:BEGIN -->
 
-Producer: `pnpm fire:sync` (`scripts/sync-fire-md.mjs` + `scripts/sync-external-brief.mjs`)
+Producer: `pnpm fire:sync` (`scripts/sync-fire-md.mjs` + `scripts/aggregate-truth.mjs` + `scripts/sync-external-brief.mjs`)
 Primary sources:
-- `docs/fire-metrics.json`
-- `artifacts/verify/verify-post-summary.json` (or `.artifacts/verify/verify-post-summary.json`)
+- `artifacts/truth-matrix.json`
 
-| Metric | Value | Definition | Source | Independent check |
-|--------|-------|------------|--------|-------------------|
-| Tests passed | 316 | Total passing tests in latest shared-engine Vitest run | `docs/fire-metrics.json` (`vitestTestsPassed`) | `jq '.vitestTestsPassed' docs/fire-metrics.json` |
-| IOM coverage | 1.000 | Ratio of mapped IOM cells covered in verify summary | `artifacts/verify/verify-post-summary.json` (`iomCoverageScore`) | `jq '.iomCoverageScore' artifacts/verify/verify-post-summary.json` |
-| MON | 117 (ready=yes) | Unified operating number resolved from verify summary first, then initiation status fallback | `artifacts/verify/verify-post-summary.json` or `docs/fire-metrics.json` (`initiationStatus`) | `jq '{minimumOperatingNumber117, minimumOperatingReady}' artifacts/verify/verify-post-summary.json` and `jq '.initiationStatus' docs/fire-metrics.json` |
-| PNH immunity count | 25 | `totalScenarios - breaches` in PNH simulation summary | `artifacts/verify/verify-post-summary.json` (`pnhSimulation`) | `jq '.pnhSimulation' artifacts/verify/verify-post-summary.json` |
-| WASM status | available | Browser encoder artifact availability (`available` or `unavailable`) | `artifacts/verify/verify-post-summary.json` (`wasmStatus`) | `jq '.wasmStatus' artifacts/verify/verify-post-summary.json` |
-| Sync date (UTC) | 2026-03-27 | Date written by metrics sync script | `docs/fire-metrics.json` (`syncedDateUtc`) | `jq '.syncedDateUtc' docs/fire-metrics.json` |
+| Metric | Value | Expected | Definition | Source | Independent check |
+|--------|-------|----------|------------|--------|-------------------|
+| Tests passed | 316 | Equals `metrics.testsPassed` in canonical artifact | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`) | `jq '.metrics.testsPassed' artifacts/truth-matrix.json` |
+| IOM coverage | 1.000 | `0.000 <= metrics.iomCoverageScore <= 1.000` | Ratio of mapped IOM cells covered in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.iomCoverageScore`) | `jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json` |
+| MON | mon117=117, monReady=true | `metrics.mon117 == 117 and metrics.monReady == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon117`, `metrics.monReady`) | `jq '.metrics | { mon117, monReady, monSource, monRawStatus }' artifacts/truth-matrix.json` |
+| PNH immunity | 25 / 25 (breaches: 0) | `metrics.pnhImmunityCount == metrics.pnhTotalScenarios - metrics.pnhBreaches` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunityCount`, `metrics.pnhTotalScenarios`, `metrics.pnhBreaches`) | `jq '.metrics | { pnhImmunityCount, pnhTotalScenarios, pnhBreaches }' artifacts/truth-matrix.json` |
+| WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
+| Sync date (UTC) | 2026-03-27 | Matches format `YYYY-MM-DD` | Date written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedDateUtc`) | `jq '.metrics.syncedDateUtc' artifacts/truth-matrix.json` |
+| Divergences | none | `length(divergences) == 0` for clean state | Canonical divergence array for source consistency checks | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):
 1. Run `pnpm verify:harsh`
-2. Confirm expected fields exist in `artifacts/verify/verify-post-summary.json`
+2. Confirm expected fields exist in `artifacts/truth-matrix.json`
 3. Run `pnpm fire:sync`
 4. Resolution owner: engineering operator on duty
+
+Audit procedure:
+1. Verify artifact hash: `sha256sum artifacts/truth-matrix.json`
+2. Validate fields via `jq` checks in this table
+3. Compare with `GET /api/health/truth-matrix` runtime response
+4. Investigate and resolve any divergence before sharing
 
 <!-- DOCS_SYNC:END -->
 
@@ -61,4 +85,33 @@ Example:
 curl -sS "http://127.0.0.1:3000/api/health/truth-matrix"
 ```
 
+Expected response fields (minimum contract):
+
+```json
+{
+  "canonicalArtifactPath": "artifacts/truth-matrix.json",
+  "canonicalMetrics": {
+    "mon117": 117,
+    "monReady": true,
+    "testsPassed": 316,
+    "wasmStatus": "available"
+  }
+}
+```
+
+Expected runtime failure modes:
+
+- `stale_data`: truth artifact timestamp is older than operational freshness policy
+- `source_unreachable`: canonical truth artifact or verify summary cannot be loaded
+
 If values in this brief and the runtime endpoint diverge, refresh this document with `pnpm fire:sync` and review why artifacts differ.
+
+## Glossary
+
+| Term | Definition |
+|------|------------|
+| AIOM | System integrity metric framework and orchestration surface |
+| IOM cell | Unit of verification coverage in the orchestrator map |
+| PNH simulation | Scenario-based resilience suite summarized in immunity metrics |
+| MON | Minimum Operating Number fields (`mon117`, `monReady`) |
+| Truth matrix | Canonical artifact at `artifacts/truth-matrix.json` |
