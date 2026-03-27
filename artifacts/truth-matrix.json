@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAtUtc": "2026-03-27T17:55:49.521Z",
-  "divergenceCheckedAtUtc": "2026-03-27T17:55:49.521Z",
+  "generatedAtUtc": "2026-03-27T18:39:21.144Z",
+  "divergenceCheckedAtUtc": "2026-03-27T18:39:21.144Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -16,11 +16,14 @@
       "ready": true,
       "source": "verify_post_summary"
     },
-    "pnhImmunityCount": 25,
-    "pnhTotalScenarios": 25,
-    "pnhBreaches": 0,
+    "pnhImmunity": {
+      "passed": 25,
+      "total": 25,
+      "breaches": 0,
+      "status": "clean"
+    },
     "wasmStatus": "available",
-    "syncedDateUtc": "2026-03-27"
+    "syncedAtUtc": "2026-03-27T18:25:59.479Z"
   },
   "divergences": []
 }

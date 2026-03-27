@@ -60,11 +60,16 @@ function validateAgainstSchemaShape(doc) {
   assert(isFiniteNumber(doc.metrics.mon.value), "metrics.mon.value must be number");
   assert(typeof doc.metrics.mon.ready === "boolean", "metrics.mon.ready must be boolean");
   assert(typeof doc.metrics.mon.source === "string" && doc.metrics.mon.source.length > 0, "metrics.mon.source missing");
-  assert(isFiniteNumber(doc.metrics.pnhImmunityCount), "metrics.pnhImmunityCount must be number");
-  assert(isFiniteNumber(doc.metrics.pnhTotalScenarios), "metrics.pnhTotalScenarios must be number");
-  assert(isFiniteNumber(doc.metrics.pnhBreaches), "metrics.pnhBreaches must be number");
+  assert(doc.metrics.pnhImmunity && typeof doc.metrics.pnhImmunity === "object", "metrics.pnhImmunity object missing");
+  assert(isFiniteNumber(doc.metrics.pnhImmunity.passed), "metrics.pnhImmunity.passed must be number");
+  assert(isFiniteNumber(doc.metrics.pnhImmunity.total), "metrics.pnhImmunity.total must be number");
+  assert(isFiniteNumber(doc.metrics.pnhImmunity.breaches), "metrics.pnhImmunity.breaches must be number");
+  assert(
+    doc.metrics.pnhImmunity.status === "clean" || doc.metrics.pnhImmunity.status === "breach",
+    "metrics.pnhImmunity.status must be clean|breach",
+  );
   assert(doc.metrics.wasmStatus === "available" || doc.metrics.wasmStatus === "unavailable", "metrics.wasmStatus invalid");
-  assert(typeof doc.metrics.syncedDateUtc === "string", "metrics.syncedDateUtc must be string");
+  assert(isIsoDateTime(doc.metrics.syncedAtUtc), "metrics.syncedAtUtc must be ISO datetime");
 
   assert(Array.isArray(doc.divergences), "divergences must be array");
 }
@@ -73,8 +78,13 @@ function validateContractInvariants(doc) {
   assert(doc.metrics.testsPassed === doc.metrics.testsTotal, "testsPassed must equal testsTotal");
   assert(doc.metrics.iomCoverageScore >= 0 && doc.metrics.iomCoverageScore <= 1, "iomCoverageScore must be in [0,1]");
   assert(
-    doc.metrics.pnhImmunityCount === doc.metrics.pnhTotalScenarios - doc.metrics.pnhBreaches,
-    "pnhImmunityCount must equal pnhTotalScenarios - pnhBreaches",
+    doc.metrics.pnhImmunity.passed === doc.metrics.pnhImmunity.total - doc.metrics.pnhImmunity.breaches,
+    "pnhImmunity.passed must equal pnhImmunity.total - pnhImmunity.breaches",
+  );
+  assert(
+    (doc.metrics.pnhImmunity.breaches === 0 && doc.metrics.pnhImmunity.status === "clean") ||
+      (doc.metrics.pnhImmunity.breaches > 0 && doc.metrics.pnhImmunity.status === "breach"),
+    "pnhImmunity.status must match breaches",
   );
 }
 

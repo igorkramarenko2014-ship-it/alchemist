@@ -56,11 +56,9 @@
         "testsTotal",
         "iomCoverageScore",
         "mon",
-        "pnhImmunityCount",
-        "pnhTotalScenarios",
-        "pnhBreaches",
+        "pnhImmunity",
         "wasmStatus",
-        "syncedDateUtc"
+        "syncedAtUtc"
       ],
       "properties": {
         "testsPassed": {
@@ -93,14 +91,33 @@
             }
           }
         },
-        "pnhImmunityCount": {
-          "type": "number"
-        },
-        "pnhTotalScenarios": {
-          "type": "number"
-        },
-        "pnhBreaches": {
-          "type": "number"
+        "pnhImmunity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "passed",
+            "total",
+            "breaches",
+            "status"
+          ],
+          "properties": {
+            "passed": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            },
+            "breaches": {
+              "type": "number"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "clean",
+                "breach"
+              ]
+            }
+          }
         },
         "wasmStatus": {
           "type": "string",
@@ -109,9 +126,9 @@
             "unavailable"
           ]
         },
-        "syncedDateUtc": {
+        "syncedAtUtc": {
           "type": "string",
-          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          "format": "date-time"
         }
       }
     },

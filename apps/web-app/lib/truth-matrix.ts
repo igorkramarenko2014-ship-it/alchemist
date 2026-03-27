@@ -24,13 +24,13 @@ export interface TruthMatrixSnapshot {
   wasmStatus: "available" | "unavailable";
   hardGate: "enforced" | "best_effort";
   canonicalArtifactPath: string | null;
+  /** Canonical truth artifact payload exposed 1:1 for zero mapping ambiguity. */
+  artifact?: Record<string, unknown> | null;
   /** From `artifacts/truth-matrix.json` when present (ISO-8601). */
   truthArtifactGeneratedAtUtc?: string | null;
   /** When divergences were last evaluated (same file; ISO-8601). */
   divergenceCheckedAtUtc?: string | null;
-  /**
-   * Enriched view of canonical truth from artifact metrics + normalized summary fields.
-   */
+  /** Backward-compatible alias of `artifact.metrics` when present. */
   canonicalMetrics?: Record<string, unknown>;
   rows: TruthMatrixRow[];
   runtimeChecks?: TruthMatrixRuntimeChecks;
@@ -95,51 +95,14 @@ function loadVerifyPostSummary():
   }
 }
 
-/** Builds API-facing canonical metrics from `artifacts/truth-matrix.json` contents. */
+/** Backward-compatible alias: return `artifact.metrics` unchanged when present. */
 export function buildCanonicalMetricsFromArtifact(
   artifact: Record<string, unknown> | null | undefined,
 ): Record<string, unknown> | undefined {
   if (!artifact || typeof artifact !== "object") return undefined;
-  const metrics =
-    artifact.metrics && typeof artifact.metrics === "object"
-      ? (artifact.metrics as Record<string, unknown>)
-      : {};
-  const divergences = Array.isArray(artifact.divergences) ? artifact.divergences : [];
-  const mon =
-    metrics.mon && typeof metrics.mon === "object" ? (metrics.mon as Record<string, unknown>) : {};
-  const pnhPassed =
-    typeof metrics.pnhImmunityCount === "number" && Number.isFinite(metrics.pnhImmunityCount)
-      ? metrics.pnhImmunityCount
-      : null;
-  const pnhTotal =
-    typeof metrics.pnhTotalScenarios === "number" && Number.isFinite(metrics.pnhTotalScenarios)
-      ? metrics.pnhTotalScenarios
-      : null;
-  const pnhBreaches =
-    typeof metrics.pnhBreaches === "number" && Number.isFinite(metrics.pnhBreaches)
-      ? metrics.pnhBreaches
-      : null;
-  const iom =
-    typeof metrics.iomCoverageScore === "number" && Number.isFinite(metrics.iomCoverageScore)
-      ? metrics.iomCoverageScore
-      : null;
-
-  return {
-    ...metrics,
-    iomCoverageScore: iom,
-    divergences: divergences.length,
-    pnhImmunity:
-      pnhPassed != null && pnhTotal != null && pnhBreaches != null
-        ? { passed: pnhPassed, total: pnhTotal, breaches: pnhBreaches }
-        : undefined,
-    artifactVerification:
-      typeof artifact.verification === "string"
-        ? {
-            method: "sha256",
-            artifactPath: "artifacts/truth-matrix.json",
-          }
-        : undefined,
-  };
+  return artifact.metrics && typeof artifact.metrics === "object"
+    ? (artifact.metrics as Record<string, unknown>)
+    : undefined;
 }
 
 function validateTruthArtifactSchemaShape(artifact: Record<string, unknown> | null | undefined): string[] {
@@ -175,13 +138,22 @@ function validateTruthArtifactSchemaShape(artifact: Record<string, unknown> | nu
       issues.push("metrics.mon.source must be non-empty string");
     }
   }
-  if (!isFiniteNumber(metrics.pnhImmunityCount)) issues.push("metrics.pnhImmunityCount must be number");
-  if (!isFiniteNumber(metrics.pnhTotalScenarios)) issues.push("metrics.pnhTotalScenarios must be number");
-  if (!isFiniteNumber(metrics.pnhBreaches)) issues.push("metrics.pnhBreaches must be number");
+  if (!isObjectRecord(metrics.pnhImmunity)) {
+    issues.push("metrics.pnhImmunity object missing");
+  } else {
+    if (!isFiniteNumber(metrics.pnhImmunity.passed)) issues.push("metrics.pnhImmunity.passed must be number");
+    if (!isFiniteNumber(metrics.pnhImmunity.total)) issues.push("metrics.pnhImmunity.total must be number");
+    if (!isFiniteNumber(metrics.pnhImmunity.breaches)) issues.push("metrics.pnhImmunity.breaches must be number");
+    if (metrics.pnhImmunity.status !== "clean" && metrics.pnhImmunity.status !== "breach") {
+      issues.push("metrics.pnhImmunity.status must be clean|breach");
+    }
+  }
   if (metrics.wasmStatus !== "available" && metrics.wasmStatus !== "unavailable") {
     issues.push("metrics.wasmStatus must be available|unavailable");
   }
-  if (typeof metrics.syncedDateUtc !== "string") issues.push("metrics.syncedDateUtc must be string");
+  if (typeof metrics.syncedAtUtc !== "string" || !Number.isFinite(Date.parse(metrics.syncedAtUtc))) {
+    issues.push("metrics.syncedAtUtc must be ISO datetime");
+  }
   if (!Array.isArray(artifact.divergences)) issues.push("divergences must be array");
   return issues;
 }
@@ -207,12 +179,11 @@ function evaluateRuntimeArtifactParity(input: {
     if (cm.mon.ready !== metrics.mon.ready) issues.push("canonicalMetrics.mon.ready mismatch");
     if (cm.mon.source !== metrics.mon.source) issues.push("canonicalMetrics.mon.source mismatch");
   }
-  const expectedDivergences = Array.isArray(input.artifact.divergences) ? input.artifact.divergences.length : null;
-  if (cm.divergences !== expectedDivergences) issues.push("canonicalMetrics.divergences mismatch");
-  if (isObjectRecord(cm.pnhImmunity)) {
-    if (cm.pnhImmunity.passed !== metrics.pnhImmunityCount) issues.push("canonicalMetrics.pnhImmunity.passed mismatch");
-    if (cm.pnhImmunity.total !== metrics.pnhTotalScenarios) issues.push("canonicalMetrics.pnhImmunity.total mismatch");
-    if (cm.pnhImmunity.breaches !== metrics.pnhBreaches) issues.push("canonicalMetrics.pnhImmunity.breaches mismatch");
+  if (isObjectRecord(cm.pnhImmunity) && isObjectRecord(metrics.pnhImmunity)) {
+    if (cm.pnhImmunity.passed !== metrics.pnhImmunity.passed) issues.push("canonicalMetrics.pnhImmunity.passed mismatch");
+    if (cm.pnhImmunity.total !== metrics.pnhImmunity.total) issues.push("canonicalMetrics.pnhImmunity.total mismatch");
+    if (cm.pnhImmunity.breaches !== metrics.pnhImmunity.breaches) issues.push("canonicalMetrics.pnhImmunity.breaches mismatch");
+    if (cm.pnhImmunity.status !== metrics.pnhImmunity.status) issues.push("canonicalMetrics.pnhImmunity.status mismatch");
   } else {
     issues.push("canonicalMetrics.pnhImmunity missing");
   }
@@ -376,6 +347,7 @@ export function buildTruthMatrixSnapshot(input: {
     wasmStatus,
     hardGate,
     canonicalArtifactPath: canonical.path,
+    artifact: canonical.data ?? null,
     truthArtifactGeneratedAtUtc,
     divergenceCheckedAtUtc,
     canonicalMetrics,

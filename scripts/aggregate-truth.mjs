@@ -111,8 +111,8 @@ try {
     true,
   );
   const wasmStatus = toStringValue(verify?.wasmStatus, "verify.wasmStatus", true);
-  const syncedDateUtc = toStringValue(metrics?.syncedDateUtc, "metrics.syncedDateUtc", true);
-  const pnhImmunityCount = Math.max(0, pnhTotal - pnhBreaches);
+  const syncedAtUtc = toStringValue(metrics?.generatedAtUtc, "metrics.generatedAtUtc", true);
+  const pnhPassed = Math.max(0, pnhTotal - pnhBreaches);
   const mon = resolveMonFromVerify(verify);
 
   const verifyMon117 = toFiniteNumber(
@@ -162,11 +162,14 @@ try {
         ready: mon.ready,
         source: mon.source,
       },
-      pnhImmunityCount,
-      pnhTotalScenarios: pnhTotal,
-      pnhBreaches,
+      pnhImmunity: {
+        passed: pnhPassed,
+        total: pnhTotal,
+        breaches: pnhBreaches,
+        status: pnhBreaches === 0 ? "clean" : "breach",
+      },
       wasmStatus,
-      syncedDateUtc,
+      syncedAtUtc,
     },
     divergences,
   };

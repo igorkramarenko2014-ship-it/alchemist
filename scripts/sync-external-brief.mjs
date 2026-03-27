@@ -45,8 +45,8 @@ function patchMarkedBlock(content, beginMark, endMark, innerMarkdown, labelForEr
   );
 }
 
-function parseIsoDateToUtcMs(yyyyMmDd) {
-  const t = Date.parse(`${yyyyMmDd}T00:00:00.000Z`);
+function parseIsoDateToUtcMs(isoString) {
+  const t = Date.parse(isoString);
   return Number.isFinite(t) ? t : null;
 }
 
@@ -105,12 +105,15 @@ const monValue = asNumber(monObj.value);
 const monIsReady = monObj.ready === true;
 const monRawStatus = typeof monObj.rawStatus === "string" ? monObj.rawStatus : null;
 const divergences = Array.isArray(truthMatrix.divergences) ? truthMatrix.divergences : [];
-const pnhImmunityCount = asNumber(tmMetrics.pnhImmunityCount);
-const pnhTotalScenarios = asNumber(tmMetrics.pnhTotalScenarios);
-const pnhBreaches = asNumber(tmMetrics.pnhBreaches);
+const pnhImmunity =
+  tmMetrics.pnhImmunity && typeof tmMetrics.pnhImmunity === "object" ? tmMetrics.pnhImmunity : {};
+const pnhPassed = asNumber(pnhImmunity.passed);
+const pnhTotal = asNumber(pnhImmunity.total);
+const pnhBreaches = asNumber(pnhImmunity.breaches);
+const pnhStatus = typeof pnhImmunity.status === "string" ? pnhImmunity.status : "unknown";
 const wasmStatus = typeof tmMetrics.wasmStatus === "string" ? tmMetrics.wasmStatus : "unknown";
 
-const syncAgeMsBase = parseIsoDateToUtcMs(String(tmMetrics.syncedDateUtc ?? ""));
+const syncAgeMsBase = parseIsoDateToUtcMs(String(tmMetrics.syncedAtUtc ?? ""));
 const isStale =
   syncAgeMsBase === null ? true : Date.now() - syncAgeMsBase > 24 * 60 * 60 * 1000;
 
@@ -124,14 +127,14 @@ const syncBlock = [
   `| Tests passed | ${testsPassed === null ? "unknown" : `${testsPassed} / ${testsTotal === null ? "unknown" : testsTotal}`} | \`metrics.testsPassed == metrics.testsTotal\` | Total passing tests in latest shared-engine Vitest run | \`artifacts/truth-matrix.json\` (\`metrics.testsPassed\`, \`metrics.testsTotal\`) | \`jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json\` |`,
   `| IOM coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} | \`0.000 <= metrics.iomCoverageScore <= 1.000\` | Ratio of mapped IOM cells covered in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.iomCoverageScore\`) | \`jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json\` |`,
   `| MON | ${monValue === null ? `unknown${monRawStatus ? ` (raw=${monRawStatus})` : ""}` : `value=${monValue}, ready=${monIsReady ? "true" : "false"}`} | \`metrics.mon.value == 117 and metrics.mon.ready == true\` for release-ready posture | Unified operating number resolved in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.mon\`) | \`jq '.metrics.mon' artifacts/truth-matrix.json\` |`,
-  `| PNH immunity | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount}${pnhTotalScenarios === null ? "" : ` / ${pnhTotalScenarios}`}${pnhBreaches === null ? "" : ` (breaches: ${pnhBreaches})`} | \`metrics.pnhImmunityCount == metrics.pnhTotalScenarios - metrics.pnhBreaches\` | Scenario-based resilience result from canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.pnhImmunityCount\`, \`metrics.pnhTotalScenarios\`, \`metrics.pnhBreaches\`) | \`jq '.metrics | { pnhImmunityCount, pnhTotalScenarios, pnhBreaches }' artifacts/truth-matrix.json\` |`,
+  `| PNH immunity | ${pnhPassed === null ? "unknown" : pnhPassed}${pnhTotal === null ? "" : ` / ${pnhTotal}`}${pnhBreaches === null ? "" : ` (breaches: ${pnhBreaches})`} [${pnhStatus}] | \`metrics.pnhImmunity.status in {clean, breach}\` | Scenario-based resilience result from canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.pnhImmunity\`) | \`jq '.metrics.pnhImmunity' artifacts/truth-matrix.json\` |`,
   `| WASM status | ${wasmStatus} | Value is one of \`available\` or \`unavailable\` | Browser encoder artifact availability | \`artifacts/truth-matrix.json\` (\`metrics.wasmStatus\`) | \`jq '.metrics.wasmStatus' artifacts/truth-matrix.json\` |`,
-  `| Sync date (UTC) | ${formatMaybe(tmMetrics.syncedDateUtc)} | Matches format \`YYYY-MM-DD\` | Date written by truth aggregation script | \`artifacts/truth-matrix.json\` (\`metrics.syncedDateUtc\`) | \`jq '.metrics.syncedDateUtc' artifacts/truth-matrix.json\` |`,
+  `| Sync timestamp (UTC) | ${formatMaybe(tmMetrics.syncedAtUtc)} | ISO 8601 timestamp | Time written by truth aggregation script | \`artifacts/truth-matrix.json\` (\`metrics.syncedAtUtc\`) | \`jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json\` |`,
   `| Divergences | ${String(divergences.length)} | \`length(divergences) == 0\` for clean state | Canonical divergence array for source consistency checks | \`artifacts/truth-matrix.json\` (\`divergences\`) | \`jq '.divergences | length' artifacts/truth-matrix.json\` |`,
   "",
   "Re-sync procedure (if any metric shows unknown):",
   "1. Run `pnpm verify:harsh`",
-  "2. Confirm expected fields exist in `artifacts/truth-matrix.json`",
+  "2. Schema gates run automatically (`validate-truth-matrix.mjs` + `validate-fire-metrics.mjs`)",
   "3. Run `pnpm fire:sync`",
   "4. Resolution owner: engineering operator on duty",
   "5. Marker integrity note: `pnpm fire:sync` validates required marker blocks and fails if markers are missing or malformed; edits inside `DOC_TRUST`/`DOCS_SYNC` blocks are overwritten.",
@@ -148,7 +151,7 @@ const trustBlock = [
   "",
   "- Document schema version: `v1.3`",
   `- Last verification timestamp from canonical truth artifact: \`${formatMaybe(truthMatrix.generatedAtUtc)}\``,
-  `- Metrics sync date from canonical truth artifact: \`${formatMaybe(tmMetrics.syncedDateUtc)}\``,
+  `- Metrics sync timestamp from canonical truth artifact: \`${formatMaybe(tmMetrics.syncedAtUtc)}\``,
   `- Truth file hash: \`${truthHash}\``,
   "- Source file: `artifacts/truth-matrix.json`",
   "",
