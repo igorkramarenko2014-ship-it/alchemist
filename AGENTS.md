@@ -55,7 +55,8 @@ pnpm harshcheck:fire  # harshcheck + ALCHEMIST_FIRE_SYNC=1 (refresh FIRE.md metr
 pnpm verify:ci        # assert:hard-gate + encoder-diff prereq + verify:harsh + enforce-release-strict-gates (main/release PRs: ALCHEMIST_STRICT_OFFSETS=1 in workflow)
 pnpm health:audit     # read latest verify_post_summary artifact; ALCHEMIST_RELEASE_AUDIT=1 enforces release posture
 pnpm triad:parity-diff # stub vs live triad snapshots JSON (needs keys + running app for live)
-pnpm verify:harsh     # faster: no next build
+pnpm verify:harsh     # faster: no next build (includes Engine School `validate-learning-corpus.mjs` at end)
+pnpm learning:verify  # Engine School only: `corpus/**/*.json` vs `lesson.schema.json` (stdout JSON line)
 pnpm verify:harsh:fire # verify:harsh + ALCHEMIST_FIRE_SYNC=1 after green
 pnpm predeploy        # build:wasm + REQUIRE_WASM assert:wasm — before shipping browser .fxp
 pnpm soe:migrate      # optional: legacy SOE lines → structured JSONL (see packages/shared-engine/soe-hint-structured.ts)

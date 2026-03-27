@@ -27,6 +27,11 @@ export const env = {
    * Empty → route returns 503 (disabled).
    */
   alchemistOpsToken: (process.env.ALCHEMIST_OPS_TOKEN ?? "").trim(),
+  /**
+   * When **`1`**, live `/api/triad/*` fetchers append Engine School context from `learning-index.json`
+   * (build with `pnpm learning:build-index`). Default off — avoids extra tokens unless explicitly enabled.
+   */
+  learningContextEnabled: process.env.ALCHEMIST_LEARNING_CONTEXT === "1",
 } as const;
 
 /* Optional SOE rollup for GET /api/health → iomPulse: lib/soe-snapshot-from-env.ts

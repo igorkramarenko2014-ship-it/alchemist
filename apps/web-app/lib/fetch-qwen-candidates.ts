@@ -25,7 +25,8 @@ export async function fetchQwenCandidates(
   prompt: string,
   apiKey: string,
   signal: AbortSignal,
-  qwenBaseUrl: string = DEFAULT_QWEN_BASE
+  qwenBaseUrl: string = DEFAULT_QWEN_BASE,
+  learningContext?: string,
 ): Promise<AICandidate[]> {
   const panelist = "QWEN" as const;
   const base = qwenBaseUrl.trim() || DEFAULT_QWEN_BASE;
@@ -43,7 +44,12 @@ export async function fetchQwenCandidates(
       model,
       max_tokens: 1024,
       messages: [
-        { role: "system", content: triadPanelistSystemPrompt(panelist) },
+        {
+          role: "system",
+          content: triadPanelistSystemPrompt(panelist, {
+            learningContext: learningContext?.trim() || undefined,
+          }),
+        },
         { role: "user", content: prompt },
       ],
     }),

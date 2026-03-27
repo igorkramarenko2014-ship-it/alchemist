@@ -18,7 +18,8 @@ export async function fetchLlamaCandidates(
   apiKey: string,
   signal: AbortSignal,
   model: string = DEFAULT_LLAMA_GROQ_MODEL,
-  runId?: string
+  runId?: string,
+  learningContext?: string,
 ): Promise<AICandidate[]> {
   const panelist = "LLAMA" as const;
   const rid = runId ?? "";
@@ -33,7 +34,12 @@ export async function fetchLlamaCandidates(
       model,
       max_tokens: 8192,
       messages: [
-        { role: "system", content: triadPanelistSystemPrompt(panelist) },
+        {
+          role: "system",
+          content: triadPanelistSystemPrompt(panelist, {
+            learningContext: learningContext?.trim() || undefined,
+          }),
+        },
         { role: "user", content: prompt },
       ],
     }),

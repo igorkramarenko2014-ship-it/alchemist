@@ -19,9 +19,19 @@ export function newTriadRunId(): string {
 
 export type TriadRunMode = "fetcher" | "stub" | "tablebase" | "unconfigured";
 
+/** Optional Engine School prompt suffix telemetry — attach only when callers build `learningContext`. */
+export type TriadRunLearningContextUsed = {
+  injected: boolean;
+  selectedLessonIds: string[];
+};
+
 export function logTriadRunStart(
   runId: string,
-  meta: { promptLen: number; mode: TriadRunMode }
+  meta: {
+    promptLen: number;
+    mode: TriadRunMode;
+    learningContextUsed?: TriadRunLearningContextUsed;
+  },
 ): void {
   logEvent("triad_run_start", { runId, ...meta });
 }

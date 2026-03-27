@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { getEngineSchoolTriadAugmentation } from "@/lib/engine-school-triad-context";
 import { checkTriadRateLimit } from "@/lib/triad-rate-limit";
 import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
 import { appendPnhHistoryJsonl, triadIntentPnhPartition } from "@/lib/pnh-triad-attack-log";
@@ -228,6 +229,7 @@ export async function triadPanelPost(
   }
 
   const runId = newTriadRunId();
+  const { learningContext, learningContextUsed } = getEngineSchoolTriadAugmentation(promptForTriad);
   const alchemistCodename = PANELIST_ALCHEMIST_CODENAME[panelist];
   const promptLength = promptForTriad.length;
 
@@ -243,6 +245,7 @@ export async function triadPanelPost(
       panelist,
       promptLength,
       mode: "unconfigured",
+      learningContextUsed,
     });
     const detail =
       "Set DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope or OpenRouter base URL), and GROQ_API_KEY or LLAMA_API_KEY for Groq. Stub responses are disabled.";
@@ -282,6 +285,7 @@ export async function triadPanelPost(
       panelist,
       promptLength,
       mode: "circuit_open",
+      learningContextUsed,
     });
     logEvent("triad_panelist_end", {
       runId,
@@ -311,6 +315,7 @@ export async function triadPanelPost(
     panelist,
     promptLength,
     mode: "fetcher",
+    learningContextUsed,
   });
   const t0 = nowMs();
   const timeoutMs = options?.timeoutMs ?? PANELIST_UPSTREAM_TIMEOUT_MS[panelist];
@@ -319,13 +324,19 @@ export async function triadPanelPost(
   let error: string | undefined;
   try {
     if (useDeepSeekLive) {
-      candidates = await fetchDeepSeekCandidates(promptForTriad, env.deepseekApiKey, signal);
+      candidates = await fetchDeepSeekCandidates(
+        promptForTriad,
+        env.deepseekApiKey,
+        signal,
+        learningContext,
+      );
     } else if (useQwenLive) {
       candidates = await fetchQwenCandidates(
         promptForTriad,
         env.qwenApiKey,
         signal,
-        env.qwenBaseUrl
+        env.qwenBaseUrl,
+        learningContext,
       );
     } else {
       candidates = await fetchLlamaCandidates(
@@ -333,7 +344,8 @@ export async function triadPanelPost(
         env.llamaApiKey,
         signal,
         llamaModel,
-        runId
+        runId,
+        learningContext,
       );
     }
     const echoAudited = auditTriadCandidatesForPnhResponseEcho(candidates, {

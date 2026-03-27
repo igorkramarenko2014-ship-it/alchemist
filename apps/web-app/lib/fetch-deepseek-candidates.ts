@@ -14,7 +14,8 @@ const DEEPSEEK_CHAT_URL = "https://api.deepseek.com/v1/chat/completions";
 export async function fetchDeepSeekCandidates(
   prompt: string,
   apiKey: string,
-  signal: AbortSignal
+  signal: AbortSignal,
+  learningContext?: string,
 ): Promise<AICandidate[]> {
   const panelist = "DEEPSEEK" as const;
   const response = await fetch(DEEPSEEK_CHAT_URL, {
@@ -28,7 +29,12 @@ export async function fetchDeepSeekCandidates(
       model: "deepseek-chat",
       max_tokens: 1024,
       messages: [
-        { role: "system", content: triadPanelistSystemPrompt(panelist) },
+        {
+          role: "system",
+          content: triadPanelistSystemPrompt(panelist, {
+            learningContext: learningContext?.trim() || undefined,
+          }),
+        },
         { role: "user", content: prompt },
       ],
     }),

@@ -1,39 +1,61 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alchemist.local/schemas/engine-lesson.schema.v1.json",
   "title": "EngineLesson",
-  "description": "Single annotated learning unit for shared-engine corpus",
+  "description": "Single annotated learning unit for shared-engine corpus (Engine School). Schema contract v1.x.",
+  "x-alchemist-schema-version": "1.0",
   "type": "object",
-  "required": ["id", "presetName", "style", "mappings", "character", "causalReasoning"],
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "presetName",
+    "style",
+    "mappings",
+    "character",
+    "causalReasoning"
+  ],
   "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Must match x-alchemist-schema-version in lesson.schema.json; bump both when evolving the contract."
+    },
     "id": {
       "type": "string",
-      "description": "Unique lesson identifier, e.g. serum-001"
+      "minLength": 1,
+      "description": "Unique lesson identifier, e.g. serum-lesson-000-stub"
     },
     "presetName": {
       "type": "string",
-      "description": "Exact name of the preset file"
+      "minLength": 2,
+      "description": "Human-readable preset name used when teaching name→mapping→character"
     },
     "style": {
       "type": "string",
-      "description": "Style category, matches presets/ subfolder name"
+      "minLength": 1,
+      "description": "Style category (taxonomy or DL staging label — not committed as binaries)"
     },
     "mappings": {
       "type": "object",
-      "description": "Key parameter mappings active in this preset",
+      "minProperties": 1,
+      "description": "Abstract parameter emphasis (≥1 key); not raw .fxp offsets",
       "additionalProperties": true
     },
     "character": {
       "type": "string",
-      "description": "One-sentence sonic character summary"
+      "minLength": 20,
+      "description": "Sonic character summary (non-trivial length)"
     },
     "causalReasoning": {
       "type": "string",
-      "description": "Blunt explanation of why these mappings produce this character"
+      "minLength": 40,
+      "description": "Explicit causal chain (non-trivial length)"
     },
     "tags": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Optional sonic descriptors: bright, aggressive, warm, etc."
+      "description": "Optional sonic descriptors"
     }
   }
 }

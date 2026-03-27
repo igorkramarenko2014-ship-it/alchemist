@@ -59,3 +59,9 @@ tools/serum2-discovery/
 # Verify release receipts (local / CI; regenerate via pnpm verify:harsh)
 artifacts/verify/
 .artifacts/verify/
+
+# Engine learning: pending pack staging (never commit downloads; keep folder)
+packages/shared-engine/learning/DL/**
+!packages/shared-engine/learning/DL/.gitkeep
+# Engine learning: generated index (pnpm learning:build-index)
+packages/shared-engine/learning/learning-index.json

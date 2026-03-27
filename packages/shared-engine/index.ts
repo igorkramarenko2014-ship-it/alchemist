@@ -267,7 +267,11 @@ export {
   nowMs,
   withTriadPanelistTiming,
 } from "./triad-monitor";
-export type { TriadPanelistStatus, TriadRunMode } from "./triad-monitor";
+export type {
+  TriadPanelistStatus,
+  TriadRunLearningContextUsed,
+  TriadRunMode,
+} from "./triad-monitor";
 export {
   findTablebaseRecordForPrompt,
   lookupTablebaseCandidate,
@@ -447,6 +451,19 @@ export type {
   GreatLibraryMergeLogOptions,
   GreatLibraryMergeResult,
 } from "./learning/great-library";
+export {
+  buildLearningContext,
+  ENGINE_SCHOOL_CONTEXT_ADVISORY_LINE,
+  ENGINE_SCHOOL_CONTEXT_DESCRIPTIVE_LINE,
+  loadLearningIndex,
+  selectLessonsForPrompt,
+} from "./learning/index";
+export type {
+  LearningIndex,
+  LearningLesson,
+  SelectedLesson,
+  SelectLessonsOptions,
+} from "./learning/index";
 export type {
   GreatLibraryOfflineJobMeta,
   GreatLibraryVectorDocument,
