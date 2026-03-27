@@ -2,6 +2,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import Ajv2020 from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -31,49 +33,10 @@ function assert(condition, message) {
   if (!condition) fail(message);
 }
 
-function isFiniteNumber(value) {
-  return typeof value === "number" && Number.isFinite(value);
-}
-
-function isIsoDateTime(value) {
-  if (typeof value !== "string" || value.length < 10) return false;
-  const ts = Date.parse(value);
-  return Number.isFinite(ts);
-}
-
-function validateAgainstSchemaShape(doc) {
-  assert(doc && typeof doc === "object", "truth matrix must be an object");
-  assert(doc.schemaVersion === 2, "schemaVersion must be 2");
-  assert(isIsoDateTime(doc.generatedAtUtc), "generatedAtUtc must be ISO datetime");
-  assert(isIsoDateTime(doc.divergenceCheckedAtUtc), "divergenceCheckedAtUtc must be ISO datetime");
-  assert(typeof doc.verification === "string" && doc.verification.length > 0, "verification must be non-empty");
-
-  assert(doc.sources && typeof doc.sources === "object", "sources object missing");
-  assert(typeof doc.sources.verifyPostSummary === "string", "sources.verifyPostSummary missing");
-  assert(typeof doc.sources.metrics === "string", "sources.metrics missing");
-
-  assert(doc.metrics && typeof doc.metrics === "object", "metrics object missing");
-  assert(isFiniteNumber(doc.metrics.testsPassed), "metrics.testsPassed must be number");
-  assert(isFiniteNumber(doc.metrics.testsTotal), "metrics.testsTotal must be number");
-  assert(isFiniteNumber(doc.metrics.iomCoverageScore), "metrics.iomCoverageScore must be number");
-  assert(doc.metrics.mon && typeof doc.metrics.mon === "object", "metrics.mon object missing");
-  assert(isFiniteNumber(doc.metrics.mon.value), "metrics.mon.value must be number");
-  assert(typeof doc.metrics.mon.ready === "boolean", "metrics.mon.ready must be boolean");
-  assert(typeof doc.metrics.mon.source === "string" && doc.metrics.mon.source.length > 0, "metrics.mon.source missing");
-  assert(doc.metrics.pnhImmunity && typeof doc.metrics.pnhImmunity === "object", "metrics.pnhImmunity object missing");
-  assert(isFiniteNumber(doc.metrics.pnhImmunity.passed), "metrics.pnhImmunity.passed must be number");
-  assert(isFiniteNumber(doc.metrics.pnhImmunity.total), "metrics.pnhImmunity.total must be number");
-  assert(isFiniteNumber(doc.metrics.pnhImmunity.breaches), "metrics.pnhImmunity.breaches must be number");
-  assert(
-    doc.metrics.pnhImmunity.status === "clean" || doc.metrics.pnhImmunity.status === "breach",
-    "metrics.pnhImmunity.status must be clean|breach",
-  );
-  assert(doc.metrics.wasmStatus === "available" || doc.metrics.wasmStatus === "unavailable", "metrics.wasmStatus invalid");
-  assert(isIsoDateTime(doc.metrics.syncedAtUtc), "metrics.syncedAtUtc must be ISO datetime");
-
-  assert(Array.isArray(doc.divergences), "divergences must be array");
-}
-
+/**
+ * JSON Schema (draft 2020-12) is authoritative for shape.
+ * Invariants below catch cross-field rules the schema does not express.
+ */
 function validateContractInvariants(doc) {
   assert(doc.metrics.testsPassed === doc.metrics.testsTotal, "testsPassed must equal testsTotal");
   assert(doc.metrics.iomCoverageScore >= 0 && doc.metrics.iomCoverageScore <= 1, "iomCoverageScore must be in [0,1]");
@@ -111,7 +74,25 @@ try {
 }
 
 assert(schema && typeof schema === "object", "schema file must be object");
-validateAgainstSchemaShape(artifact);
+
+const ajv = new Ajv2020({ allErrors: true, strict: true });
+addFormats(ajv);
+let validate;
+try {
+  validate = ajv.compile(schema);
+} catch (e) {
+  const msg = e instanceof Error ? e.message : String(e);
+  fail(`schema compile failed: ${msg}`);
+}
+
+if (!validate(artifact)) {
+  const errs = validate.errors ?? [];
+  const detail = errs
+    .map((e) => `${e.instancePath || "/"} ${e.message}${e.params ? ` ${JSON.stringify(e.params)}` : ""}`)
+    .join("\n");
+  fail(`JSON Schema validation failed:\n${detail}`);
+}
+
 validateContractInvariants(artifact);
 
 process.stdout.write("[validate-truth-matrix] PASS\n");

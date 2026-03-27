@@ -11,6 +11,9 @@ export interface TruthMatrixRow {
   verifySignal: string;
 }
 
+/** 24h SLA for `generatedAtUtc` on the canonical truth artifact (`artifacts/truth-matrix.json`). */
+export const TRUTH_ARTIFACT_FRESHNESS_SLA_MS = 24 * 60 * 60 * 1000;
+
 export interface TruthMatrixSnapshot {
   generatedAtMs: number;
   /** 24h freshness SLA of canonical truth artifact timestamp. */
@@ -299,6 +302,15 @@ export function buildTruthMatrixRuntimeChecks(): TruthMatrixRuntimeChecks {
  * Ultimate audit: green when truth artifact parity holds, latest verify was green (`verify_ci`),
  * and no other runtime gate reports **fail**. (Summary may still be **unknown** if some checks are N/A.)
  */
+export function isTruthArtifactStale(snapshot: TruthMatrixSnapshot): boolean {
+  return snapshot.freshnessStatus === "stale_data";
+}
+
+/** Strict artifact/runtime parity: schema shape + freshness + canonicalMetrics alias vs artifact.metrics. */
+export function hasStrictArtifactRuntimeParity(snapshot: TruthMatrixSnapshot): boolean {
+  return snapshot.integrityStatus === "ok";
+}
+
 export function isUltimateAuditPass(snapshot: TruthMatrixSnapshot): boolean {
   if (snapshot.integrityStatus !== "ok") return false;
   const rc = snapshot.runtimeChecks;
@@ -324,7 +336,7 @@ export function buildTruthMatrixSnapshot(input: {
     if (!truthArtifactGeneratedAtUtc) return "unknown";
     const ts = Date.parse(truthArtifactGeneratedAtUtc);
     if (!Number.isFinite(ts)) return "unknown";
-    return Date.now() - ts <= 24 * 60 * 60 * 1000 ? "fresh" : "stale_data";
+    return Date.now() - ts <= TRUTH_ARTIFACT_FRESHNESS_SLA_MS ? "fresh" : "stale_data";
   })();
   const divergenceCheckedAtUtc =
     typeof canonical.data?.divergenceCheckedAtUtc === "string"

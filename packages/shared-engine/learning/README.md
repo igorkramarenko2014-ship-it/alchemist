@@ -1,30 +1,26 @@
-# Alchemist Great Library (AGL) — `learning/`
+# Engine Learning Corpus
 
-**Scope:** TypeScript **contracts + merge helpers** for feeding **offline** research into **`computeSoeRecommendations`**. This folder is **not** a scraper, **not** a vector database client, and **not** a real-time learner inside the triad request path.
+Pre-production AI learning material for shared-engine pattern recognition.
+This folder is not a module. It contains no runtime logic.
+It is consumed as training input — structured examples that teach the engine
+why certain configurations produce certain results.
 
-## FIRE alignment
+## Structure
 
-| Requirement | How AGL complies |
-|-------------|------------------|
-| **≤8s triad** | Learning runs **async** (cron, worker, batch). Never block **`runTriad`**. |
-| **HARD GATE** | Any authoritative **Serum byte** / `.fxp` encoding still requires validated **`serum-offset-map.ts`**. AGL may only carry **metadata** or **aggregates** you attest are legal to use. |
-| **No shadow / KGB** | **`provenance`** is **mandatory** on **`GreatLibraryContext`**. Optional **`logGreatLibraryMerge`** emits **`great_library_soe_merge`** — auditable. **No** “wipe history” or hidden intuition. |
-| **No DSP** | Pure TS; no C++ / VST audio path. |
-| **Web bundle** | No Pinecone/Chroma SDK here — keep vector stores in a **separate** package or service so **`web-app`** does not bloat. |
+- `presets/` — raw preset files organized by style subfolder
+- `corpus/` — annotated lesson documents (one per preset or preset group)
+- `schema/` — formal definition of a lesson document
 
-## Files
+## How to add a lesson
 
-| File | Role |
-|------|------|
-| **`great-library.ts`** | **`mergeGreatLibraryIntoSoeSnapshot`**, **`logGreatLibraryMerge`** |
-| **`offline-pipeline-types.ts`** | Illustrative types for an **external** indexer (not implemented here) |
+1. Drop the preset file into presets/<style>/
+2. Create a corresponding .md file in corpus/ using the lesson schema
+3. Run pnpm fire:sync to register it in the truth layer (once integrated)
 
-## Flow (recommended)
+## Learning objective
 
-1. **Offline:** Your job collects/embeds **only** data you have rights to use; writes aggregates + **`provenance`**.
-2. **Bridge:** Call **`mergeGreatLibraryIntoSoeSnapshot(baseSoeSnapshot, ctx)`** then **`computeSoeRecommendations(snapshot)`**.
-3. **Log:** **`logGreatLibraryMerge(result, runId)`** when you want stderr JSON for SOE dashboards.
+Given: a preset name + its parameter mappings
+Output: a causal explanation of the sonic character those mappings produce
 
-## Parser / `.fxp`
-
-There is **no** `vst_fxp_extractor.py` in-repo yet. For bytes → parameters, plan on **`tools/validate-offsets.py`** + validated **`serum-offset-map.ts`**. See **`tools/preset-metadata-schema.example.json`** for a **metadata-only** JSON shape offline jobs can emit (no raw preset IP).
+The engine learns the name → mapping → character chain,
+not just the output label.

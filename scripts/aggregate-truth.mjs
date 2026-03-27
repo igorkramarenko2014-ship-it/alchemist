@@ -74,8 +74,9 @@ function resolveMonFromVerify(verify) {
     };
   }
 
+  // Schema requires finite numbers — never emit null (legacy drift).
   return {
-    value: null,
+    value: 0,
     ready: false,
     source: "unresolved",
   };
@@ -126,7 +127,7 @@ try {
     false,
   );
   let monDivergenceStatus = "missing";
-  if (verifyMon117 !== null && verifyMonReady !== null && mon.value !== null) {
+  if (verifyMon117 !== null && verifyMonReady !== null) {
     monDivergenceStatus =
       verifyMon117 === mon.value && verifyMonReady === mon.ready ? "match" : "mismatch";
   }

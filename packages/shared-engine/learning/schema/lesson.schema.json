@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EngineLesson",
+  "description": "Single annotated learning unit for shared-engine corpus",
+  "type": "object",
+  "required": ["id", "presetName", "style", "mappings", "character", "causalReasoning"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique lesson identifier, e.g. serum-001"
+    },
+    "presetName": {
+      "type": "string",
+      "description": "Exact name of the preset file"
+    },
+    "style": {
+      "type": "string",
+      "description": "Style category, matches presets/ subfolder name"
+    },
+    "mappings": {
+      "type": "object",
+      "description": "Key parameter mappings active in this preset",
+      "additionalProperties": true
+    },
+    "character": {
+      "type": "string",
+      "description": "One-sentence sonic character summary"
+    },
+    "causalReasoning": {
+      "type": "string",
+      "description": "Blunt explanation of why these mappings produce this character"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Optional sonic descriptors: bright, aggressive, warm, etc."
+    }
+  }
+}

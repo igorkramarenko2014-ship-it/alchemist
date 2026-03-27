@@ -38,7 +38,8 @@ function parseArgs(argv) {
 const { port, fresh } = parseArgs(process.argv.slice(2));
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const runner = join(root, "scripts", "dev-alchemist-port.mjs");
-const healthUrl = `http://127.0.0.1:${port}/api/health`;
+const healthApiUrl = `http://127.0.0.1:${port}/api/health`;
+const healthPageUrl = `http://127.0.0.1:${port}/`;
 
 let child = null;
 let shuttingDown = false;
@@ -98,9 +99,17 @@ async function restartDev({ forceFresh }) {
 }
 
 async function probeHealth() {
+  const timeoutSignal = AbortSignal.timeout(1800);
   try {
-    const response = await fetch(healthUrl, { method: "GET" });
-    return response.ok;
+    const apiResponse = await fetch(healthApiUrl, { method: "GET", signal: timeoutSignal });
+    if (!apiResponse.ok) return false;
+    const payload = await apiResponse.json().catch(() => null);
+    if (!payload || typeof payload !== "object") return false;
+    if ("ok" in payload && payload.ok !== true) return false;
+
+    // Catch "server up but page broken" regressions (white page / routing failures).
+    const pageResponse = await fetch(healthPageUrl, { method: "GET", signal: timeoutSignal });
+    return pageResponse.ok;
   } catch {
     return false;
   }
