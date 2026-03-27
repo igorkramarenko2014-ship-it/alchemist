@@ -38,7 +38,7 @@ Lesson JSON encodes **name → mapping summary → sonic character** with explic
 |----------|--------|
 | **`packages/shared-engine/learning/DL/`** | Local staging; **gitignored** except `.gitkeep`. Validator **only** scans **`corpus/`**, not `DL/`. **CI** never sees `DL/`. |
 | **Raw `.fxp` in this validator** | **JSON-only.** Preset binaries and WASM follow **FIRESTARTER** / **HARD GATE**. |
-| **Live triad / gate weights** | Lessons **do not** mutate blend weights, Slavic/Undercover thresholds, or routes. **Optional:** when **`ALCHEMIST_LEARNING_CONTEXT=1`**, **`POST /api/triad/*`** appends **read-only** Engine School text to the panelist **system** message only — **no** gate or scoring changes. |
+| **Live triad / gate weights** | Lessons **do not** mutate blend weights, Slavic/Undercover thresholds, or routes. **Phase 2 (shipped):** **`ALCHEMIST_LEARNING_CONTEXT=1`** enables advisory-only text injection into the panelist system message via **`POST /api/triad/*`** — **no** gate, weight, or scoring changes. See **§8** for full spec. |
 
 ---
 
