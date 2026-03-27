@@ -183,6 +183,15 @@ export interface TriadRunTelemetry {
     responseQuality: number;
     classification: "strong" | "weak" | "uncertain";
   };
+  oneSeventeen?: {
+    skillsLoaded: number;
+    initiationTriggered: boolean;
+    lastTrigger: string | null;
+    spirit: "YNWA";
+    pace: "elite";
+    strength?: "proven";
+    honor?: "mom";
+  };
 }
 
 export interface DecisionReceiptRejectionReason {
@@ -199,6 +208,14 @@ export interface DecisionReceipt {
   socialResonanceScore?: number;
   /** Amsterdam Signal Detection (Aggression/Grooming): top candidate resonance score [0,1]. */
   redZoneResonance?: number;
+  oneSeventeen?: {
+    skillsLoaded: number;
+    lastTrigger: string | null;
+    spirit: "YNWA";
+    pace: "elite";
+    strength?: "proven";
+    honor?: "mom";
+  };
   systemState: {
     wasmStatus: "available" | "unavailable" | "unknown";
     hardGateStatus: "enforced" | "unknown";

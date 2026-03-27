@@ -102,6 +102,9 @@ export function generateDecisionReceipt(
     rejectionReasons,
     socialResonanceScore: selected?.socialResonanceScore,
     redZoneResonance: selected?.redZoneResonanceScore,
+    ...(triadResult.triadRunTelemetry?.oneSeventeen
+      ? { oneSeventeen: triadResult.triadRunTelemetry.oneSeventeen }
+      : {}),
     systemState: {
       wasmStatus: systemState.wasmStatus ?? "unknown",
       hardGateStatus: systemState.hardGateStatus ?? "enforced",

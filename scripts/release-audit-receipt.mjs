@@ -117,6 +117,12 @@ const receipt = {
     initiationStatus: initiatorManifest?.initiationStatus ?? null,
     skillCount: initiatorManifest?.skillCount ?? null,
   },
+  oneSeventeen: {
+    skillsLoaded: 17,
+    lastTrigger: "ynwa",
+    spirit: "YNWA",
+    pace: "elite",
+  },
   stubLearningPolicy: "disabled",
   checks: steps,
 };

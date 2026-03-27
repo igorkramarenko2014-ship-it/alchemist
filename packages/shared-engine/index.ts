@@ -73,6 +73,13 @@ export type {
 export { detectCreativeResonance, detectRedZoneResonance, isMutedResponse } from "./arbitration/social-probe";
 export { evaluateProbeResult } from "./probe-intelligence-layer";
 export type { ProbeClassification, ProbeResult } from "./probe-intelligence-layer";
+export {
+  ONE_SEVENTEEN_CONSTANT,
+  ONE_SEVENTEEN_SKILLS,
+  oneSeventeenSeed,
+  registerOneSeventeenRun,
+} from "./one-seventeen-skills";
+export type { OneSeventeenCounters, OneSeventeenSkill, OneSeventeenSnapshot } from "./one-seventeen-skills";
 export { computeVibeMismatchPenalty, generate117Skills } from "./initiator/skills-117";
 export type { InitiatorDomain, InitiatorSkill } from "./initiator/skills-117";
 export {

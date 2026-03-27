@@ -58,6 +58,7 @@ import {
 import { computePlfDecision } from "./power-logic-fusion";
 import { selectCreativeStance } from "./creative-diversity-layer";
 import { evaluateProbeResult } from "./probe-intelligence-layer";
+import { registerOneSeventeenRun } from "./one-seventeen-skills";
 
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
 
@@ -742,6 +743,23 @@ export async function runTriad(
     responseQuality: Number(probeResult.responseQuality.toFixed(3)),
     classification: probeResult.classification,
   });
+  const oneSeventeen = registerOneSeventeenRun({
+    prompt,
+    panelistAnchor: TRIAD_PANELISTS[0],
+    panelistCalls: panelChunks?.length ?? 0,
+    candidatesScored: candidates.length,
+    creativeStancesApplied: panelChunks?.filter((c) => c.creativeStanceApplied).length ?? 0,
+    redZoneChecks: valid.length,
+  });
+  if (oneSeventeen.initiationTriggered) {
+    logEvent("one_seventeen_initiation", {
+      runId,
+      trigger: oneSeventeen.triggerTag,
+      message: oneSeventeen.message,
+      spirit: oneSeventeen.oneSeventeen.spirit,
+      pace: oneSeventeen.oneSeventeen.pace,
+    });
+  }
   const pnhTriadDefense =
     !skipPnh && pnhInterventionTypes.length > 0
       ? {
@@ -785,6 +803,7 @@ export async function runTriad(
           },
           plf,
           probeIntelligence: probeResult,
+          oneSeventeen: oneSeventeen.oneSeventeen,
           ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
           ...(triadEarlyResolvedTwo
             ? {
@@ -825,6 +844,7 @@ export async function runTriad(
       },
       plf,
       probeIntelligence: probeResult,
+      oneSeventeen: oneSeventeen.oneSeventeen,
       ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
       ...(triadEarlyResolvedTwo
         ? {
