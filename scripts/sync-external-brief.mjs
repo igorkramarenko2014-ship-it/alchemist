@@ -98,6 +98,7 @@ const tmMetrics =
     ? truthMatrix.metrics
     : {};
 const testsPassed = asNumber(tmMetrics.testsPassed);
+const testsTotal = asNumber(tmMetrics.testsTotal);
 const iomCoverage = asNumber(tmMetrics.iomCoverageScore);
 const monValue = asNumber(tmMetrics.mon117);
 const monReady = tmMetrics.monReady === true;
@@ -119,19 +120,20 @@ const syncBlock = [
   "",
   "| Metric | Value | Expected | Definition | Source | Independent check |",
   "|--------|-------|----------|------------|--------|-------------------|",
-  `| Tests passed | ${formatMaybe(testsPassed)} | Equals \`metrics.testsPassed\` in canonical artifact | Total passing tests in latest shared-engine Vitest run | \`artifacts/truth-matrix.json\` (\`metrics.testsPassed\`) | \`jq '.metrics.testsPassed' artifacts/truth-matrix.json\` |`,
+  `| Tests passed | ${testsPassed === null ? "unknown" : `${testsPassed} / ${testsTotal === null ? "unknown" : testsTotal}`} | \`metrics.testsPassed == metrics.testsTotal\` | Total passing tests in latest shared-engine Vitest run | \`artifacts/truth-matrix.json\` (\`metrics.testsPassed\`, \`metrics.testsTotal\`) | \`jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json\` |`,
   `| IOM coverage | ${iomCoverage === null ? "unknown" : iomCoverage.toFixed(3)} | \`0.000 <= metrics.iomCoverageScore <= 1.000\` | Ratio of mapped IOM cells covered in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.iomCoverageScore\`) | \`jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json\` |`,
   `| MON | ${monValue === null ? `unknown${monRawStatus ? ` (raw=${monRawStatus})` : ""}` : `mon117=${monValue}, monReady=${monReady ? "true" : "false"}`} | \`metrics.mon117 == 117 and metrics.monReady == true\` for release-ready posture | Unified operating number resolved in canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.mon117\`, \`metrics.monReady\`) | \`jq '.metrics | { mon117, monReady, monSource, monRawStatus }' artifacts/truth-matrix.json\` |`,
   `| PNH immunity | ${pnhImmunityCount === null ? "unknown" : pnhImmunityCount}${pnhTotalScenarios === null ? "" : ` / ${pnhTotalScenarios}`}${pnhBreaches === null ? "" : ` (breaches: ${pnhBreaches})`} | \`metrics.pnhImmunityCount == metrics.pnhTotalScenarios - metrics.pnhBreaches\` | Scenario-based resilience result from canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.pnhImmunityCount\`, \`metrics.pnhTotalScenarios\`, \`metrics.pnhBreaches\`) | \`jq '.metrics | { pnhImmunityCount, pnhTotalScenarios, pnhBreaches }' artifacts/truth-matrix.json\` |`,
   `| WASM status | ${wasmStatus} | Value is one of \`available\` or \`unavailable\` | Browser encoder artifact availability | \`artifacts/truth-matrix.json\` (\`metrics.wasmStatus\`) | \`jq '.metrics.wasmStatus' artifacts/truth-matrix.json\` |`,
   `| Sync date (UTC) | ${formatMaybe(tmMetrics.syncedDateUtc)} | Matches format \`YYYY-MM-DD\` | Date written by truth aggregation script | \`artifacts/truth-matrix.json\` (\`metrics.syncedDateUtc\`) | \`jq '.metrics.syncedDateUtc' artifacts/truth-matrix.json\` |`,
-  `| Divergences | ${divergences.length === 0 ? "none" : String(divergences.length)} | \`length(divergences) == 0\` for clean state | Canonical divergence array for source consistency checks | \`artifacts/truth-matrix.json\` (\`divergences\`) | \`jq '.divergences | length' artifacts/truth-matrix.json\` |`,
+  `| Divergences | ${String(divergences.length)} | \`length(divergences) == 0\` for clean state | Canonical divergence array for source consistency checks | \`artifacts/truth-matrix.json\` (\`divergences\`) | \`jq '.divergences | length' artifacts/truth-matrix.json\` |`,
   "",
   "Re-sync procedure (if any metric shows unknown):",
   "1. Run `pnpm verify:harsh`",
   "2. Confirm expected fields exist in `artifacts/truth-matrix.json`",
   "3. Run `pnpm fire:sync`",
   "4. Resolution owner: engineering operator on duty",
+  "5. Marker integrity note: `pnpm fire:sync` validates required marker blocks and fails if markers are missing or malformed; edits inside `DOC_TRUST`/`DOCS_SYNC` blocks are overwritten.",
   "",
   "Audit procedure:",
   "1. Verify artifact hash: `sha256sum artifacts/truth-matrix.json`",

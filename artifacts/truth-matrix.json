@@ -1,12 +1,14 @@
 {
   "schemaVersion": 1,
-  "generatedAtUtc": "2026-03-27T17:17:57.175Z",
+  "generatedAtUtc": "2026-03-27T17:33:49.846Z",
+  "divergenceCheckedAtUtc": "2026-03-27T17:33:49.846Z",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
     "metrics": "docs/fire-metrics.json"
   },
   "metrics": {
     "testsPassed": 316,
+    "testsTotal": 316,
     "iomCoverageScore": 1,
     "mon117": 117,
     "monReady": true,

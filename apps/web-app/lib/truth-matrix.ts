@@ -18,6 +18,10 @@ export interface TruthMatrixSnapshot {
   wasmStatus: "available" | "unavailable";
   hardGate: "enforced" | "best_effort";
   canonicalArtifactPath: string | null;
+  /** From `artifacts/truth-matrix.json` when present (ISO-8601). */
+  truthArtifactGeneratedAtUtc?: string | null;
+  /** When divergences were last evaluated (same file; ISO-8601). */
+  divergenceCheckedAtUtc?: string | null;
   canonicalMetrics?: Record<string, unknown>;
   rows: TruthMatrixRow[];
   runtimeChecks?: TruthMatrixRuntimeChecks;
@@ -183,6 +187,12 @@ export function buildTruthMatrixSnapshot(input: {
     canonical.data && typeof canonical.data.metrics === "object"
       ? (canonical.data.metrics as Record<string, unknown>)
       : undefined;
+  const truthArtifactGeneratedAtUtc =
+    typeof canonical.data?.generatedAtUtc === "string" ? canonical.data.generatedAtUtc : null;
+  const divergenceCheckedAtUtc =
+    typeof canonical.data?.divergenceCheckedAtUtc === "string"
+      ? canonical.data.divergenceCheckedAtUtc
+      : null;
   return {
     generatedAtMs: Date.now(),
     triadLivePanelists: input.triadLivePanelists,
@@ -190,6 +200,8 @@ export function buildTruthMatrixSnapshot(input: {
     wasmStatus,
     hardGate,
     canonicalArtifactPath: canonical.path,
+    truthArtifactGeneratedAtUtc,
+    divergenceCheckedAtUtc,
     canonicalMetrics,
     rows: [
       {

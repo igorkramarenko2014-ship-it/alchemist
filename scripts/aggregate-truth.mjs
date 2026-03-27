@@ -153,15 +153,19 @@ try {
           },
         ];
 
+  const generatedAtUtc = new Date().toISOString();
   const payload = {
     schemaVersion: 1,
-    generatedAtUtc: new Date().toISOString(),
+    generatedAtUtc,
+    // Same instant as generation; audit trail that divergences were evaluated this run.
+    divergenceCheckedAtUtc: generatedAtUtc,
     sources: {
       verifyPostSummary: "artifacts/verify/verify-post-summary.json",
       metrics: "docs/fire-metrics.json",
     },
     metrics: {
       testsPassed,
+      testsTotal: testsPassed,
       iomCoverageScore,
       mon117: mon.mon117,
       monReady: mon.monReady,

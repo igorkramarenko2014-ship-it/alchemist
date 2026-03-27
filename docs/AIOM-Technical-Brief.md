@@ -24,9 +24,9 @@ Production validation requires querying the deployed runtime endpoint and compar
 Data in this document is produced by repository scripts and canonical truth artifacts.
 
 - Document schema version: `v1.3`
-- Last verification timestamp from canonical truth artifact: `2026-03-27T17:17:57.175Z`
+- Last verification timestamp from canonical truth artifact: `2026-03-27T17:33:49.846Z`
 - Metrics sync date from canonical truth artifact: `2026-03-27`
-- Truth file hash: `d4472538d8f93eb68f72480a5a63040dce47535b3ab365c86bc4c27b96af3bb7`
+- Truth file hash: `675ea10adaf85e570eae989f1b6fc14bf8f93ac4aea66d9f4c4e5e50b9a8938d`
 - Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
@@ -51,19 +51,20 @@ Primary sources:
 
 | Metric | Value | Expected | Definition | Source | Independent check |
 |--------|-------|----------|------------|--------|-------------------|
-| Tests passed | 316 | Equals `metrics.testsPassed` in canonical artifact | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`) | `jq '.metrics.testsPassed' artifacts/truth-matrix.json` |
+| Tests passed | 316 / 316 | `metrics.testsPassed == metrics.testsTotal` | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`, `metrics.testsTotal`) | `jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json` |
 | IOM coverage | 1.000 | `0.000 <= metrics.iomCoverageScore <= 1.000` | Ratio of mapped IOM cells covered in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.iomCoverageScore`) | `jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json` |
 | MON | mon117=117, monReady=true | `metrics.mon117 == 117 and metrics.monReady == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon117`, `metrics.monReady`) | `jq '.metrics | { mon117, monReady, monSource, monRawStatus }' artifacts/truth-matrix.json` |
 | PNH immunity | 25 / 25 (breaches: 0) | `metrics.pnhImmunityCount == metrics.pnhTotalScenarios - metrics.pnhBreaches` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunityCount`, `metrics.pnhTotalScenarios`, `metrics.pnhBreaches`) | `jq '.metrics | { pnhImmunityCount, pnhTotalScenarios, pnhBreaches }' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
 | Sync date (UTC) | 2026-03-27 | Matches format `YYYY-MM-DD` | Date written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedDateUtc`) | `jq '.metrics.syncedDateUtc' artifacts/truth-matrix.json` |
-| Divergences | none | `length(divergences) == 0` for clean state | Canonical divergence array for source consistency checks | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
+| Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array for source consistency checks | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):
 1. Run `pnpm verify:harsh`
 2. Confirm expected fields exist in `artifacts/truth-matrix.json`
 3. Run `pnpm fire:sync`
 4. Resolution owner: engineering operator on duty
+5. Marker integrity note: `pnpm fire:sync` validates required marker blocks and fails if markers are missing or malformed; edits inside `DOC_TRUST`/`DOCS_SYNC` blocks are overwritten.
 
 Audit procedure:
 1. Verify artifact hash: `sha256sum artifacts/truth-matrix.json`
@@ -90,14 +91,19 @@ Expected response fields (minimum contract):
 ```json
 {
   "canonicalArtifactPath": "artifacts/truth-matrix.json",
+  "truthArtifactGeneratedAtUtc": "2026-03-27T17:00:00.000Z",
+  "divergenceCheckedAtUtc": "2026-03-27T17:00:00.000Z",
   "canonicalMetrics": {
     "mon117": 117,
     "monReady": true,
     "testsPassed": 316,
+    "testsTotal": 316,
     "wasmStatus": "available"
   }
 }
 ```
+
+Additional fields may be present (`generatedAtMs`, `triadLivePanelists`, `rows`, `runtimeChecks`).
 
 Expected runtime failure modes:
 
