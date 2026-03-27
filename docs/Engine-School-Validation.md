@@ -38,7 +38,7 @@ Lesson JSON encodes **name → mapping summary → sonic character** with explic
 |----------|--------|
 | **`packages/shared-engine/learning/DL/`** | Local staging; **gitignored** except `.gitkeep`. Validator **only** scans **`corpus/`**, not `DL/`. **CI** never sees `DL/`. |
 | **Raw `.fxp` in this validator** | **JSON-only.** Preset binaries and WASM follow **FIRESTARTER** / **HARD GATE**. |
-| **Live triad / gate weights** | Lessons **do not** mutate blend weights, Slavic/Undercover thresholds, or routes. No such path exists today. If added later, **FIRESTARTER** review entry before ship. |
+| **Live triad / gate weights** | Lessons **do not** mutate blend weights, Slavic/Undercover thresholds, or routes. **Optional:** when **`ALCHEMIST_LEARNING_CONTEXT=1`**, **`POST /api/triad/*`** appends **read-only** Engine School text to the panelist **system** message only — **no** gate or scoring changes. |
 
 ---
 
@@ -81,7 +81,7 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 | Doc | Role |
 |-----|------|
 | **`packages/shared-engine/learning/README.md`** | Lesson cycle, **`learning:forget-presets`**, validation one-liners. |
-| **`packages/shared-engine/learning/SCHOOL.md`** | Training scope, IOM growth, legal, hooks detail. |
+| **`packages/shared-engine/learning/SCHOOL.md`** | Training scope, **Phase 2** live path, module layout, IOM growth, legal, hooks. |
 | **`docs/Engine-School-Validation.md`** | This file — reproducible commands, audit language, **§8** (validation vs inference + recommendations). |
 
 ---
@@ -101,7 +101,7 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 | Missed JSON files | **Recursive glob-equivalent** walk; no hidden skips under `corpus/`. |
 | Schema drift | **Version fields** + same-PR lesson updates; validator asserts **`x-alchemist-schema-version`**. |
 | **`DL/` trust** | Never scanned by this tool; not in git. |
-| **Inference does not read lessons** | Validated corpus is **static teaching material** until an explicit, reviewed code path consumes it (see **§8**). |
+| **Unwanted authority drift** | Corpus stays **non-canonical** vs schema + **`learning:verify`**; injection is **advisory** strings + **800**-char cap + env **opt-in** (see **§8**). |
 
 ---
 
@@ -109,18 +109,20 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 
 **What this contract proves today.** Every committed lesson under **`corpus/`** is **schema-valid**, **meaningful by field rules**, **recursively scanned**, and **fail-closed in CI** via **`pnpm learning:verify`** (also at the end of **`pnpm verify:harsh`**). That is a **structural** guarantee only.
 
-**What is not claimed.** **`runTriad`**, triad routes, system prompts, **`scoreCandidates`**, and TypeScript gates **do not** load lesson JSON or **`learning-index.json`** today. Engine School **does not** mutate blend weights, gate thresholds, or encoder bytes. If a future PR adds consumption, it must be **reviewed** like any other product path and must **not** silently override **FIRESTARTER**, the **HARD GATE**, or gate law in **`shared-engine`**.
+**What is not claimed.** **`scoreCandidates`**, Slavic/Undercover gates, blend **weights**, and **encoder / HARD GATE** law are **unchanged** by Engine School. **`learning-index.json`** is **not** loaded in the **browser** client bundle for triad; **server** fetchers may load it **only** when **`ALCHEMIST_LEARNING_CONTEXT=1`** (**`apps/web-app`**). **`runTriad`** in **`shared-engine`** when using HTTP fetchers inherits whatever the **API** sends; stub-only paths may omit enrichment. Engine School text **must not** be treated as instructions to bypass validation — see advisory lines in **`build-learning-context.ts`**.
 
 **Derived index (phase 1 — implemented).** **`pnpm learning:build-index`** runs **`packages/shared-engine/learning/scripts/build-learning-index.mjs`**, walks the same **`corpus/**/*.json`** tree, and writes **`packages/shared-engine/learning/learning-index.json`** (currently **gitignored**). The file holds **`generatedAtUtc`**, **`schemaVersion`**: **`"1.0"`**, **`lessonCount`**, and per-lesson summaries (**`id`**, **`style`**, truncated **`character`** / **`causalReasoning`**, **`tags`**, **`mappingKeys`** only — **no** mapping values). **Stdout:** one JSON line, e.g. `{"status":"ok","lessonCount":N,"outputPath":"packages/shared-engine/learning/learning-index.json"}`; **exit 1** on failure. **CI** does not require a fresh index today; **`pnpm learning:verify`** remains the **authoritative** gate for committed lessons.
 
-**Truth hierarchy (learning stack).** Committed **`corpus/`** JSON + **`lesson.schema.json`** + **`learning:verify`** → **canonical** for lessons. **`learning-index.json`** is **generated and non-authoritative** — a helper for future prompt packing, **below** that layer and **above** ad hoc prompt text.
+**Truth hierarchy (learning stack).** Committed **`corpus/`** JSON + **`lesson.schema.json`** + **`learning:verify`** → **canonical** for lessons. **`learning-index.json`** is **generated and non-authoritative** — a helper for prompt packing, **below** that layer and **above** ad hoc prompt text.
+
+**Phase 2 (shipped — opt-in).** **`ALCHEMIST_LEARNING_CONTEXT=1`** + built index → **`POST /api/triad/*`** appends a bounded (**≤800** characters for the full block) **advisory** context. Selection is **deterministic** (meaningful tokens, stopwords, tag/style/mappingKey scoring with mappingKey **+0.5**, dedupe by style + overlapping tags). Telemetry: **`learningContextUsed`** on **`triad_run_start`** (web route). **`pnpm learning:enrich-preview`** previews the block without enabling env.
 
 **Recommendations (for release / architecture review).**
 
 | Priority | Recommendation |
 |----------|----------------|
 | **Keep** | Treat **§1–§3** as the audit baseline; re-run **`pnpm learning:verify`** in any PR that touches **`corpus/`** or **`lesson.schema.json`**. |
-| **Next (product)** | **Phase 2:** inject **selected** index (or corpus) excerpts into triad **prompt context** only — **no** change to gate math or weights until explicitly specified. |
+| **Phase 2 ops** | Enable **`ALCHEMIST_LEARNING_CONTEXT=1`** only after **`pnpm learning:build-index`** in deploy; set **`ALCHEMIST_LEARNING_INDEX_PATH`** if cwd resolution fails. Monitor **`triad_run_start.learningContextUsed`** and token/latency. |
 | **Later (optional)** | **Phase 3:** **optional** corpus-affinity **scoring prior** with gates and **HARD GATE** unchanged; document in **FIRESTARTER** / **FIRE** when shipped. |
 | **Policy** | Either **keep the index gitignored** (generate on demand / in deploy prep) **or** commit it and add a **drift check** (regenerate + diff) in CI — pick one policy per release train and document it in **`README.md`**. |
 | **CI hygiene (optional)** | Add a **`learning:build-index`** step or “index builds cleanly” assertion to **`verify:harsh`** if you need **reproducible** derived artifacts in release audits. |
