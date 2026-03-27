@@ -8,6 +8,7 @@ import { recordRealityTelemetryEvent } from "./reality-loop-layer";
 type RealityTelemetryKind = keyof typeof REALITY_TELEMETRY_EVENTS;
 
 const FORBIDDEN_PAYLOAD_KEYS = /^(prompt|userText|message|raw)$/i;
+export const ALLOW_STUB_LEARNING = process.env.ALCHEMIST_ALLOW_STUB_LEARNING === "1";
 
 /**
  * Drops risky keys and keeps a shallow safe object for stderr JSON.
@@ -39,6 +40,9 @@ export function logRealitySignal(
   kind: RealityTelemetryKind,
   payload: Record<string, unknown> = {}
 ): void {
+  if (payload.mode === "stub" && !ALLOW_STUB_LEARNING) {
+    return;
+  }
   const event: RealityTelemetryEventName = REALITY_TELEMETRY_EVENTS[kind];
   recordRealityTelemetryEvent(event);
   logEvent(event, {

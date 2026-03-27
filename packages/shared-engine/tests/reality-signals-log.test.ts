@@ -37,4 +37,15 @@ describe("reality-signals-log", () => {
     expect(j.surface).toBe("dock");
     expect(j.promptHash).toBe("90fe0536");
   });
+
+  it("ignores stub-mode reality signals when stub learning is disabled", () => {
+    const spy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    logRealitySignal("OUTPUT_USED", {
+      mode: "stub",
+      surface: "dock",
+      promptHash: "stub-hash",
+    });
+    spy.mockRestore();
+    expect(spy.mock.calls.length).toBe(0);
+  });
 });

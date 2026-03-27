@@ -168,6 +168,7 @@ export async function GET(request: Request) {
     ops: {
       iomDashboardPath: "/api/health/iom",
       truthMatrixPath: "/api/health/truth-matrix",
+      ultimateAuditPath: "/api/health/ultimate",
       iomExtendedDashboardPath: "/api/iom/dashboard",
       iomPrometheusMetricsPath: "/api/metrics/iom",
       note: "Operator-only: set ALCHEMIST_OPS_TOKEN and X-Ops-Token — GET /api/health/iom (core), GET /api/iom/dashboard (+ snapshots), GET /api/metrics/iom (Prometheus text).",

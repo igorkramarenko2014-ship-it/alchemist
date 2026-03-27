@@ -8,7 +8,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "triad",
     responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.",
-    artifacts: ["triad.ts", "triad-monitor.ts", "triad-panelist-prompt.ts", "triad-panelist-system-prompt.ts", "constants.ts", "circuit-breaker.ts"] as const,
+    artifacts: ["triad.ts", "triad-monitor.ts", "triad-panelist-prompt.ts", "triad-panelist-system-prompt.ts", "constants.ts", "circuit-breaker.ts", "triad-parity-report.ts"] as const,
   },
   {
     id: "gatekeeper",
@@ -38,7 +38,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "integrity",
     responsibility: "Honest capability gaps, sprint completes, degraded fallbacks; WASM .fxp bridge; Igor manifest layer.",
-    artifacts: ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts", "engine-valuation-heuristic.ts"] as const,
+    artifacts: ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts", "engine-valuation-heuristic.ts", "fxp-provenance.ts"] as const,
   },
   {
     id: "aji_entropy",
@@ -48,7 +48,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "schism",
     responsibility: "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative, logs, and IOM pulse schisms only; does not mutate triad weights, TS gates, encoder bytes, or HARD GATE.",
-    artifacts: ["schism.ts", "iom-pulse.ts", "iom-coverage.ts"] as const,
+    artifacts: ["schism.ts", "iom-pulse.ts", "iom-coverage.ts", "execution-tiers.ts"] as const,
   },
   {
     id: "triad_governance",
@@ -63,7 +63,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "taxonomy",
     responsibility: "Preset taxonomy pool narrow + sparse rank pre-Slavic.",
-    artifacts: ["taxonomy/engine.ts", "taxonomy/prompt-keyword-sparse.ts", "taxonomy/sparse-rank.ts"] as const,
+    artifacts: ["taxonomy/engine.ts", "taxonomy/prompt-keyword-sparse.ts", "taxonomy/sparse-rank.ts", "taxonomy/safe-process.ts"] as const,
   },
   {
     id: "talent_market",
@@ -88,7 +88,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "pnh",
     responsibility: "Predictive Network Hardening: deterministic ghost probes, APT-pattern catalog, immunity ledger. No runtime auto-patch. Triad HTTP rate limit lives in web-app; stderr redaction in telemetry-redact.ts.",
-    artifacts: ["pnh/pnh-ghost-run.ts", "pnh/immunity-ledger.ts", "pnh/pnh-scenarios.ts", "pnh/pnh-triad-defense.ts", "pnh/pnh-warfare-model.ts", "pnh/pnh-apt-scenarios.ts", "pnh/triad-rate-limit-core.ts", "telemetry-redact.ts"] as const,
+    artifacts: ["pnh/pnh-ghost-run.ts", "pnh/pnh-adaptive.ts", "pnh/pnh-attack-memory.ts", "pnh/immunity-ledger.ts", "pnh/pnh-context-evaluator.ts", "pnh/pnh-context-types.ts", "pnh/pnh-decision-with-memory.ts", "pnh/pnh-health-snapshot.ts", "pnh/pnh-proposal-model.ts", "pnh/pnh-simulation-engine.ts", "pnh/pnh-scenarios.ts", "pnh/pnh-triad-defense.ts", "pnh/pnh-triage-matrix.ts", "pnh/pnh-wargame.ts", "pnh/pnh-warfare-model.ts", "pnh/pnh-apt-prompt-scan.ts", "pnh/pnh-apt-scenarios.ts", "pnh/triad-rate-limit-core.ts", "telemetry-redact.ts"] as const,
   },
   {
     id: "vst_observer",

@@ -137,6 +137,14 @@ export interface TriadRunTelemetry {
     originalPromptHash: string;
     executionPromptHash: string;
   };
+  /**
+   * Fetcher path only: resolved after two panelists returned candidates that passed gates with scores
+   * at or above **`triadEarlyResolveScoreFloor`** — third upstream call aborted for latency (observability;
+   * parity may be **mixed**). Off unless explicitly enabled in **`runTriad`** options.
+   */
+  triadEarlyResolveTwo?: boolean;
+  /** Default **0.9** when **`triadEarlyResolveTwo`** is used. */
+  triadEarlyResolveScoreFloor?: number;
 }
 
 export interface AIAnalysis {

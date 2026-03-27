@@ -11,6 +11,7 @@ import { fetchQwenCandidates } from "@/lib/fetch-qwen-candidates";
 import {
   applyPnhTriadPromptDefense,
   auditTriadCandidatesForPnhResponseEcho,
+  detectPnhAptPromptMatches,
   evaluatePnhContext,
   getDefaultPnhAttackMemoryStore,
   isValidCandidate,
@@ -107,6 +108,15 @@ export async function triadPanelPost(
 
   // Reality Loop: the user requested an output (triad view/generation intent).
   logRealitySignal("OUTPUT_VIEWED", { surface: "dock", panelist });
+
+  const aptMatches = detectPnhAptPromptMatches(prompt);
+  if (aptMatches.length > 0) {
+    logEvent("pnh_high_severity_probe_match", {
+      scenarioIds: aptMatches,
+      panelist,
+      note: "APT catalog prompt heuristic — observability only; no gate mutation",
+    });
+  }
 
   const rate = checkTriadRateLimit(request, prompt);
   if (rate.allowed === false) {

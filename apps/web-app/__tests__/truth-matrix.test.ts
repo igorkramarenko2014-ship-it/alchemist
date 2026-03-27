@@ -15,6 +15,7 @@ describe("truth matrix snapshot", () => {
     expect(s.hardGate).toBe("enforced");
     expect(s.triadFullyLive).toBe(false);
     expect(s.rows[0]?.path).toContain("Triad");
+    expect(Array.isArray(s.runtimeChecks?.checks)).toBe(true);
   });
 });
 

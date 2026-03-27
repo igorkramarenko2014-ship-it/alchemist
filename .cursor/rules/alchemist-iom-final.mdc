@@ -1,0 +1,36 @@
+# Alchemist IOM Final Policy Gate
+
+## Scope
+
+This rule codifies two non-negotiable IOM checks as machine-enforced policy:
+
+1. Every new `packages/shared-engine/**/*.ts` source file must be registered in `packages/shared-engine/igor-power-cells.json`.
+2. Stub fallback outcomes are not learning-eligible by default (`ALLOW_STUB_LEARNING` gate in `reality-signals-log.ts`).
+
+## Enforcement command
+
+Run:
+
+```bash
+pnpm iom:policy-check
+```
+
+Fail conditions:
+
+- Any shared-engine `.ts` source (excluding tests and generated files) is missing from IOM artifacts.
+- Stub-learning lock is missing or weakened.
+
+## CI posture
+
+- Recommended: invoke `pnpm iom:policy-check` in CI release lanes (or pre-merge gates).
+- This does not replace HARD GATE, `verify:ci`, `harshcheck:wasm`, or `health:audit`.
+
+## Canon
+
+Policy remains subordinate to:
+
+1. `.cursorrules`
+2. `alchemist-security-posture.mdc`
+3. `alchemist-iom.mdc`
+
+No shadow governance, no auto-mutation of weights/gates/bytes.

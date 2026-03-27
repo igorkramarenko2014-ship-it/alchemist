@@ -28,7 +28,7 @@ Triad consensus reduces **single-model brittleness**; it is **not** a claim of f
 
 Naming in code: `REALITY_TELEMETRY_EVENTS` and `logRealitySignal` in `@alchemist/shared-engine` (`reality-signals-log.ts`). Types: `@alchemist/shared-types` (`reality-signals.ts`).
 
-**Privacy / security:** Payloads use **hashes and enums** — no raw prompts in telemetry (`telemetry-redact.ts` still applies). **Learning policy:** stub fallback outcomes are **not learning-eligible by default**; include them only when an explicit IOM/operator decision enables stub learning. **Operational priority:** keep stub usage at the absolute minimum — it is **Plan Z** (last resort continuity), never a routine fallback target. Retention and lawful basis belong in `PRIVACY.md` before wide deployment.
+**Privacy / security:** Payloads use **hashes and enums** — no raw prompts in telemetry (`telemetry-redact.ts` still applies). **Learning policy:** stub fallback outcomes are **not learning-eligible by default**. To enable stub learning, set explicit IOM policy and opt in (`ALCHEMIST_ALLOW_STUB_LEARNING=1`). **Operational priority:** keep stub usage at the absolute minimum — it is **Plan Z** (last resort continuity), never a routine fallback target. Retention and lawful basis belong in `PRIVACY.md` before wide deployment.
 
 ---
 

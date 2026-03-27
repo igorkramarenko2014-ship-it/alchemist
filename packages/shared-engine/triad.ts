@@ -39,13 +39,16 @@ import {
   candidatePassesDistributionGate,
   consensusValidateCandidate,
   filterConsensusValid,
+  filterValid,
+  STATUS_NOISY,
 } from "./validate";
+import { validateTriadIntent } from "./intent-hardener";
 import { logDegradedFallback } from "./integrity";
 import { lookupTablebaseCandidate } from "./reliability/checkers-fusion";
 import { scoreCandidatesWithGate, type ScoreCandidatesOptions } from "./score";
-import { STATUS_NOISY } from "./validate";
 import { evaluatePnhContext, pnhContextFragilityScore } from "./pnh/pnh-context-evaluator";
 import type { PnhContextInput } from "./pnh/pnh-context-types";
+import { logEvent } from "./telemetry";
 
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
 
@@ -75,6 +78,140 @@ type TriadPanelChunk = {
   durationMs: number;
   failed: boolean;
 };
+
+const TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR = 0.9;
+
+/**
+ * Fetcher path: optionally resolve after **two** panelists produce gate-passing candidates with scores
+ * at or above **`scoreFloor`** (Slavic/Undercover applied via **`scoreGatedTriadPool`** on the partial pool).
+ * Remaining panelist fetch is aborted for latency — parity becomes **mixed** (observability only; no gate mutation).
+ */
+async function runFetcherChunksWithOptionalEarlyTwo(
+  runId: string,
+  prompt: string,
+  fetcher: (prompt: string, panelist: Panelist, signal: AbortSignal) => Promise<AICandidate[]>,
+  parentSignal: AbortSignal | undefined,
+  scoreOpts: ScoreCandidatesOptions,
+  early: { enabled: boolean; scoreFloor: number }
+): Promise<{ chunks: TriadPanelChunk[]; earlyResolvedTwo: boolean }> {
+  const controllers = TRIAD_PANELISTS.map(() => new AbortController());
+  if (parentSignal) {
+    parentSignal.addEventListener(
+      "abort",
+      () => {
+        for (const c of controllers) c.abort();
+      },
+      { once: true }
+    );
+  }
+
+  const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T> => {
+    return Promise.race([
+      p,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms)
+      ),
+    ]);
+  };
+
+  const runOne = async (panelist: Panelist, i: number): Promise<TriadPanelChunk> => {
+    const panelClientTimeoutMs = TRIAD_PANELIST_CLIENT_TIMEOUT_MS[panelist];
+    try {
+      const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
+        withTimeout(fetcher(prompt, panelist, controllers[i].signal), panelClientTimeoutMs)
+      );
+      return { panelist, value, durationMs, failed: false };
+    } catch {
+      return {
+        panelist,
+        value: [] as AICandidate[],
+        durationMs: panelClientTimeoutMs,
+        failed: true,
+      };
+    }
+  };
+
+  const taskPromises = TRIAD_PANELISTS.map((panelist, i) =>
+    runOne(panelist, i).then((chunk) => ({ index: i, chunk }))
+  );
+
+  if (!early.enabled) {
+    const results = await Promise.all(taskPromises);
+    return {
+      chunks: results.map((r) => r.chunk),
+      earlyResolvedTwo: false,
+    };
+  }
+
+  const indices = new Set([0, 1, 2]);
+  const completedOrder: TriadPanelChunk[] = [];
+  let earlyResolvedTwo = false;
+
+  while (indices.size > 0) {
+    const { index, chunk } = await Promise.race(
+      Array.from(indices).map(
+        (i) => taskPromises[i] as Promise<{ index: number; chunk: TriadPanelChunk }>
+      )
+    );
+    indices.delete(index);
+    completedOrder.push(chunk);
+
+    if (completedOrder.length === 2) {
+      const flat = flattenTriadChunksWithDurations(
+        completedOrder.map((c) => ({ value: c.value, durationMs: c.durationMs }))
+      );
+      const scoringLane = scoreOpts.pnhScoringLane ?? "fully_live";
+      const pTrim = prompt.trim();
+      const intentOk =
+        pTrim.length === 0 ||
+        validateTriadIntent({ prompt: pTrim }, { pnhTriadLane: scoringLane }).ok;
+
+      const scored = scoreGatedTriadPool(
+        flat.candidates,
+        prompt,
+        flat.panelDurationsMs,
+        scoreOpts
+      );
+      const high = scored.filter((c) => c.score >= early.scoreFloor);
+      const panelistsPostSlavic = new Set(high.map((c) => c.panelist));
+
+      /** Pre-Slavic: parallel param vectors + identical reasoning can cosine-dedupe across panelists. */
+      const validPre = filterValid(flat.candidates);
+      const highPre = validPre.filter((c) => c.score >= early.scoreFloor);
+      const panelistsPreSlavic = new Set(highPre.map((c) => c.panelist));
+
+      if (
+        intentOk &&
+        (panelistsPostSlavic.size >= 2 || panelistsPreSlavic.size >= 2)
+      ) {
+        for (const i of Array.from(indices)) controllers[i].abort();
+        earlyResolvedTwo = true;
+        logEvent("triad_early_resolve_two", {
+          runId,
+          scoreFloor: early.scoreFloor,
+          note:
+            panelistsPostSlavic.size >= 2
+              ? "Aborted remaining panelist fetch after two high-score gate-passing panelists — latency path; parity mixed"
+              : "Aborted after two panelists at floor (pre-Slavic distinct; Slavic may merge parallel rows) — latency path; parity mixed",
+        });
+        break;
+      }
+    }
+  }
+
+  const settled = await Promise.allSettled(taskPromises);
+  const chunks: TriadPanelChunk[] = settled.map((s, i) => {
+    if (s.status === "fulfilled") return s.value.chunk;
+    return {
+      panelist: TRIAD_PANELISTS[i],
+      value: [] as AICandidate[],
+      durationMs: TRIAD_PANELIST_CLIENT_TIMEOUT_MS[TRIAD_PANELISTS[i]],
+      failed: true,
+    };
+  });
+
+  return { chunks, earlyResolvedTwo };
+}
 
 function buildTriadParityFields(
   triadRunMode: "tablebase" | "fetcher" | "stub",
@@ -290,6 +427,13 @@ export async function runTriad(
     pnhIntentGuardLane?: PnhTriadLane;
     /** When **`false`**, do not attempt jailbreak marker strip + re-validate. Default **`true`**. */
     pnhAllowPromptSanitize?: boolean;
+    /**
+     * Fetcher path only: if two panelists return gate-passing candidates with scores ≥ floor, abort the
+     * remaining upstream fetch for lower latency (parity **mixed**). Default **off**.
+     */
+    triadEarlyResolveTwo?: boolean;
+    /** Default **0.9** when **`triadEarlyResolveTwo`** is enabled. */
+    triadEarlyResolveScoreFloor?: number;
   }
 ): Promise<AIAnalysis> {
   const skipPnh = options?.skipPnhTriadDefense === true;
@@ -340,15 +484,6 @@ export async function runTriad(
     mode: triadRunMode,
   });
 
-  const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T> => {
-    return Promise.race([
-      p,
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms)
-      ),
-    ]);
-  };
-
   let candidates: AICandidate[];
   let meanPanelistMs = 0;
   let triadFailureRate = 0;
@@ -356,6 +491,7 @@ export async function runTriad(
   let panelDurationsMs: number[] | undefined;
   /** Per-panel rows for parity telemetry; null for tablebase. */
   let panelChunks: TriadPanelChunk[] | null = null;
+  let triadEarlyResolvedTwo = false;
 
   if (tablebaseCandidate) {
     candidates = [tablebaseCandidate];
@@ -364,32 +500,25 @@ export async function runTriad(
     panelDurationsMs = undefined;
     panelChunks = null;
   } else if (fetcher) {
-    const chunks = await Promise.all(
-      TRIAD_PANELISTS.map(async (panelist) => {
-        const panelClientTimeoutMs = TRIAD_PANELIST_CLIENT_TIMEOUT_MS[panelist];
-        const controller = new AbortController();
-        const s = controller.signal;
-        if (signal) signal.addEventListener("abort", () => controller.abort());
-        try {
-          const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
-            withTimeout(fetcher(prompt, panelist, s), panelClientTimeoutMs)
-          );
-          return {
-            panelist,
-            value,
-            durationMs,
-            failed: false as const,
-          };
-        } catch {
-          return {
-            panelist,
-            value: [] as AICandidate[],
-            durationMs: panelClientTimeoutMs,
-            failed: true as const,
-          };
-        }
-      })
+    const scoringLaneForFetch: PnhTriadLane = triadRunMode === "stub" ? "stub" : "fully_live";
+    const scoreOptsForFetch: ScoreCandidatesOptions = {
+      ...(options?.userMode !== undefined ? { userMode: options.userMode } : {}),
+      pnhScoringLane: scoringLaneForFetch,
+    };
+    const earlyFloor =
+      options?.triadEarlyResolveScoreFloor ?? TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR;
+    const { chunks, earlyResolvedTwo } = await runFetcherChunksWithOptionalEarlyTwo(
+      runId,
+      prompt,
+      fetcher,
+      signal,
+      scoreOptsForFetch,
+      {
+        enabled: options?.triadEarlyResolveTwo === true,
+        scoreFloor: earlyFloor,
+      }
     );
+    triadEarlyResolvedTwo = earlyResolvedTwo;
     panelChunks = chunks.map((c) => ({
       panelist: c.panelist,
       value: c.value,
@@ -547,6 +676,13 @@ export async function runTriad(
         fragilityScore01: frag01,
       },
       ...(pnhTriadDefense !== undefined && { pnhTriadDefense }),
+      ...(triadEarlyResolvedTwo
+        ? {
+            triadEarlyResolveTwo: true,
+            triadEarlyResolveScoreFloor:
+              options?.triadEarlyResolveScoreFloor ?? TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR,
+          }
+        : {}),
     },
     ...(triadExecutionPrompt !== undefined && { triadExecutionPrompt }),
     ...(validationSummary !== undefined && { validationSummary }),

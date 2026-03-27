@@ -434,6 +434,7 @@ export type {
   AptImplementationStatus,
   PnhAptScenario,
 } from "./pnh/pnh-apt-scenarios";
+export { detectPnhAptPromptMatches } from "./pnh/pnh-apt-prompt-scan";
 export {
   checkTriadRateLimitCore,
   triadRateLimitConfigFromEnv,

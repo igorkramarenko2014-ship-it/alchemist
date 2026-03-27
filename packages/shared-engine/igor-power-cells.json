@@ -8,7 +8,8 @@
       "triad-panelist-prompt.ts",
       "triad-panelist-system-prompt.ts",
       "constants.ts",
-      "circuit-breaker.ts"
+      "circuit-breaker.ts",
+      "triad-parity-report.ts"
     ]
   },
   {
@@ -49,7 +50,8 @@
       "integrity.ts",
       "encoder.ts",
       "igor-orchestrator-layer.ts",
-      "engine-valuation-heuristic.ts"
+      "engine-valuation-heuristic.ts",
+      "fxp-provenance.ts"
     ]
   },
   {
@@ -60,7 +62,7 @@
   {
     "id": "schism",
     "responsibility": "Bipolar sprint stance (CONSOLIDATE vs DISRUPT) — narrative, logs, and IOM pulse schisms only; does not mutate triad weights, TS gates, encoder bytes, or HARD GATE.",
-    "artifacts": ["schism.ts", "iom-pulse.ts", "iom-coverage.ts"]
+    "artifacts": ["schism.ts", "iom-pulse.ts", "iom-coverage.ts", "execution-tiers.ts"]
   },
   {
     "id": "triad_governance",
@@ -78,7 +80,8 @@
     "artifacts": [
       "taxonomy/engine.ts",
       "taxonomy/prompt-keyword-sparse.ts",
-      "taxonomy/sparse-rank.ts"
+      "taxonomy/sparse-rank.ts",
+      "taxonomy/safe-process.ts"
     ]
   },
   {
@@ -113,10 +116,21 @@
     "responsibility": "Predictive Network Hardening: deterministic ghost probes, APT-pattern catalog, immunity ledger. No runtime auto-patch. Triad HTTP rate limit lives in web-app; stderr redaction in telemetry-redact.ts.",
     "artifacts": [
       "pnh/pnh-ghost-run.ts",
+      "pnh/pnh-adaptive.ts",
+      "pnh/pnh-attack-memory.ts",
       "pnh/immunity-ledger.ts",
+      "pnh/pnh-context-evaluator.ts",
+      "pnh/pnh-context-types.ts",
+      "pnh/pnh-decision-with-memory.ts",
+      "pnh/pnh-health-snapshot.ts",
+      "pnh/pnh-proposal-model.ts",
+      "pnh/pnh-simulation-engine.ts",
       "pnh/pnh-scenarios.ts",
       "pnh/pnh-triad-defense.ts",
+      "pnh/pnh-triage-matrix.ts",
+      "pnh/pnh-wargame.ts",
       "pnh/pnh-warfare-model.ts",
+      "pnh/pnh-apt-prompt-scan.ts",
       "pnh/pnh-apt-scenarios.ts",
       "pnh/triad-rate-limit-core.ts",
       "telemetry-redact.ts"

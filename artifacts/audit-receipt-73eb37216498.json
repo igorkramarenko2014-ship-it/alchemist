@@ -1,0 +1,55 @@
+{
+  "event": "alchemist_final_audit",
+  "generatedAt": "2026-03-27T00:24:25.749Z",
+  "gitSha": "73eb37216498626060171b6b87acdd33f73860ab",
+  "ok": false,
+  "steps": [
+    {
+      "command": "pnpm verify:ci",
+      "startedAt": "2026-03-27T00:23:44.870Z",
+      "endedAt": "2026-03-27T00:23:53.325Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm harshcheck:wasm",
+      "startedAt": "2026-03-27T00:23:53.325Z",
+      "endedAt": "2026-03-27T00:24:23.565Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm pnh:ghost -- --strict",
+      "startedAt": "2026-03-27T00:24:23.565Z",
+      "endedAt": "2026-03-27T00:24:24.657Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm triad:parity-diff",
+      "startedAt": "2026-03-27T00:24:24.657Z",
+      "endedAt": "2026-03-27T00:24:25.452Z",
+      "exitCode": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm health:audit",
+      "startedAt": "2026-03-27T00:24:25.452Z",
+      "endedAt": "2026-03-27T00:24:25.721Z",
+      "exitCode": 1,
+      "ok": false
+    },
+    {
+      "command": "GET http://127.0.0.1:3000/api/health/truth-matrix",
+      "startedAt": "2026-03-27T00:24:25.721Z",
+      "endedAt": "2026-03-27T00:24:25.735Z",
+      "ok": false,
+      "exitCode": 1,
+      "proof": {
+        "error": "TypeError: fetch failed"
+      }
+    }
+  ],
+  "signatureAlgorithm": "sha256",
+  "signature": "0dc58992966d1ccedb094f634e464e3b45bf55c22f666c34007a2b5374e2e079"
+}
