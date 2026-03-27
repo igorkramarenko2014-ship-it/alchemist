@@ -12,11 +12,6 @@ AIOM is a verification-driven metrics system for evaluating runtime integrity an
 
 This document is an externally verifiable snapshot derived from repository artifacts.
 
-## Environment
-
-This snapshot reflects a local verification environment.
-Production validation requires querying the deployed runtime endpoint and comparing it to the canonical artifact contract.
-
 ## Synchronization Metadata
 
 <!-- DOC_TRUST:BEGIN -->
@@ -57,7 +52,7 @@ Primary sources:
 | PNH immunity | 25 / 25 (breaches: 0) [clean] | `metrics.pnhImmunity.status in {clean, breach}` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunity`) | `jq '.metrics.pnhImmunity' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
 | Sync timestamp (UTC) | 2026-03-27T18:25:59.479Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
-| Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array for source consistency checks | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
+| Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):
 1. Run `pnpm verify:harsh`
@@ -114,6 +109,8 @@ Expected response fields (minimum contract):
 
 Runtime `artifact` payload MUST match `artifacts/truth-matrix.json` exactly. Any divergence is considered a system integrity failure.
 
+Path contract note: canonical checks target `artifact.metrics.*` (for example `artifact.metrics.mon`, `artifact.metrics.pnhImmunity`, `artifact.metrics.syncedAtUtc`). No parallel top-level metric namespace is authoritative.
+
 `truthArtifactGeneratedAtUtc` must be within 24h of current UTC time; otherwise system state is `stale_data`.
 
 Divergence definition: any mismatch between runtime `artifact` and deserialized `artifacts/truth-matrix.json` (ignoring runtime-only fields), missing required fields/type mismatches, schema validation failure, or freshness SLA violation.
@@ -129,8 +126,9 @@ If values in this brief and the runtime endpoint diverge, refresh this document 
 
 | Term | Definition |
 |------|------------|
-| AIOM | System integrity metric framework and orchestration surface |
-| IOM cell | Unit of verification coverage in the orchestrator map |
-| PNH simulation | Scenario-based resilience suite summarized in immunity metrics |
-| MON | Minimum Operating Number: canonical **`metrics.mon.value`** / **`metrics.mon.ready`** |
-| Truth matrix | Canonical artifact at `artifacts/truth-matrix.json` |
+| AIOM | Verification-driven metrics framework that continuously evaluates runtime integrity, test coverage, and release readiness of the system. |
+| IOM cell | Atomic unit of verification coverage used to track completeness of the orchestrator map in the shared-engine. |
+| PNH simulation | Scenario-based resilience testing suite that simulates potential failure modes and produces immunity metrics (passed / total / breaches). |
+| MON | Minimum Operating Number — the single canonical readiness scalar (`metrics.mon.value` and `metrics.mon.ready`). A value of 117 with `ready: true` indicates the system is considered release-ready. |
+| Truth matrix | Canonical source of truth stored at `artifacts/truth-matrix.json`. All runtime metrics and verification results must match this artifact exactly. |
+| Divergence | Any inconsistency between the runtime `/api/health/truth-matrix` response and the deserialized `artifacts/truth-matrix.json` (including missing fields, type mismatches, schema violations, or freshness SLA breach). |

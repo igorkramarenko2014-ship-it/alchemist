@@ -130,7 +130,7 @@ const syncBlock = [
   `| PNH immunity | ${pnhPassed === null ? "unknown" : pnhPassed}${pnhTotal === null ? "" : ` / ${pnhTotal}`}${pnhBreaches === null ? "" : ` (breaches: ${pnhBreaches})`} [${pnhStatus}] | \`metrics.pnhImmunity.status in {clean, breach}\` | Scenario-based resilience result from canonical truth artifact | \`artifacts/truth-matrix.json\` (\`metrics.pnhImmunity\`) | \`jq '.metrics.pnhImmunity' artifacts/truth-matrix.json\` |`,
   `| WASM status | ${wasmStatus} | Value is one of \`available\` or \`unavailable\` | Browser encoder artifact availability | \`artifacts/truth-matrix.json\` (\`metrics.wasmStatus\`) | \`jq '.metrics.wasmStatus' artifacts/truth-matrix.json\` |`,
   `| Sync timestamp (UTC) | ${formatMaybe(tmMetrics.syncedAtUtc)} | ISO 8601 timestamp | Time written by truth aggregation script | \`artifacts/truth-matrix.json\` (\`metrics.syncedAtUtc\`) | \`jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json\` |`,
-  `| Divergences | ${String(divergences.length)} | \`length(divergences) == 0\` for clean state | Canonical divergence array for source consistency checks | \`artifacts/truth-matrix.json\` (\`divergences\`) | \`jq '.divergences | length' artifacts/truth-matrix.json\` |`,
+  `| Divergences | ${String(divergences.length)} | \`length(divergences) == 0\` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | \`artifacts/truth-matrix.json\` (\`divergences\`) | \`jq '.divergences | length' artifacts/truth-matrix.json\` |`,
   "",
   "Re-sync procedure (if any metric shows unknown):",
   "1. Run `pnpm verify:harsh`",
