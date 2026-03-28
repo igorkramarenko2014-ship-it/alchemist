@@ -1,4 +1,5 @@
 First time / “won’t run”: open the repo root folder (has **apps/** + **packages/**), then **`pnpm dev`**.
+**`pnpm dev`** (and **`go`**, **`web:dev:fresh`**, **`dev:recover`**, **`vst/` → `pnpm dev`**) runs **`scripts/happy-panda.mjs` first** — monorepo root, Node, pnpm, `.env.local` warn. Skip: **`ALCHEMIST_SKIP_PANDA=1`**.
 If **node_modules** was never installed, **`apps/web-app/scripts/dev-server.mjs`** auto-runs **`with-pnpm.mjs install`** once when you start dev.
 
 Copy this ENTIRE line into Terminal and press Enter:

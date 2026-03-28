@@ -2,8 +2,12 @@
 /**
  * Happy Panda — fast preflight gates (see docs/critical-fix-happy-panda-autoload.md).
  *
+ * Runs automatically before `pnpm dev`, `web:dev:fresh`, `dev:recover`, etc. unless skipped.
+ *
  *   pnpm panda
  *   pnpm panda --health 3010    # requires dev server on PORT; curl GET /api/health → 200
+ *
+ * Skip (CI / nested tools):  ALCHEMIST_SKIP_PANDA=1
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -27,6 +31,10 @@ function findMonorepoRoot(startDir) {
     dir = parent;
   }
   return null;
+}
+
+if (process.env.ALCHEMIST_SKIP_PANDA === "1") {
+  process.exit(0);
 }
 
 const here = dirname(fileURLToPath(import.meta.url));

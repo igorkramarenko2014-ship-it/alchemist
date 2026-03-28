@@ -135,8 +135,10 @@ Optional full engine gate (slower): `pnpm verify:harsh` (spell **`harshcheck`** 
 
 ## CLI preflight (in-repo)
 
+**Autoload:** `pnpm dev`, `pnpm dev:3010`, `pnpm fresh:3010`, `pnpm go`, `pnpm web:dev:fresh`, `pnpm dev:recover`, and `vst/` **`pnpm dev`** all run **`happy-panda.mjs` first** (same checks as `pnpm panda`). Skip with **`ALCHEMIST_SKIP_PANDA=1`** (CI or nested tooling).
+
 ```bash
-pnpm panda                  # cwd, node, pnpm, .env.local warn
+pnpm panda                  # same gates as autoload (manual)
 pnpm panda --health 3010    # after dev is up — expects GET /api/health → 200
 ```
 

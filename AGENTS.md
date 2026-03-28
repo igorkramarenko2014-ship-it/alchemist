@@ -47,7 +47,7 @@ pnpm env:check        # apps/web-app/.env.local Groq line format (KEY=value, not
 pnpm check:ready      # env:check + verify:harsh — quick “OK to dev?” before pnpm dev
 pnpm verify:keys      # live Groq / DeepSeek / Qwen probe (.env.local; Qwen URL/model from QWEN_BASE_URL; no secrets printed)
 pnpm test:real-gates  # gate calibration vs live triad routes → stderr calibration_*; local tools/gate-calibration-output.json (gitignored)
-pnpm dev              # or pnpm dev:web
+pnpm dev              # or pnpm dev:web — runs `scripts/happy-panda.mjs` preflight first; `ALCHEMIST_SKIP_PANDA=1` to bypass
 pnpm harshcheck       # pre-ship (spell: harshcheck not harshchek)
 pnpm harshcheck:wasm  # harshcheck + REQUIRE_WASM=1 assert:wasm — before browser .fxp export (needs pnpm build:wasm)
 pnpm verify:harsh:wasm # verify:harsh + REQUIRE_WASM assert (faster; no next build)
