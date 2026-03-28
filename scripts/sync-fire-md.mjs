@@ -14,11 +14,12 @@
  * so auditors and CI can treat one JSON as canonical metrics; Markdown tables stay human-facing mirrors.
  */
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { findVst3BuildBundlePath } from "./lib/vst-bundle-resolve.mjs";
+import { writeUtf8FileAtomic } from "./lib/write-json-atomic.mjs";
 
 /** Must not appear elsewhere in FIRE.md (intro prose used to duplicate this and broke `indexOf`). */
 const MARK_BEGIN = "<!-- ALCHEMIST:FIRE_METRICS:BEGIN -->";
@@ -195,10 +196,10 @@ function writeFireMetricsArtifacts(
   payload.divergences = Array.isArray(truthMatrix?.divergences) ? truthMatrix.divergences : [];
   const jsonPath = join(root, "docs", "fire-metrics.json");
   const body = `${JSON.stringify(payload, null, 2)}\n`;
-  writeFileSync(jsonPath, body, "utf8");
+  writeUtf8FileAtomic(jsonPath, body);
   const digest = createHash("sha256").update(body).digest("hex");
   const shaPath = join(root, "docs", "fire-metrics.sha256");
-  writeFileSync(shaPath, `${digest}  docs/fire-metrics.json\n`, "utf8");
+  writeUtf8FileAtomic(shaPath, `${digest}  docs/fire-metrics.json\n`);
 }
 
 function patchMarkedBlock(content, beginMark, endMark, innerMarkdown, labelForError) {
@@ -216,6 +217,22 @@ function patchMarkedBlock(content, beginMark, endMark, innerMarkdown, labelForEr
     "\n\n" +
     content.slice(j)
   );
+}
+
+/** Fail closed on duplicate or missing FIRE metrics markers (no silent partial table writes). */
+function validateSingleFireMetricsMarkers(content, labelForError) {
+  const beginCount = content.split(MARK_BEGIN).length - 1;
+  const endCount = content.split(MARK_END).length - 1;
+  if (beginCount !== 1 || endCount !== 1) {
+    throw new Error(
+      `${labelForError}: expected exactly one ${MARK_BEGIN} and one ${MARK_END}; found ${beginCount} begin / ${endCount} end`,
+    );
+  }
+  const i = content.indexOf(MARK_BEGIN);
+  const j = content.indexOf(MARK_END);
+  if (j <= i) {
+    throw new Error(`${labelForError}: ${MARK_END} must appear after ${MARK_BEGIN}`);
+  }
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -277,8 +294,10 @@ writeFireMetricsArtifacts(root, {
 process.stderr.write("sync-fire-md: wrote docs/fire-metrics.json + docs/fire-metrics.sha256\n");
 
 const beforeFire = readFileSync(firePath, "utf8");
+validateSingleFireMetricsMarkers(beforeFire, "docs/FIRE.md");
 const afterFire = patchMarkedBlock(beforeFire, MARK_BEGIN, MARK_END, inner, "docs/FIRE.md");
-writeFileSync(firePath, afterFire, "utf8");
+validateSingleFireMetricsMarkers(afterFire, "docs/FIRE.md(post-patch)");
+writeUtf8FileAtomic(firePath, afterFire);
 process.stderr.write(
   `sync-fire-md: updated docs/FIRE.md (${engine.testCount} tests, Next ${nextVersion})\n`
 );

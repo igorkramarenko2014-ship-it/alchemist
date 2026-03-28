@@ -1,0 +1,33 @@
+---
+description: AIOM verification — truth artifact, live health, divergence (fused with Alchemist canon)
+alwaysApply: true
+---
+
+# AIOM verification (fused)
+
+**Precedence:** **`docs/FIRESTARTER.md`**, **`docs/FIRE.md`**, encoder **HARD GATE**, **`alchemist-brief.mdc`**, **`alchemist-security-posture.mdc`** — this layer adds **AIOM / truth-matrix discipline** only; it does **not** override Serum bytes, triad gate math, or IOM manifest law.
+
+## Canonical snapshot vs runtime
+
+- **`artifacts/truth-matrix.json`** is the **committed canonical snapshot** for verification metrics (schema v2, validators in CI).
+- **`GET /api/health/truth-matrix`** surfaces **`artifact` 1:1** from disk + separate **`live`** block (runtime API/triad/WASM checks). **Never** merge `live` fields into `artifact`.
+- **`docs/AIOM-Technical-Brief.md`** and **`pnpm fire:sync`** mirror / explain; **docs are not** the source of truth.
+
+## Integrity rules
+
+- **Divergence** = snapshot mismatch, schema/type failure, or **snapshot** freshness SLA violation — not transient `live` flapping alone.
+- **Freshness:** defaults **15m** prod / **2h** dev on `artifact.generatedAtUtc`; **`ALCHEMIST_TRUTH_MAX_AGE_MINUTES`** overrides. Stale snapshot → `freshnessStatus: stale_data` → **`live.status` cannot be `ok`**.
+- New metrics on the truth artifact require **schema + `validate-truth-matrix.mjs`** updates in the **same** change set — no silent fields.
+
+## Verification chain
+
+- **`pnpm verify:harsh`** must stay green before merge claims; includes **`aggregate-truth`**, **`validate-truth-matrix`**, **`validate-fire-metrics`**, learning corpus gate.
+- **`pnpm fire:sync`** after green verify — refreshes FIRE / brief markers; does **not** replace **`verify:harsh`** for law.
+
+## Naming (external-facing)
+
+- Prefer clear labels alongside internal ids (**IOM**, **PNH**, **MON**). **`metrics.mon`** stores **`{ value, ready, source }` only**; human strings like `117/117_READY` are **derived** for display.
+
+## Backlog (not automatic scope)
+
+- Deeper rigor (mutation testing, history JSONL, contract tests) is **roadmap** — see **`docs/AIOM-Fused-Principles.md`**. Do not imply shipped until in repo + gates.

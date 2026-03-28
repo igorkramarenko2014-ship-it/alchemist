@@ -11,12 +11,36 @@ export interface TruthMatrixRow {
   verifySignal: string;
 }
 
-/** 24h SLA for `generatedAtUtc` on the canonical truth artifact (`artifacts/truth-matrix.json`). */
-export const TRUTH_ARTIFACT_FRESHNESS_SLA_MS = 24 * 60 * 60 * 1000;
+/**
+ * Max age for `generatedAtUtc` on the canonical artifact before `stale_data`.
+ * Override: **`ALCHEMIST_TRUTH_MAX_AGE_MINUTES`** (positive number).
+ * Defaults: **15 minutes** in production (`NODE_ENV === "production"`), **2 hours** in development.
+ */
+export function getTruthMaxAgeMs(): number {
+  const raw = process.env.ALCHEMIST_TRUTH_MAX_AGE_MINUTES;
+  if (raw !== undefined && raw !== "") {
+    const n = Number.parseFloat(raw);
+    if (Number.isFinite(n) && n > 0) return Math.floor(n * 60 * 1000);
+  }
+  return process.env.NODE_ENV === "production" ? 15 * 60 * 1000 : 2 * 60 * 60 * 1000;
+}
+
+/** Lightweight live checks — explicit strings only (no fake passes). */
+export interface TruthMatrixLiveChecks {
+  api: "ok" | "fail";
+  triad: "ok" | "degraded" | "fail";
+  wasm: "ok" | "fail";
+}
+
+export interface TruthMatrixLiveHealth {
+  status: "ok" | "degraded" | "down";
+  checkedAtUtc: string;
+  checks: TruthMatrixLiveChecks;
+}
 
 export interface TruthMatrixSnapshot {
   generatedAtMs: number;
-  /** 24h freshness SLA of canonical truth artifact timestamp. */
+  /** Freshness vs `getTruthMaxAgeMs()` on `artifact.generatedAtUtc`. */
   freshnessStatus: "fresh" | "stale_data" | "unknown";
   /** Contract posture for runtime-vs-artifact integrity checks. */
   integrityStatus: "ok" | "integrity_failure";
@@ -35,6 +59,8 @@ export interface TruthMatrixSnapshot {
   divergenceCheckedAtUtc?: string | null;
   /** Backward-compatible alias of `artifact.metrics` when present. */
   canonicalMetrics?: Record<string, unknown>;
+  /** Runtime live health — never merged into `artifact`; separate from snapshot / divergence contract. */
+  live: TruthMatrixLiveHealth;
   rows: TruthMatrixRow[];
   runtimeChecks?: TruthMatrixRuntimeChecks;
 }
@@ -191,7 +217,9 @@ function evaluateRuntimeArtifactParity(input: {
     issues.push("canonicalMetrics.pnhImmunity missing");
   }
   if (input.freshnessStatus === "stale_data") {
-    issues.push("freshness SLA violated (>24h) — stale_data");
+    issues.push(
+      `freshness SLA violated (snapshot older than ${Math.round(getTruthMaxAgeMs() / 60000)}m per ALCHEMIST_TRUTH_MAX_AGE_MINUTES or env defaults) — stale_data`,
+    );
   }
   return issues;
 }
@@ -209,6 +237,72 @@ function loadTruthMatrixArtifact():
   } catch {
     return { path: null, data: null };
   }
+}
+
+/** Canonical snapshot payload from disk (`artifacts/truth-matrix.json`), or `null`. */
+export function getTruthArtifact(): Record<string, unknown> | null {
+  return loadTruthMatrixArtifact().data;
+}
+
+/** True when `generatedAtUtc` is within `getTruthMaxAgeMs()` of now. */
+export function isTruthFresh(artifact: Record<string, unknown> | null | undefined): boolean {
+  if (!artifact || typeof artifact.generatedAtUtc !== "string") return false;
+  const ts = Date.parse(artifact.generatedAtUtc);
+  if (!Number.isFinite(ts)) return false;
+  return Date.now() - ts <= getTruthMaxAgeMs();
+}
+
+/**
+ * Roll up live posture: snapshot staleness / integrity failures cannot yield **`ok`**
+ * (stale or divergent artifact → at least **`degraded`**).
+ */
+export function computeOverallHealth(input: {
+  freshnessStatus: TruthMatrixSnapshot["freshnessStatus"];
+  integrityStatus: TruthMatrixSnapshot["integrityStatus"];
+  triad: TruthMatrixLiveChecks["triad"];
+  wasm: "ok" | "fail";
+}): "ok" | "degraded" | "down" {
+  if (input.freshnessStatus === "stale_data" || input.integrityStatus === "integrity_failure") {
+    if (input.triad === "fail" && input.wasm === "fail") return "down";
+    return "degraded";
+  }
+  if (input.triad === "fail" || input.wasm === "fail") return "down";
+  if (input.triad === "degraded") return "degraded";
+  return "ok";
+}
+
+export function buildTruthMatrixLiveHealth(input: {
+  triadLivePanelists: string[];
+  wasmAvailable: boolean;
+  freshnessStatus: TruthMatrixSnapshot["freshnessStatus"];
+  integrityStatus: TruthMatrixSnapshot["integrityStatus"];
+}): TruthMatrixLiveHealth {
+  const checkedAtUtc = new Date().toISOString();
+  const n = input.triadLivePanelists.length;
+  const triad: TruthMatrixLiveChecks["triad"] =
+    n >= 3 ? "ok" : n === 0 ? "fail" : "degraded";
+  const wasm: "ok" | "fail" = input.wasmAvailable ? "ok" : "fail";
+  const status = computeOverallHealth({
+    freshnessStatus: input.freshnessStatus,
+    integrityStatus: input.integrityStatus,
+    triad,
+    wasm,
+  });
+  return {
+    status,
+    checkedAtUtc,
+    checks: { api: "ok", triad, wasm },
+  };
+}
+
+/** Alias for **`buildTruthMatrixLiveHealth`** — runtime “live” block for API responses. */
+export function getLiveHealthSnapshot(input: {
+  triadLivePanelists: string[];
+  wasmAvailable: boolean;
+  freshnessStatus: TruthMatrixSnapshot["freshnessStatus"];
+  integrityStatus: TruthMatrixSnapshot["integrityStatus"];
+}): TruthMatrixLiveHealth {
+  return buildTruthMatrixLiveHealth(input);
 }
 
 export function buildTruthMatrixRuntimeChecks(): TruthMatrixRuntimeChecks {
@@ -336,7 +430,7 @@ export function buildTruthMatrixSnapshot(input: {
     if (!truthArtifactGeneratedAtUtc) return "unknown";
     const ts = Date.parse(truthArtifactGeneratedAtUtc);
     if (!Number.isFinite(ts)) return "unknown";
-    return Date.now() - ts <= TRUTH_ARTIFACT_FRESHNESS_SLA_MS ? "fresh" : "stale_data";
+    return Date.now() - ts <= getTruthMaxAgeMs() ? "fresh" : "stale_data";
   })();
   const divergenceCheckedAtUtc =
     typeof canonical.data?.divergenceCheckedAtUtc === "string"
@@ -349,6 +443,12 @@ export function buildTruthMatrixSnapshot(input: {
   });
   const integrityStatus: TruthMatrixSnapshot["integrityStatus"] =
     contractDivergences.length === 0 ? "ok" : "integrity_failure";
+  const live = buildTruthMatrixLiveHealth({
+    triadLivePanelists: input.triadLivePanelists,
+    wasmAvailable: input.wasmAvailable,
+    freshnessStatus,
+    integrityStatus,
+  });
   return {
     generatedAtMs: Date.now(),
     freshnessStatus,
@@ -363,6 +463,7 @@ export function buildTruthMatrixSnapshot(input: {
     truthArtifactGeneratedAtUtc,
     divergenceCheckedAtUtc,
     canonicalMetrics,
+    live,
     rows: [
       {
         path: "Triad candidates",

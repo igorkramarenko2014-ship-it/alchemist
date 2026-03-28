@@ -19,6 +19,11 @@ describe("truth matrix snapshot", () => {
     expect(s.triadFullyLive).toBe(false);
     expect(s.rows[0]?.path).toContain("Triad");
     expect(Array.isArray(s.runtimeChecks?.checks)).toBe(true);
+    expect(["ok", "degraded", "down"]).toContain(s.live.status);
+    expect(typeof s.live.checkedAtUtc).toBe("string");
+    expect(["ok", "fail"]).toContain(s.live.checks.api);
+    expect(["ok", "degraded", "fail"]).toContain(s.live.checks.triad);
+    expect(["ok", "fail"]).toContain(s.live.checks.wasm);
     if (s.canonicalArtifactPath && s.canonicalMetrics) {
       expect(typeof s.truthArtifactGeneratedAtUtc === "string" || s.truthArtifactGeneratedAtUtc === null).toBe(
         true,
@@ -30,9 +35,6 @@ describe("truth matrix snapshot", () => {
       if (s.canonicalMetrics.iomCoverageScore != null) {
         expect(s.canonicalMetrics.iomCoverageScore).toBeGreaterThanOrEqual(0);
         expect(s.canonicalMetrics.iomCoverageScore).toBeLessThanOrEqual(1);
-      }
-      if (s.canonicalMetrics.divergences != null) {
-        expect(typeof s.canonicalMetrics.divergences).toBe("number");
       }
       if (s.canonicalMetrics.pnhImmunity && typeof s.canonicalMetrics.pnhImmunity === "object") {
         const p = s.canonicalMetrics.pnhImmunity as { passed?: number; total?: number; breaches?: number };

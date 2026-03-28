@@ -73,8 +73,19 @@ if (url) {
   const hasRuntimeChecks =
     json?.runtimeChecks == null ||
     (Array.isArray(json.runtimeChecks?.checks) && json.runtimeChecks.checks.length > 0);
-  if (!hasRows || !hasRuntimeChecks) {
-    fail("runtime truth payload shape invalid (rows/runtimeChecks missing)");
+  const live = json?.live;
+  const hasLive =
+    live &&
+    typeof live === "object" &&
+    ["ok", "degraded", "down"].includes(live.status) &&
+    typeof live.checkedAtUtc === "string" &&
+    live.checks &&
+    typeof live.checks === "object" &&
+    ["ok", "fail"].includes(live.checks.api) &&
+    ["ok", "degraded", "fail"].includes(live.checks.triad) &&
+    ["ok", "fail"].includes(live.checks.wasm);
+  if (!hasRows || !hasRuntimeChecks || !hasLive) {
+    fail("runtime truth payload shape invalid (rows/runtimeChecks/live missing or malformed)");
   }
 }
 

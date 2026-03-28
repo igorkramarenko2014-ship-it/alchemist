@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "id": "pack_archetype_modern_bass_001",
+  "presetName": "Trusted Pack A — Modern Bass Archetype",
+  "style": "modern aggressive bass",
+  "tags": [
+    "bass",
+    "aggressive",
+    "modern",
+    "wide",
+    "distorted",
+    "transient-heavy"
+  ],
+  "mappings": {
+    "ampEnv": "short attack, short-to-medium decay, low sustain, medium release",
+    "filter": "mostly open cutoff with moderate resonance for bite, not for vowel coloration",
+    "oscillators": "harmonic-rich source content with layered weight in low-mid body",
+    "unison": "used for width and size, but usually kept controlled to preserve center impact",
+    "distortionFx": "adds edge, density, and forward aggression",
+    "modulation": "limited and functional; motion supports tension rather than obvious wobble"
+  },
+  "character": "Punchy, wide, aggressive bass tone with strong front attack, bright upper bite, and enough mid-body to stay heavy without becoming muddy.",
+  "causalReasoning": "This archetype feels aggressive because the amplitude envelope emphasizes the transient while keeping the body compact. Brightness comes from harmonic-rich oscillator content and relatively open filter settings, while distortion increases perceived density and edge. Controlled unison adds width without fully smearing the center, which preserves impact. Modulation is restrained so the sound stays focused and mix-forward instead of becoming animated or soft."
+}

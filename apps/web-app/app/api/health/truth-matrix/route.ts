@@ -30,6 +30,12 @@ export async function GET(request: Request) {
     strictOffsetsEnabled: process.env.ALCHEMIST_STRICT_OFFSETS === "1",
   });
 
-  return NextResponse.json(snapshot);
+  const { artifact, canonicalMetrics, live, ...snapshotRest } = snapshot;
+  return NextResponse.json({
+    artifact: artifact ?? null,
+    canonicalMetrics,
+    live,
+    ...snapshotRest,
+  });
 }
 

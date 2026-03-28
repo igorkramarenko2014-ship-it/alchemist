@@ -6,6 +6,7 @@
 
 1. **[`docs/FIRESTARTER.md`](docs/FIRESTARTER.md)** — **recovery bible** / full orientation; **Doc logic** (vs FIRE); **Appendix A** workflow; **Appendix B** INIT; **Appendix C** optional agent checklist (transparent triad, **`pnpm check:transparent`**); **Appendix D** Aji notes  
 2. **[`docs/FIRE.md`](docs/FIRE.md)** — **lightweight** outside assessment + §E–§L; machine metrics via **`pnpm fire:sync`** (**`ALCHEMIST:FIRE_METRICS`** HTML comments)  
+2a. **[`docs/AIOM-Fused-Principles.md`](docs/AIOM-Fused-Principles.md)** — AIOM snapshot truth vs runtime **`live`**; fused with canon · **[`.cursor/rules/alchemist-aiom-verification.mdc`](.cursor/rules/alchemist-aiom-verification.mdc)**  
 3. **[`.cursorrules`](.cursorrules)** (repo root) — compressed context  
 4. **[`.cursor/rules/alchemist-brief.mdc`](.cursor/rules/alchemist-brief.mdc)** — HARD GATE, build order, triad weights  
 4b. **[`.cursor/rules/alchemist-security-posture.mdc`](.cursor/rules/alchemist-security-posture.mdc)** — **always-on** security posture: offsets, env keys, triad stub/prod parity, WASM integrity, LLM trust boundaries, verification chain, thinking order  

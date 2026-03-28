@@ -2,7 +2,7 @@
 
 Pre-production AI learning material for **`@alchemist/shared-engine`** (**Engine School**).
 
-**Documentation triad (keep in sync):** this **`README.md`** (operator) · **`SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (outside validation contract).
+**Documentation triad (keep in sync):** this **`README.md`** (operator) · **`SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (outside validation contract) · **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** (doc sync + lesson path for auditors).
 
 This folder is not a runtime module for the browser. Lessons are **JSON + schema + tests**; live triad routes can consume the **generated index** when opt-in env is set (see **Phase 2**).
 
@@ -10,7 +10,10 @@ This folder is not a runtime module for the browser. Lessons are **JSON + schema
 
 | Path | Role |
 |------|------|
-| **`corpus/`** | Durable **`*.json`** lessons validated by **`pnpm learning:verify`** (recursive **`corpus/**/*.json`**). Optional **`.md`** notes are human-only and **not** schema-checked. No vendor pack trees after cleanup. Stub: **`corpus/serum-lesson-000-stub.json`**. |
+| **`corpus/`** | Durable **`*.json`** lessons validated by **`pnpm learning:verify`** (recursive **`corpus/**/*.json`**). Optional **`.md`** notes are human-only and **not** schema-checked. No vendor pack trees after cleanup. Stub: **`corpus/serum-lesson-000-stub.json`**. Role-model archetype lesson: **`corpus/lesson-001-modern-bass-archetype.json`** (`pack_archetype_modern_bass_001`). |
+| **`docs/lesson-00-role-model.md`** | **Lesson 0** — canonical extraction pattern, four layers, quality bar vs **`lesson.schema.json`**. |
+| **`docs/pack-archetype-extraction-sheet.md`** | **Pack archetype extraction sheet** — 3-pass squeeze + master table for operators. |
+| **`docs/pack-fingerprints-tier-a.md`** | **Tier-A fingerprints** — one row per trusted pack (Pass 1); operator-filled. |
 | **`DL/`** | **Pending downloads / next pack staging.** Drop zips, folders, or `.fxp` here while you work. **`pnpm learning:forget-presets` never reads, deletes, or prunes inside `DL/`.** |
 | **`schema/`** | **`lesson.schema.json`** (draft 2020-12, **`x-alchemist-schema-version` `1.0`**). Each lesson includes **`"schemaVersion": "1.0"`** until the contract bumps. |
 

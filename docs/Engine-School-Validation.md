@@ -9,6 +9,8 @@
 
 **Documentation triad (keep in sync):** **`packages/shared-engine/learning/README.md`** (operator) · **`packages/shared-engine/learning/SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (this outside contract).
 
+**Doc sync + lesson path (outside assessment map):** **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** — how **`pnpm fire:sync`**, **`pnpm verify:harsh`**, and the Engine School corpus pipeline relate for auditors.
+
 ---
 
 ## Fail-closed guarantee
@@ -29,6 +31,8 @@
 | **Schema evolution** | Bumping the contract: change **`x-alchemist-schema-version`**, lesson **`schemaVersion` const**, and **all** `corpus/*.json` in one change set. There is **no** auto-migration tool; invalid legacy lessons **fail** until updated. |
 
 Lesson JSON encodes **name → mapping summary → sonic character** with explicit **causal reasoning**. Authoritative Serum bytes remain **`serum-offset-map.ts`** + **`tools/validate-offsets.py`**.
+
+**Lesson 1 program (operator, not machine-gated as Markdown):** canonical role-model spec **`packages/shared-engine/learning/docs/lesson-00-role-model.md`**, extraction worksheet **`docs/pack-archetype-extraction-sheet.md`**, Tier-A fingerprints **`docs/pack-fingerprints-tier-a.md`**, and gold archetype lesson **`corpus/lesson-001-modern-bass-archetype.json`** — all aligned to the same **`lesson.schema.json`** contract above.
 
 ---
 

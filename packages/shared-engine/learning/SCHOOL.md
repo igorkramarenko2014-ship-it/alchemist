@@ -2,7 +2,7 @@
 
 Pre-production **structured teaching data** for `@alchemist/shared-engine`. It is **not** a browser module. It **does not** change triad **blend weights**, **gate math**, **scoreCandidates**, or **encoder / HARD GATE** law. Optional **read-only** prompt text may be appended on the **server** when **`ALCHEMIST_LEARNING_CONTEXT=1`** (see below).
 
-**Documentation triad (keep in sync):** **`README.md`** (operator) · **`SCHOOL.md`** (this file) · **`docs/Engine-School-Validation.md`** (audit-facing validation contract).
+**Documentation triad (keep in sync):** **`README.md`** (operator) · **`SCHOOL.md`** (this file) · **`docs/Engine-School-Validation.md`** (audit-facing validation contract) · **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** (doc sync + lesson path for outside assessment).
 
 ## What “training” means here
 
@@ -17,7 +17,10 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 | Path | Role |
 |------|------|
 | `DL/` | Local staging for bulk downloads / unpacks. Gitignored except `.gitkeep`. The forget-presets script never deletes under `DL/`. |
-| `corpus/` | **Only** lesson `.json` you intend to commit. Flat files preferred; no vendor trees after cleanup. |
+| `corpus/` | **Only** lesson `.json` you intend to commit. Flat files preferred; no vendor trees after cleanup. **Lesson 1 program:** stub `serum-lesson-000-stub.json` + role-model archetype `lesson-001-modern-bass-archetype.json`. |
+| `docs/lesson-00-role-model.md` | Canonical **Lesson 0** spec (four layers, good vs bad, trust tier). |
+| `docs/pack-archetype-extraction-sheet.md` | Operator worksheet (3-pass squeeze + table). |
+| `docs/pack-fingerprints-tier-a.md` | Tier-A pack fingerprint table (Pass 1). |
 | `schema/lesson.schema.json` | Formal lesson shape (draft 2020-12). **`x-alchemist-schema-version`** (currently **`1.0`**) must match each lesson’s **`schemaVersion`** field. |
 | `README.md` | Day-to-day commands (forget-presets, verify, build-index, enrich-preview, Phase 2 env). |
 | `SCHOOL.md` | This file — architecture and boundaries. |

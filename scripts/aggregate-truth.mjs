@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { writeUtf8FileAtomic } from "./lib/write-json-atomic.mjs";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -176,8 +177,7 @@ try {
   };
 
   const outPath = join(root, "artifacts", "truth-matrix.json");
-  mkdirSync(dirname(outPath), { recursive: true });
-  writeFileSync(outPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  writeUtf8FileAtomic(outPath, `${JSON.stringify(payload, null, 2)}\n`);
   process.stderr.write(`aggregate-truth: wrote ${outPath}\n`);
 } catch (err) {
   const message = err instanceof Error ? err.message : String(err);

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { writeUtf8FileAtomic } from "./lib/write-json-atomic.mjs";
 
 const DOC_SYNC_BEGIN = "<!-- DOCS_SYNC:BEGIN -->";
 const DOC_SYNC_END = "<!-- DOCS_SYNC:END -->";
@@ -48,6 +49,29 @@ function patchMarkedBlock(content, beginMark, endMark, innerMarkdown, labelForEr
 function parseIsoDateToUtcMs(isoString) {
   const t = Date.parse(isoString);
   return Number.isFinite(t) ? t : null;
+}
+
+/** Same policy as `apps/web-app/lib/truth-matrix.ts` `getTruthMaxAgeMs` (scripts have no TS import). */
+function getTruthMaxAgeMsForScript() {
+  const raw = process.env.ALCHEMIST_TRUTH_MAX_AGE_MINUTES;
+  if (raw !== undefined && raw !== "") {
+    const n = Number.parseFloat(raw);
+    if (Number.isFinite(n) && n > 0) return Math.floor(n * 60 * 1000);
+  }
+  return process.env.NODE_ENV === "production" ? 15 * 60 * 1000 : 2 * 60 * 60 * 1000;
+}
+
+function validateSinglePairMarkers(content, beginMark, endMark, label) {
+  const beginCount = content.split(beginMark).length - 1;
+  const endCount = content.split(endMark).length - 1;
+  if (beginCount !== 1 || endCount !== 1) {
+    throw new Error(
+      `${label}: expected exactly one ${beginMark} and one ${endMark}; found ${beginCount} begin / ${endCount} end`,
+    );
+  }
+  const i = content.indexOf(beginMark);
+  const j = content.indexOf(endMark);
+  if (j <= i) throw new Error(`${label}: end marker must follow begin marker`);
 }
 
 function readJsonIfExists(path) {
@@ -113,9 +137,10 @@ const pnhBreaches = asNumber(pnhImmunity.breaches);
 const pnhStatus = typeof pnhImmunity.status === "string" ? pnhImmunity.status : "unknown";
 const wasmStatus = typeof tmMetrics.wasmStatus === "string" ? tmMetrics.wasmStatus : "unknown";
 
-const syncAgeMsBase = parseIsoDateToUtcMs(String(tmMetrics.syncedAtUtc ?? ""));
+const generatedAtMs = parseIsoDateToUtcMs(String(truthMatrix.generatedAtUtc ?? ""));
+const maxAgeMs = getTruthMaxAgeMsForScript();
 const isStale =
-  syncAgeMsBase === null ? true : Date.now() - syncAgeMsBase > 24 * 60 * 60 * 1000;
+  generatedAtMs === null ? true : Date.now() - generatedAtMs > maxAgeMs;
 
 const syncBlock = [
   "Producer: `pnpm fire:sync` (`scripts/sync-fire-md.mjs` + `scripts/aggregate-truth.mjs` + `scripts/sync-external-brief.mjs`)",
@@ -162,13 +187,15 @@ const trustBlock = [
   "```",
   "",
   isStale
-    ? "If this metadata is stale (older than 24h), run `pnpm fire:sync` before sharing."
-    : "Metadata freshness is within 24 hours.",
+    ? `If this snapshot is stale (older than ${Math.round(maxAgeMs / 60000)}m per ALCHEMIST_TRUTH_MAX_AGE_MINUTES or defaults), run \`pnpm verify:harsh\` then \`pnpm fire:sync\` before sharing.`
+    : `Snapshot freshness is within policy (${Math.round(maxAgeMs / 60000)}m max age; prod default 15m, dev default 2h unless overridden).`,
   "",
   "Interpretation note: values listed here are raw system metrics. They do not imply correctness without independent verification.",
 ].join("\n");
 
 const before = readFileSync(briefPath, "utf8");
+validateSinglePairMarkers(before, DOC_SYNC_BEGIN, DOC_SYNC_END, "docs/AIOM-Technical-Brief.md DOCS_SYNC");
+validateSinglePairMarkers(before, DOC_TRUST_BEGIN, DOC_TRUST_END, "docs/AIOM-Technical-Brief.md DOC_TRUST");
 const afterSync = patchMarkedBlock(
   before,
   DOC_SYNC_BEGIN,
@@ -176,6 +203,7 @@ const afterSync = patchMarkedBlock(
   syncBlock,
   "docs/AIOM-Technical-Brief.md",
 );
+validateSinglePairMarkers(afterSync, DOC_SYNC_BEGIN, DOC_SYNC_END, "docs/AIOM-Technical-Brief.md DOCS_SYNC(post-patch)");
 const afterTrust = patchMarkedBlock(
   afterSync,
   DOC_TRUST_BEGIN,
@@ -183,7 +211,8 @@ const afterTrust = patchMarkedBlock(
   trustBlock,
   "docs/AIOM-Technical-Brief.md",
 );
-writeFileSync(briefPath, afterTrust, "utf8");
+validateSinglePairMarkers(afterTrust, DOC_TRUST_BEGIN, DOC_TRUST_END, "docs/AIOM-Technical-Brief.md DOC_TRUST(post-patch)");
+writeUtf8FileAtomic(briefPath, afterTrust);
 
 if (monValue === null) {
   process.stderr.write(
