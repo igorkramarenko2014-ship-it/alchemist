@@ -2,11 +2,8 @@
  * Preview Engine School context for a user prompt (no env gate — for operators).
  * Run from monorepo root after `pnpm learning:build-index`.
  */
-import {
-  buildLearningContext,
-  loadLearningIndex,
-  selectLessonsForPrompt,
-} from "@alchemist/shared-engine";
+import { buildLearningContext, selectLessonsForPrompt } from "@alchemist/shared-engine";
+import { loadLearningIndex } from "@alchemist/shared-engine/node";
 
 const argv = process.argv.slice(2);
 const prompt = (argv[0] === "--" ? argv.slice(1) : argv).join(" ").trim();

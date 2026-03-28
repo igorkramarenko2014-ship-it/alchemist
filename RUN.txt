@@ -19,6 +19,10 @@ Web app: LOOK AT THE TERMINAL — a cyan box shows http://127.0.0.1:PORT (first 
 
 **Terminal says “Ready” but the app “won’t run” in the browser:** you almost certainly opened the **wrong port** (often **:3000** while Alchemist is on **:3003**, etc.). Use **only** the **`http://127.0.0.1:PORT`** line inside the **cyan** box. To see what owns **3000**: `lsof -nP -iTCP:3000 -sTCP:LISTEN` — quit that process if you want Alchemist to bind **3000** next time.
 
+**Want to avoid :3000 entirely:** from repo root run **`pnpm dev:3010`** (or **`pnpm fresh:3010`** to wipe `apps/web-app/.next` on boot). Open **`http://127.0.0.1:3010`** from the banner.
+
+**“Panda very sad” / nothing works:** **`pnpm alc:doctor`** (not `pnpm doctor`) — it prints a short recovery checklist at the end.
+
 **If `pnpm dev` or `./scripts/go.sh` fails:**
   cd "/Users/igorkramarenko/Desktop/Vibe Projects"   # must be the folder with apps/ + packages/
   pnpm install

@@ -2,21 +2,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export type LearningLesson = {
-  id: string;
-  style: string;
-  character: string;
-  causalReasoning: string;
-  tags: string[];
-  mappingKeys: string[];
-};
+import type { LearningIndex, LearningLesson } from "./lesson-types";
 
-export type LearningIndex = {
-  generatedAtUtc: string;
-  schemaVersion: string;
-  lessonCount: number;
-  lessons: LearningLesson[];
-};
+export type { LearningIndex, LearningLesson } from "./lesson-types";
 
 const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 

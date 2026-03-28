@@ -453,13 +453,15 @@ export type {
 } from "./learning/great-library";
 export {
   buildLearningContext,
+  collectLeafParamPaths,
+  computeCorpusAffinity,
   ENGINE_SCHOOL_CONTEXT_ADVISORY_LINE,
   ENGINE_SCHOOL_CONTEXT_DESCRIPTIVE_LINE,
-  loadLearningIndex,
   selectLessonsForPrompt,
 } from "./learning/index";
 export type {
   LearningIndex,
+  LearningIndexLesson,
   LearningLesson,
   SelectedLesson,
   SelectLessonsOptions,

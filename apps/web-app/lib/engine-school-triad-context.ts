@@ -1,9 +1,9 @@
 import {
   buildLearningContext,
-  loadLearningIndex,
   selectLessonsForPrompt,
   type TriadRunLearningContextUsed,
 } from "@alchemist/shared-engine";
+import { loadLearningIndex } from "@alchemist/shared-engine/node";
 import { env } from "@/env";
 
 /**

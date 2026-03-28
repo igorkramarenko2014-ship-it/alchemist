@@ -19,6 +19,7 @@ import { TriadHealth } from "@/components/TriadHealth";
 import { PromptAudioDock, type WasmHealthStatus } from "@/components/ui/PromptAudioDock";
 import { TokenUsageIndicator } from "@/components/ui/TokenUsageIndicator";
 import { formatPanelistDisplayName } from "@/lib/panelist-ui";
+import { getCorpusScoringLessons } from "@/app/actions/corpus-scoring-lessons";
 
 export default function Home() {
   const iomAllowsStubLearning =
@@ -122,11 +123,16 @@ export default function Home() {
             : tel?.pnhContextSurface?.triadLaneClass === "fully_live"
               ? ("fully_live" as const)
               : ("fully_live" as const);
+      const corpusLessons = await getCorpusScoringLessons();
       const sorted = scoreCandidates(
         analysis.candidates,
         analysis.triadExecutionPrompt ?? text,
         undefined,
-        { pnhScoringLane },
+        {
+          pnhScoringLane,
+          corpusAffinityPrior: corpusLessons.length > 0,
+          learningLessons: corpusLessons,
+        },
       );
       lastRunPromptRef.current = text;
       lastAnalysisRef.current = analysis;
@@ -145,7 +151,11 @@ export default function Home() {
           fallback.candidates,
           fallback.triadExecutionPrompt ?? text,
           undefined,
-          { pnhScoringLane: "stub" },
+          {
+            pnhScoringLane: "stub",
+            corpusAffinityPrior: corpusLessons.length > 0,
+            learningLessons: corpusLessons,
+          },
         );
         if (fallbackSorted.length > 0) {
           finalSorted = fallbackSorted;

@@ -201,6 +201,17 @@ if (existsSync(envCheckScript)) {
 }
 
 console.log(
+  "\nStill broken / \"panda sad\" checklist:\n" +
+    "  1) Cwd must be this folder (has apps/ + packages/):  cd \"" +
+    root +
+    "\"\n" +
+    "  2) Wrong browser tab: use **only** the URL inside the cyan dev banner (not an old :3000 bookmark).\n" +
+    "  3) Port 3000 fights you:  pnpm dev:3010   or   pnpm fresh:3010   (clears .next on first boot)\n" +
+    "  4) White screen / stale Next:  pnpm app:repair   or   pnpm dev:recover\n" +
+    "  5) Compile error mentions node:fs:  git pull && pnpm install && pnpm web:next-build  (must be green)\n"
+);
+
+console.log(
   "\nTry:\n  cd \"" +
     root +
     "\"\n  node scripts/with-pnpm.mjs dev\n  # or: pnpm dev  (if pnpm is on PATH)\n" +

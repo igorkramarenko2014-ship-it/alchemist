@@ -26,6 +26,7 @@ import {
 import { validateTriadIntent } from "./intent-hardener";
 import { hashPromptForTelemetry } from "./pnh/pnh-triad-defense";
 import type { PnhTriadLane } from "./pnh/pnh-context-types";
+import { computeCorpusAffinity, type LearningIndexLesson } from "./learning/compute-corpus-affinity";
 import { logEvent } from "./telemetry";
 
 /** Same panelist + identical param fingerprint (or score+reasoning slice) — second row dropped. */
@@ -178,6 +179,13 @@ export interface ScoreCandidatesOptions {
    * (**`stub`** when **`triadParityMode === "stub"`**) so stub runs are not scored with **`fully_live`** only rules.
    */
   pnhScoringLane?: PnhTriadLane;
+  /**
+   * Phase 3 — optional corpus-affinity **re-rank** only (after Slavic + intent blend). **Never** admits rejected candidates.
+   */
+  corpusAffinityPrior?: boolean;
+  learningLessons?: LearningIndexLesson[];
+  /** Default **0.08** — nudge added to `candidate.score` for sort only. */
+  corpusAffinityWeight?: number;
 }
 
 function clamp01(x: number): number {
@@ -221,6 +229,39 @@ function applyIntentBlendSort(
     return a.panelist.localeCompare(b.panelist);
   });
   return enriched;
+}
+
+function applyCorpusAffinityResort(
+  candidates: AICandidate[],
+  options?: ScoreCandidatesOptions,
+): AICandidate[] {
+  const lessons = options?.learningLessons;
+  const enabled =
+    options?.corpusAffinityPrior === true && lessons != null && lessons.length > 0;
+  if (!enabled || candidates.length <= 1) return candidates;
+  const weight = options?.corpusAffinityWeight ?? 0.08;
+  try {
+    const rows = candidates.map((c) => ({
+      c,
+      a: computeCorpusAffinity(c, lessons!),
+    }));
+    rows.sort((x, y) => {
+      const adjX = x.c.score + x.a * weight;
+      const adjY = y.c.score + y.a * weight;
+      if (adjY !== adjX) return adjY - adjX;
+      const wd = weightedScore(y.c) - weightedScore(x.c);
+      if (wd !== 0) return wd;
+      return x.c.panelist.localeCompare(y.c.panelist);
+    });
+    logEvent("score_candidates", {
+      corpusAffinityApplied: true,
+      corpusAffinityWeight: weight,
+      survivorCount: candidates.length,
+    });
+    return rows.map((r) => r.c);
+  } catch {
+    return candidates;
+  }
 }
 
 export interface ScoreCandidatesGatedResult {
@@ -295,9 +336,10 @@ export function scoreCandidatesWithGate(
       creativePivot: buildCreativePivotForDeadEnd(prompt),
     };
   }
+  const blended = applyIntentBlendSort(deduped, prompt, options);
   return {
     status: "OK",
-    candidates: applyIntentBlendSort(deduped, prompt, options),
+    candidates: applyCorpusAffinityResort(blended, options),
   };
 }
 
@@ -310,3 +352,5 @@ export function scoreCandidates(
 ): AICandidate[] {
   return scoreCandidatesWithGate(candidates, prompt, durationMs, options).candidates;
 }
+
+export type { LearningIndexLesson } from "./learning/compute-corpus-affinity";

@@ -32,6 +32,11 @@ export const env = {
    * (build with `pnpm learning:build-index`). Default off — avoids extra tokens unless explicitly enabled.
    */
   learningContextEnabled: process.env.ALCHEMIST_LEARNING_CONTEXT === "1",
+  /**
+   * When **`1`**, server action loads **`learning-index.json`** for **`scoreCandidates`** corpus-affinity
+   * re-rank (Phase 3). Client still calls **`getCorpusScoringLessons()`** — no secrets in the browser.
+   */
+  corpusPriorEnabled: process.env.ALCHEMIST_CORPUS_PRIOR === "1",
 } as const;
 
 /* Optional SOE rollup for GET /api/health → iomPulse: lib/soe-snapshot-from-env.ts

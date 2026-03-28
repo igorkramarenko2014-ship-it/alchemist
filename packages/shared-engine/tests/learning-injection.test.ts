@@ -4,7 +4,7 @@ import {
   ENGINE_SCHOOL_CONTEXT_ADVISORY_LINE,
   ENGINE_SCHOOL_CONTEXT_DESCRIPTIVE_LINE,
 } from "../learning/build-learning-context";
-import type { LearningIndex } from "../learning/load-learning-index";
+import type { LearningIndex } from "../learning/lesson-types";
 import { selectLessonsForPrompt } from "../learning/select-lessons-for-prompt";
 import { triadPanelistSystemPrompt } from "../triad-panelist-prompt";
 

@@ -74,6 +74,14 @@ pnpm learning:enrich-preview -- "warm analog pad"
 
 **Selection hygiene (Phase 2b):** meaningful prompt tokens are **length ≥ 3** and exclude a small **stopword** set; **mappingKey** overlap scores **+0.5** (token match only). **Dedup:** same `style` + overlapping `tags` keeps the highest-scoring lesson. **Budget:** `buildLearningContext` caps the **entire** block (advisory lines + lesson lines + end marker) at **800** characters by dropping lowest-ranked lessons, then hard-truncating the last line if needed.
 
+## Phase 3 — corpus-affinity scoring prior (optional)
+
+**Behavior:** After **`filterValid`**, Slavic dedupe (**thresholds unchanged**), and intent blend sort, **`scoreCandidates`** may **soft re-rank** survivors using **`computeCorpusAffinity`** (deterministic: leaf paths under **`SerumState`** vs lesson **`mappingKeys`**, plus tag/style overlap in **`description`/`reasoning`**). **Default weight `0.08`** added to **`candidate.score`** for ordering only — **no** new admissions, **no** gate overrides.
+
+**Opt-in (server):** Set **`ALCHEMIST_CORPUS_PRIOR=1`** and run **`pnpm learning:build-index`**. The home page uses the server action **`getCorpusScoringLessons()`** so the gitignored index is read on the server only. **`loadLearningIndex`** lives on **`@alchemist/shared-engine/node`** (filesystem) — not on the main **`@alchemist/shared-engine`** entry, so Next client bundles do not pull **`node:fs`**.
+
+**Telemetry:** When the prior runs, **`logEvent("score_candidates", { corpusAffinityApplied, corpusAffinityWeight, survivorCount })`** is emitted.
+
 ## `learning:forget-presets`
 
 Removes under `packages/shared-engine/learning/` **except inside `DL/`**:

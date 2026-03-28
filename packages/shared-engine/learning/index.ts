@@ -1,4 +1,6 @@
-export { loadLearningIndex, type LearningIndex, type LearningLesson } from "./load-learning-index";
+export { computeCorpusAffinity, collectLeafParamPaths } from "./compute-corpus-affinity";
+export type { LearningIndexLesson } from "./compute-corpus-affinity";
+export type { LearningIndex, LearningLesson } from "./lesson-types";
 export {
   selectLessonsForPrompt,
   type SelectLessonsOptions,

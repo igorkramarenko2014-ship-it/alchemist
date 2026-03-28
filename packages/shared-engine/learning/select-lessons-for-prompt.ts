@@ -1,4 +1,4 @@
-import type { LearningIndex, LearningLesson } from "./load-learning-index";
+import type { LearningIndex, LearningLesson } from "./lesson-types";
 
 export type SelectedLesson = {
   id: string;

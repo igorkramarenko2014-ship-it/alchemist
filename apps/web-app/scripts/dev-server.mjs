@@ -227,6 +227,7 @@ ${localhostHint}${bindExplain}│  Port ${port} · scans 3000–3120 when PORT i
 │  404 / “error components” on /?  pnpm run clean  (repo root) → dev   │
 │  Missing Next / workspace?  pnpm alc:doctor  (monorepo root)         │
 │  Need :3000 every time?     pnpm dev:3000  ·  stale .next → fresh:3000   │
+│  Skip :3000 entirely?       pnpm dev:3010  ·  stale .next → fresh:3010   │
 └─────────────────────────────────────────────────────────┘${reset}
 `);
 

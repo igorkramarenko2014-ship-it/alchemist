@@ -117,13 +117,15 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 
 **Phase 2 (shipped — opt-in).** **`ALCHEMIST_LEARNING_CONTEXT=1`** + built index → **`POST /api/triad/*`** appends a bounded (**≤800** characters for the full block) **advisory** context. Selection is **deterministic** (meaningful tokens, stopwords, tag/style/mappingKey scoring with mappingKey **+0.5**, dedupe by style + overlapping tags). Telemetry: **`learningContextUsed`** on **`triad_run_start`** (web route). **`pnpm learning:enrich-preview`** previews the block without enabling env.
 
+**Phase 3 (shipped — opt-in).** **`ALCHEMIST_CORPUS_PRIOR=1`** + built index → **`scoreCandidates`** may apply a **corpus-affinity re-rank** after Slavic + intent blend (**Slavic cosine / Dice thresholds unchanged**; **no** Undercover edits). **`computeCorpusAffinity`** in **`packages/shared-engine/learning/compute-corpus-affinity.ts`**; default nudge weight **0.08**. Telemetry: **`score_candidates`** event with **`corpusAffinityApplied`**. Does **not** promote candidates that failed gates.
+
 **Recommendations (for release / architecture review).**
 
 | Priority | Recommendation |
 |----------|----------------|
 | **Keep** | Treat **§1–§3** as the audit baseline; re-run **`pnpm learning:verify`** in any PR that touches **`corpus/`** or **`lesson.schema.json`**. |
 | **Phase 2 ops** | Enable **`ALCHEMIST_LEARNING_CONTEXT=1`** only after **`pnpm learning:build-index`** in deploy; set **`ALCHEMIST_LEARNING_INDEX_PATH`** if cwd resolution fails. Monitor **`triad_run_start.learningContextUsed`** and token/latency. |
-| **Later (optional)** | **Phase 3:** **optional** corpus-affinity **scoring prior** with gates and **HARD GATE** unchanged; document in **FIRESTARTER** / **FIRE** when shipped. |
+| **Phase 3 ops** | **`ALCHEMIST_CORPUS_PRIOR=1`** only with a fresh **`learning-index.json`**; monitor **`score_candidates`** and ranking drift vs baseline. |
 | **Policy** | Either **keep the index gitignored** (generate on demand / in deploy prep) **or** commit it and add a **drift check** (regenerate + diff) in CI — pick one policy per release train and document it in **`README.md`**. |
 | **CI hygiene (optional)** | Add a **`learning:build-index`** step or “index builds cleanly” assertion to **`verify:harsh`** if you need **reproducible** derived artifacts in release audits. |
 | **IOM** | When **TypeScript** reads lessons or the index, register artifacts via **`pnpm igor:heal`** / human **`igor:apply`** — no silent **`igor-power-cells.json`** edits. |

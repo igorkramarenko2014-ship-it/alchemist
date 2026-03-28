@@ -31,7 +31,7 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 
 **Validated always; consumed optionally.** Lessons are **fail-closed** in CI (**`pnpm learning:verify`** / **`pnpm verify:harsh`**). **Consumption** of the generated index is **opt-in** at runtime: set **`ALCHEMIST_LEARNING_CONTEXT=1`** in **`apps/web-app`** env and ensure **`pnpm learning:build-index`** has been run so **`learning-index.json`** exists. Then **`POST /api/triad/*`** fetchers append the block built by **`loadLearningIndex`** → **`selectLessonsForPrompt`** → **`buildLearningContext`** (see **`apps/web-app/lib/engine-school-triad-context.ts`**) onto **`triadPanelistSystemPrompt`** — **read-only** context, **no** gate or weight mutation.
 
-**Bridges shipped:** (1) **`pnpm learning:build-index`** → **`learning-index.json`**. (2) **Phase 2** live triad enrichment (env-gated) + **`pnpm learning:enrich-preview`** for CLI inspection. **Not shipped:** Phase 3 optional **scoring prior** — see **`docs/Engine-School-Validation.md` §8**.
+**Bridges shipped:** (1) **`pnpm learning:build-index`** → **`learning-index.json`**. (2) **Phase 2** triad prompt enrichment (**`ALCHEMIST_LEARNING_CONTEXT`**) + **`pnpm learning:enrich-preview`**. (3) **Phase 3** corpus-affinity **re-rank** inside **`scoreCandidates`** (**`ALCHEMIST_CORPUS_PRIOR`**) — order only, no gate changes. See **`docs/Engine-School-Validation.md` §8**.
 
 ## Lifecycle
 
