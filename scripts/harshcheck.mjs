@@ -9,6 +9,7 @@
  */
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
+import net from "node:net";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -85,8 +86,51 @@ if (!autoServer) {
   process.exit(0);
 }
 
-const runtimePort = Number.parseInt(process.env.ALCHEMIST_HARSHCHECK_SERVER_PORT ?? "3100", 10);
 const runtimeHost = process.env.ALCHEMIST_HARSHCHECK_SERVER_HOST ?? "127.0.0.1";
+
+/** True if nothing is listening on host:port (same idea as dev-server port scan). */
+function portListenable(host, port) {
+  return new Promise((resolve) => {
+    const s = net.createServer();
+    s.once("error", () => resolve(false));
+    s.listen({ port, host }, () => {
+      s.close(() => resolve(true));
+    });
+  });
+}
+
+/**
+ * Avoid EADDRINUSE on 3100 when another dev server or stale process holds the port.
+ * Honors ALCHEMIST_HARSHCHECK_SERVER_PORT when that port is free; otherwise scans 3100–3120.
+ */
+async function pickHarshcheckRuntimePort(host) {
+  const raw = process.env.ALCHEMIST_HARSHCHECK_SERVER_PORT;
+  if (raw !== undefined && String(raw).trim() !== "") {
+    const p = Number.parseInt(String(raw), 10);
+    if (Number.isFinite(p) && p > 0 && p < 65536) {
+      if (await portListenable(host, p)) return p;
+      process.stderr.write(
+        `[alchemist] harshcheck: port ${p} in use — scanning 3100-3120 for a free port\n`,
+      );
+    }
+  }
+  for (let p = 3100; p <= 3120; p++) {
+    if (await portListenable(host, p)) {
+      if (p !== 3100) {
+        process.stderr.write(
+          `[alchemist] harshcheck: ephemeral Next server on ${host}:${p} (3100 busy)\n`,
+        );
+      }
+      return p;
+    }
+  }
+  process.stderr.write(
+    "[alchemist] harshcheck: no free TCP port in 3100-3120 — stop the other listener or set ALCHEMIST_HARSHCHECK_SERVER_PORT\n",
+  );
+  process.exit(1);
+}
+
+const runtimePort = await pickHarshcheckRuntimePort(runtimeHost);
 const baseUrl = `http://${runtimeHost}:${runtimePort}`;
 const server = spawn(
   process.execPath,
