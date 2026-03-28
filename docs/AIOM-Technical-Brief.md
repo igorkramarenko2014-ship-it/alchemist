@@ -19,9 +19,9 @@ This document is an externally verifiable snapshot derived from repository artif
 Data in this document is produced by repository scripts and canonical truth artifacts.
 
 - Document schema version: `v1.3`
-- Last verification timestamp from canonical truth artifact: `2026-03-28T00:35:55.570Z`
-- Metrics sync timestamp from canonical truth artifact: `2026-03-28T00:35:55.541Z`
-- Truth file hash: `0cf28025fbdae946492bbbf9c6d17829bdb8c8b4d6357d628cea263bb777ae74`
+- Last verification timestamp from canonical truth artifact: `2026-03-28T00:44:48.612Z`
+- Metrics sync timestamp from canonical truth artifact: `2026-03-28T00:44:48.584Z`
+- Truth file hash: `846ef7f5245889829ae3133cb0cf75173651629fc5e94999ad82b9c5d46d437d`
 - Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
@@ -51,7 +51,7 @@ Primary sources:
 | MON | value=117, ready=true | `metrics.mon.value == 117 and metrics.mon.ready == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon`) | `jq '.metrics.mon' artifacts/truth-matrix.json` |
 | PNH immunity | 25 / 25 (breaches: 0) [clean] | `metrics.pnhImmunity.status in {clean, breach}` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunity`) | `jq '.metrics.pnhImmunity' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
-| Sync timestamp (UTC) | 2026-03-28T00:35:55.541Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
+| Sync timestamp (UTC) | 2026-03-28T00:44:48.584Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
 | Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):
@@ -89,18 +89,18 @@ Expected response fields (minimum contract):
     "schemaVersion": 2,
     "metrics": {
       "mon": { "value": 117, "ready": true, "source": "verify_post_summary" },
-      "testsPassed": 316,
-      "testsTotal": 316,
+      "testsPassed": 338,
+      "testsTotal": 338,
       "iomCoverageScore": 1,
       "wasmStatus": "available",
       "pnhImmunity": { "passed": 25, "total": 25, "breaches": 0, "status": "clean" },
-      "syncedAtUtc": "2026-03-27T18:00:00.000Z"
+      "syncedAtUtc": "2026-03-28T00:35:55.541Z"
     },
     "divergences": []
   },
   "canonicalArtifactPath": "artifacts/truth-matrix.json",
-  "truthArtifactGeneratedAtUtc": "2026-03-27T17:00:00.000Z",
-  "divergenceCheckedAtUtc": "2026-03-27T17:00:00.000Z",
+  "truthArtifactGeneratedAtUtc": "2026-03-28T00:35:55.570Z",
+  "divergenceCheckedAtUtc": "2026-03-28T00:35:55.570Z",
   "canonicalMetrics": { "...": "backward-compatible alias of artifact.metrics" }
 }
 ```

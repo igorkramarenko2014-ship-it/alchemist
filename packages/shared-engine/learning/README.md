@@ -82,6 +82,10 @@ pnpm learning:enrich-preview -- "warm analog pad"
 
 **Telemetry:** When the prior runs, **`logEvent("score_candidates", { corpusAffinityApplied, corpusAffinityWeight, survivorCount })`** is emitted.
 
+**Do not confuse with Phase 2:** Corpus affinity is **not** gated by **`ALCHEMIST_LEARNING_CONTEXT`**. That flag is **prompt injection only**. Scoring bias uses **`ALCHEMIST_CORPUS_PRIOR=1`** (web server env) + lessons fed into **`scoreCandidates`** — see **`compute-corpus-affinity.ts`** and **`score.ts`**.
+
+**Do not follow stale “greenfield” prompts:** Never **`import { loadLearningIndex } from "@alchemist/shared-engine"`** inside **`score.ts`** (or any path the Next client bundles): it pulls **`node:fs`** and breaks the build. Index I/O stays on **`@alchemist/shared-engine/node`** or server actions; **`computeCorpusAffinity`** is pure and takes **lesson rows** in memory. Re-implementing “`candidate.score +=`” patches from generic templates **duplicates** shipped logic and risks **gate/order** bugs.
+
 ## `learning:forget-presets`
 
 Removes under `packages/shared-engine/learning/` **except inside `DL/`**:
