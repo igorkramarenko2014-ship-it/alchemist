@@ -19,7 +19,7 @@ Operational record of **high-impact** fixes that closed contract drift, build fl
 | Schema / human checks | “Confirm fields exist” manual step | **`scripts/validate-truth-matrix.mjs`** + **`pnpm fire:sync`** fail closed; brief updated |
 | Ultimate audit | `ok: false` after green `verify-web` | **`isUltimateAuditPass()`** — no `fail` checks, **`verify_ci`** pass, integrity ok |
 | Next build | `PageNotFoundError: /_document` | **`apps/web-app/pages/_document.tsx`** compatibility shim |
-| Dev auto-up | Watchdog not on default `pnpm dev` | **`pnpm dev`**, **`pnpm dev:web`**, **`go`** → **`scripts/dev-guardian.mjs`** |
+| Dev default | Stable local dev without health-kill loops | **`pnpm dev`**, **`pnpm dev:web`**, **`go`** → **`scripts/dev-alchemist-port.mjs`** (port **3000**) |
 
 ## Key files
 
@@ -34,7 +34,7 @@ Operational record of **high-impact** fixes that closed contract drift, build fl
 | `apps/web-app/app/api/health/truth-matrix/route.ts` | Truth-matrix JSON |
 | `apps/web-app/app/api/health/ultimate/route.ts` | Ultimate audit JSON |
 | `scripts/sync-external-brief.mjs` | Regenerates **`docs/AIOM-Technical-Brief.md`** marker blocks |
-| `scripts/dev-guardian.mjs` | Dev watchdog (health polling + restart) |
+| `scripts/dev-guardian.mjs` | Optional dev watchdog (**`pnpm dev:guardian`**) — health polling + restart |
 | `scripts/dev-alchemist-port.mjs` | Frees port, starts web-app dev |
 
 ## Verification (operator)
@@ -63,5 +63,5 @@ curl -sS http://127.0.0.1:3000/api/health/ultimate | jq '.ok'
 
 ## Notes
 
-- **`pnpm dev`** / **`pnpm dev:web`** run **`dev-guardian`** on port **3000** by default; use the **cyan banner URL** if another process occupies `:3000`.
+- **`pnpm dev`** / **`pnpm dev:web`** run **`dev-alchemist-port`** on port **3000** by default (no watchdog). **`pnpm dev:guardian`** opt-in watchdog. Use the **cyan banner URL** if **:3000** stays busy after auto-free.
 - Browser **`GET /api/health/wasm`** remains the gate for WASM export UI — see **`docs/FIRESTARTER.md`** and **`docs/FIRE.md`**.

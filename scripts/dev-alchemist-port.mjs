@@ -121,6 +121,10 @@ if (fresh) {
 
 await freePort(port);
 
+process.stderr.write(
+  `\ndev-alchemist-port: web will use PORT=${port} → open http://127.0.0.1:${port}/ after Next prints Ready (first compile can take 1–3 min).\n\n`,
+);
+
 const withPnpm = join(root, "scripts", "with-pnpm.mjs");
 const child = spawn(process.execPath, [withPnpm, "--filter", "@alchemist/web-app", "dev"], {
   cwd: root,

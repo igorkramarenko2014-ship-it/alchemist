@@ -8,11 +8,16 @@
  *   pnpm panda --health 3010    # requires dev server on PORT; curl GET /api/health → 200
  *
  * Skip (CI / nested tools):  ALCHEMIST_SKIP_PANDA=1
+ *
+ * PNH APT victim channel (argv + NODE_OPTIONS + ALCHEMIST_*): `scripts/pnh-preflight-apt.mjs`
+ * Skip PNH only: ALCHEMIST_SKIP_PNH_PREFLIGHT=1
+ * Refuse dev when heuristics match: ALCHEMIST_PNH_PREFLIGHT_BLOCK=1 (alias: ALCHEMIST_PNH_STOP_AUTOATTACK=1)
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { scanHappyPandaVictimChannel } from "./pnh-preflight-apt.mjs";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -52,7 +57,7 @@ function warn(msg) {
   console.warn(`WARN  ${msg}`);
 }
 
-console.log("\n=== Happy Panda (alchemist.happy_panda) ===\n");
+console.log("\n=== Happy Panda (alchemist.happy_panda) — PNH APT victim channel ===\n");
 
 if (!root) {
   fail('Monorepo root not found (need package.json name "alchemist" + workspaces). cd to folder with apps/ + packages/.');
@@ -70,12 +75,54 @@ const nodeMajor = Number(process.versions.node.split(".")[0]);
 if (nodeMajor < 20) fail(`Node ${process.versions.node} — need >= 20`);
 else ok(`Node ${process.versions.node}`);
 
-const pv = spawnSync("pnpm", ["-v"], { encoding: "utf8", shell: false });
-if (pv.status !== 0 || !(pv.stdout || "").trim()) {
-  fail("pnpm not on PATH — corepack enable && corepack prepare pnpm@9.14.2 --activate");
-} else {
-  ok(`pnpm ${(pv.stdout || "").trim()}`);
+if (process.env.ALCHEMIST_SKIP_PNH_PREFLIGHT !== "1") {
+  const { matches } = scanHappyPandaVictimChannel();
+  const block =
+    process.env.ALCHEMIST_PNH_PREFLIGHT_BLOCK === "1" ||
+    process.env.ALCHEMIST_PNH_STOP_AUTOATTACK === "1";
+  if (matches.length > 0) {
+    const line = `PNH APT heuristic match on victim channel — scenarios: ${matches.join(", ")}`;
+    if (block) {
+      fail(
+        `${line}  (refuse: unset ALCHEMIST_PNH_PREFLIGHT_BLOCK / ALCHEMIST_PNH_STOP_AUTOATTACK or ALCHEMIST_SKIP_PNH_PREFLIGHT=1 after review)`,
+      );
+      process.exit(1);
+    }
+    warn(
+      `${line}  — triad gates unchanged; to hard-stop dev: ALCHEMIST_PNH_PREFLIGHT_BLOCK=1 pnpm dev`,
+    );
+  } else if (process.env.ALCHEMIST_PNH_VERBOSE === "1") {
+    ok("PNH victim channel scan: no APT heuristics matched (argv / NODE_OPTIONS / ALCHEMIST_*)");
+  }
 }
+
+/** Same resolution as `scripts/with-pnpm.mjs` — `pnpm` is often missing from PATH in bare shells even though dev works. */
+function probePnpmVersion(repoRoot) {
+  const direct = spawnSync("pnpm", ["-v"], { encoding: "utf8", shell: false });
+  if (direct.status === 0 && (direct.stdout || "").trim()) {
+    return { ok: true, line: `pnpm ${(direct.stdout || "").trim()} (on PATH)` };
+  }
+  const withPnpm = join(repoRoot, "scripts", "with-pnpm.mjs");
+  const via = spawnSync(process.execPath, [withPnpm, "-v"], {
+    encoding: "utf8",
+    cwd: repoRoot,
+    shell: false,
+  });
+  if (via.status === 0 && (via.stdout || "").trim()) {
+    return {
+      ok: true,
+      line: `pnpm ${(via.stdout || "").trim()} (via scripts/with-pnpm.mjs — same as dev)`,
+    };
+  }
+  return { ok: false };
+}
+
+const pv = probePnpmVersion(root);
+if (pv.ok) ok(pv.line);
+else
+  fail(
+    "pnpm unavailable — corepack enable && corepack prepare pnpm@9.14.2 --activate  (or: npx pnpm@9.14.2 -v)",
+  );
 
 const envLocal = join(root, "apps", "web-app", ".env.local");
 if (!existsSync(envLocal)) {
@@ -103,5 +150,7 @@ if (hi >= 0) {
 }
 
 console.log("\nNext: pnpm alc:doctor · pnpm web:next-build · pnpm fresh:3010");
+console.log("Skip this preflight: ALCHEMIST_SKIP_PANDA=1 pnpm dev");
+console.log("Skip PNH victim scan only: ALCHEMIST_SKIP_PNH_PREFLIGHT=1");
 console.log("Full contract: docs/critical-fix-happy-panda-autoload.md\n");
 process.exit(exitCode);

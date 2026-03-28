@@ -2,6 +2,8 @@
  * Lightweight **prompt-only** heuristics aligned with **`PNH_APT_SCENARIO_CATALOG`** IDs.
  * Observability only — does **not** change gates, weights, or routes (no shadow governance).
  * Matches are coarse; false positives are acceptable for stderr/SIEM triage.
+ *
+ * **Keep in sync** with `scripts/pnh-preflight-apt.mjs` (`PROMPT_PATTERN_BY_SCENARIO` + catalog order).
  */
 import { PNH_APT_SCENARIO_CATALOG } from "./pnh-apt-scenarios";
 

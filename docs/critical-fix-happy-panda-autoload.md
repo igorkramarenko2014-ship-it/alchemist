@@ -133,9 +133,21 @@ Optional full engine gate (slower): `pnpm verify:harsh` (spell **`harshcheck`** 
 
 ---
 
+## PNH APT victim channel (preflight)
+
+Happy Panda is the **designated victim surface** for **PNH APT-style heuristics** before dev: it scans **argv**, **`NODE_OPTIONS`**, **`npm_config_user_agent`**, and **`ALCHEMIST_*`** values using the same patterns as **`packages/shared-engine/pnh/pnh-apt-prompt-scan.ts`** (`scripts/pnh-preflight-apt.mjs`). This does **not** mutate triad gates — it is **stderr + optional hard stop** only.
+
+| Env | Effect |
+|-----|--------|
+| **`ALCHEMIST_SKIP_PNH_PREFLIGHT=1`** | Skip the PNH scan (Panda still runs other checks). |
+| **`ALCHEMIST_PNH_PREFLIGHT_BLOCK=1`** or **`ALCHEMIST_PNH_STOP_AUTOATTACK=1`** | **Exit non-zero** if any heuristic matches (refuse `pnpm dev`). |
+| **`ALCHEMIST_PNH_VERBOSE=1`** | Log **OK** when the victim channel is clean. |
+
 ## CLI preflight (in-repo)
 
 **Autoload:** `pnpm dev`, `pnpm dev:3010`, `pnpm fresh:3010`, `pnpm go`, `pnpm web:dev:fresh`, `pnpm dev:recover`, and `vst/` **`pnpm dev`** all run **`happy-panda.mjs` first** (same checks as `pnpm panda`). Skip with **`ALCHEMIST_SKIP_PANDA=1`** (CI or nested tooling).
+
+After preflight, **`pnpm dev`** / **`pnpm go`** / **`pnpm web:dev:fresh`** / **`pnpm dev:recover`** / **`vst` → `pnpm dev`** continue through **`scripts/dev-alchemist-port.mjs`** (default port **3000** — free **:3000**, set **`PORT`**). **`pnpm dev:3010`** / **`fresh:3010`** use **3010** the same way. Optional health watchdog (restart on failure): **`pnpm dev:guardian`** / **`dev:guardian:fresh`** → **`scripts/dev-guardian.mjs`**.
 
 ```bash
 pnpm panda                  # same gates as autoload (manual)

@@ -4,7 +4,7 @@ External technical snapshot for architecture review and operations review.
 
 ## System Overview
 
-AIOM is a verification-driven metrics system for evaluating runtime integrity and release readiness.
+AIOM is a verification-driven metrics framework that aggregates test results, runtime signals, and integrity checks into a single canonical truth artifact used to assess system readiness.
 
 - `shared-engine`: core validation and scoring layer evaluated by verify/test flows
 - `IOM cells`: coverage units used in verification completeness reporting
@@ -19,9 +19,9 @@ This document is an externally verifiable snapshot derived from repository artif
 Data in this document is produced by repository scripts and canonical truth artifacts.
 
 - Document schema version: `v1.3`
-- Last verification timestamp from canonical truth artifact: `2026-03-28T00:44:48.612Z`
-- Metrics sync timestamp from canonical truth artifact: `2026-03-28T00:44:48.584Z`
-- Truth file hash: `846ef7f5245889829ae3133cb0cf75173651629fc5e94999ad82b9c5d46d437d`
+- Last verification timestamp from canonical truth artifact: `2026-03-28T12:04:18.468Z`
+- Metrics sync timestamp from canonical truth artifact: `2026-03-28T12:04:18.441Z`
+- Truth file hash: `c6ef47a2284086f30f97651522ae07360a850fea8ceabddd22a7f2fbc1de1dcd`
 - Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
@@ -51,7 +51,7 @@ Primary sources:
 | MON | value=117, ready=true | `metrics.mon.value == 117 and metrics.mon.ready == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon`) | `jq '.metrics.mon' artifacts/truth-matrix.json` |
 | PNH immunity | 25 / 25 (breaches: 0) [clean] | `metrics.pnhImmunity.status in {clean, breach}` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunity`) | `jq '.metrics.pnhImmunity' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
-| Sync timestamp (UTC) | 2026-03-28T00:44:48.584Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
+| Sync timestamp (UTC) | 2026-03-28T12:04:18.441Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
 | Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):
@@ -126,7 +126,7 @@ If values in this brief and the runtime endpoint diverge, refresh this document 
 
 | Term | Definition |
 |------|------------|
-| AIOM | Verification-driven metrics framework that continuously evaluates runtime integrity, test coverage, and release readiness of the system. |
+| AIOM | Verification-driven metrics framework that aggregates test results, runtime signals, and integrity checks into a single canonical truth artifact used to assess system readiness. |
 | IOM cell | Atomic unit of verification coverage used to track completeness of the orchestrator map in the shared-engine. |
 | PNH simulation | Scenario-based resilience testing suite that simulates potential failure modes and produces immunity metrics (passed / total / breaches). |
 | MON | Minimum Operating Number — the single canonical readiness scalar (`metrics.mon.value` and `metrics.mon.ready`). A value of 117 with `ready: true` indicates the system is considered release-ready. |

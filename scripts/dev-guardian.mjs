@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
  * Dev watchdog: keeps web-app server alive on a fixed port.
+ * Default **`pnpm dev`** uses **`dev-alchemist-port.mjs`** only (no health restarts). Opt-in: **`pnpm dev:guardian`**.
  *
  * Strategy:
  * 1) Start via scripts/dev-alchemist-port.mjs (kills wrong listeners + boots correct app).
- * 2) Poll /api/health every few seconds.
+ * 2) Poll /api/health every few seconds (after boot grace — see ALCHEMIST_DEV_GUARDIAN_GRACE_MS).
  * 3) If health fails repeatedly or child exits, auto-restart.
  * 4) Escalate to --fresh after repeated restart loops.
  */
@@ -41,6 +42,14 @@ const runner = join(root, "scripts", "dev-alchemist-port.mjs");
 const healthApiUrl = `http://127.0.0.1:${port}/api/health`;
 const healthPageUrl = `http://127.0.0.1:${port}/`;
 
+/** While Next is cold-compiling, /api/health is unreachable — old logic treated that as "unhealthy" and SIGKILL'd the child after ~7.5s (ERR_CONNECTION_REFUSED loop for the operator). */
+const bootGraceMs = (() => {
+  const raw = process.env.ALCHEMIST_DEV_GUARDIAN_GRACE_MS;
+  if (raw === undefined || raw === "") return 180_000;
+  const n = Number.parseInt(raw, 10);
+  return Number.isFinite(n) && n >= 0 ? n : 180_000;
+})();
+
 let child = null;
 let shuttingDown = false;
 let restartCount = 0;
@@ -56,7 +65,10 @@ function spawnDev({ freshBoot }) {
   if (freshBoot) args.push("--fresh");
   lastStartAt = Date.now();
   process.stderr.write(
-    `[dev-guardian] ${nowIso()} starting dev server on :${port}${freshBoot ? " (fresh)" : ""}\n`,
+    `[dev-guardian] ${nowIso()} starting dev server on :${port}${freshBoot ? " (fresh)" : ""}` +
+      (bootGraceMs > 0
+        ? ` — health-based restarts paused for ${Math.round(bootGraceMs / 1000)}s (compile / cold start)\n`
+        : "\n"),
   );
   child = spawn(process.execPath, args, {
     cwd: root,
@@ -99,16 +111,21 @@ async function restartDev({ forceFresh }) {
 }
 
 async function probeHealth() {
-  const timeoutSignal = AbortSignal.timeout(1800);
   try {
-    const apiResponse = await fetch(healthApiUrl, { method: "GET", signal: timeoutSignal });
+    const apiResponse = await fetch(healthApiUrl, {
+      method: "GET",
+      signal: AbortSignal.timeout(8000),
+    });
     if (!apiResponse.ok) return false;
     const payload = await apiResponse.json().catch(() => null);
     if (!payload || typeof payload !== "object") return false;
     if ("ok" in payload && payload.ok !== true) return false;
 
     // Catch "server up but page broken" regressions (white page / routing failures).
-    const pageResponse = await fetch(healthPageUrl, { method: "GET", signal: timeoutSignal });
+    const pageResponse = await fetch(healthPageUrl, {
+      method: "GET",
+      signal: AbortSignal.timeout(8000),
+    });
     return pageResponse.ok;
   } catch {
     return false;
@@ -133,6 +150,13 @@ async function runWatchLoop() {
 
     const ok = await probeHealth();
     if (ok) {
+      unhealthyStreak = 0;
+      continue;
+    }
+
+    const compiling =
+      bootGraceMs > 0 && Date.now() - lastStartAt < bootGraceMs && child && child.exitCode === null;
+    if (compiling) {
       unhealthyStreak = 0;
       continue;
     }
