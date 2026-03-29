@@ -11,6 +11,7 @@
 | **`docs/Engine-School-Validation.md`** | Fail-closed **JSON** validation for `learning/corpus/**/*.json` |
 | **`packages/shared-engine/learning/docs/lesson-00-role-model.md`** | Canonical **quality bar** and Lesson 1 program (operator) |
 | **`packages/shared-engine/learning/README.md`** | Day-to-day commands (verify, build-index, Phase 2/3 env) |
+| **`docs/Engine-School-Lessons-1-2-Outside-Assessment.md`** | Auditor-facing summary of **committed lessons 1–2** (paths, ids, validation, non-claims) |
 
 ---
 
@@ -54,7 +55,7 @@ Use this order when describing **how** a pack becomes a lesson:
 6. **Optional:** **`pnpm learning:build-index`** for Phase 2 / Phase 3 consumers; index file is **gitignored**.
 7. **Commit** lesson JSON + operator docs — **not** **`DL/`** blobs.
 
-Gold reference lesson (role model): **`packages/shared-engine/learning/corpus/lesson-001-modern-bass-archetype.json`** (`id`: **`pack_archetype_modern_bass_001`**).
+Gold reference lessons: **`packages/shared-engine/learning/corpus/engine-school-role-model-v1.json`** (`engine_school_role_model_v1`) · **`packages/shared-engine/learning/corpus/engine-school-lesson-002-wide-pad-evolution.json`** (`engine_school_lesson_002`).
 
 ---
 

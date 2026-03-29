@@ -257,6 +257,10 @@ function applyCorpusAffinityResort(
       corpusAffinityApplied: true,
       corpusAffinityWeight: weight,
       survivorCount: candidates.length,
+      corpusAffinityLessonCount: lessons!.length,
+      corpusAffinityPriorityAware: lessons!.some(
+        (l) => Array.isArray(l.priorityMappingKeys) && l.priorityMappingKeys.length > 0,
+      ),
     });
     return rows.map((r) => r.c);
   } catch {

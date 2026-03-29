@@ -26,13 +26,16 @@ Optional **`tags`** sharpen retrieval, deduping, and Phase 2 / Phase 3 overlap.
 | Field | Rule |
 |-------|------|
 | `schemaVersion` | **`"1.0"`** until the schema bumps |
-| `id` | Stable unique id (e.g. `pack_archetype_modern_bass_001`) |
+| `id` | Stable unique id (e.g. `engine_school_role_model_v1`, `engine_school_lesson_002`) |
 | `presetName` | Human label (≥ 2 chars). For archetype lessons: **pack + archetype**, not a single preset name unless that is the teaching unit |
 | `style` | Non-empty style class string |
 | `mappings` | Object, ≥ 1 key; values are typically **short prose** describing the family’s tendency |
 | `character` | ≥ 20 chars, concrete sonic description |
 | `causalReasoning` | ≥ 40 chars, explicit cause → audible effect chain |
 | `tags` | Optional array of short tokens |
+| `priorityMappingKeys` | **1–3** keys copied from `mappings` — the knobs that **most** define the archetype (decision layer) |
+| `coreRules` | **2–3** minimal strings: irreducible cause→effect rules (compression; not a second full essay) |
+| `contrastWith` | `{ lessonId, difference }` — explicit **why X ≠ Y** vs another committed lesson (`lessonId` must exist in `corpus/`) |
 
 ## Bad vs good (examples of failure)
 
@@ -40,14 +43,14 @@ Optional **`tags`** sharpen retrieval, deduping, and Phase 2 / Phase 3 overlap.
 **Good:** Style + which families (env/filter/unison/distortion) + *why* the transient reads aggressive and the mids stay controlled.
 
 **Bad:** Only numeric literals with no story.  
-**Good:** Numbers allowed in `mappings` values when they teach (see stub), but archetype lessons usually prefer **zones** (“short decay”, “moderate resonance”) until you intentionally teach a numeric anchor.
+**Good:** Numbers allowed in `mappings` values when they teach, but archetype lessons usually prefer **zones** (“short decay”, “moderate resonance”) until you intentionally teach a numeric anchor. See **`corpus/engine-school-role-model-v1.json`** (compact) and **`corpus/engine-school-lesson-002-wide-pad-evolution.json`** (large mapping surface) for archetype-level squeezes.
 
 ## Lesson 1 program
 
 1. **Spec:** this file (**Lesson 0**).
 2. **Worksheet:** `pack-archetype-extraction-sheet.md` (3-pass squeeze + table).
 3. **Fingerprints:** `pack-fingerprints-tier-a.md` (one row per trusted pack; operator-filled after Pass 1).
-4. **Gold lesson:** `corpus/` JSON with id **`pack_archetype_modern_bass_001`** (or successor) — **one** perfect archetype lesson to clone.
+4. **Gold lessons:** **`corpus/engine-school-role-model-v1.json`** (`engine_school_role_model_v1`) and **`corpus/engine-school-lesson-002-wide-pad-evolution.json`** (`engine_school_lesson_002`) — same framework, different data weight; clone for new archetypes.
 5. **Scale:** more archetypes per pack → cross-pack meta-lessons → batch authoring (see `README.md` Phase 2 / 3).
 
 ## Trust tier (operator convention)

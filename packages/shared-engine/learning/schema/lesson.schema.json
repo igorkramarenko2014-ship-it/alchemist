@@ -13,7 +13,10 @@
     "style",
     "mappings",
     "character",
-    "causalReasoning"
+    "causalReasoning",
+    "priorityMappingKeys",
+    "coreRules",
+    "contrastWith"
   ],
   "properties": {
     "schemaVersion": {
@@ -24,7 +27,7 @@
     "id": {
       "type": "string",
       "minLength": 1,
-      "description": "Unique lesson identifier, e.g. serum-lesson-000-stub"
+      "description": "Unique lesson identifier, e.g. engine_school_role_model_v1 or engine_school_lesson_002"
     },
     "presetName": {
       "type": "string",
@@ -56,6 +59,38 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "Optional sonic descriptors"
+    },
+    "priorityMappingKeys": {
+      "type": "array",
+      "description": "Top 2–3 mapping keys that most define this archetype (must be keys of mappings when present)",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "coreRules": {
+      "type": "array",
+      "description": "2–3 minimal irreducible causal rules (compression layer)",
+      "minItems": 2,
+      "maxItems": 3,
+      "items": { "type": "string", "minLength": 12 }
+    },
+    "contrastWith": {
+      "type": "object",
+      "description": "Explicit contrast to another committed lesson (recommended)",
+      "additionalProperties": false,
+      "required": ["lessonId", "difference"],
+      "properties": {
+        "lessonId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "id of another lesson in corpus"
+        },
+        "difference": {
+          "type": "string",
+          "minLength": 40,
+          "description": "Why this archetype differs (decision-grade, not a second full essay)"
+        }
+      }
     }
   }
 }

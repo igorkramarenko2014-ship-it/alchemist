@@ -4,6 +4,8 @@ Use this file **outside the repo** (another agent, runbook runner, or paste-in p
 
 **Happy Panda** = *green `next build` from repo root, dev server reachable at the URL printed in the cyan banner, no client bundle pulling Node `fs`.*
 
+**Cursor / chat:** The JSON block below is a **paste-in module** for external runners. **Agents** follow **`.cursor/rules/alchemist-happy-panda-triage.mdc`**: when you say the app is down locally, they should run **`pnpm panda`** and **`pnpm alc:doctor`** before long theory. The **executable** preflight is **`scripts/happy-panda.mjs`** (also runs automatically before **`pnpm dev`** unless `ALCHEMIST_SKIP_PANDA=1`).
+
 **Enforcement summary:** **CWD** — no ghost runs outside monorepo root. **Install** — lockfile / `node_modules` corruption has a documented self-correcting path. **Next.js** — hang-prone CI/Docker runs use **`compile_gate.check`** + kill/clean + **`recovery`**. **Health** — `curl` on **`/api/health`** is the Definition of Done.
 
 ---

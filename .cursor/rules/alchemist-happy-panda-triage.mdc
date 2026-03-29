@@ -1,0 +1,32 @@
+---
+description: >-
+  When the user reports local web app down / not loading / broken, run Happy Panda
+  preflight and alc:doctor before long speculative diagnosis (token-efficient triage).
+alwaysApply: true
+---
+
+# Alchemist — Happy Panda first when the app is “down”
+
+## What already exists (not missing)
+
+- **`pnpm dev`** (and `fresh:*`, `dev:recover`, `go`, etc.) runs **`scripts/happy-panda.mjs` first** unless `ALCHEMIST_SKIP_PANDA=1`. Same checks: **`pnpm panda`**.
+- **`docs/critical-fix-happy-panda-autoload.md`** holds the full **paste-in JSON** (`alchemist.happy_panda`) for other runners — it is **not** a separate compiled “autoloader” binary; the **executable** preflight is **`happy-panda.mjs`**.
+
+## When this applies
+
+The user says the **web app is down**, **won’t load**, **white screen**, **404**, **can’t reach localhost**, or **hasn’t worked for days** (local dev) — and wants help **without** burning tokens on guesswork.
+
+## What to do in chat (before long theory)
+
+1. **Working directory:** monorepo root (`apps/` + `packages/`). If the workspace is e.g. **`vst/`**, **`cd`** to the parent root first.
+2. Run **`pnpm panda`** (or `node scripts/happy-panda.mjs`) and report **FAIL/WARN** lines.
+3. Run **`pnpm alc:doctor`** and summarize **OK** vs failures.
+4. Only then suggest **`pnpm dev`**, **`pnpm fresh:3010`**, **`pnpm app:repair`**, etc., from the doctor / Happy Panda hints.
+
+**Skip** if the user already pasted complete output from **`panda`** + **`alchemist:doctor`** (or equivalent).
+
+## Interaction with other rules
+
+- **`alchemist-anti-dev-nag`**: do **not** nag “start dev” when the user did **not** ask. **Do** use this triage when they **explicitly** say the app is broken/down.
+
+**Canon:** `docs/critical-fix-happy-panda-autoload.md`, `AGENTS.md` (`pnpm dev` → happy-panda).

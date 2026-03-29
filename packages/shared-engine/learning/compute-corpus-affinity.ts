@@ -36,18 +36,43 @@ export function collectLeafParamPaths(value: unknown, prefix = ""): string[] {
   return out;
 }
 
+/** Flexible match: exact path, segment match, or substring (abstract lesson keys vs Serum leaf paths). */
+export function pathMatchesMappingKey(path: string, key: string): boolean {
+  const p = path.toLowerCase();
+  const k = key.toLowerCase().trim();
+  if (!k) return false;
+  if (p === k) return true;
+  const segments = p.split(".");
+  if (segments.includes(k)) return true;
+  if (p.includes("." + k + ".") || p.endsWith("." + k)) return true;
+  return p.includes(k);
+}
+
 function paramOverlapScore(candidate: AICandidate, lesson: LearningLesson): number {
   const paths = collectLeafParamPaths(candidate.state).map((x) => x.toLowerCase());
   if (paths.length === 0) return 0;
   const lessonKeys = lesson.mappingKeys.map((k) => k.toLowerCase());
   if (lessonKeys.length === 0) return 0;
-  const set = new Set(lessonKeys);
-  let overlap = 0;
-  for (const pk of paths) {
-    if (set.has(pk)) overlap += 1;
+
+  const anyPathMatchesKey = (key: string): boolean =>
+    paths.some((pk) => pathMatchesMappingKey(pk, key));
+
+  let generalHits = 0;
+  for (const lk of lessonKeys) {
+    if (anyPathMatchesKey(lk)) generalHits += 1;
   }
-  const denom = Math.max(paths.length, lessonKeys.length, 1);
-  return overlap / denom;
+  const general = generalHits / Math.max(lessonKeys.length, 1);
+
+  const pri = lesson.priorityMappingKeys?.map((k) => k.toLowerCase()).filter(Boolean) ?? [];
+  if (pri.length === 0) return Math.min(1, general);
+
+  let priHits = 0;
+  for (const pk of pri) {
+    if (anyPathMatchesKey(pk)) priHits += 1;
+  }
+  const priorityScore = priHits / pri.length;
+  /** Priority keys define the archetype — weight them over the full mapping list. */
+  return Math.min(1, 0.62 * priorityScore + 0.38 * general);
 }
 
 function textOverlapScore(candidate: AICandidate, lesson: LearningLesson): number {
@@ -62,7 +87,18 @@ function textOverlapScore(candidate: AICandidate, lesson: LearningLesson): numbe
     if (w.length > 2 && text.includes(w)) matches += 1;
   }
   const denom = Math.max(lesson.tags.length + 1, 1);
-  return Math.min(1, matches / denom);
+  let base = Math.min(1, matches / denom);
+
+  const rules = lesson.coreRules;
+  if (rules?.length) {
+    let ruleHits = 0;
+    for (const rule of rules) {
+      const words = tokenizeLower(rule).filter((w) => w.length > 4);
+      if (words.some((w) => text.includes(w))) ruleHits += 1;
+    }
+    base = Math.min(1, base + 0.22 * (ruleHits / rules.length));
+  }
+  return base;
 }
 
 /**

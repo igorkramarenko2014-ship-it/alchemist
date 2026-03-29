@@ -17,7 +17,7 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 | Path | Role |
 |------|------|
 | `DL/` | Local staging for bulk downloads / unpacks. Gitignored except `.gitkeep`. The forget-presets script never deletes under `DL/`. |
-| `corpus/` | **Only** lesson `.json` you intend to commit. Flat files preferred; no vendor trees after cleanup. **Lesson 1 program:** stub `serum-lesson-000-stub.json` + role-model archetype `lesson-001-modern-bass-archetype.json`. |
+| `corpus/` | **Only** lesson `.json` you intend to commit. Flat files preferred; no vendor trees. **Exemplars:** `engine-school-role-model-v1.json` (compact bass archetype) + `engine-school-lesson-002-wide-pad-evolution.json` (large pad archetype, `engine_school_lesson_002`); clone for new lessons; never commit binaries. |
 | `docs/lesson-00-role-model.md` | Canonical **Lesson 0** spec (four layers, good vs bad, trust tier). |
 | `docs/pack-archetype-extraction-sheet.md` | Operator worksheet (3-pass squeeze + table). |
 | `docs/pack-fingerprints-tier-a.md` | Tier-A pack fingerprint table (Pass 1). |
@@ -39,7 +39,7 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 ## Lifecycle
 
 1. Stage material under `DL/` on your machine.
-2. Author **`corpus/<id>.json`** with **`schemaVersion`: `"1.0"`** (until the schema bumps), `id`, `presetName`, `style`, non-empty **`mappings`**, `character`, **`causalReasoning`** (see stub `corpus/serum-lesson-000-stub.json`).
+2. Author **`corpus/<id>.json`** with **`schemaVersion`: `"1.0"`** (until the schema bumps), `id`, `presetName`, `style`, non-empty **`mappings`**, `character`, **`causalReasoning`**, **`priorityMappingKeys`**, **`coreRules`**, **`contrastWith`** (see **`corpus/engine-school-role-model-v1.json`** or **`corpus/engine-school-lesson-002-wide-pad-evolution.json`**).
 3. Run **`pnpm learning:forget-presets`** so stray binaries / audio / PDFs outside `DL/` are removed from `learning/`.
 4. Run **`pnpm learning:verify`** (or rely on **`pnpm verify:harsh`**, which runs the same validator).
 5. Run **`pnpm learning:build-index`** after corpus edits when using Phase 2 or previews.
@@ -60,4 +60,4 @@ When you add **new TypeScript** that reads lessons, register artifacts in **`igo
 
 ## Legal
 
-You are responsible for rights to any source material used to **author** lessons. The committed product is **abstract JSON** (mappings + text), not shipped `.fxp` or sample libraries.
+You are responsible for rights to any source material used to **author** lessons. The committed product is **abstract JSON** (mappings + text), not shipped `.fxp` or sample libraries. **No resale or redistribution** of third-party presets via this repo; after the logic squeeze, **forget** stray binaries and **clear local staging** (`DL/`) — see **`README.md`** covenant.

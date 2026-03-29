@@ -7,6 +7,12 @@ export type LearningLesson = {
   causalReasoning: string;
   tags: string[];
   mappingKeys: string[];
+  /** Top 2–3 keys from `mappings` — decision layer, optional when index built from older corpus */
+  priorityMappingKeys?: string[];
+  /** Minimal irreducible rules — optional when index built from older corpus */
+  coreRules?: string[];
+  /** Explicit contrast to another lesson id — optional when index built from older corpus */
+  contrastWith?: { lessonId: string; difference: string };
 };
 
 export type LearningIndex = {

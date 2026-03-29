@@ -17,6 +17,7 @@
 8. **[`.cursor/rules/alchemist-inner-circle-default.mdc`](.cursor/rules/alchemist-inner-circle-default.mdc)** — **always-on** default Cursor chat tone (**English** default; peer habits from **`.cursor/skills/inner-circle-voice/`**) — **after** canon; **not** HARD GATE / verify / gate facts  
 8a. **[`docs/internal/inner-circle-agent.md`](docs/internal/inner-circle-agent.md)** — **full** inner-circle prompt (RU/UA/EN, feedback philosophy, teaching variant) + **Canon FIREWALL**; **`truth first → task second → tone third`** — tone layer only; **HARD GATE** still wins  
 8b. **[`.cursor/rules/alchemist-git-save-after-meta.mdc`](.cursor/rules/alchemist-git-save-after-meta.mdc)** — **always-on** commit+push after **`.cursor/`** / brain / `AGENTS` edits or when user says **cmt/psh** (`node scripts/git-save.mjs`); **never** commit secrets  
+8b2. **[`.cursor/rules/alchemist-happy-panda-triage.mdc`](.cursor/rules/alchemist-happy-panda-triage.mdc)** — **always-on** when user reports local web app **down** / not loading: run **`pnpm panda`** then **`pnpm alc:doctor`** before long diagnosis; runbook **`docs/critical-fix-happy-panda-autoload.md`** (preflight is **`scripts/happy-panda.mjs`**, not a separate binary)  
 8c. **[`docs/cursor-universal-habits.md`](docs/cursor-universal-habits.md)** — copy-paste for **Cursor User Rules** (same habits on **all** projects)  
 8d. **[`.cursor/rules/alchemist-apex-orchestrator.mdc`](.cursor/rules/alchemist-apex-orchestrator.mdc)** — **§9c** Digital Igor / Apex Alchemist mercury-engine stance; **after** brief / security / dsp-vs-ts / inner-circle  
 8d2. **[`.cursor/rules/alchemist-engine-fusion-communication.mdc`](.cursor/rules/alchemist-engine-fusion-communication.mdc)** + **[`.cursor/skills/alchemist-engine-fusion/SKILL.md`](.cursor/skills/alchemist-engine-fusion/SKILL.md)** — triad-angle + SOE-style status in chat (after canon); **not** runtime triad execution  
@@ -57,7 +58,10 @@ pnpm verify:ci        # assert:hard-gate + encoder-diff prereq + verify:harsh + 
 pnpm health:audit     # read latest verify_post_summary artifact; ALCHEMIST_RELEASE_AUDIT=1 enforces release posture
 pnpm triad:parity-diff # stub vs live triad snapshots JSON (needs keys + running app for live)
 pnpm verify:harsh     # faster: no next build (includes Engine School `validate-learning-corpus.mjs` at end)
-pnpm learning:verify  # Engine School only: `corpus/**/*.json` vs `lesson.schema.json` (stdout JSON line)
+pnpm learning:verify  # Engine School: schema + **corpus/ FS allowlist** (only *.json / *.md / .gitkeep)
+pnpm learning:sanitize  # forget-presets + learning:verify — run when corpus picked up pack junk
+pnpm learning:teach   # Run Lesson (RL): print corpus lessons, then `learning:forget-presets` (DL/ untouched)
+pnpm learning:rl      # alias → `learning:teach`
 pnpm verify:harsh:fire # verify:harsh + ALCHEMIST_FIRE_SYNC=1 after green
 pnpm predeploy        # build:wasm + REQUIRE_WASM assert:wasm — before shipping browser .fxp
 pnpm soe:migrate      # optional: legacy SOE lines → structured JSONL (see packages/shared-engine/soe-hint-structured.ts)

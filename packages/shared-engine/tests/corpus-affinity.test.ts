@@ -3,6 +3,7 @@ import type { AICandidate, Panelist } from "@alchemist/shared-types";
 import {
   computeCorpusAffinity,
   collectLeafParamPaths,
+  pathMatchesMappingKey,
   type LearningIndexLesson,
 } from "../learning/compute-corpus-affinity";
 import {
@@ -171,5 +172,46 @@ describe("collectLeafParamPaths", () => {
   it("finds nested paths", () => {
     const paths = collectLeafParamPaths({ a: { b: { c: 1 } } });
     expect(paths).toContain("a.b.c");
+  });
+});
+
+describe("pathMatchesMappingKey (Phase 3 flexible match)", () => {
+  it("matches exact and segment-style keys", () => {
+    expect(pathMatchesMappingKey("filter.cutoff", "filter.cutoff")).toBe(true);
+    expect(pathMatchesMappingKey("filter.cutoff", "cutoff")).toBe(true);
+    expect(pathMatchesMappingKey("oscA.level", "level")).toBe(true);
+    expect(pathMatchesMappingKey("meta.x", "unrelated")).toBe(false);
+  });
+});
+
+describe("priorityMappingKeys in corpus affinity", () => {
+  it("uses priority keys when present (index row shape)", () => {
+    const lesson: LearningIndexLesson = {
+      id: "p",
+      style: "test",
+      character: "c",
+      causalReasoning: "r",
+      tags: [],
+      mappingKeys: ["filter.cutoff", "oscA.level", "meta.version"],
+      priorityMappingKeys: ["filter.cutoff"],
+    };
+    const c: AICandidate = {
+      ...cand("LLAMA", 0.5, "reasoning text here long enough ok"),
+      state: {
+        meta: {},
+        master: {},
+        oscA: { level: 0.5 },
+        oscB: {},
+        noise: {},
+        filter: { cutoff: 0.3 },
+        envelopes: [],
+        lfos: [],
+        fx: {},
+        matrix: [],
+      } as AICandidate["state"],
+    };
+    const withPri = computeCorpusAffinity(c, [lesson]);
+    const withoutPri = computeCorpusAffinity(c, [{ ...lesson, priorityMappingKeys: undefined }]);
+    expect(withPri).toBeGreaterThanOrEqual(withoutPri);
   });
 });

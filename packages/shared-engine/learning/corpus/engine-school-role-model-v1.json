@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "id": "engine_school_role_model_v1",
+  "presetName": "Archetype distillate — modern aggressive bass (logic-only, not a vendor preset)",
+  "style": "modern aggressive bass",
+  "tags": [
+    "archetype",
+    "bass",
+    "aggressive",
+    "transient-first",
+    "causal-chain",
+    "human-perception",
+    "mapping-grammar"
+  ],
+  "mappings": {
+    "designIntent": "Optimize for punch and mix-forward presence: transient wins over sustain; width is earned, not default; distortion is a tone shaper, not a blanket.",
+    "humanPerception": "Ear reads attack as slap and density as weight; brightness is interpreted as bite when the body stays short; mud is avoided by keeping low-mid bloom controlled after the hit.",
+    "ampEnvelope": "Fast attack so the ear locks to the front edge; decay short enough that the note feels percussive, not pad-like; sustain low so harmonic clutter does not stack; release only long enough to avoid ugly clicks.",
+    "harmonicSource": "Oscillator stack biased toward mid-rich content that survives filtering—enough harmonics for aggression without relying on a single buzzy saw.",
+    "filterAndSpectralBalance": "Cutoff generally open for air and articulation; resonance used for edge and articulation, not long vowel sweeps; low end trimmed or managed so the bass stays tight under kicks.",
+    "stereoField": "Unison or similar used sparingly: width supports size without destroying mono punch; center mass remains audible so the bass still anchors.",
+    "saturationOrDrive": "Saturation/distortion increases harmonic density and forward aggression; applied so the transient still leads—soft clipping or drive that thickens without turning the attack into hash.",
+    "modulationRole": "Modulation is functional: subtle pitch or filter motion that adds tension, not a featured wobble; keeps the sound controlled and intent-driven.",
+    "mixRole": "Designed to sit forward and controlled: transient cuts through; mids carry attitude; lows stay defined—fits aggressive electronic genres without swallowing the drum bus."
+  },
+  "character": "Punchy, wide-but-centered aggressive bass: immediate transient slap, bright articulate bite on top, compact body that feels heavy without mud, and a forward, slightly saturated edge that reads as modern and mix-ready.",
+  "causalReasoning": "The aggressive character comes from prioritizing the amplitude envelope around the attack: a fast attack and short decay make the ear perceive slap and impact before sustain can blur the tone. Harmonic-rich sources plus a relatively open filter let upper harmonics through so the timbre reads bright and biting rather than dull. Distortion or saturation increases perceived density and edge, which the ear maps to aggression, while keeping drive bounded preserves transient leadership. Controlled stereo widening adds size without smearing the phantom center, so width reads as power rather than phasey wash. Restrained modulation avoids cartoon motion and keeps the sound like a deliberate instrument rather than an effects showcase. Together, these mapping tendencies steer human listeners toward the same semantic labels—punchy, aggressive, modern—because each control family addresses a distinct perceptual channel (time, spectrum, space, saturation) in a coherent chain from intent to audition.",
+  "priorityMappingKeys": ["ampEnvelope", "saturationOrDrive", "filterAndSpectralBalance"],
+  "coreRules": [
+    "Fast attack + short decay + low sustain → the ear locks to slap and punch before harmonic wash stacks.",
+    "Open filter + mid-rich source → bite and aggression without needing huge resonance sweeps or pad-like sustain.",
+    "Saturation under control while the transient still leads → edge and density without fizz that erases the hit."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_lesson_002",
+    "difference": "This archetype wins on transient time and forward density in the mix. Lesson 2 inverts the priority: long sustain, slow evolving spectrum, and space—if you keep lesson 1 envelope settings on a pad, you get a weak stab, not a bed; if you apply lesson 2 envelopes to bass punch, you lose impact under drums."
+  }
+}

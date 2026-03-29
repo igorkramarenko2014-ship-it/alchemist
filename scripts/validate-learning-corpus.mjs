@@ -10,13 +10,17 @@
  *
  * Env:
  *   LEARNING_CORPUS_MIN_LESSONS — default 1
+ *   LEARNING_CORPUS_SKIP_FS_CLEAN_CHECK=1 — skip “only lesson *.json / optional *.md / .gitkeep under corpus/” (emergency only)
+ *
+ * Cross-checks (after AJV): priorityMappingKeys ⊆ mappings keys; contrastWith.lessonId exists
+ * in corpus and ≠ this lesson id; duplicate lesson ids fail.
  *
  * Usage (repo root):
  *   node scripts/validate-learning-corpus.mjs
  *   pnpm learning:verify
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, extname, join, relative } from "node:path";
+import { basename, dirname, extname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
@@ -38,6 +42,29 @@ function findMonorepoRoot(startDir) {
     dir = parent;
   }
   return null;
+}
+
+/** Corpus durable surface: lesson JSON, optional human notes, gitkeep — nothing else. */
+function isAllowedCorpusPath(filePath) {
+  const base = basename(filePath);
+  if (base === ".gitkeep") return true;
+  const ext = extname(filePath).toLowerCase();
+  return ext === ".json" || ext === ".md";
+}
+
+function collectAllCorpusFilesRecursive(dir, out) {
+  if (!existsSync(dir)) return;
+  for (const ent of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, ent.name);
+    if (ent.isDirectory()) collectAllCorpusFilesRecursive(p, out);
+    else {
+      try {
+        if (statSync(p).isFile()) out.push(p);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
 }
 
 function collectJsonFilesRecursive(dir, out, monorepoRoot, errors) {
@@ -117,6 +144,41 @@ if (!existsSync(corpusRoot)) {
   process.exit(1);
 }
 
+if (process.env.LEARNING_CORPUS_SKIP_FS_CLEAN_CHECK !== "1") {
+  const allCorpusFiles = [];
+  collectAllCorpusFilesRecursive(corpusRoot, allCorpusFiles);
+  const forbidden = allCorpusFiles.filter((p) => !isAllowedCorpusPath(p));
+  if (forbidden.length > 0) {
+    const preview = forbidden.slice(0, 12);
+    for (const p of preview) {
+      process.stderr.write(`[validate-learning-corpus] forbidden under corpus/: ${relative(root, p)}\n`);
+    }
+    if (forbidden.length > preview.length) {
+      process.stderr.write(`[validate-learning-corpus] … and ${forbidden.length - preview.length} more\n`);
+    }
+    process.stderr.write(
+      "[validate-learning-corpus] corpus must contain only *.json, optional *.md, and .gitkeep — run: pnpm learning:forget-presets\n",
+    );
+    emitResult(
+      {
+        status: "fail",
+        errors: [
+          {
+            file: relative(root, forbidden[0]) ?? "corpus/",
+            path: "",
+            message: `${forbidden.length} non-lesson file(s) under corpus/ — run pnpm learning:forget-presets (or pnpm learning:sanitize)`,
+          },
+        ],
+        schemaVersion: "1.0",
+        minLessons: 1,
+        scannedFiles: 0,
+      },
+      [],
+    );
+    process.exit(1);
+  }
+}
+
 let schema;
 try {
   schema = JSON.parse(readFileSync(schemaPath, "utf8"));
@@ -185,6 +247,7 @@ if (files.length < minLessons) {
   });
 }
 
+const parsed = [];
 for (const filePath of files.sort()) {
   const rel = relative(root, filePath);
   let doc;
@@ -195,6 +258,31 @@ for (const filePath of files.sort()) {
     process.stderr.write(`[validate-learning-corpus] invalid JSON: ${rel}\n`);
     continue;
   }
+  parsed.push({ rel, doc });
+}
+
+/** @type {Map<string, string>} id → first file path */
+const idToFile = new Map();
+for (const { rel, doc } of parsed) {
+  if (typeof doc.id !== "string" || !doc.id.trim()) {
+    errors.push({ file: rel, path: "/id", message: "missing or empty id" });
+    continue;
+  }
+  const id = doc.id.trim();
+  if (idToFile.has(id)) {
+    errors.push({
+      file: rel,
+      path: "/id",
+      message: `duplicate lesson id ${JSON.stringify(id)} (also in ${idToFile.get(id)})`,
+    });
+  } else {
+    idToFile.set(id, rel);
+  }
+}
+
+const allLessonIds = new Set(idToFile.keys());
+
+for (const { rel, doc } of parsed) {
   if (!validate(doc)) {
     const errs = validate.errors ?? [];
     for (const e of errs) {
@@ -206,6 +294,38 @@ for (const filePath of files.sort()) {
     }
     const detail = errs.map((e) => `${e.instancePath || "/"} ${e.message}`).join("; ");
     process.stderr.write(`[validate-learning-corpus] ${rel}\n${detail}\n`);
+  }
+}
+
+for (const { rel, doc } of parsed) {
+  const mappingKeySet = new Set(Object.keys(doc.mappings ?? {}));
+  const pri = doc.priorityMappingKeys;
+  if (Array.isArray(pri)) {
+    for (const k of pri) {
+      if (typeof k !== "string" || !mappingKeySet.has(k)) {
+        errors.push({
+          file: rel,
+          path: "/priorityMappingKeys",
+          message: `each priorityMappingKeys entry must be a key of mappings; missing or unknown: ${JSON.stringify(k)}`,
+        });
+      }
+    }
+  }
+  const cw = doc.contrastWith;
+  if (cw && typeof cw === "object" && typeof cw.lessonId === "string") {
+    if (cw.lessonId === doc.id) {
+      errors.push({
+        file: rel,
+        path: "/contrastWith/lessonId",
+        message: "contrastWith.lessonId must reference another lesson, not this lesson",
+      });
+    } else if (!allLessonIds.has(cw.lessonId)) {
+      errors.push({
+        file: rel,
+        path: "/contrastWith/lessonId",
+        message: `contrastWith.lessonId ${JSON.stringify(cw.lessonId)} not found among corpus lesson ids`,
+      });
+    }
   }
 }
 

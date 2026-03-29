@@ -12,6 +12,11 @@
  *   node scripts/learning-forget-presets.mjs
  *   pnpm learning:forget-presets
  *   LEARNING_FORGET_DRY_RUN=1 pnpm learning:forget-presets
+ *   LEARNING_FORGET_SKIP_CORPUS_STRICT=1 — skip the corpus allowlist pass (debug only)
+ *
+ * Pass 2 (corpus): deletes ANY file under learning/corpus/ that is not a lesson JSON, optional
+ * human .md note, or .gitkeep — removes vendor pack trees, instructions, .nfo, .rtf, fonts, etc.
+ * DL/ is still never touched.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
@@ -61,6 +66,16 @@ const REMOVABLE_PACK_EXT = new Set([
   ".midi",
   ".als",
   ".pdf",
+  /** Torrent / pack-release metadata (not lesson content). */
+  ".nfo",
+  /** Other synth / DAW preset blobs often dropped by mistake (corpus strict also removes unknown ext). */
+  ".vital",
+  ".webloc",
+  ".sfz",
+  ".sf2",
+  ".adg",
+  ".h2p",
+  ".fxb2",
 ]);
 
 function pendingDownloadsRoot(learningRoot) {
@@ -105,6 +120,48 @@ function walkFiles(rootDir, learningRoot, out = []) {
   return out;
 }
 
+/** Allowed file names under corpus/ after squeeze (logic + optional human notes only). */
+function isCorpusAllowedFile(filePath) {
+  const base = basename(filePath);
+  if (base === ".gitkeep") return true;
+  const ext = extname(filePath).toLowerCase();
+  if (ext === ".json" || ext === ".md") return true;
+  return false;
+}
+
+/** Collect files under corpus/ that are not lesson JSON, optional .md, or .gitkeep. */
+function collectCorpusNonLessonFiles(corpusRoot, learningRoot, out = []) {
+  if (!existsSync(corpusRoot)) return out;
+  for (const ent of readdirSync(corpusRoot, { withFileTypes: true })) {
+    const p = join(corpusRoot, ent.name);
+    if (ent.isDirectory()) {
+      collectCorpusNonLessonFiles(p, learningRoot, out);
+    } else if (!isUnderPendingDownloads(p, learningRoot) && !isCorpusAllowedFile(p)) {
+      out.push(p);
+    }
+  }
+  return out;
+}
+
+/**
+ * Remove vendor/pack debris under corpus/ (only *.json + *.md + .gitkeep survive).
+ * Prunes empty folders under corpus/ afterward.
+ */
+function strictCorpusSanitize(corpusRoot, learningRoot) {
+  const bad = collectCorpusNonLessonFiles(corpusRoot, learningRoot, []);
+  for (const p of bad) {
+    try {
+      unlinkSync(p);
+    } catch (e) {
+      process.stderr.write(`[learning-forget-presets] corpus strict: failed ${p} ${e?.message ?? e}\n`);
+      process.exit(1);
+    }
+  }
+  const protectedAbs = new Set([corpusRoot, learningRoot, pendingDownloadsRoot(learningRoot)]);
+  removeEmptyNestedDirs(corpusRoot, protectedAbs);
+  return bad.length;
+}
+
 function removeEmptyNestedDirs(dir, protectedAbs) {
   if (!existsSync(dir)) return;
   if (protectedAbs.has(dir)) {
@@ -134,6 +191,8 @@ if (!existsSync(learningRoot)) {
 }
 
 const dryRun = process.env.LEARNING_FORGET_DRY_RUN === "1";
+const skipCorpusStrict = process.env.LEARNING_FORGET_SKIP_CORPUS_STRICT === "1";
+const corpusRoot = join(learningRoot, "corpus");
 
 const allFiles = walkFiles(learningRoot, learningRoot);
 const toDelete = allFiles.filter((p) => {
@@ -146,22 +205,41 @@ const toDelete = allFiles.filter((p) => {
   return false;
 });
 
-let removed = 0;
+const corpusStrictTargets = skipCorpusStrict ? [] : collectCorpusNonLessonFiles(corpusRoot, learningRoot, []);
+
+let removedPass1 = 0;
+let removedPass2 = 0;
+
 if (dryRun) {
-  removed = toDelete.length;
-  process.stdout.write(`[dry-run] would delete ${removed} file(s) (DL/ excluded)\n`);
+  removedPass1 = toDelete.length;
+  process.stdout.write(`[dry-run] pass 1 (extensions/noise): would delete ${removedPass1} file(s) under learning/ (DL/ excluded)\n`);
   const preview = toDelete.slice(0, 5);
   for (const p of preview) process.stdout.write(`  - ${p}\n`);
-  if (removed > preview.length) process.stdout.write(`  … and ${removed - preview.length} more\n`);
+  if (removedPass1 > preview.length) process.stdout.write(`  … and ${removedPass1 - preview.length} more\n`);
+  if (!skipCorpusStrict) {
+    process.stdout.write(
+      `[dry-run] pass 2 (corpus strict): would delete ${corpusStrictTargets.length} file(s) not *.json / *.md / .gitkeep under corpus/\n`,
+    );
+    const prev2 = corpusStrictTargets.slice(0, 8);
+    for (const p of prev2) process.stdout.write(`  - ${p}\n`);
+    if (corpusStrictTargets.length > prev2.length) {
+      process.stdout.write(`  … and ${corpusStrictTargets.length - prev2.length} more\n`);
+    }
+  } else {
+    process.stdout.write("[dry-run] LEARNING_FORGET_SKIP_CORPUS_STRICT=1 — pass 2 skipped\n");
+  }
 } else {
   for (const p of toDelete) {
     try {
       unlinkSync(p);
-      removed += 1;
+      removedPass1 += 1;
     } catch (e) {
       process.stderr.write(`[learning-forget-presets] failed: ${p} ${e?.message ?? e}\n`);
       process.exit(1);
     }
+  }
+  if (!skipCorpusStrict) {
+    removedPass2 = strictCorpusSanitize(corpusRoot, learningRoot);
   }
 }
 
@@ -184,9 +262,20 @@ if (!dryRun) {
   }
 }
 
+const uniqueDryRun = dryRun
+  ? skipCorpusStrict
+    ? removedPass1
+    : new Set([...toDelete, ...corpusStrictTargets]).size
+  : 0;
+const total = dryRun ? uniqueDryRun : removedPass1 + removedPass2;
 process.stdout.write(
-  `[learning-forget-presets] ${dryRun ? "dry-run" : "done"}: ${removed} file(s) ${dryRun ? "would be " : ""}removed (DL/ untouched)\n`,
+  `[learning-forget-presets] ${dryRun ? "dry-run" : "done"}: ${dryRun ? "would remove " : ""}${total} unique file(s) ${dryRun ? "" : "total "}(pass1: ${dryRun ? removedPass1 : removedPass1}, corpus strict: ${dryRun ? corpusStrictTargets.length : removedPass2}; DL/ untouched${dryRun ? "; overlap deduped in total" : ""})\n`,
 );
+if (!skipCorpusStrict) {
+  process.stdout.write(
+    "[learning-forget-presets] corpus strict: only *.json lesson files, optional *.md notes, and .gitkeep may remain under corpus/\n",
+  );
+}
 process.stdout.write(
   "[learning-forget-presets] DL/ = pending downloads — never deleted by this tool; clear it manually when switching packs\n",
 );

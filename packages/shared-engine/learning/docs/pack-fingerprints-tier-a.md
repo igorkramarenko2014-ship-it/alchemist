@@ -10,4 +10,4 @@
 | **Production Music Live — Dreams Vol. 2 — Melodic House & Techno Serum Presets (Bound to Divide)** | *TBD* | *TBD* | *TBD* | Tier A — teaching canon |
 | **W. A. Production — Total Presets Bundle** (subset used for Serum teaching) | *TBD — bundle is broad; pick a **declared teaching subset** before fingerprinting* | *TBD* | *TBD* | Tier A — narrow scope recommended to avoid noise |
 
-**Next steps:** Complete Pass 1 rows → Pass 2 archetypes per pack → pick **one** cleanest archetype for **`pack_archetype_modern_bass_001`** gold lesson (already stubbed in `corpus/`) or replace with a better archetype id when ready.
+**Next steps:** Complete Pass 1 rows → Pass 2 archetypes per pack → distill into committed **`corpus/*.json`** using **`engine_school_role_model_v1`** / **`engine_school_lesson_002`** as clone targets (see **`corpus/engine-school-role-model-v1.json`**, **`corpus/engine-school-lesson-002-wide-pad-evolution.json`**).

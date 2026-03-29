@@ -109,14 +109,27 @@ for (const filePath of files.sort()) {
   const mappingKeys = Object.keys(doc.mappings);
   if (mappingKeys.length === 0) die(`${rel}: mappings must have at least one key`);
 
-  lessons.push({
+  const row = {
     id: doc.id,
     style: doc.style,
     character: truncate(doc.character, MAX_CHARACTER_CHARS),
     causalReasoning: truncate(doc.causalReasoning, MAX_CAUSAL_CHARS),
     tags: Array.isArray(doc.tags) ? doc.tags.filter((t) => typeof t === "string") : [],
     mappingKeys,
-  });
+  };
+  if (Array.isArray(doc.priorityMappingKeys) && doc.priorityMappingKeys.length) {
+    row.priorityMappingKeys = doc.priorityMappingKeys.filter((k) => typeof k === "string");
+  }
+  if (Array.isArray(doc.coreRules) && doc.coreRules.length) {
+    row.coreRules = doc.coreRules.map((r) => truncate(String(r), 220));
+  }
+  if (doc.contrastWith && typeof doc.contrastWith === "object" && doc.contrastWith.lessonId) {
+    row.contrastWith = {
+      lessonId: String(doc.contrastWith.lessonId),
+      difference: truncate(String(doc.contrastWith.difference ?? ""), 220),
+    };
+  }
+  lessons.push(row);
 }
 
 const lessonCount = lessons.length;

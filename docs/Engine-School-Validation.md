@@ -9,7 +9,7 @@
 
 **Documentation triad (keep in sync):** **`packages/shared-engine/learning/README.md`** (operator) · **`packages/shared-engine/learning/SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (this outside contract).
 
-**Doc sync + lesson path (outside assessment map):** **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** — how **`pnpm fire:sync`**, **`pnpm verify:harsh`**, and the Engine School corpus pipeline relate for auditors.
+**Doc sync + lesson path (outside assessment map):** **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** — how **`pnpm fire:sync`**, **`pnpm verify:harsh`**, and the Engine School corpus pipeline relate for auditors. **Lessons 1–2 snapshot:** **`docs/Engine-School-Lessons-1-2-Outside-Assessment.md`**.
 
 ---
 
@@ -24,15 +24,16 @@
 | Surface | Rule |
 |---------|------|
 | **Committed lesson files** | **Every** `*.json` under `packages/shared-engine/learning/corpus/` **recursively** (`corpus/**/*.json`) is validated. There is **no** allowlist and **no** silent skip of JSON files (nested subfolders included). |
+| **Corpus filesystem** | Under **`corpus/`**, **only** lesson **`*.json`**, optional **`*.md`**, and **`.gitkeep`** — **any other file fails** **`pnpm learning:verify`** (stops junk `.vital`, pack trees, etc.). Fix: **`pnpm learning:forget-presets`** or **`pnpm learning:sanitize`**. Emergency only: **`LEARNING_CORPUS_SKIP_FS_CLEAN_CHECK=1`**. |
 | **Schema** | **`packages/shared-engine/learning/schema/lesson.schema.json`** (JSON Schema draft 2020-12). Extension field **`x-alchemist-schema-version`** is **`1.0`** and must match each lesson’s required **`schemaVersion`** property (`const: "1.0"`). |
-| **Valid lesson (meaningfulness)** | Required: `schemaVersion`, `id`, `presetName` (≥2 chars), `style`, **`mappings`** (object with **≥1** property), **`character`** (≥20 chars), **`causalReasoning`** (≥40 chars); optional `tags`. Blocks one-line or empty “placeholder” lessons. |
+| **Valid lesson (meaningfulness)** | Required: `schemaVersion`, `id`, `presetName` (≥2 chars), `style`, **`mappings`** (object with **≥1** property), **`character`** (≥20 chars), **`causalReasoning`** (≥40 chars); optional `tags`. **Pedagogy layer (required):** **`priorityMappingKeys`** (1–3 strings, each must be a key of `mappings`), **`coreRules`** (2–3 short irreducible causal strings), **`contrastWith`** (`lessonId` + `difference` ≥40 chars, `lessonId` must name another lesson in the same corpus). Cross-checks in **`validate-learning-corpus.mjs`**. Blocks one-line or empty “placeholder” lessons. |
 | **Minimum corpus** | Default: **≥1** lesson file. Override with **`LEARNING_CORPUS_MIN_LESSONS`** (integer ≥1). Fewer files than the threshold → **fail** (not a warning). |
 | **Automation** | **`scripts/validate-learning-corpus.mjs`**: recursive directory walk, `readFileSync`/`JSON.parse` per file, AJV compile with **`strictSchema: false`** only to allow the documented **`x-alchemist-schema-version`** keyword (lessons themselves stay **`additionalProperties: false`**). |
 | **Schema evolution** | Bumping the contract: change **`x-alchemist-schema-version`**, lesson **`schemaVersion` const**, and **all** `corpus/*.json` in one change set. There is **no** auto-migration tool; invalid legacy lessons **fail** until updated. |
 
 Lesson JSON encodes **name → mapping summary → sonic character** with explicit **causal reasoning**. Authoritative Serum bytes remain **`serum-offset-map.ts`** + **`tools/validate-offsets.py`**.
 
-**Lesson 1 program (operator, not machine-gated as Markdown):** canonical role-model spec **`packages/shared-engine/learning/docs/lesson-00-role-model.md`**, extraction worksheet **`docs/pack-archetype-extraction-sheet.md`**, Tier-A fingerprints **`docs/pack-fingerprints-tier-a.md`**, and gold archetype lesson **`corpus/lesson-001-modern-bass-archetype.json`** — all aligned to the same **`lesson.schema.json`** contract above.
+**Role-model program (operator, not machine-gated as Markdown):** canonical quality spec **`packages/shared-engine/learning/docs/lesson-00-role-model.md`**, extraction worksheet **`docs/pack-archetype-extraction-sheet.md`**, Tier-A fingerprints **`docs/pack-fingerprints-tier-a.md`**, and gold lessons **`corpus/engine-school-role-model-v1.json`** (`engine_school_role_model_v1`) plus **`corpus/engine-school-lesson-002-wide-pad-evolution.json`** (`engine_school_lesson_002`) — aligned to **`lesson.schema.json`** above. Committed corpus is **logic-only**; no vendor preset binaries.
 
 ---
 

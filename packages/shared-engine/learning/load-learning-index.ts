@@ -36,6 +36,19 @@ function isLearningIndex(value: unknown): value is LearningIndex {
     if (!Array.isArray(L.tags) || !Array.isArray(L.mappingKeys)) return false;
     if (!L.tags.every((t) => typeof t === "string")) return false;
     if (!L.mappingKeys.every((k) => typeof k === "string")) return false;
+    if (L.priorityMappingKeys != null) {
+      if (!Array.isArray(L.priorityMappingKeys)) return false;
+      if (!L.priorityMappingKeys.every((k) => typeof k === "string")) return false;
+    }
+    if (L.coreRules != null) {
+      if (!Array.isArray(L.coreRules)) return false;
+      if (!L.coreRules.every((k) => typeof k === "string")) return false;
+    }
+    if (L.contrastWith != null) {
+      if (typeof L.contrastWith !== "object" || L.contrastWith === null) return false;
+      const cw = L.contrastWith as Record<string, unknown>;
+      if (typeof cw.lessonId !== "string" || typeof cw.difference !== "string") return false;
+    }
   }
   return true;
 }
