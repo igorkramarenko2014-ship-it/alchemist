@@ -11,7 +11,7 @@
 | **`docs/Engine-School-Validation.md`** | Fail-closed **JSON** validation for `learning/corpus/**/*.json` |
 | **`docs/learning-fitness-implementation-roadmap.md`** | Fitness v1→v3, aggregator/index/affinity task sequence, tests, optional AIOM outcomes — **implementation backlog**, not product law |
 | **`packages/shared-engine/learning/docs/lesson-00-role-model.md`** | Canonical **quality bar** and Lesson 1 program (operator) |
-| **`packages/shared-engine/learning/README.md`** | Day-to-day commands (verify, build-index, Phase 2/3 env) |
+| **`packages/shared-engine/learning/README.md`** | Day-to-day commands (verify, build-index, Phase 2/3 env); **local Python** (`~/alchemist-tools/`, **`.cursor/rules/alchemist-python-economy.mdc`**) for bulk lesson JSON / fixtures to avoid LLM token waste |
 | **`docs/Engine-School-Lessons-1-2-Outside-Assessment.md`** | Auditor-facing summary of **committed lessons 1–2** (paths, ids, validation, non-claims) |
 
 ---

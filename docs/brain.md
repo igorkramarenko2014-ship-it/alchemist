@@ -17,7 +17,8 @@
 | **`iom-architecture.md`** | Auto-generated power-cell digest — **`pnpm igor:docs`** after **`igor-power-cells.json`** edits |
 | **`Engine-School-Validation.md`** | Engine School **validation contract** (lesson schema **1.2**, optional **`cluster`**) + **§8** inference posture (Phase 2 **opt-in** triad context via **`ALCHEMIST_LEARNING_CONTEXT`**; **`triadSessionId`** correlation on triad routes; optional **`ALCHEMIST_LEARNING_TELEMETRY`** → **`engine_school_influence`**; Phase 3 fitness-aware **corpus affinity** when **`fitnessScore`** is present; offline **`pnpm learning:assess-fitness`**) |
 | **`learning-fitness-implementation-roadmap.md`** | **Task / implementation prompt** — fitness v1→v3, aggregator → index → corpus affinity sequencing, tests, optional AIOM outcomes (non-authoritative); does **not** change gate law |
-| **`cursor-universal-habits.md`** | Cursor User Rules template (any repo) |
+| **`cursor-universal-habits.md`** | Cursor User Rules template (any repo) + optional **Python token economy** block |
+| **`.cursor/rules/alchemist-python-economy.mdc`** | **Local Python** (`~/alchemist-tools/`) for bulk JSON/fixtures — **zero LLM tokens** for generated blobs; separate from **`tools/validate-offsets.py`** (HARD GATE) and **`pnpm learning:*`** (Node) |
 | **`alchemist-*.html`** | Composer / task prompt packs — index **`FIRESTARTER` §12** |
 
 Web dev “won’t start” ladder: **`FIRE.md` §L** subsection *Web app not running*.

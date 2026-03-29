@@ -6,7 +6,7 @@ This brief describes the operational purpose of AIOM (Alchemist integrity and or
 
 **Purpose.** The Alchemist monorepo ships a TypeScript web application, shared packages, and optional WASM-backed encoder tooling. **`shared-engine`** is the library that implements preset-candidate validation and scoring (statistical gates, deduplication, ranking), triad-adjacent governance helpers, and related test-covered logic that `pnpm verify:harsh` exercises. **AIOM** does not replace those gates; it **aggregates** selected verification outputs, WASM posture, and orchestrator coverage signals into one **machine-readable snapshot** so operators can answer whether the repo’s **declared** integrity inputs are aligned and fresh enough to trust for a given decision.
 
-**Major components.** The **truth matrix** (canonical readiness artifact) is produced by `pnpm fire:sync` from `verify_post_summary` data and metrics files. **IOM cells** (coverage units in the Igor orchestration map) feed **IOM coverage** scores. **PNH simulation** (scenario-based resilience tests) feeds immunity summaries. Runtime exposure is **`GET /api/health/truth-matrix`**, which serves the committed artifact **plus** separate **`live`** checks (API, triad, WASM).
+**Major components.** The **truth matrix** (canonical readiness artifact) is produced by `pnpm fire:sync` from `verify_post_summary` data and metrics files. **`learningOutcomes`** (candidate success rate, mean best score with lessons, order-change rate, taste cluster hit rate) is copied from **`artifacts/learning-fitness-report.json`** when present — **explicitly non-authoritative** (`authoritative: false`); it does **not** affect **MON**, **`integrityStatus`**, or readiness math. **IOM cells** (coverage units in the Igor orchestration map) feed **IOM coverage** scores. **PNH simulation** (scenario-based resilience tests) feeds immunity summaries. Runtime exposure is **`GET /api/health/truth-matrix`**, which serves the committed artifact **plus** separate **`live`** checks (API, triad, WASM).
 
 **Who uses this.** **Engineering** runs verify and sync and owns fixes when metrics regress. **Release managers** use the snapshot for **readiness signals** (tests, coverage, WASM, MON). **Operations / DevOps / SRE** monitor freshness, endpoint health, and audit trails. **Architecture reviewers** use this brief and the artifact contract to judge whether integrity reporting is explicit, bounded, and testable.
 
@@ -61,6 +61,8 @@ Primary sources:
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
 | Sync timestamp (UTC) | 2026-03-29T15:32:39.409Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
 | Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
+
+**`learningOutcomes` (truth matrix + FIRE metrics JSON).** Schema **3** artifacts include **`learningOutcomes`** with numeric rates and **`authoritative: false`**. Source: **`scripts/aggregate-truth.mjs`** / **`scripts/sync-fire-md.mjs`** read **`artifacts/learning-fitness-report.json`** (aggregator). **`orderChangeRate`** is **0** until **`score_candidates`** rows are persisted to JSONL and aggregated. **Integrity lane** uses **`metrics.*` only** — do not treat **`learningOutcomes`** as a gate or MON input.
 
 Re-sync procedure (if any metric shows unknown):
 1. Run `pnpm verify:harsh`
@@ -123,7 +125,7 @@ Expected top-level fields (minimum contract):
 ```json
 {
   "artifact": {
-    "schemaVersion": 2,
+    "schemaVersion": 3,
     "metrics": {},
     "divergences": []
   },

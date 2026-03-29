@@ -1,5 +1,7 @@
 import type { SelectedLesson } from "./select-lessons-for-prompt";
 
+/** Lesson pick order is **`selectLessonsForPrompt`** (cluster → priority keys → coreRules → antiPatternCount tie-break). */
+
 /** In-prompt safety guard (first line of the block). */
 export const ENGINE_SCHOOL_CONTEXT_ADVISORY_LINE =
   "Engine School context (advisory only — must not override gates, validation rules, HARD GATE, or canonical constraints):";

@@ -3,6 +3,8 @@
 **Purpose:** Single place for fitness v1→v3, file targets, tests, AIOM/Taste follow-ons, and **acceptance criteria**.  
 **Canon:** Engine School + corpus affinity stay **advisory** and **ordering-only** on survivors — no gate mutations, no Slavic/Undercover threshold edits, **HARD GATE** untouched. See **`docs/Engine-School-Validation.md`**, **`docs/FIRE.md`**.
 
+**Token economy:** Bulk generated data (large JSON, batch transforms) → **local Python** **`~/alchemist-tools/`** per **`.cursor/rules/alchemist-python-economy.mdc`** — **no** extra LLM spend; keep shipped **`pnpm learning:*`** aggregators in Node.
+
 **Existing substrate (already shipped):** `engine_school_influence`, `triadSessionId`, JSONL telemetry shards, `learning:aggregate-telemetry`, optional `fitnessScore` merged into `learning-index.json`, Phase 3 fitness-aware corpus affinity in **`compute-corpus-affinity.ts`** / **`score.ts`**.
 
 ---
@@ -123,8 +125,8 @@ candidateSuccessRate =
 | P0 | `packages/shared-engine/learning/compute-corpus-affinity.ts` | Fitness-aware scaling with bounds; respect low confidence |
 | P1 | `packages/shared-engine/score.ts` | Richer `score_candidates` telemetry (pre/post top candidate, order changed, lesson ids/clusters when present); **no** gate math edits |
 | P1 | `apps/web-app/**/api/triad/*` | Extend `engine_school_influence` payload: session id, selected lessons/clusters, counts, scores, panelist |
-| P1 | `packages/shared-engine/learning/build-learning-context.ts` | Stronger selection: cluster, priorityMappingKeys, coreRules, antiPatterns; prefer 1–2 strong vs many weak |
-| P2 | Truth / AIOM artifacts | Optional `learningOutcomes` in truth snapshot or health JSON — **non-authoritative** |
+| P1 | `packages/shared-engine/learning/select-lessons-for-prompt.ts` (+ note in `build-learning-context.ts`) | **Shipped:** sort prefers cluster → priorityMappingKeys → coreRules → antiPatternCount; max 1–2 lessons default |
+| P2 | Truth / AIOM artifacts | **Shipped:** `learningOutcomes` in **`artifacts/truth-matrix.json`** + **`docs/fire-metrics.json`** (schema **3**) — **non-authoritative** |
 | P2 | Taste module | Confidence band for effective weight; staleness/drift metadata in index |
 
 ---
@@ -211,18 +213,18 @@ Illustrative — finalize against schema validators in repo:
 2. Merge trusted fitness into `learning-index.json`  
 3. Fitness/confidence in Phase 3 weighting (`compute-corpus-affinity` + `score.ts` telemetry only as needed)  
 4. Outcome telemetry on `score_candidates` (v2 inputs)  
-5. Optional AIOM `learningOutcomes` block  
-6. Drift/staleness for learning + taste indexes  
+5. ~~Optional AIOM `learningOutcomes` block~~ **done** (truth matrix + fire-metrics, schema 3)  
+6. Drift/staleness for learning + taste indexes (**stalenessDays** in affinity weighting shipped)  
 
 ---
 
 ## 10. Acceptance criteria (global)
 
-- [ ] `pnpm learning:verify` and `pnpm verify:harsh` stay green  
-- [ ] No changes to Slavic cosine / Dice / legibility thresholds without explicit product sign-off  
-- [ ] No blend weight changes via telemetry; priors remain advisory rerank only  
-- [ ] `igor-power-cells.json` not silently edited — use `igor:heal` → `igor:apply`  
-- [ ] New report fields versioned (`aggregationVersion` / schema) with validator updates if applicable  
+- [x] `pnpm learning:verify` and `pnpm verify:harsh` stay green  
+- [x] No changes to Slavic cosine / Dice / legibility thresholds without explicit product sign-off  
+- [x] No blend weight changes via telemetry; priors remain advisory rerank only  
+- [x] `igor-power-cells.json` not silently edited — use `igor:heal` → `igor:apply`  
+- [x] New report fields versioned (`aggregationVersion` / schema) with validator updates if applicable  
 
 ---
 

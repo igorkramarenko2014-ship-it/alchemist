@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "syncedDateUtc": "2026-03-29",
-  "generatedAtUtc": "2026-03-29T15:32:39.409Z",
-  "vitestTestsPassed": 353,
-  "vitestTestFilesPassed": 70,
-  "vitestTestTsOnDisk": 70,
+  "generatedAtUtc": "2026-03-29T16:00:47.000Z",
+  "vitestTestsPassed": 359,
+  "vitestTestFilesPassed": 74,
+  "vitestTestTsOnDisk": 74,
   "nextJsVersion": "14.2.35",
   "vst3BundlePresent": false,
   "vst3BundleBasename": null,
@@ -15,6 +15,14 @@
     "source": "verify_post_summary"
   },
   "initiatorSkillsSha256": "746984dc0502b80d222d387647971e2d02aa5422217620c8a6c324c44dcc0b92",
+  "learningOutcomes": {
+    "candidateSuccessRate": 0,
+    "meanBestScoreWithLessons": 0,
+    "orderChangeRate": 0,
+    "tasteClusterHitRate": 0,
+    "authoritative": false,
+    "note": "Defaults: missing or unreadable learning-fitness-report.json. Non-authoritative; does not affect MON or integrity."
+  },
   "verification": "Recompute via `pnpm fire:sync` (Vitest + truth consumers). Validate with `jq` and `sha256sum -c docs/fire-metrics.sha256` per docs/AIOM-Technical-Brief.md.",
   "divergences": []
 }

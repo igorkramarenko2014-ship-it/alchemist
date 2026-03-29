@@ -20,6 +20,7 @@ import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { findVst3BuildBundlePath } from "./lib/vst-bundle-resolve.mjs";
 import { writeUtf8FileAtomic } from "./lib/write-json-atomic.mjs";
+import { readLearningOutcomesFromFitnessReport } from "./lib/read-learning-outcomes.mjs";
 
 /** Must not appear elsewhere in FIRE.md (intro prose used to duplicate this and broke `indexOf`). */
 const MARK_BEGIN = "<!-- ALCHEMIST:FIRE_METRICS:BEGIN -->";
@@ -172,8 +173,9 @@ function writeFireMetricsArtifacts(
     source: typeof rawMon.source === "string" ? rawMon.source : "unresolved",
     rawStatus: typeof rawMon.rawStatus === "string" ? rawMon.rawStatus : null,
   };
+  const learningOutcomes = readLearningOutcomesFromFitnessReport(root);
   const payload = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     syncedDateUtc: isoDate,
     generatedAtUtc: new Date().toISOString(),
     vitestTestsPassed: testCount,
@@ -190,6 +192,7 @@ function writeFireMetricsArtifacts(
       ...(monResolved.rawStatus != null ? { rawStatus: monResolved.rawStatus } : {}),
     },
     initiatorSkillsSha256,
+    learningOutcomes,
     verification:
       "Recompute via `pnpm fire:sync` (Vitest + truth consumers). Validate with `jq` and `sha256sum -c docs/fire-metrics.sha256` per docs/AIOM-Technical-Brief.md.",
   };

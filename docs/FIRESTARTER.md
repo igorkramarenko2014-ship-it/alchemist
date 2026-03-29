@@ -353,6 +353,8 @@ Only if **`paramArray.length ≥ 8`** (otherwise pass). Else require:
 
 **Skill:** **`.cursor/skills/harshcheck/SKILL.md`**.
 
+**Local Python / assistant token economy:** **Yes** — for **bulk** data (large JSON, fixtures, seeds, CSV→JSON, corpus audits), use **local Python** scripts in **`~/alchemist-tools/`** per **`.cursor/rules/alchemist-python-economy.mdc`**, so work runs **without spending LLM tokens** on pasted megabytes. That is separate from **in-repo** **`tools/validate-offsets.py`** (Serum byte **HARD GATE**, committed) and from shipped **Node** pipelines (**`pnpm learning:aggregate-telemetry`**, **`pnpm learning:build-index`**, **`pnpm taste:build-index`**, etc.).
+
 ---
 
 ## 10. WASM encoder & browser export

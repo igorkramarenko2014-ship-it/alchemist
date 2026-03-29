@@ -4,7 +4,7 @@
  * Does not replace validate-learning-corpus.mjs — run `pnpm learning:verify` for schema gates.
  */
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { dirname, extname, join, relative } from "node:path";
+import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 function findMonorepoRoot(startDir) {
@@ -148,23 +148,35 @@ for (const filePath of files.sort()) {
   lessons.push(row);
 }
 
-const fitnessReportPath = join(root, "artifacts", "learning-fitness-report.json");
+const fitnessReportPath =
+  process.env.ALCHEMIST_LEARNING_FITNESS_REPORT_PATH?.trim()?.length > 0
+    ? resolve(process.env.ALCHEMIST_LEARNING_FITNESS_REPORT_PATH.trim())
+    : join(root, "artifacts", "learning-fitness-report.json");
+/** @type {Map<string, { fitnessScore?: number; fitnessConfidence?: string; sampleCount?: number; stalenessDays?: number }>} */
 const fitnessById = new Map();
 if (existsSync(fitnessReportPath)) {
   try {
     const fr = JSON.parse(readFileSync(fitnessReportPath, "utf8"));
     for (const e of fr.lessons ?? []) {
-      if (e && typeof e.lessonId === "string" && typeof e.fitnessScore === "number" && Number.isFinite(e.fitnessScore)) {
-        fitnessById.set(e.lessonId, e.fitnessScore);
-      }
+      if (!e || typeof e.lessonId !== "string") continue;
+      const entry = {};
+      if (typeof e.fitnessScore === "number" && Number.isFinite(e.fitnessScore)) entry.fitnessScore = e.fitnessScore;
+      if (typeof e.fitnessConfidence === "string") entry.fitnessConfidence = e.fitnessConfidence;
+      if (typeof e.sampleCount === "number" && Number.isFinite(e.sampleCount)) entry.sampleCount = e.sampleCount;
+      if (typeof e.stalenessDays === "number" && Number.isFinite(e.stalenessDays)) entry.stalenessDays = e.stalenessDays;
+      if (Object.keys(entry).length > 0) fitnessById.set(e.lessonId, entry);
     }
   } catch {
     /* ignore */
   }
 }
 for (const row of lessons) {
-  const fs = fitnessById.get(row.id);
-  if (fs != null) row.fitnessScore = fs;
+  const f = fitnessById.get(row.id);
+  if (!f) continue;
+  if (f.fitnessScore != null) row.fitnessScore = f.fitnessScore;
+  if (f.fitnessConfidence != null) row.fitnessConfidence = f.fitnessConfidence;
+  if (f.sampleCount != null) row.sampleCount = f.sampleCount;
+  if (f.stalenessDays != null) row.stalenessDays = f.stalenessDays;
 }
 
 const lessonCount = lessons.length;
@@ -177,9 +189,23 @@ const payload = {
 if (existsSync(fitnessReportPath)) {
   try {
     const fr = JSON.parse(readFileSync(fitnessReportPath, "utf8"));
+    const lessonFitness = [];
+    for (const e of fr.lessons ?? []) {
+      if (!e || typeof e.lessonId !== "string") continue;
+      const row = { lessonId: e.lessonId };
+      if (typeof e.fitnessScore === "number" && Number.isFinite(e.fitnessScore)) row.fitnessScore = e.fitnessScore;
+      if (typeof e.fitnessConfidence === "string") row.fitnessConfidence = e.fitnessConfidence;
+      if (typeof e.sampleCount === "number" && Number.isFinite(e.sampleCount)) row.sampleCount = e.sampleCount;
+      if (typeof e.stalenessDays === "number" && Number.isFinite(e.stalenessDays)) row.stalenessDays = e.stalenessDays;
+      if (typeof e.validRate === "number" && Number.isFinite(e.validRate)) row.validRate = e.validRate;
+      if (typeof e.qualityScore === "number" && Number.isFinite(e.qualityScore)) row.qualityScore = e.qualityScore;
+      lessonFitness.push(row);
+    }
     payload.fitnessSnapshot = {
       generatedAtUtc: new Date().toISOString(),
-      lessonFitness: fr.lessons ?? [],
+      aggregationVersion: fr.aggregationVersion ?? 2,
+      lessonFitness,
+      learningOutcomes: fr.learningOutcomes,
       coverage: fr.coverage ?? {},
       totalEventsProcessed: fr.totalEventsProcessed ?? 0,
     };

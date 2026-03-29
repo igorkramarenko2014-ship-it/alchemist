@@ -105,11 +105,27 @@ function clamp01(x: number): number {
   return Math.min(1, Math.max(0, x));
 }
 
-/** Phase 3: scale affinity by telemetry **`fitnessScore`** when present on index rows (advisory rerank only). */
-function lessonFitnessMultiplier(lesson: LearningIndexLesson): number {
+/** Maps telemetry confidence to [0,1] — low = minimal nudge. */
+function fitnessConfidenceFactor(conf: LearningLesson["fitnessConfidence"]): number {
+  if (conf === "high") return 1;
+  if (conf === "medium") return 0.55;
+  if (conf === "low") return 0.2;
+  return 0.35;
+}
+
+/**
+ * Fitness v1: `clamp01(fitnessScore) * confidence` → multiplier in **[0.05, 0.15]** (advisory rerank only).
+ * Missing fitness uses a neutral base; staleness **> 14** days halves lift above floor.
+ */
+export function lessonEffectiveAffinityWeight(lesson: LearningIndexLesson): number {
   const f = lesson.fitnessScore;
-  if (f == null || !Number.isFinite(f)) return 0.825;
-  return 0.65 + 0.35 * clamp01(f);
+  const c = fitnessConfidenceFactor(lesson.fitnessConfidence);
+  const baseF = f != null && Number.isFinite(f) ? clamp01(f) : 0.35;
+  let w = 0.05 + 0.1 * clamp01(baseF * c);
+  if (typeof lesson.stalenessDays === "number" && lesson.stalenessDays > 14) {
+    w = 0.05 + (w - 0.05) * 0.5;
+  }
+  return Math.min(0.15, Math.max(0.05, w));
 }
 
 /**
@@ -128,7 +144,7 @@ export function computeCorpusAffinity(
       const rawParam = paramOverlapScore(candidate, lesson);
       const rawText = textOverlapScore(candidate, lesson);
       const raw = rawParam * 0.7 + rawText * 0.3;
-      const scaled = raw * lessonFitnessMultiplier(lesson);
+      const scaled = raw * lessonEffectiveAffinityWeight(lesson);
       best = Math.max(best, scaled);
     }
     return Math.min(1, Math.max(0, best));

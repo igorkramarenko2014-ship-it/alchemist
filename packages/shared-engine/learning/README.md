@@ -6,6 +6,8 @@ Pre-production AI learning material for **`@alchemist/shared-engine`** (**Engine
 
 This folder is not a runtime module for the browser. Lessons are **JSON + schema + tests**; live triad routes can consume the **generated index** when opt-in env is set (see **Phase 2**).
 
+**Assistants / token economy:** When **authoring or transforming large lesson JSON, fixtures, or batch files**, use **local Python** under **`~/alchemist-tools/`** per **`.cursor/rules/alchemist-python-economy.mdc`** so work does not burn LLM tokens on huge inline blobs. Shipped pipelines (**`pnpm learning:build-index`**, **`pnpm learning:aggregate-telemetry`**, …) stay **Node**; **in-repo** **`tools/validate-offsets.py`** is the Serum **HARD GATE**, not a general data script.
+
 ## One command (clean + verify — you should not need to ask)
 
 If **`pnpm learning:verify`** or **`pnpm verify:harsh`** fails because **`corpus/`** picked up pack debris:
@@ -112,7 +114,7 @@ pnpm learning:enrich-preview -- "warm analog pad"
 
 **Structured JSONL (local dev default):** When **`ALCHEMIST_LEARNING_TELEMETRY_FILE=1`**, or **unset** in local **`NODE_ENV=development`** (off on **Vercel** `VERCEL=1`, **production**, **`test`** unless **`=1`**), each **`engine_school_influence`** row is also appended to **`artifacts/learning-telemetry/YYYY-MM-DD.jsonl`** (gitignored). Shape: **`EngineSchoolTelemetryRecord`** in **`apps/web-app/lib/learning-telemetry-jsonl.ts`** — structured fields only (no raw prompts). Override directory: **`ALCHEMIST_LEARNING_TELEMETRY_DIR`** (absolute). **Serverless:** keep file sink off; rely on stderr **`logEvent`** or a writable path.
 
-**Aggregation:** **`pnpm learning:aggregate-telemetry`** reads all **`*.jsonl`** in that folder, computes per-lesson **`fitnessScore`** (recency-weighted usage + panelist-route pass proxy; optional score lift when **`baselineScore`** exists in rows), writes **`artifacts/learning-fitness-report.json`** (**`aggregationVersion`**: **2** — includes **`provenance`**, **`uniqueTriadSessions`**, **`selectedClusters`** in evidence), and merges **`fitnessSnapshot`** into **`learning-index.json`** after **`pnpm learning:build-index`**. Evidence is **pre–client-gate** (route validation only). **`pnpm learning:forget-telemetry`** drops shards older than **`LEARNING_TELEMETRY_RETENTION_DAYS`** (default **90**).
+**Aggregation:** **`pnpm learning:aggregate-telemetry`** reads all **`*.jsonl`** in that folder, computes Fitness v1 per-lesson **`fitnessScore`** / **`fitnessConfidence`** / **`stalenessDays`**, writes **`artifacts/learning-fitness-report.json`** (**`aggregationVersion`**: **3** — includes **`learningOutcomes`**, **`provenance`**, **`uniqueTriadSessions`**, lesson evidence), and merges **`fitnessSnapshot`** into **`learning-index.json`** after **`pnpm learning:build-index`** (**`lessonFitness`** rows are **whitelisted fields only** — no raw telemetry blobs). Evidence is **pre–client-gate** (route validation only). **`pnpm learning:forget-telemetry`** drops shards older than **`LEARNING_TELEMETRY_RETENTION_DAYS`** (default **90**).
 
 **Fitness snapshot (offline v0 + telemetry):** **`pnpm learning:assess-fitness`** runs **static v0** corpus heuristics (**stderr** line, then JSON with **`pipeline`: `static_metadata_v0`**) **then** aggregation. Static-only: `node scripts/learning-assess-fitness.mjs`.
 

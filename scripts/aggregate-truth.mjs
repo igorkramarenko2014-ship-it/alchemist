@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeUtf8FileAtomic } from "./lib/write-json-atomic.mjs";
+import { readLearningOutcomesFromFitnessReport } from "./lib/read-learning-outcomes.mjs";
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -145,8 +146,9 @@ try {
         ];
 
   const generatedAtUtc = new Date().toISOString();
+  const learningOutcomes = readLearningOutcomesFromFitnessReport(root);
   const payload = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAtUtc,
     // Same instant as generation; audit trail that divergences were evaluated this run.
     divergenceCheckedAtUtc: generatedAtUtc,
@@ -154,7 +156,9 @@ try {
     sources: {
       verifyPostSummary: "artifacts/verify/verify-post-summary.json",
       metrics: "docs/fire-metrics.json",
+      learningFitnessReport: "artifacts/learning-fitness-report.json",
     },
+    learningOutcomes,
     metrics: {
       testsPassed,
       testsTotal: testsPassed,

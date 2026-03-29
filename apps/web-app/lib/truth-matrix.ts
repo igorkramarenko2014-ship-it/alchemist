@@ -137,7 +137,7 @@ export function buildCanonicalMetricsFromArtifact(
 function validateTruthArtifactSchemaShape(artifact: Record<string, unknown> | null | undefined): string[] {
   const issues: string[] = [];
   if (!artifact) return ["artifact missing"];
-  if (artifact.schemaVersion !== 2) issues.push("schemaVersion must be 2");
+  if (artifact.schemaVersion !== 3) issues.push("schemaVersion must be 3");
   if (typeof artifact.generatedAtUtc !== "string" || !Number.isFinite(Date.parse(artifact.generatedAtUtc))) {
     issues.push("generatedAtUtc must be ISO datetime");
   }
@@ -184,6 +184,19 @@ function validateTruthArtifactSchemaShape(artifact: Record<string, unknown> | nu
     issues.push("metrics.syncedAtUtc must be ISO datetime");
   }
   if (!Array.isArray(artifact.divergences)) issues.push("divergences must be array");
+  const lo = artifact.learningOutcomes;
+  if (!isObjectRecord(lo)) {
+    issues.push("learningOutcomes object missing");
+  } else {
+    if (!isFiniteNumber(lo.candidateSuccessRate)) issues.push("learningOutcomes.candidateSuccessRate must be number");
+    if (!isFiniteNumber(lo.meanBestScoreWithLessons)) {
+      issues.push("learningOutcomes.meanBestScoreWithLessons must be number");
+    }
+    if (!isFiniteNumber(lo.orderChangeRate)) issues.push("learningOutcomes.orderChangeRate must be number");
+    if (!isFiniteNumber(lo.tasteClusterHitRate)) issues.push("learningOutcomes.tasteClusterHitRate must be number");
+    if (lo.authoritative !== false) issues.push("learningOutcomes.authoritative must be false");
+    if (typeof lo.note !== "string" || lo.note.length === 0) issues.push("learningOutcomes.note must be non-empty string");
+  }
   return issues;
 }
 

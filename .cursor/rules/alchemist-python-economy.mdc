@@ -1,5 +1,5 @@
 ---
-description: Python-first token economy for data generation and transforms
+description: Local Python first for bulk data — zero LLM tokens vs inline chat generation (see ~/alchemist-tools/)
 alwaysApply: true
 ---
 
@@ -8,9 +8,9 @@ alwaysApply: true
 ## Prime directive
 
 Before writing any code to generate, transform, or validate data — stop and ask:
-**"Can Python do this locally with zero tokens?"**
+**"Can Python do this locally with zero LLM tokens?"**
 
-If yes: write a Python script. Do not generate the output inline.
+If yes: write a Python script **on disk** (typically **`~/alchemist-tools/`**). Do not generate the output inline in chat.
 
 ---
 

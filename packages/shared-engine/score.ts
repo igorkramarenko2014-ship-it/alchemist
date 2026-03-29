@@ -186,7 +186,7 @@ export interface ScoreCandidatesOptions {
    */
   corpusAffinityPrior?: boolean;
   learningLessons?: LearningIndexLesson[];
-  /** Default **0.08** — nudge added to `candidate.score` for sort only. */
+  /** Default **0.45** — nudge added to `candidate.score` for sort only (pairs with Fitness v1 affinity multipliers). */
   corpusAffinityWeight?: number;
   /**
    * Phase 4 — optional taste-affinity **re-rank** after corpus (same multiset). Opt-in server env
@@ -241,14 +241,6 @@ function applyIntentBlendSort(
   return enriched;
 }
 
-function meanTelemetryFitness(lessons: LearningIndexLesson[]): number | null {
-  const fs = lessons
-    .map((l) => l.fitnessScore)
-    .filter((x): x is number => x != null && Number.isFinite(x));
-  if (fs.length === 0) return null;
-  return fs.reduce((a, b) => a + b, 0) / fs.length;
-}
-
 /**
  * True if corpus affinity resort changed panelist order (advisory rerank only — input/output are the same multiset).
  * Exported for tests / audits proving ordering-only behavior.
@@ -271,10 +263,9 @@ function applyCorpusAffinityResort(
   const enabled =
     options?.corpusAffinityPrior === true && lessons != null && lessons.length > 0;
   if (!enabled || candidates.length <= 1) return candidates;
-  const weight = options?.corpusAffinityWeight ?? 0.08;
-  const mf = meanTelemetryFitness(lessons!);
-  /** Stronger lessons (post-aggregation) increase the rerank nudge slightly — still advisory, no gate mutation. */
-  const effectiveWeight = mf == null ? weight : weight * (0.75 + 0.25 * Math.min(1, Math.max(0, mf)));
+  /** Default tuned for Fitness v1 multipliers in `computeCorpusAffinity` (0.05–0.15 per lesson). */
+  const weight = options?.corpusAffinityWeight ?? 0.45;
+  const effectiveWeight = weight;
   try {
     const rows = candidates.map((c) => ({
       c,
@@ -290,14 +281,20 @@ function applyCorpusAffinityResort(
     });
     const afterCandidates = rows.map((r) => r.c);
     const orderChanged = corpusAffinityOrderChanged(candidates, afterCandidates);
+    const topBefore = candidates[0];
+    const topAfter = afterCandidates[0];
+    const lessonIdsUsed = lessons!.map((l) => l.id).slice(0, 16);
     logEvent("score_candidates", {
       corpusAffinityApplied: true,
       corpusAffinityWeight: weight,
       corpusAffinityEffectiveWeight: effectiveWeight,
-      corpusAffinityFitnessWeighted: mf != null,
       corpusAffinityOrderChanged: orderChanged,
       corpusAffinityTopPanelistBefore: candidates[0]?.panelist,
       corpusAffinityTopPanelistAfter: afterCandidates[0]?.panelist,
+      topCandidateScoreBefore: topBefore?.score,
+      topCandidateScoreAfter: topAfter?.score,
+      lessonIdsUsed,
+      tasteClusterHit: null,
       survivorCount: candidates.length,
       corpusAffinityLessonCount: lessons!.length,
       corpusAffinityPriorityAware: lessons!.some(

@@ -51,7 +51,7 @@ function isSha256Hex(value) {
 
 function validateShape(doc) {
   assert(doc && typeof doc === "object", "fire metrics must be an object");
-  assert(doc.schemaVersion === 2, "schemaVersion must be 2");
+  assert(doc.schemaVersion === 3, "schemaVersion must be 3");
   assert(isIsoDate(doc.syncedDateUtc), "syncedDateUtc must be YYYY-MM-DD");
   assert(isIsoDateTime(doc.generatedAtUtc), "generatedAtUtc must be ISO datetime");
   assert(isFiniteNumber(doc.vitestTestsPassed), "vitestTestsPassed must be number");
@@ -82,6 +82,15 @@ function validateShape(doc) {
   );
   assert(typeof doc.verification === "string" && doc.verification.length > 0, "verification must be non-empty");
   assert(Array.isArray(doc.divergences), "divergences must be array");
+
+  const lo = doc.learningOutcomes;
+  assert(lo && typeof lo === "object", "learningOutcomes must be an object");
+  assert(isFiniteNumber(lo.candidateSuccessRate), "learningOutcomes.candidateSuccessRate must be number");
+  assert(isFiniteNumber(lo.meanBestScoreWithLessons), "learningOutcomes.meanBestScoreWithLessons must be number");
+  assert(isFiniteNumber(lo.orderChangeRate), "learningOutcomes.orderChangeRate must be number");
+  assert(isFiniteNumber(lo.tasteClusterHitRate), "learningOutcomes.tasteClusterHitRate must be number");
+  assert(lo.authoritative === false, "learningOutcomes.authoritative must be false");
+  assert(typeof lo.note === "string" && lo.note.length > 0, "learningOutcomes.note must be non-empty string");
 }
 
 function validateInvariants(doc) {

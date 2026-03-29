@@ -44,3 +44,4 @@ Track design in issues or ADRs; bump **`artifacts/truth-matrix.json`** schema on
 - **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** — Engine School vs verify (orthogonal to AIOM snapshot law)
 - **`docs/Engine-School-Validation.md`** — lesson JSON validation (not truth-matrix)
 - **`docs/learning-fitness-implementation-roadmap.md`** — optional **`learningOutcomes`** / fitness workstream (non-authoritative vs integrity); implement with schema discipline
+- **`.cursor/rules/alchemist-python-economy.mdc`** — **local Python** (`~/alchemist-tools/`) for bulk JSON/fixtures (**no** extra LLM tokens); orthogonal to AIOM integrity — does not change **`artifacts/truth-matrix.json`** law

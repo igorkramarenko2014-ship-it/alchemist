@@ -10,13 +10,14 @@
     "divergenceCheckedAtUtc",
     "verification",
     "sources",
+    "learningOutcomes",
     "metrics",
     "divergences"
   ],
   "properties": {
     "schemaVersion": {
       "type": "number",
-      "const": 2
+      "const": 3
     },
     "generatedAtUtc": {
       "type": "string",
@@ -35,7 +36,8 @@
       "additionalProperties": false,
       "required": [
         "verifyPostSummary",
-        "metrics"
+        "metrics",
+        "learningFitnessReport"
       ],
       "properties": {
         "verifyPostSummary": {
@@ -45,7 +47,31 @@
         "metrics": {
           "type": "string",
           "minLength": 1
+        },
+        "learningFitnessReport": {
+          "type": "string",
+          "minLength": 1
         }
+      }
+    },
+    "learningOutcomes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateSuccessRate",
+        "meanBestScoreWithLessons",
+        "orderChangeRate",
+        "tasteClusterHitRate",
+        "authoritative",
+        "note"
+      ],
+      "properties": {
+        "candidateSuccessRate": { "type": "number" },
+        "meanBestScoreWithLessons": { "type": "number" },
+        "orderChangeRate": { "type": "number" },
+        "tasteClusterHitRate": { "type": "number" },
+        "authoritative": { "const": false },
+        "note": { "type": "string", "minLength": 1 }
       }
     },
     "metrics": {

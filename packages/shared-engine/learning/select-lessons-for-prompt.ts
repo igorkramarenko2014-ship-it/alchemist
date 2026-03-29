@@ -177,7 +177,28 @@ export function selectLessonsForPrompt(
     const positive = scored.filter((s) => s.score > 0);
     if (!positive.length) return [];
 
-    positive.sort((a, b) => b.score - a.score || a.lesson.id.localeCompare(b.lesson.id));
+    const clusterHit = (lesson: LearningLesson) =>
+      clusterOverlapScore(lesson.cluster, tokens) > 0;
+    const priorityHit = (lesson: LearningLesson) =>
+      priorityMappingOverlapScore(lesson, tokens) > 0;
+    positive.sort((a, b) => {
+      const ca = clusterHit(a.lesson) ? 1 : 0;
+      const cb = clusterHit(b.lesson) ? 1 : 0;
+      if (ca !== cb) return cb - ca;
+      const pa = priorityHit(a.lesson) ? 1 : 0;
+      const pb = priorityHit(b.lesson) ? 1 : 0;
+      if (pa !== pb) return pb - pa;
+      const cra = coreRulesOverlapScore(a.lesson, tokens);
+      const crb = coreRulesOverlapScore(b.lesson, tokens);
+      if (cra !== crb) return crb - cra;
+      const aa =
+        typeof a.lesson.antiPatternCount === "number" ? a.lesson.antiPatternCount : 0;
+      const ab =
+        typeof b.lesson.antiPatternCount === "number" ? b.lesson.antiPatternCount : 0;
+      if (aa !== ab) return ab - aa;
+      if (a.score !== b.score) return b.score - a.score;
+      return a.lesson.id.localeCompare(b.lesson.id);
+    });
     const deduped = dedupeByStyleAndTags(positive);
 
     return deduped.slice(0, maxLessons).map(({ lesson }) => ({

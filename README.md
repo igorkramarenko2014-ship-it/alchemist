@@ -84,6 +84,8 @@ Commit often so you can return to a known state.
 
 Open **`Vibe Projects`** (repo root), not only **`vst/`**, so `apps/` and `packages/` are visible.
 
+**Assistants / token economy:** For large generated data (JSON blobs, fixtures, indexes), use **local Python** under **`~/alchemist-tools/`** per **`.cursor/rules/alchemist-python-economy.mdc`** — avoids burning LLM tokens in chat. **`tools/validate-offsets.py`** is the committed **HARD GATE** validator (not the same habit).
+
 **`Panelist` / `shared-types` edits:** run **`pnpm --filter @alchemist/shared-types build`** (or **`pnpm verify:web`**, which does this first) so **`dist/*.d.ts`** matches **`index.ts`**. If you delete or rename **`app/api/**`** routes, run **`pnpm web:dev:fresh`** or remove **`apps/web-app/.next`** before **`tsc`** so stale **`.next/types`** don’t break typecheck.
 
 ## Rules
