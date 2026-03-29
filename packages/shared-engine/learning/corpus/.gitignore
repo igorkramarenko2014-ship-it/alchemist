@@ -1,0 +1,24 @@
+# Intended surface: lesson *.json, optional *.md, .gitkeep only (see learning:verify).
+# Ignore common pack / DAW debris so accidental `git add` under corpus/ does not commit vendor trees — use DL/ for staging.
+*.wav
+*.aif
+*.aiff
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.fxp
+*.fxb
+*.fxp1
+*.aupreset
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.pdf
+*.als
+*.nfo
+*.vital
+*.sfz
+*.sf2

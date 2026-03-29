@@ -47,10 +47,10 @@ function findMonorepoRoot(startDir) {
   return null;
 }
 
-/** Corpus durable surface: lesson JSON, optional human notes, gitkeep — nothing else. */
+/** Corpus durable surface: lesson JSON, optional human notes, gitkeep, corpus .gitignore — nothing else. */
 function isAllowedCorpusPath(filePath) {
   const base = basename(filePath);
-  if (base === ".gitkeep") return true;
+  if (base === ".gitkeep" || base === ".gitignore") return true;
   const ext = extname(filePath).toLowerCase();
   return ext === ".json" || ext === ".md";
 }

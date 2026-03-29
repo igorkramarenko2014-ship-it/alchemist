@@ -123,7 +123,7 @@ function walkFiles(rootDir, learningRoot, out = []) {
 /** Allowed file names under corpus/ after squeeze (logic + optional human notes only). */
 function isCorpusAllowedFile(filePath) {
   const base = basename(filePath);
-  if (base === ".gitkeep") return true;
+  if (base === ".gitkeep" || base === ".gitignore") return true;
   const ext = extname(filePath).toLowerCase();
   if (ext === ".json" || ext === ".md") return true;
   return false;
