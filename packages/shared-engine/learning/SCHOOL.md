@@ -21,12 +21,12 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 | `docs/lesson-00-role-model.md` | Canonical **Lesson 0** spec (four layers, good vs bad, trust tier). |
 | `docs/pack-archetype-extraction-sheet.md` | Operator worksheet (3-pass squeeze + table). |
 | `docs/pack-fingerprints-tier-a.md` | Tier-A pack fingerprint table (Pass 1). |
-| `schema/lesson.schema.json` | Formal lesson shape (draft 2020-12). **`x-alchemist-schema-version`** (currently **`1.0`**) must match each lesson’s **`schemaVersion`** field. |
+| `schema/lesson.schema.json` | Formal lesson shape (draft 2020-12). **`x-alchemist-schema-version`** (**`1.1`**) must match each lesson’s **`schemaVersion`** field. Optional **v1.1** fields: **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`**, **`lessonVersion`**, **`changelog`**. |
 | `README.md` | Day-to-day commands (forget-presets, verify, build-index, enrich-preview, Phase 2 env). |
 | `SCHOOL.md` | This file — architecture and boundaries. |
 | `scripts/build-learning-index.mjs` | Generates **`learning-index.json`** (gitignored). |
 | `load-learning-index.ts` | Node: resolves **`learning-index.json`** (module path, monorepo cwd, or **`ALCHEMIST_LEARNING_INDEX_PATH`**). **`null`** if missing/invalid — never throws. |
-| `select-lessons-for-prompt.ts` | Deterministic overlap vs **meaningful** prompt tokens (min length, stopwords); tag/style/mappingKey scoring; dedupe same **style** + overlapping **tags**; top-N. |
+| `select-lessons-for-prompt.ts` | Deterministic overlap vs **meaningful** prompt tokens (min length, stopwords); tag/style/mappingKey scoring; dedupe same **style** + overlapping **tags**; top-N (**default N=2** lessons per run). |
 | `build-learning-context.ts` | Advisory + descriptive sentinel lines, lesson lines, **≤800** chars total (drop lowest-ranked lessons, then truncate). |
 | `learning/index.ts` | Barrel exports for the above. |
 
@@ -39,7 +39,7 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 ## Lifecycle
 
 1. Stage material under `DL/` on your machine.
-2. Author **`corpus/<id>.json`** with **`schemaVersion`: `"1.0"`** (until the schema bumps), `id`, `presetName`, `style`, non-empty **`mappings`**, `character`, **`causalReasoning`**, **`priorityMappingKeys`**, **`coreRules`**, **`contrastWith`** (see **`corpus/engine-school-role-model-v1.json`** or **`corpus/engine-school-lesson-002-wide-pad-evolution.json`**).
+2. Author **`corpus/<id>.json`** with **`schemaVersion`: `"1.1"`**, `id`, `presetName`, `style`, non-empty **`mappings`**, `character`, **`causalReasoning`**, **`priorityMappingKeys`**, **`coreRules`**, **`contrastWith`**; optional **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`** (see **`corpus/engine-school-role-model-v1.json`** or **`corpus/engine-school-lesson-002-wide-pad-evolution.json`**).
 3. Run **`pnpm learning:forget-presets`** so stray binaries / audio / PDFs outside `DL/` are removed from `learning/`.
 4. Run **`pnpm learning:verify`** (or rely on **`pnpm verify:harsh`**, which runs the same validator).
 5. Run **`pnpm learning:build-index`** after corpus edits when using Phase 2 or previews.
@@ -52,7 +52,8 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 - Optional **`LEARNING_CORPUS_MIN_LESSONS`** (default **`1`**) raises the minimum recursive `**/*.json` count under `corpus/`.
 - **`pnpm learning:build-index`** — generates **`learning-index.json`**; **not** part of the fail-closed lesson schema gate unless you add it to CI deliberately (**§8**).
 - **`pnpm learning:enrich-preview -- "<prompt>"`** — prints the **would-be** context block (ignores **`ALCHEMIST_LEARNING_CONTEXT`**; needs a built index).
-- **Runtime (web-app):** **`ALCHEMIST_LEARNING_CONTEXT=1`** enables append; **`triad_run_start`** may include **`learningContextUsed`** (`injected`, `selectedLessonIds`).
+- **Runtime (web-app):** **`ALCHEMIST_LEARNING_CONTEXT=1`** enables append; **`triad_run_start`** includes **`learningContextUsed`** (`injected`, `selectedLessonIds`, **`contextCharCount`**). Optional **`ALCHEMIST_LEARNING_TELEMETRY=1`** (with learning context on) emits **`engine_school_influence`** on stderr (**`logEvent`**) — lesson ids, context size, candidate count, mode — for offline fitness / coverage pipelines.
+- **`pnpm learning:assess-fitness`** — offline JSON snapshot (**v0**): static ranking from corpus metadata; replace with real lifts when **`engine_school_influence`** logs are aggregated.
 
 ## IOM / coverage
 
