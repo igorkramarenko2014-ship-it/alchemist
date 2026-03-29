@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
-  "syncedDateUtc": "2026-03-28",
-  "generatedAtUtc": "2026-03-28T16:30:42.922Z",
-  "vitestTestsPassed": 338,
+  "syncedDateUtc": "2026-03-29",
+  "generatedAtUtc": "2026-03-29T10:18:37.272Z",
+  "vitestTestsPassed": 340,
   "vitestTestFilesPassed": 69,
   "vitestTestTsOnDisk": 69,
   "nextJsVersion": "14.2.35",
@@ -14,7 +14,7 @@
     "ready": true,
     "source": "verify_post_summary"
   },
-  "initiatorSkillsSha256": "67306dac0b446fba5bdc3154c8a71c93e0166cde68856c6aed9782526f3840c7",
+  "initiatorSkillsSha256": "097ca59646124f521cdd9280e74827d9729f8f97636151d4f3f31908e44fb439",
   "verification": "Recompute via `pnpm fire:sync` (Vitest + truth consumers). Validate with `jq` and `sha256sum -c docs/fire-metrics.sha256` per docs/AIOM-Technical-Brief.md.",
   "divergences": []
 }
