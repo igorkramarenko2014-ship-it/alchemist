@@ -66,6 +66,9 @@ packages/shared-engine/learning/DL/**
 # Engine learning: generated index (pnpm learning:build-index)
 packages/shared-engine/learning/learning-index.json
 packages/shared-engine/learning/taste/taste-index.json
+# Taste Corpus: raw Exportify CSVs (track empty raw/ via .gitkeep only)
+packages/shared-engine/learning/taste/raw/**
+!packages/shared-engine/learning/taste/raw/.gitkeep
 # Engine School: JSONL telemetry sink + aggregated fitness (local / explicit path — not committed)
 artifacts/learning-telemetry/
 artifacts/learning-fitness-report.json

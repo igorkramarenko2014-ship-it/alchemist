@@ -1,0 +1,114 @@
+---
+description: Python-first token economy for data generation and transforms
+alwaysApply: true
+---
+
+# Cursor Rule — Python-First Token Economy
+
+## Prime directive
+
+Before writing any code to generate, transform, or validate data — stop and ask:
+**"Can Python do this locally with zero tokens?"**
+
+If yes: write a Python script. Do not generate the output inline.
+
+---
+
+## When to use Python instead of generating inline
+
+| Task | Wrong (token-expensive) | Right (Python) |
+|------|--------------------------|----------------|
+| Generate a JSON file | Write the JSON in chat | Write a Python script that outputs it |
+| Seed data / fixtures | Hardcode in TypeScript | Python script -> file -> paste path |
+| Batch validate files | Inline AJV calls in prompt | `python3 validate.py ./path` |
+| Transform CSV -> JSON | Do it in the prompt | `pandas` + `json.dump` |
+| Scaffold test files | Generate all tests inline | Python template script |
+| Compute centroids / clusters | Describe inline | `sklearn` K-means script |
+| Build index files | Generate content in prompt | Python walker script |
+| Schema migrations | Write all files inline | Python script iterates corpus |
+| Count / audit files | List them in prompt | `os.walk` + print |
+
+---
+
+## Python script conventions
+
+Every generated Python script must follow this pattern:
+
+```python
+# ~/alchemist-tools/<script_name>.py
+# Usage: python3 ~/alchemist-tools/<script_name>.py <arg1> <arg2>
+# Purpose: one line description
+
+import sys, os, json
+# ... stdlib first, then pandas/sklearn if needed
+
+ARG = sys.argv[1]  # always use argv, never hardcode paths
+
+# ... logic ...
+
+print(json.dumps({"status": "ok", "output": OUT_FILE}))  # always print result
+```
+
+Scripts live in `~/alchemist-tools/` — outside the monorepo, never committed.
+
+---
+
+## What Python handles in this project
+
+- **Taste corpus rebuild** — `generate_taste_index.py` (already built)
+  ```bash
+  python3 ~/alchemist-tools/generate_taste_index.py <raw_dir> <out_file>
+  ```
+
+- **Lesson JSON scaffold** — when operator needs a new Engine School lesson stub:
+  ```bash
+  python3 ~/alchemist-tools/generate_lesson.py <preset_name> <style> <out_file>
+  ```
+
+- **Corpus audit** — count lessons, check required fields, list IDs:
+  ```bash
+  python3 ~/alchemist-tools/audit_corpus.py <corpus_dir>
+  ```
+
+- **Batch JSON validate** — validate any folder of JSON against a schema:
+  ```bash
+  python3 ~/alchemist-tools/validate_json.py <schema_file> <target_dir>
+  ```
+
+- **Any new data generation task** — write the script first, run it, paste the output path.
+
+---
+
+## Cursor token budget rules
+
+**Never generate these inline:**
+- JSON files longer than 20 lines
+- Test fixture data
+- Seed arrays / lookup tables
+- Index files of any kind
+- CSV -> JSON transforms
+- File trees / directory scaffolds
+
+**Always generate inline (Python cannot help):**
+- TypeScript type definitions
+- Logic inside `score.ts`, `validate.ts`, `compute-*.ts`
+- React components
+- API route handlers
+- Anything requiring monorepo imports
+
+---
+
+## When operator says "generate X"
+
+1. Check if X is data/files -> write Python script, give run command
+2. Check if X is logic/types -> generate inline as normal
+3. If unsure -> default to Python script
+
+---
+
+## Hard constraints (unchanged)
+
+- No gate/weight/threshold changes without Slavic confirmation
+- `verify:harsh` before and after every change
+- No silent `igor-power-cells.json` edits — `igor:heal` -> `igor:apply`
+- HARD GATE untouched

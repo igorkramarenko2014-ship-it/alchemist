@@ -42,6 +42,7 @@ Lesson JSON encodes **name → mapping summary → sonic character** with explic
 | Excluded | Notes |
 |----------|--------|
 | **`packages/shared-engine/learning/DL/`** | Local staging; **gitignored** except `.gitkeep`. Validator **only** scans **`corpus/`**, not `DL/`. **CI** never sees `DL/`. |
+| **`packages/shared-engine/learning/taste/`** | Taste Corpus (Phase 4) — **not** scanned by **`validate-learning-corpus.mjs`**. Governed by **`pnpm taste:validate`** + **`taste-schema.json`** — **§9**. |
 | **Raw `.fxp` in this validator** | **JSON-only.** Preset binaries and WASM follow **FIRESTARTER** / **HARD GATE**. |
 | **Live triad / gate weights** | Lessons **do not** mutate blend weights, Slavic/Undercover thresholds, or routes. **Phase 2 (shipped):** **`ALCHEMIST_LEARNING_CONTEXT=1`** enables advisory-only text injection into the panelist system message via **`POST /api/triad/*`** — **no** gate, weight, or scoring changes. See **§8** for full spec. |
 
@@ -87,7 +88,7 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 |-----|------|
 | **`packages/shared-engine/learning/README.md`** | Lesson cycle, **`learning:forget-presets`**, validation one-liners. |
 | **`packages/shared-engine/learning/SCHOOL.md`** | Training scope, **Phase 2** live path, module layout, IOM growth, legal, hooks. |
-| **`docs/Engine-School-Validation.md`** | This file — reproducible commands, audit language, **§8** (validation vs inference + recommendations). |
+| **`docs/Engine-School-Validation.md`** | This file — reproducible commands, audit language, **§8** (validation vs inference + recommendations), **§9** (Taste Corpus — Phase 4 contract). |
 
 ---
 
@@ -106,6 +107,7 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 | Missed JSON files | **Recursive glob-equivalent** walk; no hidden skips under `corpus/`. |
 | Schema drift | **Version fields** + same-PR lesson updates; validator asserts **`x-alchemist-schema-version`**. |
 | **`DL/` trust** | Never scanned by this tool; not in git. |
+| **`packages/shared-engine/learning/taste/`** | Taste Corpus — operator music taste index. **`validate-learning-corpus.mjs`** does **not** scan `taste/`. Governed by **`pnpm taste:validate`** + **`taste-schema.json`** (separate contract — **§9**). **`taste-index.json`** is gitignored; **`taste-schema.json`** is committed. |
 | **Unwanted authority drift** | Corpus stays **non-canonical** vs schema + **`learning:verify`**; injection is **advisory** strings + **800**-char cap + env **opt-in** (see **§8**). |
 
 ---
@@ -128,6 +130,8 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 
 **Phase 3 (shipped — opt-in).** **`ALCHEMIST_CORPUS_PRIOR=1`** + built index → **`scoreCandidates`** may apply a **corpus-affinity re-rank** after Slavic + intent blend (**Slavic cosine / Dice thresholds unchanged**; **no** Undercover edits). **`computeCorpusAffinity`** in **`packages/shared-engine/learning/compute-corpus-affinity.ts`** scales per-lesson affinity when lessons carry telemetry-backed **`fitnessScore`** (advisory blend; gates unchanged). Default nudge weight **0.08**; effective weight may reflect mean lesson fitness when scores are present. Telemetry: **`score_candidates`** with **`corpusAffinityApplied`**, **`corpusAffinityOrderChanged`**, **`corpusAffinityTopPanelistBefore`/`After`**, optional **`corpusAffinityEffectiveWeight`**, **`corpusAffinityFitnessWeighted`**. Does **not** promote candidates that failed gates (re-rank is a **sort** of survivors only).
 
+**Phase 4 — Taste Corpus (shipped — opt-in).** **`ALCHEMIST_TASTE_PRIOR=1`** + built **`taste-index.json`** (**`pnpm taste:build-index`**) → **`scoreCandidates`** applies a **`computeTasteAffinity`** advisory nudge after all gates pass. Governance hierarchy: **`1F7_FENOMAN`** (canonical anchor, own music) → **`ALPAKA_FAV`** (55-track lighthouse) → **`Amsterdammer_`** (1338-track eclectic corpus). Six taste clusters derived by K-means on Spotify audio features: `dark_alt_rock` (dominant — 0.95 own-music affinity in the shipped example index), `hard_driven_high_tempo`, `urban_groove`, `instrumental_electronic`, `euphoric_pop_dance`, `acoustic_melancholic`. **Global bias:** `darkValenceBias` — bright/acoustic candidates penalised. Default nudge weight **0.06** (softer than Phase 3's 0.08; taste is a lighter signal than lesson affinity). Does **not** promote candidates that failed gates. Does **not** touch Slavic/Undercover thresholds or blend weights. Telemetry: **`score_candidates`** with **`tasteAffinityApplied`**, **`tasteClusterHit`**, **`tasteEffectiveWeight`**. Rebuild from new Exportify CSVs: **`pnpm taste:rebuild`** (drops raw CSVs in `learning/taste/raw/`, gitignored). Validate schema: **`pnpm taste:validate`** — stdout `{"status":"ok","clusterCount":6}` / exit 1 on fail. **`taste-index.json`** gitignored; **`taste-schema.json`** committed + versioned (`schemaVersion: "1.0"`).
+
 **Recommendations (for release / architecture review).**
 
 | Priority | Recommendation |
@@ -135,7 +139,58 @@ Operators stage under **`learning/DL/`**. **`pnpm learning:forget-presets`** str
 | **Keep** | Treat **§1–§3** as the audit baseline; re-run **`pnpm learning:verify`** in any PR that touches **`corpus/`** or **`lesson.schema.json`**. |
 | **Phase 2 ops** | Enable **`ALCHEMIST_LEARNING_CONTEXT=1`** only after **`pnpm learning:build-index`** in deploy; set **`ALCHEMIST_LEARNING_INDEX_PATH`** if cwd resolution fails. Monitor **`triad_run_start.learningContextUsed`** and token/latency. Aggregate **`engine_school_influence`** (telemetry defaults per **`env.ts`**; set **`ALCHEMIST_LEARNING_TELEMETRY=0`** in perf-sensitive production if needed); **`pnpm learning:assess-fitness`** for static corpus snapshot until telemetry-backed fitness lands. |
 | **Phase 3 ops** | **`ALCHEMIST_CORPUS_PRIOR=1`** only with a fresh **`learning-index.json`**; monitor **`score_candidates`** and ranking drift vs baseline. |
+| **Phase 4 ops** | **`ALCHEMIST_TASTE_PRIOR=1`** only with a fresh **`taste-index.json`** (**`pnpm taste:build-index`**); run **`pnpm taste:validate`** first. Monitor **`score_candidates.tasteClusterHit`** — `dark_alt_rock` should dominate for on-brand presets. Rebuild when playlist adds 200+ tracks or aesthetic shifts: drop new Exportify CSVs in `learning/taste/raw/` → **`pnpm taste:rebuild`**. |
 | **Policy** | Either **keep the index gitignored** (generate on demand / in deploy prep) **or** commit it and add a **drift check** (regenerate + diff) in CI — pick one policy per release train and document it in **`README.md`**. |
 | **CI hygiene (optional)** | Add a **`learning:build-index`** step or “index builds cleanly” assertion to **`verify:harsh`** if you need **reproducible** derived artifacts in release audits. |
 | **IOM** | When **TypeScript** reads lessons or the index, register artifacts via **`pnpm igor:heal`** / human **`igor:apply`** — no silent **`igor-power-cells.json`** edits. |
 | **Serum bytes** | Any path that maps lessons to **authoritative** preset bytes still requires **`serum-offset-map.ts`** + **`validate-offsets.py`** (**HARD GATE**); Engine School does not replace that. |
+
+---
+
+## 9. Taste Corpus — Phase 4 contract
+
+**What it is.** A separate advisory layer under **`packages/shared-engine/learning/taste/`** encoding operator music taste derived from three Spotify playlists (1403 tracks total). Not part of Engine School corpus (`corpus/`) and not scanned by `validate-learning-corpus.mjs`.
+
+**Governance hierarchy (highest → lowest authority):**
+
+| Source | Tracks | Role |
+|--------|--------|------|
+| **`1F7_FENOMAN`** | 10 | Canonical taste anchor — operator's own music |
+| **`ALPAKA_FAV`** | 55 | Lighthouse — curated all-time favourites |
+| **`Amsterdammer_`** | 1338 | Eclectic corpus — cluster source |
+
+**Six taste clusters (K-means, Spotify audio features):**
+
+| Cluster ID | Tracks | Energy | Valence | Tempo | Own-music affinity |
+|------------|--------|--------|---------|-------|--------------------|
+| `dark_alt_rock` | 311 | 0.71 | 0.35 | 105bpm | **0.95** |
+| `hard_driven_high_tempo` | 237 | 0.83 | 0.41 | 155bpm | 0.75 |
+| `urban_groove` | 144 | 0.73 | 0.57 | 116bpm | 0.45 |
+| `instrumental_electronic` | 89 | 0.77 | 0.43 | 129bpm | 0.50 |
+| `euphoric_pop_dance` | 399 | 0.79 | 0.75 | 121bpm | 0.30 |
+| `acoustic_melancholic` | 158 | 0.37 | 0.39 | 114bpm | 0.10 |
+
+**Schema:** `packages/shared-engine/learning/taste/taste-schema.json` (JSON Schema draft 2020-12, `schemaVersion: "1.0"`). Committed and versioned. Bumping schema: change `schemaVersion` const and `taste-index.json` in same PR.
+
+**Index:** `packages/shared-engine/learning/taste/taste-index.json` — **gitignored**, generated on demand. Seed values live in **`taste-index.example.json`** and can be rebuilt from CSVs. Rebuild: **`pnpm taste:rebuild`** (Exportify CSVs → `learning/taste/raw/` → **`build-taste-index.mjs`** → `taste-index.json`). Validate: **`pnpm taste:validate`** — stdout `{"status":"ok","clusterCount":6}` / exit 1.
+
+**Runtime contract:**
+- Opt-in via `ALCHEMIST_TASTE_PRIOR=1` + built index
+- `computeTasteAffinity()` runs after all gates pass — survivors only
+- Default nudge weight **0.06** (advisory; below Phase 3's 0.08)
+- `darkValenceBias`: bright/acoustic candidates penalised −0.10/−0.15
+- **Never** promotes gate-failed candidates
+- **No** Slavic/Undercover threshold changes
+- **No** blend weight changes
+- Telemetry: `tasteAffinityApplied`, `tasteClusterHit`, `tasteEffectiveWeight` on `score_candidates`
+
+**Out of scope for this layer:** raw Spotify audio, `.fxp` bytes, WASM, triad weights, Engine School lesson logic.
+
+**Risks and mitigations:**
+
+| Risk | Mitigation |
+|------|------------|
+| Taste drift as playlist grows | **`pnpm taste:rebuild`** on demand; raw CSVs gitignored |
+| Copyright surface from artist names | `keyArtists[]` in index only — no track titles in committed artifacts |
+| Nudge overriding gate logic | Re-rank is survivors-only sort; nudge weight capped at 0.06 |
+| Index stale at deploy | **`pnpm taste:validate`** in deploy checklist before enabling env var |
