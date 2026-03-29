@@ -15,7 +15,11 @@ const END = "--- End Engine School context ---";
 const DEFAULT_MAX_TOTAL_CHARS = 800;
 
 function lessonLine(l: SelectedLesson): string {
-  return `[style: ${l.style}] ${l.character} | Causal: ${l.causalReasoning}`;
+  const clusterBit =
+    typeof l.cluster === "string" && l.cluster.trim().length > 0
+      ? ` [cluster: ${l.cluster.trim()}]`
+      : "";
+  return `[style: ${l.style}]${clusterBit} ${l.character} | Causal: ${l.causalReasoning}`;
 }
 
 function assembleCore(lessonLines: string[]): string {

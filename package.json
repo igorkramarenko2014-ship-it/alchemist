@@ -99,6 +99,7 @@
     "learning:rl": "node scripts/learning-teach-forget.mjs",
     "learning:sanitize": "pnpm learning:forget-presets && pnpm learning:verify",
     "learning:verify": "node scripts/validate-learning-corpus.mjs",
+    "taste:validate": "node packages/shared-engine/learning/taste/scripts/validate-taste-index.mjs",
     "learning:build-index": "node packages/shared-engine/learning/scripts/build-learning-index.mjs",
     "learning:aggregate-telemetry": "node packages/shared-engine/learning/scripts/aggregate-learning-telemetry.mjs",
     "learning:forget-telemetry": "node scripts/learning-forget-telemetry.mjs",

@@ -72,6 +72,11 @@ export const env = {
    * re-rank (Phase 3). Client still calls **`getCorpusScoringLessons()`** — no secrets in the browser.
    */
   corpusPriorEnabled: process.env.ALCHEMIST_CORPUS_PRIOR === "1",
+  /**
+   * When **`1`**, server action may load **`taste-index.json`** (or example) for **`scoreCandidates`**
+   * taste-affinity re-rank (Phase 4). Advisory only; default off.
+   */
+  tastePriorEnabled: process.env.ALCHEMIST_TASTE_PRIOR === "1",
 } as const;
 
 /* Optional SOE rollup for GET /api/health → iomPulse: lib/soe-snapshot-from-env.ts

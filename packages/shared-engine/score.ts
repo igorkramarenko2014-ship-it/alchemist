@@ -27,6 +27,8 @@ import { validateTriadIntent } from "./intent-hardener";
 import { hashPromptForTelemetry } from "./pnh/pnh-triad-defense";
 import type { PnhTriadLane } from "./pnh/pnh-context-types";
 import { computeCorpusAffinity, type LearningIndexLesson } from "./learning/compute-corpus-affinity";
+import { computeTasteAffinity } from "./learning/taste/compute-taste-affinity";
+import type { TasteIndex } from "./learning/taste/taste-types";
 import { logEvent } from "./telemetry";
 
 /** Same panelist + identical param fingerprint (or score+reasoning slice) — second row dropped. */
@@ -186,6 +188,14 @@ export interface ScoreCandidatesOptions {
   learningLessons?: LearningIndexLesson[];
   /** Default **0.08** — nudge added to `candidate.score` for sort only. */
   corpusAffinityWeight?: number;
+  /**
+   * Phase 4 — optional taste-affinity **re-rank** after corpus (same multiset). Opt-in server env
+   * **`ALCHEMIST_TASTE_PRIOR=1`** + loaded index. Default nudge **0.06**.
+   */
+  tastePrior?: boolean;
+  tasteIndex?: TasteIndex | null;
+  /** Default **0.06** — added to `candidate.score` for sort only. */
+  tasteWeight?: number;
 }
 
 function clamp01(x: number): number {
@@ -239,6 +249,20 @@ function meanTelemetryFitness(lessons: LearningIndexLesson[]): number | null {
   return fs.reduce((a, b) => a + b, 0) / fs.length;
 }
 
+/**
+ * True if corpus affinity resort changed panelist order (advisory rerank only — input/output are the same multiset).
+ * Exported for tests / audits proving ordering-only behavior.
+ */
+export function corpusAffinityOrderChanged(before: AICandidate[], after: AICandidate[]): boolean {
+  if (before.length !== after.length) return true;
+  return before.some((c, i) => c.panelist !== after[i]!.panelist);
+}
+
+/** Same as `corpusAffinityOrderChanged` — taste resort is ordering-only on the survivor multiset. */
+export function tasteAffinityOrderChanged(before: AICandidate[], after: AICandidate[]): boolean {
+  return corpusAffinityOrderChanged(before, after);
+}
+
 function applyCorpusAffinityResort(
   candidates: AICandidate[],
   options?: ScoreCandidatesOptions,
@@ -264,18 +288,62 @@ function applyCorpusAffinityResort(
       if (wd !== 0) return wd;
       return x.c.panelist.localeCompare(y.c.panelist);
     });
+    const afterCandidates = rows.map((r) => r.c);
+    const orderChanged = corpusAffinityOrderChanged(candidates, afterCandidates);
     logEvent("score_candidates", {
       corpusAffinityApplied: true,
       corpusAffinityWeight: weight,
       corpusAffinityEffectiveWeight: effectiveWeight,
       corpusAffinityFitnessWeighted: mf != null,
+      corpusAffinityOrderChanged: orderChanged,
+      corpusAffinityTopPanelistBefore: candidates[0]?.panelist,
+      corpusAffinityTopPanelistAfter: afterCandidates[0]?.panelist,
       survivorCount: candidates.length,
       corpusAffinityLessonCount: lessons!.length,
       corpusAffinityPriorityAware: lessons!.some(
         (l) => Array.isArray(l.priorityMappingKeys) && l.priorityMappingKeys.length > 0,
       ),
     });
-    return rows.map((r) => r.c);
+    return afterCandidates;
+  } catch {
+    return candidates;
+  }
+}
+
+function applyTasteAffinityResort(
+  candidates: AICandidate[],
+  options?: ScoreCandidatesOptions,
+): AICandidate[] {
+  const idx = options?.tasteIndex;
+  const enabled = options?.tastePrior === true && idx != null;
+  if (!enabled || candidates.length <= 1) return candidates;
+  const weight = options?.tasteWeight ?? 0.06;
+  try {
+    const rows = candidates.map((c) => ({
+      c,
+      t: computeTasteAffinity(c, idx!, { nudgeWeight: weight }),
+    }));
+    rows.sort((x, y) => {
+      const adjX = x.c.score + x.t.score * x.t.effectiveWeight;
+      const adjY = y.c.score + y.t.score * y.t.effectiveWeight;
+      if (adjY !== adjX) return adjY - adjX;
+      const wd = weightedScore(y.c) - weightedScore(x.c);
+      if (wd !== 0) return wd;
+      return x.c.panelist.localeCompare(y.c.panelist);
+    });
+    const afterCandidates = rows.map((r) => r.c);
+    const firstT = rows.find((r) => r.c === afterCandidates[0])?.t ?? rows[0]!.t;
+    const orderChanged = tasteAffinityOrderChanged(candidates, afterCandidates);
+    logEvent("score_candidates", {
+      tasteAffinityApplied: true,
+      tasteClusterHit: firstT.dominantCluster,
+      tasteEffectiveWeight: firstT.effectiveWeight,
+      tasteAffinityOrderChanged: orderChanged,
+      tasteAffinityTopPanelistBefore: candidates[0]?.panelist,
+      tasteAffinityTopPanelistAfter: afterCandidates[0]?.panelist,
+      survivorCount: candidates.length,
+    });
+    return afterCandidates;
   } catch {
     return candidates;
   }
@@ -354,9 +422,10 @@ export function scoreCandidatesWithGate(
     };
   }
   const blended = applyIntentBlendSort(deduped, prompt, options);
+  const corpusSorted = applyCorpusAffinityResort(blended, options);
   return {
     status: "OK",
-    candidates: applyCorpusAffinityResort(blended, options),
+    candidates: applyTasteAffinityResort(corpusSorted, options),
   };
 }
 
@@ -371,3 +440,6 @@ export function scoreCandidates(
 }
 
 export type { LearningIndexLesson } from "./learning/compute-corpus-affinity";
+export { computeTasteAffinity } from "./learning/taste/compute-taste-affinity";
+export type { TasteAffinityResult } from "./learning/taste/compute-taste-affinity";
+export type { TasteIndex } from "./learning/taste/taste-types";

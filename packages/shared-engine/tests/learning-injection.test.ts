@@ -98,6 +98,32 @@ describe("selectLessonsForPrompt", () => {
     expect(out.map((l) => l.id)).toEqual(["high", "mid"]);
   });
 
+  it("prefers lessons whose cluster tokens overlap the prompt (schema ≥1.2)", () => {
+    const index = idx([
+      {
+        id: "other",
+        style: "generic",
+        character: "c".repeat(22),
+        causalReasoning: "r".repeat(45),
+        tags: ["x"],
+        mappingKeys: [],
+      },
+      {
+        id: "clustered",
+        style: "bass",
+        character: "c2".repeat(11),
+        causalReasoning: "r2".repeat(23),
+        tags: [],
+        mappingKeys: [],
+        cluster: "bass_transient_punch",
+      },
+    ]);
+    const out = selectLessonsForPrompt(index, "bass transient motion", { maxLessons: 1 });
+    expect(out).toHaveLength(1);
+    expect(out[0].id).toBe("clustered");
+    expect(out[0].cluster).toBe("bass_transient_punch");
+  });
+
   it("dedupes same style with overlapping tags keeping higher score", () => {
     const index = idx([
       {
@@ -177,6 +203,20 @@ describe("buildLearningContext", () => {
     expect(block).toContain("soft tail");
     expect(block).toContain("[style: lush]");
     expect(block).toContain("Causal: slow attack");
+  });
+
+  it("includes compact cluster tag when present on SelectedLesson", () => {
+    const block = buildLearningContext([
+      {
+        id: "x",
+        style: "lush",
+        character: "soft tail",
+        causalReasoning: "slow attack",
+        tags: [],
+        cluster: "pads_wide_slow",
+      },
+    ]);
+    expect(block).toContain("[cluster: pads_wide_slow]");
   });
 
   it("caps total block length by dropping lowest-priority lessons", () => {

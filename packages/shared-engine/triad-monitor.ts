@@ -25,6 +25,8 @@ export type TriadRunLearningContextUsed = {
   selectedLessonIds: string[];
   /** Length of appended Engine School block (0 when not injected). */
   contextCharCount?: number;
+  /** Cluster tags from selected lessons (schema ≥1.2) — telemetry only. */
+  selectedClusters?: string[];
 };
 
 export function logTriadRunStart(

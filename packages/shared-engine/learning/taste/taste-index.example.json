@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "1.0",
+  "generatedFrom": ["Amsterdammer_ (1338 tracks)", "ALPAKA_FAV (55 tracks)", "1F7_FENOMAN (10 tracks)"],
+  "governanceHierarchy": ["1F7_FENOMAN", "ALPAKA_FAV", "Amsterdammer_"],
+  "ownMusicAnchor": {
+    "description": "1F7 & Fenoman — canonical taste governor. Dark, driven, mid-tempo. High energy, low valence.",
+    "centroid": {"danceability": 0.624, "energy": 0.782, "acousticness": 0.105, "instrumentalness": 0.0, "valence": 0.341, "tempo": 117.5, "loudness": -6.224, "speechiness": 0.101},
+    "dominantCluster": 0
+  },
+  "lighthouseAnchor": {
+    "description": "ALPAKA_FAV — 55 hand-curated all-time favs. High energy, slightly broader valence range.",
+    "centroid": {"danceability": 0.569, "energy": 0.760, "acousticness": 0.123, "instrumentalness": 0.007, "valence": 0.452, "tempo": 121.2, "loudness": -5.642, "speechiness": 0.083},
+    "dominantCluster": 0
+  },
+  "tasteClusters": [
+    {
+      "id": "dark_alt_rock", "index": 0, "trackCount": 311, "weight": 0.23,
+      "description": "Dark alternative / post-grunge / moody synth-pop. Mid-tempo, low valence, high energy.",
+      "keyArtists": ["Linkin Park", "Nothing But Thieves", "a-ha", "Rammstein"],
+      "centroid": {"energy": 0.71, "valence": 0.35, "tempo": 105, "danceability": 0.58, "acousticness": 0.09},
+      "ownMusicAffinity": 0.95, "lighthouseAffinity": 0.90,
+      "serum_bias": {"filterCutoff": "mid-low", "reverbDepth": "medium", "distortion": "medium-high", "padBrightness": "dark", "arpSpeed": "slow-mid"}
+    },
+    {
+      "id": "euphoric_pop_dance", "index": 1, "trackCount": 399, "weight": 0.30,
+      "description": "High-energy euphoric pop/dance. Fast, bright, danceable. Pet Shop Boys to Dua Lipa.",
+      "keyArtists": ["Plazma", "Dua Lipa", "Pet Shop Boys", "Craig David"],
+      "centroid": {"energy": 0.79, "valence": 0.75, "tempo": 121, "danceability": 0.69, "acousticness": 0.11},
+      "ownMusicAffinity": 0.30, "lighthouseAffinity": 0.55,
+      "serum_bias": {"filterCutoff": "high", "reverbDepth": "short-bright", "distortion": "low", "padBrightness": "bright", "arpSpeed": "fast"}
+    },
+    {
+      "id": "acoustic_melancholic", "index": 2, "trackCount": 158, "weight": 0.12,
+      "description": "Acoustic / low-energy melancholic. Beatles, Sinatra, Океан Ельзи. High acousticness.",
+      "keyArtists": ["The Beatles", "Океан Ельзи", "Frank Sinatra", "Sting"],
+      "centroid": {"energy": 0.37, "valence": 0.39, "tempo": 114, "danceability": 0.52, "acousticness": 0.64},
+      "ownMusicAffinity": 0.10, "lighthouseAffinity": 0.20,
+      "serum_bias": {"filterCutoff": "low-warm", "reverbDepth": "large", "distortion": "none", "padBrightness": "warm", "arpSpeed": "none"}
+    },
+    {
+      "id": "urban_groove", "index": 3, "trackCount": 144, "weight": 0.11,
+      "description": "Hip-hop / groove / urban. Danceable mid-valence. Каста, Beastie Boys.",
+      "keyArtists": ["Каста", "Многоточие", "Beastie Boys"],
+      "centroid": {"energy": 0.73, "valence": 0.57, "tempo": 116, "danceability": 0.71, "acousticness": 0.21},
+      "ownMusicAffinity": 0.45, "lighthouseAffinity": 0.35,
+      "serum_bias": {"filterCutoff": "mid", "reverbDepth": "short-dry", "distortion": "low-mid", "padBrightness": "mid", "arpSpeed": "groove"}
+    },
+    {
+      "id": "hard_driven_high_tempo", "index": 4, "trackCount": 237, "weight": 0.18,
+      "description": "High-tempo driven rock/electronic. 155bpm avg, dark valence.",
+      "keyArtists": ["Nothing But Thieves", "Linkin Park", "Scooter", "Artemas"],
+      "centroid": {"energy": 0.83, "valence": 0.41, "tempo": 155, "danceability": 0.47, "acousticness": 0.05},
+      "ownMusicAffinity": 0.75, "lighthouseAffinity": 0.70,
+      "serum_bias": {"filterCutoff": "mid-high", "reverbDepth": "short", "distortion": "high", "padBrightness": "dark-mid", "arpSpeed": "fast"}
+    },
+    {
+      "id": "instrumental_electronic", "index": 5, "trackCount": 89, "weight": 0.07,
+      "description": "Instrumental electronic / techno. High instrumentalness 0.75. Daft Punk, Prodigy.",
+      "keyArtists": ["DVRST", "Daft Punk", "Hockins", "The Prodigy"],
+      "centroid": {"energy": 0.77, "valence": 0.43, "tempo": 129, "danceability": 0.63, "acousticness": 0.12, "instrumentalness": 0.752},
+      "ownMusicAffinity": 0.50, "lighthouseAffinity": 0.40,
+      "serum_bias": {"filterCutoff": "sweeping", "reverbDepth": "medium", "distortion": "medium", "padBrightness": "dark-mid", "arpSpeed": "mid-fast"}
+    }
+  ],
+  "globalBias": {
+    "preferHighEnergy": true,
+    "avoidHighAcousticness": true,
+    "avoidHighInstrumentalness": false,
+    "darkValenceBias": true,
+    "tempoRange": [100, 160],
+    "governedBy": "1F7_FENOMAN centroid — dark_alt_rock dominant"
+  }
+}

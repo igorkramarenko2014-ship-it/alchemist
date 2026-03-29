@@ -74,15 +74,16 @@ for (const fp of files.sort()) {
   const heurN = Array.isArray(doc.heuristics) ? doc.heuristics.length : 0;
   const hasContrast = Boolean(doc.contrastMatrix && typeof doc.contrastMatrix.vs === "string");
   /** Static v0 score: richer pedagogy metadata → slightly higher (0..1), until real lifts exist. */
-  const fitnessStatic =
-    Math.min(
-      1,
-      0.35 +
-        antiN * 0.12 +
-        heurN * 0.08 +
-        (hasContrast ? 0.1 : 0) +
-        (typeof doc.lessonVersion === "number" ? 0.05 : 0),
-    );
+  const hasCluster = typeof doc.cluster === "string" && doc.cluster.trim().length > 0;
+  const fitnessStatic = Math.min(
+    1,
+    0.35 +
+      antiN * 0.12 +
+      heurN * 0.08 +
+      (hasContrast ? 0.1 : 0) +
+      (typeof doc.lessonVersion === "number" ? 0.05 : 0) +
+      (hasCluster ? 0.06 : 0),
+  );
   lessons.push({
     id: doc.id,
     style: typeof doc.style === "string" ? doc.style : "",
@@ -91,17 +92,23 @@ for (const fp of files.sort()) {
     antiPatternCount: antiN,
     heuristicCount: heurN,
     hasContrastMatrix: hasContrast,
+    hasCluster,
     fitnessStatic,
-    note: "Replace fitnessStatic with telemetry-backed fitness when engine_school_influence logs are aggregated",
+    note: "Static v0 only — log-backed fitness comes from aggregate-learning-telemetry (JSONL)",
   });
 }
 
 const styles = new Set(lessons.map((l) => l.style.trim().toLowerCase()).filter(Boolean));
 
+process.stderr.write(
+  "[learning-assess-fitness] static v0 metadata heuristic complete — next: aggregate-learning-telemetry (JSONL → learning-fitness-report.json)\n",
+);
+
 process.stdout.write(
   `${JSON.stringify(
     {
       status: "ok",
+      pipeline: "static_metadata_v0",
       generatedAtUtc: new Date().toISOString(),
       lessonCount: lessons.length,
       styleCoverageCount: styles.size,

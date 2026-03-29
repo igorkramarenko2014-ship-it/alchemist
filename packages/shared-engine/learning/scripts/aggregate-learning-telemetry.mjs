@@ -115,6 +115,11 @@ for (const ev of events) {
         if (typeof c === "string") stats.contexts.add(c);
       }
     }
+    if (Array.isArray(ev.selectedClusters)) {
+      for (const c of ev.selectedClusters) {
+        if (typeof c === "string" && c.trim()) stats.contexts.add(`cluster:${c.trim()}`);
+      }
+    }
     if (ev.timestampUtc && (!stats.lastUsed || new Date(ev.timestampUtc) > new Date(stats.lastUsed))) {
       stats.lastUsed = ev.timestampUtc;
     }
@@ -153,9 +158,25 @@ lessons.sort((a, b) => b.fitnessScore - a.fitnessScore || a.lessonId.localeCompa
 
 const totalRuns = events.length;
 const influencedRuns = events.filter((e) => Array.isArray(e.lessonIds) && e.lessonIds.length > 0).length;
+const uniqueTriadSessions = new Set(
+  events.map((e) => (typeof e.triadSessionId === "string" ? e.triadSessionId : "")).filter(Boolean),
+).size;
 const coverage = {
   learningCoverage: totalRuns > 0 ? Number((influencedRuns / totalRuns).toFixed(4)) : 0,
   styleCoverage: new Set(lessons.flatMap((l) => l.contexts)).size,
+  uniqueTriadSessions,
+};
+
+const reportPayload = {
+  aggregationVersion: 2,
+  aggregationKind: "log_backed_engine_school_influence_jsonl",
+  generatedAtUtc: new Date().toISOString(),
+  provenance:
+    "Per-lesson fitness blends recency-weighted usage, panelist-route pass proxy (panelistPassRate / passLift), and score lift when baselineScore is present in JSONL rows. Evidence is pre-client-gate (route isValidCandidate only) — Slavic/Undercover unchanged and not logged here.",
+  totalEventsProcessed: events.length,
+  uniqueTriadSessions,
+  lessons,
+  coverage,
 };
 
 const snapshot = {
@@ -166,7 +187,7 @@ const snapshot = {
 };
 
 mkdirSync(dirname(reportPath), { recursive: true });
-writeFileSync(reportPath, `${JSON.stringify({ lessons, coverage, totalEventsProcessed: events.length }, null, 2)}\n`, "utf8");
+writeFileSync(reportPath, `${JSON.stringify(reportPayload, null, 2)}\n`, "utf8");
 
 if (existsSync(indexPath)) {
   try {

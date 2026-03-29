@@ -7,6 +7,7 @@ import {
   type LearningIndexLesson,
 } from "../learning/compute-corpus-affinity";
 import {
+  corpusAffinityOrderChanged,
   cosineSimilarityParamArrays,
   scoreCandidates,
   SLAVIC_FILTER_COSINE_THRESHOLD,
@@ -161,10 +162,35 @@ describe("scoreCandidates + corpusAffinityPrior", () => {
   });
 });
 
+describe("corpusAffinityOrderChanged", () => {
+  it("is false when panelist order is identical", () => {
+    const a = cand("LLAMA", 0.5, "reasoning long enough here one");
+    const b = cand("QWEN", 0.4, "reasoning long enough here two");
+    expect(corpusAffinityOrderChanged([a, b], [a, b])).toBe(false);
+  });
+
+  it("is true when panelists swap positions", () => {
+    const a = cand("LLAMA", 0.5, "reasoning long enough here one");
+    const b = cand("QWEN", 0.4, "reasoning long enough here two");
+    expect(corpusAffinityOrderChanged([a, b], [b, a])).toBe(true);
+  });
+});
+
 describe("Slavic thresholds unchanged (Phase 3 regression guard)", () => {
   it("exports canonical cosine and Dice floors (see gates.ts DEFAULT + score.ts)", () => {
     expect(SLAVIC_FILTER_COSINE_THRESHOLD).toBe(0.85);
     expect(SLAVIC_TEXT_DICE_THRESHOLD).toBe(0.75);
+  });
+});
+
+describe("Engine School authority (ordering-only)", () => {
+  it("corpusAffinityPrior with empty lessons does not inject candidates", () => {
+    const a = cand("LLAMA", 0.9, "reasoning long enough here one two");
+    const out = scoreCandidates([a], "p", undefined, {
+      corpusAffinityPrior: true,
+      learningLessons: [],
+    });
+    expect(out.length).toBe(1);
   });
 });
 

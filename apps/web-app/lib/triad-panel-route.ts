@@ -109,6 +109,7 @@ function logEngineSchoolInfluenceTelemetry(
     injected: boolean;
     selectedLessonIds: string[];
     contextCharCount?: number;
+    selectedClusters?: string[];
   },
   candidateCount: number,
   mode: "unconfigured" | "circuit_open" | "fetcher",
@@ -150,6 +151,7 @@ function logEngineSchoolInfluenceTelemetry(
     triadSessionId: sessionKey,
     panelist,
     lessonsUsed: learningContextUsed.selectedLessonIds,
+    selectedClusters: learningContextUsed.selectedClusters ?? [],
     injected: learningContextUsed.injected,
     contextChars: learningContext.length,
     contextCharCount: ctxChars,
@@ -189,6 +191,10 @@ function logEngineSchoolInfluenceTelemetry(
     baselineScore,
     deltaScore,
     passLift,
+    selectedClusters:
+      learningContextUsed.selectedClusters?.filter(
+        (c) => typeof c === "string" && c.trim().length > 0,
+      ) ?? [],
   };
   appendEngineSchoolTelemetryJsonl(row, {
     telemetryDirOverride: env.learningTelemetryDir,

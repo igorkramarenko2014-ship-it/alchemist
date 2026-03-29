@@ -1,15 +1,15 @@
 {
   "schemaVersion": 2,
-  "generatedAtUtc": "2026-03-29T11:40:22.424Z",
-  "divergenceCheckedAtUtc": "2026-03-29T11:40:22.424Z",
+  "generatedAtUtc": "2026-03-29T14:41:40.109Z",
+  "divergenceCheckedAtUtc": "2026-03-29T14:41:40.109Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
     "metrics": "docs/fire-metrics.json"
   },
   "metrics": {
-    "testsPassed": 340,
-    "testsTotal": 340,
+    "testsPassed": 353,
+    "testsTotal": 353,
     "iomCoverageScore": 1,
     "mon": {
       "value": 117,
@@ -23,7 +23,7 @@
       "status": "clean"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-03-29T10:18:37.272Z"
+    "syncedAtUtc": "2026-03-29T14:41:40.079Z"
   },
   "divergences": []
 }

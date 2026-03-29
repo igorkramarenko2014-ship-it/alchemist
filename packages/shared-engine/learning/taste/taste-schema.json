@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alchemist.local/schemas/taste-index.json",
+  "title": "TasteIndex",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedFrom",
+    "governanceHierarchy",
+    "ownMusicAnchor",
+    "lighthouseAnchor",
+    "tasteClusters",
+    "globalBias"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "generatedFrom": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "governanceHierarchy": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "ownMusicAnchor": { "$ref": "#/$defs/anchor" },
+    "lighthouseAnchor": { "$ref": "#/$defs/anchor" },
+    "tasteClusters": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tasteCluster" },
+      "minItems": 1
+    },
+    "globalBias": { "$ref": "#/$defs/globalBias" }
+  },
+  "$defs": {
+    "centroidFull": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["energy", "valence", "tempo"],
+      "properties": {
+        "energy": { "type": "number" },
+        "valence": { "type": "number" },
+        "tempo": { "type": "number" },
+        "danceability": { "type": "number" },
+        "acousticness": { "type": "number" },
+        "instrumentalness": { "type": "number" },
+        "loudness": { "type": "number" },
+        "speechiness": { "type": "number" }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "centroid", "dominantCluster"],
+      "properties": {
+        "description": { "type": "string", "minLength": 20 },
+        "centroid": { "$ref": "#/$defs/centroidFull" },
+        "dominantCluster": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "centroidCluster": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["energy", "valence", "tempo", "danceability", "acousticness"],
+      "properties": {
+        "energy": { "type": "number" },
+        "valence": { "type": "number" },
+        "tempo": { "type": "number" },
+        "danceability": { "type": "number" },
+        "acousticness": { "type": "number" },
+        "instrumentalness": { "type": "number" }
+      }
+    },
+    "serumBias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filterCutoff",
+        "reverbDepth",
+        "distortion",
+        "padBrightness",
+        "arpSpeed"
+      ],
+      "properties": {
+        "filterCutoff": { "type": "string" },
+        "reverbDepth": { "type": "string" },
+        "distortion": { "type": "string" },
+        "padBrightness": { "type": "string" },
+        "arpSpeed": { "type": "string" }
+      }
+    },
+    "tasteCluster": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "index",
+        "trackCount",
+        "weight",
+        "description",
+        "keyArtists",
+        "centroid",
+        "ownMusicAffinity",
+        "lighthouseAffinity",
+        "serum_bias"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "index": { "type": "integer", "minimum": 0 },
+        "trackCount": { "type": "integer", "minimum": 0 },
+        "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+        "description": { "type": "string", "minLength": 20 },
+        "keyArtists": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "centroid": { "$ref": "#/$defs/centroidCluster" },
+        "ownMusicAffinity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "lighthouseAffinity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "serum_bias": { "$ref": "#/$defs/serumBias" }
+      }
+    },
+    "globalBias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preferHighEnergy",
+        "avoidHighAcousticness",
+        "avoidHighInstrumentalness",
+        "darkValenceBias",
+        "tempoRange",
+        "governedBy"
+      ],
+      "properties": {
+        "preferHighEnergy": { "type": "boolean" },
+        "avoidHighAcousticness": { "type": "boolean" },
+        "avoidHighInstrumentalness": { "type": "boolean" },
+        "darkValenceBias": { "type": "boolean" },
+        "tempoRange": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "governedBy": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

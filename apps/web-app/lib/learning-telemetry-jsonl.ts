@@ -40,6 +40,8 @@ export type EngineSchoolTelemetryRecord = {
   deltaScore: number | null;
   passLift: number | null;
   fitnessContext?: string[];
+  /** Cluster tags from selected lessons (schema ≥1.2). */
+  selectedClusters?: string[];
   cluster?: string;
   gateFailureReasons?: string[];
   soeHintMatched?: string;

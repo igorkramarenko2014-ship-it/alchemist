@@ -92,12 +92,15 @@ export {
 } from "./triad-parity-report";
 export type { TriadParityDiffEntry, TriadParitySnapshot } from "./triad-parity-report";
 export {
+  corpusAffinityOrderChanged,
+  computeTasteAffinity,
   cosineSimilarityParamArrays,
   intentBlendRankKey,
   scoreCandidates,
   scoreCandidatesWithGate,
   SLAVIC_FILTER_COSINE_THRESHOLD,
   slavicFilterDedupe,
+  tasteAffinityOrderChanged,
   weightedScore,
 } from "./score";
 export type {
@@ -105,6 +108,8 @@ export type {
   ScoreCandidatesGatedResult,
   ScoreCandidatesGateStatus,
   ScoreCandidatesOptions,
+  TasteAffinityResult,
+  TasteIndex,
 } from "./score";
 export {
   computeIntentAlignmentScore,

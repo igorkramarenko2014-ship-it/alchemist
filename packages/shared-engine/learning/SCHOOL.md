@@ -53,7 +53,7 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 - **`pnpm learning:build-index`** — generates **`learning-index.json`**; **not** part of the fail-closed lesson schema gate unless you add it to CI deliberately (**§8**).
 - **`pnpm learning:enrich-preview -- "<prompt>"`** — prints the **would-be** context block (ignores **`ALCHEMIST_LEARNING_CONTEXT`**; needs a built index).
 - **Runtime (web-app):** **`ALCHEMIST_LEARNING_CONTEXT=1`** enables append; **`triad_run_start`** includes **`learningContextUsed`** (`injected`, `selectedLessonIds`, **`contextCharCount`**). **`engine_school_influence`** on stderr (**`logEvent`**) when learning context + telemetry resolve true (**`apps/web-app/env.ts`**: default on in dev / Vercel preview; **`ALCHEMIST_LEARNING_TELEMETRY=0`** off; **`=1`** always on). Payload includes **`panelistPipeline`** + **`fullGatePipeline`:** **`client_runTriad`** — for offline fitness / coverage pipelines.
-- **`pnpm learning:assess-fitness`** — offline JSON snapshot (**v0**): static ranking from corpus metadata; replace with real lifts when **`engine_school_influence`** logs are aggregated.
+- **`pnpm learning:assess-fitness`** — **static v0** JSON (**`pipeline`: `static_metadata_v0`**) then **`aggregate-learning-telemetry`** → **`artifacts/learning-fitness-report.json`** (**`aggregationVersion`**: **2**, log-backed **`provenance`**).
 
 ## IOM / coverage
 

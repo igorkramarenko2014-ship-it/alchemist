@@ -18,6 +18,7 @@ export function getEngineSchoolTriadAugmentation(userPrompt: string): {
     injected: false,
     selectedLessonIds: [],
     contextCharCount: 0,
+    selectedClusters: [],
   };
   if (!env.learningContextEnabled) {
     return { learningContext: "", learningContextUsed: empty };
@@ -34,6 +35,9 @@ export function getEngineSchoolTriadAugmentation(userPrompt: string): {
       injected: learningContext.length > 0,
       selectedLessonIds: selected.map((l) => l.id),
       contextCharCount: learningContext.length,
+      selectedClusters: selected
+        .map((l) => l.cluster)
+        .filter((c): c is string => typeof c === "string" && c.trim().length > 0),
     },
   };
 }

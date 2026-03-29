@@ -6,6 +6,8 @@ export type SelectedLesson = {
   character: string;
   causalReasoning: string;
   tags: string[];
+  /** Optional archetype tag when lesson declares `cluster` (schema ≥1.2). */
+  cluster?: string;
 };
 
 /** Minimal English noise tokens — deterministic, no NLP. */
@@ -55,6 +57,44 @@ function mappingKeyOverlapScore(lesson: LearningLesson, tokens: Set<string>): nu
   return 0;
 }
 
+/** Underscore / slug clusters → token overlap with prompt (deterministic). */
+function clusterOverlapScore(cluster: string | undefined, tokens: Set<string>): number {
+  if (!cluster?.trim() || tokens.size === 0) return 0;
+  const raw = cluster.replace(/_/g, " ");
+  for (const seg of tokenizeLower(raw)) {
+    if (seg.length < MIN_TOKEN_LEN) continue;
+    if (tokens.has(seg)) return 0.35;
+  }
+  return 0;
+}
+
+/** Extra weight when a **priority** mapping key matches a prompt token. */
+function priorityMappingOverlapScore(lesson: LearningLesson, tokens: Set<string>): number {
+  const pri = lesson.priorityMappingKeys;
+  if (!pri?.length || tokens.size === 0) return 0;
+  for (const key of pri) {
+    for (const seg of tokenizeLower(key)) {
+      if (seg.length < MIN_TOKEN_LEN) continue;
+      if (tokens.has(seg)) return 0.2;
+    }
+  }
+  return 0;
+}
+
+/** Bounded overlap between **coreRules** prose and prompt tokens. */
+function coreRulesOverlapScore(lesson: LearningLesson, tokens: Set<string>): number {
+  const rules = lesson.coreRules;
+  if (!rules?.length || tokens.size === 0) return 0;
+  let hits = 0;
+  for (const rule of rules) {
+    for (const w of tokenizeLower(rule)) {
+      if (w.length < MIN_TOKEN_LEN || STOPWORDS.has(w)) continue;
+      if (tokens.has(w)) hits += 1;
+    }
+  }
+  return Math.min(0.25, hits * 0.07);
+}
+
 function scoreLesson(lesson: LearningLesson, tokens: Set<string>): number {
   if (tokens.size === 0) return 0;
   let score = 0;
@@ -74,6 +114,9 @@ function scoreLesson(lesson: LearningLesson, tokens: Set<string>): number {
   );
   if (styleParts.some((w) => tokens.has(w))) score += 1;
   score += mappingKeyOverlapScore(lesson, tokens);
+  score += clusterOverlapScore(lesson.cluster, tokens);
+  score += priorityMappingOverlapScore(lesson, tokens);
+  score += coreRulesOverlapScore(lesson, tokens);
   return score;
 }
 
@@ -143,6 +186,9 @@ export function selectLessonsForPrompt(
       character: truncateWithEllipsis(lesson.character, maxCharsPerLesson),
       causalReasoning: truncateWithEllipsis(lesson.causalReasoning, maxCharsPerLesson),
       tags: [...lesson.tags],
+      ...(typeof lesson.cluster === "string" && lesson.cluster.trim()
+        ? { cluster: lesson.cluster.trim() }
+        : {}),
     }));
   } catch {
     return [];

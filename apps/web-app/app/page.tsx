@@ -20,6 +20,7 @@ import { PromptAudioDock, type WasmHealthStatus } from "@/components/ui/PromptAu
 import { TokenUsageIndicator } from "@/components/ui/TokenUsageIndicator";
 import { formatPanelistDisplayName } from "@/lib/panelist-ui";
 import { getCorpusScoringLessons } from "@/app/actions/corpus-scoring-lessons";
+import { getTasteIndexForScoring } from "@/app/actions/taste-index-for-scoring";
 
 export default function Home() {
   const iomAllowsStubLearning =
@@ -124,6 +125,7 @@ export default function Home() {
               ? ("fully_live" as const)
               : ("fully_live" as const);
       const corpusLessons = await getCorpusScoringLessons();
+      const tasteIndex = await getTasteIndexForScoring();
       const sorted = scoreCandidates(
         analysis.candidates,
         analysis.triadExecutionPrompt ?? text,
@@ -132,6 +134,8 @@ export default function Home() {
           pnhScoringLane,
           corpusAffinityPrior: corpusLessons.length > 0,
           learningLessons: corpusLessons,
+          tastePrior: tasteIndex != null,
+          tasteIndex,
         },
       );
       lastRunPromptRef.current = text;
@@ -155,6 +159,8 @@ export default function Home() {
             pnhScoringLane: "stub",
             corpusAffinityPrior: corpusLessons.length > 0,
             learningLessons: corpusLessons,
+            tastePrior: tasteIndex != null,
+            tasteIndex,
           },
         );
         if (fallbackSorted.length > 0) {
