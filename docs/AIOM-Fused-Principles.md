@@ -43,3 +43,4 @@ Track design in issues or ADRs; bump **`artifacts/truth-matrix.json`** schema on
 - **`docs/AIOM-Technical-Brief.md`** — outside assessment snapshot + tables
 - **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** — Engine School vs verify (orthogonal to AIOM snapshot law)
 - **`docs/Engine-School-Validation.md`** — lesson JSON validation (not truth-matrix)
+- **`docs/learning-fitness-implementation-roadmap.md`** — optional **`learningOutcomes`** / fitness workstream (non-authoritative vs integrity); implement with schema discipline

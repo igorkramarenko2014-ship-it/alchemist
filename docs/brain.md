@@ -16,6 +16,7 @@
 | **`iom.md`** | IOM — §9c + §9d discipline, growth protocol, §9c.1 fast-path moves |
 | **`iom-architecture.md`** | Auto-generated power-cell digest — **`pnpm igor:docs`** after **`igor-power-cells.json`** edits |
 | **`Engine-School-Validation.md`** | Engine School **validation contract** (lesson schema **1.2**, optional **`cluster`**) + **§8** inference posture (Phase 2 **opt-in** triad context via **`ALCHEMIST_LEARNING_CONTEXT`**; **`triadSessionId`** correlation on triad routes; optional **`ALCHEMIST_LEARNING_TELEMETRY`** → **`engine_school_influence`**; Phase 3 fitness-aware **corpus affinity** when **`fitnessScore`** is present; offline **`pnpm learning:assess-fitness`**) |
+| **`learning-fitness-implementation-roadmap.md`** | **Task / implementation prompt** — fitness v1→v3, aggregator → index → corpus affinity sequencing, tests, optional AIOM outcomes (non-authoritative); does **not** change gate law |
 | **`cursor-universal-habits.md`** | Cursor User Rules template (any repo) |
 | **`alchemist-*.html`** | Composer / task prompt packs — index **`FIRESTARTER` §12** |
 

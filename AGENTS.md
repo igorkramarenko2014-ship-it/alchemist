@@ -25,6 +25,7 @@
 8f. **[`docs/iom.md`](docs/iom.md)** + **[`.cursor/rules/alchemist-iom.mdc`](.cursor/rules/alchemist-iom.mdc)** — **IOM** (Igor Orchestration Module): **§9c + §9d** under one name, canon firewall, growth protocol; sync script enforces **`IOM_CELL_MAX`** + artifact paths on disk  
 8f2. **[`docs/iom-v5-next-moves.md`](docs/iom-v5-next-moves.md)** + **[`.cursor/rules/alchemist-iom-v5-next.mdc`](.cursor/rules/alchemist-iom-v5-next.mdc)** — IOM V5 backlog (DNA / breaker / alignment / GL / pre-commit); **enable rule** when planning those moves  
 9. **[`docs/brain.md`](docs/brain.md)** — opening **Doc map** table; **§14** human-readable map (incl. RU); **§9a–§9c** (**brain-fusion** + soul + Apex / IOM). Outside-assessment shell + metrics: **`docs/FIRE.md`** (Assessment snapshot + **§N**)  
+9a. **[`docs/learning-fitness-implementation-roadmap.md`](docs/learning-fitness-implementation-roadmap.md)** — Engine School **fitness / telemetry** implementation backlog (v1→v3, tests, optional AIOM outcomes); does not change gate law  
 10. **[`.cursor/rules/alchemist-aji-fluidic.mdc`](.cursor/rules/alchemist-aji-fluidic.mdc)** — optional **OpenCV + OSC** “Lava–Aji” bridge (**`research/lava-aji-bridge/`**) — **not** TS triad/gates; see **`alchemist-dsp-vs-ts-gates.mdc`**  
 11. **[`LEGAL.md`](LEGAL.md)** — not legal advice; trademarks (Serum / Xfer), AI provider ToS, telemetry, warranty, consumer-product gaps  
 12. **[`PRIVACY.md`](PRIVACY.md)** — draft privacy template (fill before public beta)  

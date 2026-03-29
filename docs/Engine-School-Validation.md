@@ -7,7 +7,7 @@
 
 **Role in canon:** **`docs/FIRESTARTER.md`**, **`docs/FIRE.md`**, the Serum encoder **HARD GATE**, and TypeScript gate code remain the **authoritative product law**. Engine School is the **pre-production teaching corpus** under **`@alchemist/shared-engine`**: committed JSON lessons plus operator docs. It is **not** a runtime governor and **never** substitutes those layers.
 
-**Documentation triad (keep in sync):** **`packages/shared-engine/learning/README.md`** (operator) · **`packages/shared-engine/learning/SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (this outside contract).
+**Documentation triad (keep in sync):** **`packages/shared-engine/learning/README.md`** (operator) · **`packages/shared-engine/learning/SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (this outside contract). **Fitness / telemetry tasks (implementation backlog):** **`docs/learning-fitness-implementation-roadmap.md`**.
 
 **Doc sync + lesson path (outside assessment map):** **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** — how **`pnpm fire:sync`**, **`pnpm verify:harsh`**, and the Engine School corpus pipeline relate for auditors. **Lessons 1–2 snapshot:** **`docs/Engine-School-Lessons-1-2-Outside-Assessment.md`**.
 

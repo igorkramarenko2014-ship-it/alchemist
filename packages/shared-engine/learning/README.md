@@ -2,7 +2,7 @@
 
 Pre-production AI learning material for **`@alchemist/shared-engine`** (**Engine School**).
 
-**Documentation triad (keep in sync):** this **`README.md`** (operator) · **`SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (outside validation contract) · **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** (doc sync + lesson path for auditors) · **`docs/Engine-School-Lessons-1-2-Outside-Assessment.md`** (lessons 1–2 assessor snapshot).
+**Documentation triad (keep in sync):** this **`README.md`** (operator) · **`SCHOOL.md`** (architecture) · **`docs/Engine-School-Validation.md`** (outside validation contract) · **`docs/Engine-School-Lesson-Path-Outside-Assessment.md`** (doc sync + lesson path for auditors) · **`docs/Engine-School-Lessons-1-2-Outside-Assessment.md`** (lessons 1–2 assessor snapshot) · **`docs/learning-fitness-implementation-roadmap.md`** (fitness v1→v3 + file-level task plan).
 
 This folder is not a runtime module for the browser. Lessons are **JSON + schema + tests**; live triad routes can consume the **generated index** when opt-in env is set (see **Phase 2**).
 
