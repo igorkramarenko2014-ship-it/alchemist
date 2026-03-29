@@ -27,9 +27,9 @@ This brief describes the operational purpose of AIOM (Alchemist integrity and or
 Data in this document is produced by repository scripts and canonical truth artifacts.
 
 - Document schema version: `v1.3`
-- Last verification timestamp from canonical truth artifact: `2026-03-29T15:32:39.439Z`
-- Metrics sync timestamp from canonical truth artifact: `2026-03-29T15:32:39.409Z`
-- Truth file hash: `3a296fdce837ced836928331cf2b58b1b972c6bf972abef528e640c16ce99b23`
+- Last verification timestamp from canonical truth artifact: `2026-03-29T16:22:49.082Z`
+- Metrics sync timestamp from canonical truth artifact: `2026-03-29T16:22:49.051Z`
+- Truth file hash: `8c07674ad1843ebee1a3fda88f944737c17f5e3f788228398a363be88117fa63`
 - Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
@@ -54,15 +54,13 @@ Primary sources:
 
 | Metric | Value | Expected | Definition | Source | Independent check |
 |--------|-------|----------|------------|--------|-------------------|
-| Tests passed | 353 / 353 | `metrics.testsPassed == metrics.testsTotal` | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`, `metrics.testsTotal`) | `jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json` |
+| Tests passed | 359 / 359 | `metrics.testsPassed == metrics.testsTotal` | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`, `metrics.testsTotal`) | `jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json` |
 | IOM coverage | 1.000 | `0.000 <= metrics.iomCoverageScore <= 1.000` | Ratio of mapped IOM cells covered in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.iomCoverageScore`) | `jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json` |
 | MON | value=117, ready=true | `metrics.mon.value == 117 and metrics.mon.ready == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon`) | `jq '.metrics.mon' artifacts/truth-matrix.json` |
 | PNH immunity | 25 / 25 (breaches: 0) [clean] | `metrics.pnhImmunity.status in {clean, breach}` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunity`) | `jq '.metrics.pnhImmunity' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
-| Sync timestamp (UTC) | 2026-03-29T15:32:39.409Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
+| Sync timestamp (UTC) | 2026-03-29T16:22:49.051Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
 | Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
-
-**`learningOutcomes` (truth matrix + FIRE metrics JSON).** Schema **3** artifacts include **`learningOutcomes`** with numeric rates and **`authoritative: false`**. Source: **`scripts/aggregate-truth.mjs`** / **`scripts/sync-fire-md.mjs`** read **`artifacts/learning-fitness-report.json`** (aggregator). **`orderChangeRate`** is **0** until **`score_candidates`** rows are persisted to JSONL and aggregated. **Integrity lane** uses **`metrics.*` only** — do not treat **`learningOutcomes`** as a gate or MON input.
 
 Re-sync procedure (if any metric shows unknown):
 1. Run `pnpm verify:harsh`
