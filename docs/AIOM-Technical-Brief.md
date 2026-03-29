@@ -1,16 +1,24 @@
 # AIOM Technical Brief
 
-External technical snapshot for architecture review and operations review.
+This brief describes the operational purpose of AIOM (Alchemist integrity and orchestration metrics) and the **canonical readiness artifact** (`artifacts/truth-matrix.json`, referred to here as the **truth matrix**) used to assess release and runtime trust posture. External technical snapshot for architecture review and operations review.
 
 ## System Overview
 
-AIOM is a verification-driven metrics framework that aggregates test results, runtime signals, and integrity checks into a single canonical truth artifact used to assess system readiness.
+**Purpose.** The Alchemist monorepo ships a TypeScript web application, shared packages, and optional WASM-backed encoder tooling. **`shared-engine`** is the library that implements preset-candidate validation and scoring (statistical gates, deduplication, ranking), triad-adjacent governance helpers, and related test-covered logic that `pnpm verify:harsh` exercises. **AIOM** does not replace those gates; it **aggregates** selected verification outputs, WASM posture, and orchestrator coverage signals into one **machine-readable snapshot** so operators can answer whether the repo’s **declared** integrity inputs are aligned and fresh enough to trust for a given decision.
 
-- `shared-engine`: core validation and scoring layer evaluated by verify/test flows
-- `IOM cells`: coverage units used in verification completeness reporting
-- `PNH simulation`: scenario-based resilience checks summarized into immunity metrics
+**Major components.** The **truth matrix** (canonical readiness artifact) is produced by `pnpm fire:sync` from `verify_post_summary` data and metrics files. **IOM cells** (coverage units in the Igor orchestration map) feed **IOM coverage** scores. **PNH simulation** (scenario-based resilience tests) feeds immunity summaries. Runtime exposure is **`GET /api/health/truth-matrix`**, which serves the committed artifact **plus** separate **`live`** checks (API, triad, WASM).
 
-This document is an externally verifiable snapshot derived from repository artifacts.
+**Who uses this.** **Engineering** runs verify and sync and owns fixes when metrics regress. **Release managers** use the snapshot for **readiness signals** (tests, coverage, WASM, MON). **Operations / DevOps / SRE** monitor freshness, endpoint health, and audit trails. **Architecture reviewers** use this brief and the artifact contract to judge whether integrity reporting is explicit, bounded, and testable.
+
+**Decision the artifact enables.** The truth matrix supports **release and runtime trust decisions**: whether to treat the repo as **consistent with the last green verify**, whether the **snapshot is fresh** under policy, and whether **runtime** serving of the artifact matches disk—**not** whether the product is “correct” in a business sense (see Known Limitations).
+
+## Primary Use Cases
+
+- **Release readiness gating** — Compare tests, IOM coverage, PNH immunity, WASM availability, and MON against policy before tagging or promoting a build; use alongside (not instead of) full verify and domain sign-off.
+- **Post-sync integrity verification** — After `pnpm fire:sync`, confirm `artifacts/truth-matrix.json` validates, hashes match documentation, and `jq` spot-checks match the metrics table.
+- **Runtime vs canonical comparison** — Call `GET /api/health/truth-matrix` and compare `artifact` to the on-disk file to detect drift, schema issues, or freshness violations.
+- **CI / verification audit trail** — Tie a commit to a hashed truth matrix and `verify_post_summary` inputs for post-incident review (stderr `verify_post_summary` remains the primary audit line for the verify run itself).
+- **Operator troubleshooting** — When `freshnessStatus`, `integrityStatus`, or `divergences` fail, determine whether the cause is stale sync, dev/test posture, environment reachability, or a real mismatch.
 
 ## Synchronization Metadata
 
@@ -19,9 +27,9 @@ This document is an externally verifiable snapshot derived from repository artif
 Data in this document is produced by repository scripts and canonical truth artifacts.
 
 - Document schema version: `v1.3`
-- Last verification timestamp from canonical truth artifact: `2026-03-28T16:30:42.951Z`
+- Last verification timestamp from canonical truth artifact: `2026-03-28T20:47:46.404Z`
 - Metrics sync timestamp from canonical truth artifact: `2026-03-28T16:30:42.922Z`
-- Truth file hash: `75bd5b4611b2612e6128507a057da25d7dc5451b46b4dab71ab6e3da573ae91c`
+- Truth file hash: `02c424fc578f78926e6c4971176848855f93f83efd84df46f51ec9a8955f421e`
 - Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
@@ -30,7 +38,7 @@ How to verify independently:
 sha256sum artifacts/truth-matrix.json
 ```
 
-Snapshot freshness is within policy (120m max age; prod default 15m, dev default 2h unless overridden).
+If this snapshot is stale (older than 120m per ALCHEMIST_TRUTH_MAX_AGE_MINUTES or defaults), run `pnpm verify:harsh` then `pnpm fire:sync` before sharing.
 
 Interpretation note: values listed here are raw system metrics. They do not imply correctness without independent verification.
 
@@ -48,11 +56,11 @@ Primary sources:
 |--------|-------|----------|------------|--------|-------------------|
 | Tests passed | 338 / 338 | `metrics.testsPassed == metrics.testsTotal` | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`, `metrics.testsTotal`) | `jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json` |
 | IOM coverage | 1.000 | `0.000 <= metrics.iomCoverageScore <= 1.000` | Ratio of mapped IOM cells covered in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.iomCoverageScore`) | `jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json` |
-| MON | value=0, ready=false | `metrics.mon.value == 117 and metrics.mon.ready == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon`) | `jq '.metrics.mon' artifacts/truth-matrix.json` |
+| MON | value=117, ready=true | `metrics.mon.value == 117 and metrics.mon.ready == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon`) | `jq '.metrics.mon' artifacts/truth-matrix.json` |
 | PNH immunity | 25 / 25 (breaches: 0) [clean] | `metrics.pnhImmunity.status in {clean, breach}` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunity`) | `jq '.metrics.pnhImmunity' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
 | Sync timestamp (UTC) | 2026-03-28T16:30:42.922Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
-| Divergences | 1 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
+| Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):
 1. Run `pnpm verify:harsh`
@@ -69,6 +77,31 @@ Audit procedure:
 
 <!-- DOCS_SYNC:END -->
 
+### MON (Minimum Operating Number) and the 117 scale
+
+The number **117** is **not** an arbitrary label: it is the **fixed scale factor** tied to the repository’s **initiator coverage set** (the enumerated “117 skills” manifest and `ONE_SEVENTEEN_CONSTANT` in code). During verify, **`verify_post_summary`** may emit `minimumOperatingNumber117` and `minimumOperatingReady`. The aggregation script stores **`metrics.mon`** from that summary. Conceptually, **MON117 = round(aiomIntegrityScore × 117)** and **`minimumOperatingReady` is true when `aiomIntegrityScore ≥ 0.9`** (see `minimumOperatingFormula` in `verify_post_summary` when present). **Value 117 with `ready: true`** means the integrity score hit the top of that scale and passed the ready threshold for this **AIOM metric lane**.
+
+**Operational meaning when MON is below 117 or `ready` is false:** the last aggregated verify did not produce a “full scale / ready” posture for this metric, or inputs were missing—for example **`metrics.mon` with `value: 0`, `ready: false`, `source: "unresolved"`** when `verify_post_summary` did not include MON fields. That is a **signal to inspect verify outputs**, not a full diagnosis by itself.
+
+**Equivalence to “full release.”** **`metrics.mon.value == 117` and `metrics.mon.ready == true`** are the **artifact’s** definition of **AIOM release-ready posture** for this brief. They are **not** strictly equivalent to “ship the product”: the verify pipeline itself documents stronger bars (for example WASM/HARD GATE “release” flags in `verify_post_summary`) that may still be false when MON looks good. Treat MON as **one bounded input**, not a substitute for the full release checklist.
+
+### Artifact `divergences` array (aggregation)
+
+The `divergences` field in **`artifacts/truth-matrix.json`** is populated at aggregation time when **`verify_post_summary` did not supply both MON fields** (`minimumOperatingNumber117` and `minimumOperatingReady`), so **`metrics.mon` falls back to `unresolved`** and a single **MON** record is written into `divergences`. When verify includes MON fields, the array is typically **empty** (stored MON matches verify). **Runtime** “divergence” (live API vs disk) is defined separately below. Always use **`jq '.divergences' artifacts/truth-matrix.json`** for the artifact’s current array.
+
+## Operational Context (reading non-ideal snapshots)
+
+This brief is a **point-in-time** view. **No historical time series** is stored in this document; if you need trend context, compare **git history** of `artifacts/truth-matrix.json`, prior **`verify_post_summary`** artifacts, and CI logs. The repository does **not** ship a dedicated metrics database for AIOM.
+
+| Observation | Possible interpretations (non-exhaustive) |
+|-------------|---------------------------------------------|
+| **MON = 0**, **`ready = false`** | Often **`source: "unresolved"`**—verify summary lacked MON inputs; or integrity score path did not run. Can also reflect **dev/test** runs that skip parts of verify. **Not automatically** a schema attack or corruption. |
+| **`ready = false`** with MON &lt; 117 | Expected when **aiomIntegrityScore** is below the ready threshold (e.g. &lt; 0.9) or inputs are partial. |
+| **`Divergences` &gt; 0** | Inspect **`jq '.divergences'`** on the artifact. In the current aggregator, usually means **MON was unresolved** (verify summary lacked MON fields). Correlate with **`artifacts/verify/verify-post-summary.json`** for that commit. |
+| **Stale timestamps** | **Stale artifact** (policy in `ALCHEMIST_TRUTH_MAX_AGE_MINUTES`) vs **clock skew** vs **forgotten `fire:sync`**. |
+
+**Recommended follow-ups:** re-run **`pnpm verify:harsh`**, then **`pnpm fire:sync`**; diff **`artifacts/truth-matrix.json`** against the previous commit; read the latest **`artifacts/verify/verify-post-summary.json`**; compare **`GET /api/health/truth-matrix`** to disk.
+
 ## Runtime Status Endpoint
 
 Runtime status endpoint:
@@ -83,11 +116,17 @@ curl -sS "http://127.0.0.1:3000/api/health/truth-matrix"
 
 **Snapshot vs live:** `artifact` is the **canonical snapshot** from `artifacts/truth-matrix.json` (1:1). `canonicalMetrics` is `artifact.metrics` (backward-compatible alias). **`live`** is **runtime-only** health (API / triad / WASM checks + `checkedAtUtc`); it is **never** merged into `artifact`. Stale snapshots (`freshnessStatus: stale_data`) force `live.status` to **`degraded`** or **`down`**, never **`ok`**.
 
+**Illustrative JSON (schema only).** The example below shows **field shape** and typical keys. **It is not a guarantee** of current values: `divergences` may be empty or non-empty depending on the committed artifact; **`live`** timestamps and statuses change every request. For ground truth, use **`jq`** on `artifacts/truth-matrix.json` and a live **`curl`** response—**do not** assume this snippet matches the metrics table row-for-row.
+
 Expected top-level fields (minimum contract):
 
 ```json
 {
-  "artifact": { "schemaVersion": 2, "metrics": { }, "divergences": [] },
+  "artifact": {
+    "schemaVersion": 2,
+    "metrics": {},
+    "divergences": []
+  },
   "canonicalMetrics": {},
   "live": {
     "status": "ok",
@@ -121,13 +160,22 @@ Expected runtime failure modes:
 
 If values in this brief and the runtime endpoint diverge, refresh this document with `pnpm fire:sync` and review why artifacts differ.
 
+## Known Limitations
+
+- **Snapshot, not a dashboard:** This brief and `truth-matrix.json` are **commits in time**, not a time-series or SLO dashboard.
+- **Artifact ≠ business correctness:** Green metrics attest to **defined** engineering checks and aggregation inputs; they do **not** prove market fit, legal compliance, or end-user outcomes.
+- **`live` vs canonical:** Runtime health and the **committed** artifact measure **different things**; a healthy API can still serve a **stale** or **internally divergent** snapshot.
+- **Terminology:** Names such as **IOM**, **PNH**, and **truth matrix** are project-specific; external readers should rely on this glossary and the pairing of internal names with plain-language phrases in this document.
+- **Transient environment issues:** Missing env, skipped scripts, or selective verify can depress scores or produce **`unresolved`** MON **without** indicating schema corruption.
+- **Automated table rows:** The **`DOCS_SYNC`** section is **regenerated** by `pnpm fire:sync`; manual edits inside those markers are **overwritten**.
+
 ## Glossary
 
 | Term | Definition |
 |------|------------|
-| AIOM | Verification-driven metrics framework that aggregates test results, runtime signals, and integrity checks into a single canonical truth artifact used to assess system readiness. |
-| IOM cell | Atomic unit of verification coverage used to track completeness of the orchestrator map in the shared-engine. |
-| PNH simulation | Scenario-based resilience testing suite that simulates potential failure modes and produces immunity metrics (passed / total / breaches). |
-| MON | Minimum Operating Number — stored only as `metrics.mon.{value,ready,source}` on the artifact. Display strings such as `117/117_READY` are **derived** for humans; **117** is a release-invariant target when initiator coverage is complete, not a second truth source. |
-| Truth matrix | Canonical source of truth stored at `artifacts/truth-matrix.json`. All runtime metrics and verification results must match this artifact exactly. |
-| Divergence | Any inconsistency between the runtime `/api/health/truth-matrix` response and the deserialized `artifacts/truth-matrix.json` (including missing fields, type mismatches, schema violations, or freshness SLA breach). |
+| AIOM | Alchemist integrity / orchestration metrics layer: aggregates verify outputs into **`artifacts/truth-matrix.json`** (the **canonical readiness artifact**) to support **trust and freshness** decisions. |
+| IOM cell | **Coverage unit** in the Igor orchestration map; tracked so **IOM coverage** can report how much of the map is represented in verification. |
+| PNH simulation | **Scenario-based resilience tests**; summarized as PNH immunity (passed/total/breaches) in the truth matrix. |
+| MON | Minimum Operating Number — stored as `metrics.mon.{value,ready,source}` on the artifact. Display strings such as `117/117_READY` are **derived** for humans. **117** is the **enumerated initiator scale** (constant manifest count), not a second independent source of truth. |
+| Truth matrix | **Canonical readiness artifact** at `artifacts/truth-matrix.json`; runtime and docs are expected to match this file **byte-for-byte** where the contract applies. |
+| Divergence | **Runtime / health sense:** inconsistency between **`GET /api/health/truth-matrix`** and the deserialized artifact, or freshness/schema failures as defined in the runtime section. **Artifact sense:** see **Artifact `divergences` array** above. |
