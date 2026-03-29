@@ -122,7 +122,7 @@ export function selectLessonsForPrompt(
   opts?: SelectLessonsOptions,
 ): SelectedLesson[] {
   try {
-    const maxLessons = opts?.maxLessons ?? 3;
+    const maxLessons = opts?.maxLessons ?? 2;
     const maxCharsPerLesson = opts?.maxCharsPerLesson ?? 120;
     if (!index.lessons.length) return [];
 

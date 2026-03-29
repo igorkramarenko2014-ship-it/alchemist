@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alchemist.local/schemas/engine-lesson.schema.v1.json",
+  "$id": "https://alchemist.local/schemas/engine-lesson.schema.v1.2.json",
   "title": "EngineLesson",
-  "description": "Single annotated learning unit for shared-engine corpus (Engine School). Schema contract v1.x.",
-  "x-alchemist-schema-version": "1.0",
+  "description": "Single annotated learning unit for shared-engine corpus (Engine School). v1.2 adds optional cluster id for archetype grouping.",
+  "x-alchemist-schema-version": "1.2",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -21,8 +21,8 @@
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "1.0",
-      "description": "Must match x-alchemist-schema-version in lesson.schema.json; bump both when evolving the contract."
+      "enum": ["1.1", "1.2"],
+      "description": "Lesson file revision; 1.2 adds optional cluster."
     },
     "id": {
       "type": "string",
@@ -38,6 +38,12 @@
       "type": "string",
       "minLength": 1,
       "description": "Style category (taxonomy or DL staging label — not committed as binaries)"
+    },
+    "cluster": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Stable archetype bucket (e.g. bass_transient_punch) — cluster-first selection; advisory only"
     },
     "mappings": {
       "type": "object",
@@ -89,6 +95,85 @@
           "type": "string",
           "minLength": 40,
           "description": "Why this archetype differs (decision-grade, not a second full essay)"
+        }
+      }
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["beginner", "intermediate", "advanced"],
+      "description": "Optional pedagogical tier for selection / sequencing (advisory only)"
+    },
+    "lessonVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonic revision counter for this lesson id (human-facing evolution tracking)"
+    },
+    "changelog": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Human-readable revision notes (newest first recommended)"
+    },
+    "replaces": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional prior lesson id superseded by this file (audit trail only)"
+    },
+    "antiPatterns": {
+      "type": "array",
+      "description": "What to avoid — teaches failure modes without overriding gates",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["description"],
+        "properties": {
+          "description": { "type": "string", "minLength": 12 },
+          "relatedTo": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "description": "Mapping keys this anti-pattern touches (must be keys of mappings)"
+          },
+          "whyItFails": {
+            "type": "string",
+            "minLength": 8,
+            "description": "Perceptual or mix consequence (advisory)"
+          }
+        }
+      }
+    },
+    "heuristics": {
+      "type": "array",
+      "description": "Advisory bias hints — never gate overrides",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["condition", "bias"],
+        "properties": {
+          "condition": { "type": "string", "minLength": 4 },
+          "bias": { "type": "string", "minLength": 4 },
+          "weight": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "contrastMatrix": {
+      "type": "object",
+      "description": "Optional structured multi-axis contrast (supplements contrastWith)",
+      "additionalProperties": false,
+      "required": ["vs", "axes", "differences"],
+      "properties": {
+        "vs": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Other lesson id"
+        },
+        "axes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "differences": {
+          "type": "object",
+          "description": "Free-form axis → short contrast note",
+          "additionalProperties": { "type": "string" }
         }
       }
     }

@@ -101,9 +101,21 @@ function textOverlapScore(candidate: AICandidate, lesson: LearningLesson): numbe
   return base;
 }
 
+function clamp01(x: number): number {
+  return Math.min(1, Math.max(0, x));
+}
+
+/** Phase 3: scale affinity by telemetry **`fitnessScore`** when present on index rows (advisory rerank only). */
+function lessonFitnessMultiplier(lesson: LearningIndexLesson): number {
+  const f = lesson.fitnessScore;
+  if (f == null || !Number.isFinite(f)) return 0.825;
+  return 0.65 + 0.35 * clamp01(f);
+}
+
 /**
  * Deterministic [0,1] corpus affinity — no I/O, never throws.
  * `SerumState` leaf paths are matched to `lesson.mappingKeys` (exact, case-insensitive).
+ * Per-lesson combined score is scaled by optional **`fitnessScore`** (from aggregated telemetry + build-index).
  */
 export function computeCorpusAffinity(
   candidate: AICandidate,
@@ -111,14 +123,15 @@ export function computeCorpusAffinity(
 ): number {
   try {
     if (!lessons.length) return 0;
-    let rawParam = 0;
-    let rawText = 0;
+    let best = 0;
     for (const lesson of lessons) {
-      rawParam = Math.max(rawParam, paramOverlapScore(candidate, lesson));
-      rawText = Math.max(rawText, textOverlapScore(candidate, lesson));
+      const rawParam = paramOverlapScore(candidate, lesson);
+      const rawText = textOverlapScore(candidate, lesson);
+      const raw = rawParam * 0.7 + rawText * 0.3;
+      const scaled = raw * lessonFitnessMultiplier(lesson);
+      best = Math.max(best, scaled);
     }
-    const affinity = rawParam * 0.7 + rawText * 0.3;
-    return Math.min(1, Math.max(0, affinity));
+    return Math.min(1, Math.max(0, best));
   } catch {
     return 0;
   }

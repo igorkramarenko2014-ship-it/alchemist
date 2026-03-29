@@ -26,6 +26,10 @@ import {
 import type { AICandidate, Panelist } from "@alchemist/shared-types";
 import type { IntentHardenerReason } from "@alchemist/shared-engine";
 import { NextResponse } from "next/server";
+import {
+  appendEngineSchoolTelemetryJsonl,
+  type EngineSchoolTelemetryRecord,
+} from "@/lib/learning-telemetry-jsonl";
 
 /** Upstream provider budget per panelist (server-side). */
 const PANELIST_UPSTREAM_TIMEOUT_MS: Record<Panelist, number> = {
@@ -80,6 +84,117 @@ function triadResponseHeaders(
   };
 }
 
+/**
+ * Score stats from panelist candidates after route-local validation only.
+ * Slavic + Undercover + triad merge gates run in the browser `runTriad` — see `triad_run_end` there.
+ */
+function candidateScoreStats(candidates: readonly AICandidate[]): {
+  bestScore: number | null;
+  meanScore: number | null;
+} {
+  const scores = candidates
+    .map((c) => c.score)
+    .filter((s): s is number => typeof s === "number" && Number.isFinite(s));
+  if (scores.length === 0) return { bestScore: null, meanScore: null };
+  const sum = scores.reduce((a, b) => a + b, 0);
+  return { bestScore: Math.max(...scores), meanScore: sum / scores.length };
+}
+
+/** Opt-in stderr JSON: `ALCHEMIST_LEARNING_CONTEXT=1` + learning telemetry (default on in dev / Vercel preview — see `env.ts`). */
+function logEngineSchoolInfluenceTelemetry(
+  runId: string,
+  panelist: Panelist,
+  learningContext: string,
+  learningContextUsed: {
+    injected: boolean;
+    selectedLessonIds: string[];
+    contextCharCount?: number;
+  },
+  candidateCount: number,
+  mode: "unconfigured" | "circuit_open" | "fetcher",
+  triadSessionId: string | undefined,
+  extras?: {
+    upstreamError?: boolean;
+    /** Panelist route only: upstream → echo audit → `isValidCandidate`. Not full triad gates. */
+    panelistPipeline?: {
+      rawFromFetcher: number;
+      afterEchoAudit: number;
+      afterBasicValidation: number;
+      bestScore: number | null;
+      meanScore: number | null;
+    };
+  },
+): void {
+  if (!env.learningContextEnabled || !env.learningTelemetryEnabled) return;
+  const sessionKey = triadSessionId !== undefined && triadSessionId.length > 0 ? triadSessionId : runId;
+  const appliedRules =
+    learningContextUsed.injected && mode === "fetcher"
+      ? (["priorityMappingKeys", "coreRules", "contrastWith"] as const)
+      : [];
+  const ctxChars = learningContextUsed.contextCharCount ?? learningContext.length;
+  const pipe = extras?.panelistPipeline;
+  const raw = pipe?.rawFromFetcher ?? 0;
+  const afterEcho = pipe?.afterEchoAudit ?? 0;
+  const passedPv = pipe?.afterBasicValidation ?? (mode === "fetcher" ? candidateCount : 0);
+  const best = pipe?.bestScore ?? null;
+  const mean = pipe?.meanScore ?? null;
+  const denom = Math.max(raw, 1);
+  const panelistPassRate = mode === "fetcher" ? Math.min(1, Math.max(0, passedPv / denom)) : 0;
+  const baselineScore: number | null = null;
+  const deltaScore =
+    best !== null && baselineScore !== null ? best - baselineScore : null;
+  const passLift = mode === "fetcher" ? panelistPassRate : null;
+
+  logEvent("engine_school_influence", {
+    runId,
+    triadSessionId: sessionKey,
+    panelist,
+    lessonsUsed: learningContextUsed.selectedLessonIds,
+    injected: learningContextUsed.injected,
+    contextChars: learningContext.length,
+    contextCharCount: ctxChars,
+    appliedRules: [...appliedRules],
+    candidateCount,
+    mode,
+    ...(extras?.upstreamError ? { upstreamError: true } : {}),
+    ...(pipe !== undefined
+      ? {
+          panelistPipeline: pipe,
+          fullGatePipeline: "client_runTriad" as const,
+        }
+      : {}),
+  });
+
+  if (!env.learningTelemetryFileEnabled) return;
+  const row: EngineSchoolTelemetryRecord = {
+    eventType: "engine_school_influence",
+    timestampUtc: new Date().toISOString(),
+    source: "triad_panel_route",
+    runId,
+    triadSessionId: sessionKey,
+    panelist,
+    lessonIds: learningContextUsed.selectedLessonIds,
+    appliedRules: [...appliedRules],
+    contextChars: ctxChars,
+    mode,
+    injected: learningContextUsed.injected,
+    ...(extras?.upstreamError ? { upstreamError: true } : {}),
+    candidatesGenerated: raw,
+    afterEchoAudit: afterEcho,
+    passedPanelistValidation: passedPv,
+    bestScore: best,
+    meanScore: mean,
+    panelistPassRate,
+    fullGatePipeline: "client_runTriad",
+    baselineScore,
+    deltaScore,
+    passLift,
+  };
+  appendEngineSchoolTelemetryJsonl(row, {
+    telemetryDirOverride: env.learningTelemetryDir,
+  });
+}
+
 export type TriadPanelPostOptions = {
   /** Per-route override of default upstream timeout. */
   timeoutMs?: number;
@@ -106,6 +221,14 @@ export async function triadPanelPost(
   if (!prompt) {
     return NextResponse.json({ error: "prompt_required" }, { status: 400 });
   }
+
+  const triadSessionIdFromBody =
+    body !== null &&
+    typeof body === "object" &&
+    "triadSessionId" in body &&
+    typeof (body as { triadSessionId?: unknown }).triadSessionId === "string"
+      ? (body as { triadSessionId: string }).triadSessionId.trim()
+      : undefined;
 
   // Reality Loop: the user requested an output (triad view/generation intent).
   logRealitySignal("OUTPUT_VIEWED", { surface: "dock", panelist });
@@ -246,6 +369,7 @@ export async function triadPanelPost(
       promptLength,
       mode: "unconfigured",
       learningContextUsed,
+      ...(triadSessionIdFromBody !== undefined ? { triadSessionId: triadSessionIdFromBody } : {}),
     });
     const detail =
       "Set DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope or OpenRouter base URL), and GROQ_API_KEY or LLAMA_API_KEY for Groq. Stub responses are disabled.";
@@ -258,6 +382,15 @@ export async function triadPanelPost(
       mode: "unconfigured",
       error: "triad_unconfigured",
     });
+    logEngineSchoolInfluenceTelemetry(
+      runId,
+      panelist,
+      learningContext,
+      learningContextUsed,
+      0,
+      "unconfigured",
+      triadSessionIdFromBody,
+    );
     return NextResponse.json(
       {
         error: "triad_unconfigured",
@@ -286,6 +419,7 @@ export async function triadPanelPost(
       promptLength,
       mode: "circuit_open",
       learningContextUsed,
+      ...(triadSessionIdFromBody !== undefined ? { triadSessionId: triadSessionIdFromBody } : {}),
     });
     logEvent("triad_panelist_end", {
       runId,
@@ -296,6 +430,15 @@ export async function triadPanelPost(
       mode: "circuit_open",
       error: "circuit_open",
     });
+    logEngineSchoolInfluenceTelemetry(
+      runId,
+      panelist,
+      learningContext,
+      learningContextUsed,
+      0,
+      "circuit_open",
+      triadSessionIdFromBody,
+    );
     return NextResponse.json(
       {
         error: "circuit_open",
@@ -316,12 +459,22 @@ export async function triadPanelPost(
     promptLength,
     mode: "fetcher",
     learningContextUsed,
+    ...(triadSessionIdFromBody !== undefined ? { triadSessionId: triadSessionIdFromBody } : {}),
   });
   const t0 = nowMs();
   const timeoutMs = options?.timeoutMs ?? PANELIST_UPSTREAM_TIMEOUT_MS[panelist];
   const { signal, dispose } = mergeAiTimeoutSignal(timeoutMs, request.signal);
   let candidates: AICandidate[] = [];
   let error: string | undefined;
+  let panelistPipeline:
+    | {
+        rawFromFetcher: number;
+        afterEchoAudit: number;
+        afterBasicValidation: number;
+        bestScore: number | null;
+        meanScore: number | null;
+      }
+    | undefined;
   try {
     if (useDeepSeekLive) {
       candidates = await fetchDeepSeekCandidates(
@@ -348,11 +501,22 @@ export async function triadPanelPost(
         learningContext,
       );
     }
+    const rawFromFetcher = candidates.length;
     const echoAudited = auditTriadCandidatesForPnhResponseEcho(candidates, {
       runId,
       panelist,
     });
+    const afterEchoAudit = echoAudited.candidates.length;
     candidates = echoAudited.candidates.filter(isValidCandidate);
+    const afterBasicValidation = candidates.length;
+    const stats = candidateScoreStats(candidates);
+    panelistPipeline = {
+      rawFromFetcher,
+      afterEchoAudit,
+      afterBasicValidation,
+      bestScore: stats.bestScore,
+      meanScore: stats.meanScore,
+    };
   } catch (e) {
     error = e instanceof Error ? e.message : String(e);
     candidates = [];
@@ -374,6 +538,20 @@ export async function triadPanelPost(
     mode: "fetcher",
     ...(error !== undefined ? { error } : {}),
   });
+  logEngineSchoolInfluenceTelemetry(
+    runId,
+    panelist,
+    learningContext,
+    learningContextUsed,
+    candidates.length,
+    "fetcher",
+    triadSessionIdFromBody,
+    error !== undefined
+      ? { upstreamError: true }
+      : panelistPipeline !== undefined
+        ? { panelistPipeline }
+        : undefined,
+  );
 
   // Reality Loop: candidate list is empty => flow discarded/failed to produce usable output.
   if (candidates.length === 0) {

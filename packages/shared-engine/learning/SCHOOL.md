@@ -21,8 +21,8 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 | `docs/lesson-00-role-model.md` | Canonical **Lesson 0** spec (four layers, good vs bad, trust tier). |
 | `docs/pack-archetype-extraction-sheet.md` | Operator worksheet (3-pass squeeze + table). |
 | `docs/pack-fingerprints-tier-a.md` | Tier-A pack fingerprint table (Pass 1). |
-| `schema/lesson.schema.json` | Formal lesson shape (draft 2020-12). **`x-alchemist-schema-version`** (**`1.1`**) must match each lesson’s **`schemaVersion`** field. Optional **v1.1** fields: **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`**, **`lessonVersion`**, **`changelog`**. |
-| `README.md` | Day-to-day commands (forget-presets, verify, build-index, enrich-preview, Phase 2 env). |
+| `schema/lesson.schema.json` | Formal lesson shape (draft 2020-12). **`x-alchemist-schema-version`** (**`1.2`**). Each lesson **`schemaVersion`**: **`"1.1"`** or **`"1.2"`**; optional **`cluster`**. Optional fields: **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`**, **`lessonVersion`**, **`changelog`**. |
+| `README.md` | Day-to-day commands (forget-presets, verify, build-index, enrich-preview, **`learning:assess-fitness`**, Phase 2 env). |
 | `SCHOOL.md` | This file — architecture and boundaries. |
 | `scripts/build-learning-index.mjs` | Generates **`learning-index.json`** (gitignored). |
 | `load-learning-index.ts` | Node: resolves **`learning-index.json`** (module path, monorepo cwd, or **`ALCHEMIST_LEARNING_INDEX_PATH`**). **`null`** if missing/invalid — never throws. |
@@ -34,12 +34,12 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 
 **Validated always; consumed optionally.** Lessons are **fail-closed** in CI (**`pnpm learning:verify`** / **`pnpm verify:harsh`**). **Consumption** of the generated index is **opt-in** at runtime: set **`ALCHEMIST_LEARNING_CONTEXT=1`** in **`apps/web-app`** env and ensure **`pnpm learning:build-index`** has been run so **`learning-index.json`** exists. Then **`POST /api/triad/*`** fetchers append the block built by **`loadLearningIndex`** → **`selectLessonsForPrompt`** → **`buildLearningContext`** (see **`apps/web-app/lib/engine-school-triad-context.ts`**) onto **`triadPanelistSystemPrompt`** — **read-only** context, **no** gate or weight mutation.
 
-**Bridges shipped:** (1) **`pnpm learning:build-index`** → **`learning-index.json`**. (2) **Phase 2** triad prompt enrichment (**`ALCHEMIST_LEARNING_CONTEXT`**) + **`pnpm learning:enrich-preview`**. (3) **Phase 3** corpus-affinity **re-rank** inside **`scoreCandidates`** (**`ALCHEMIST_CORPUS_PRIOR`**) — order only, no gate changes. See **`docs/Engine-School-Validation.md` §8**.
+**Bridges shipped:** (1) **`pnpm learning:build-index`** → **`learning-index.json`**. (2) **Phase 2** triad prompt enrichment (**`ALCHEMIST_LEARNING_CONTEXT`**) + **`pnpm learning:enrich-preview`**; **`triadSessionId`** on **`POST /api/triad/*`** correlates panelists with **`triad_run_end`** / JSONL. (3) **Phase 3** corpus-affinity **re-rank** inside **`scoreCandidates`** (**`ALCHEMIST_CORPUS_PRIOR`**) — order only, optional **fitness** weighting when **`fitnessScore`** is on index rows; no gate changes. See **`docs/Engine-School-Validation.md` §8**.
 
 ## Lifecycle
 
 1. Stage material under `DL/` on your machine.
-2. Author **`corpus/<id>.json`** with **`schemaVersion`: `"1.1"`**, `id`, `presetName`, `style`, non-empty **`mappings`**, `character`, **`causalReasoning`**, **`priorityMappingKeys`**, **`coreRules`**, **`contrastWith`**; optional **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`** (see **`corpus/engine-school-role-model-v1.json`** or **`corpus/engine-school-lesson-002-wide-pad-evolution.json`**).
+2. Author **`corpus/<id>.json`** with **`schemaVersion`: `"1.2"`** (or **`"1.1"`**), `id`, `presetName`, `style`, non-empty **`mappings`**, `character`, **`causalReasoning`**, **`priorityMappingKeys`**, **`coreRules`**, **`contrastWith`**; optional **`cluster`**, **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`** (see **`corpus/engine-school-role-model-v1.json`** or **`corpus/engine-school-lesson-002-wide-pad-evolution.json`**).
 3. Run **`pnpm learning:forget-presets`** so stray binaries / audio / PDFs outside `DL/` are removed from `learning/`.
 4. Run **`pnpm learning:verify`** (or rely on **`pnpm verify:harsh`**, which runs the same validator).
 5. Run **`pnpm learning:build-index`** after corpus edits when using Phase 2 or previews.
@@ -47,12 +47,12 @@ Pre-production **structured teaching data** for `@alchemist/shared-engine`. It i
 
 ## Hooks
 
-- **`pnpm learning:verify`** — `scripts/validate-learning-corpus.mjs` (AJV vs `lesson.schema.json`). **Fail-closed:** any violation → **exit code 1**; **`pnpm verify:harsh`** fails the same way.
+- **`pnpm learning:verify`** — `scripts/validate-learning-corpus.mjs` (AJV vs `lesson.schema.json`). If **`corpus/`** has stray non-lesson files, runs **`learning-forget-presets`** once then rescans (**`LEARNING_CORPUS_NO_AUTO_SANITIZE=1`** to skip). **Fail-closed:** any violation → **exit code 1**; **`pnpm verify:harsh`** fails the same way.
 - **Stdout** is one **JSON line**: `{"status":"ok",...}` or `{"status":"fail","errors":[...]}` for CI parsers. **Stderr** repeats human-readable lines.
 - Optional **`LEARNING_CORPUS_MIN_LESSONS`** (default **`1`**) raises the minimum recursive `**/*.json` count under `corpus/`.
 - **`pnpm learning:build-index`** — generates **`learning-index.json`**; **not** part of the fail-closed lesson schema gate unless you add it to CI deliberately (**§8**).
 - **`pnpm learning:enrich-preview -- "<prompt>"`** — prints the **would-be** context block (ignores **`ALCHEMIST_LEARNING_CONTEXT`**; needs a built index).
-- **Runtime (web-app):** **`ALCHEMIST_LEARNING_CONTEXT=1`** enables append; **`triad_run_start`** includes **`learningContextUsed`** (`injected`, `selectedLessonIds`, **`contextCharCount`**). Optional **`ALCHEMIST_LEARNING_TELEMETRY=1`** (with learning context on) emits **`engine_school_influence`** on stderr (**`logEvent`**) — lesson ids, context size, candidate count, mode — for offline fitness / coverage pipelines.
+- **Runtime (web-app):** **`ALCHEMIST_LEARNING_CONTEXT=1`** enables append; **`triad_run_start`** includes **`learningContextUsed`** (`injected`, `selectedLessonIds`, **`contextCharCount`**). **`engine_school_influence`** on stderr (**`logEvent`**) when learning context + telemetry resolve true (**`apps/web-app/env.ts`**: default on in dev / Vercel preview; **`ALCHEMIST_LEARNING_TELEMETRY=0`** off; **`=1`** always on). Payload includes **`panelistPipeline`** + **`fullGatePipeline`:** **`client_runTriad`** — for offline fitness / coverage pipelines.
 - **`pnpm learning:assess-fitness`** — offline JSON snapshot (**v0**): static ranking from corpus metadata; replace with real lifts when **`engine_school_influence`** logs are aggregated.
 
 ## IOM / coverage

@@ -17,7 +17,7 @@
 
 ## 1. What “lessons 1–2” are in this repo
 
-Both are **committed JSON files** under **`packages/shared-engine/learning/corpus/`**, same **`schemaVersion`: `"1.0"`**, validated by **`pnpm learning:verify`** (also at the end of **`pnpm verify:harsh`**). They are **pedagogical distillates**: abstract **`mappings`** (human-readable control-family prose), **`character`**, and **`causalReasoning`** — **not** shipped Serum preset binaries, not sample libraries, not vendor pack redistribution.
+Both are **committed JSON files** under **`packages/shared-engine/learning/corpus/`**, **`schemaVersion`: `"1.2"`** (schema **1.2**; **`1.1`** remains accepted for older files), each with an optional **`cluster`** string for affinity / ops, validated by **`pnpm learning:verify`** (also at the end of **`pnpm verify:harsh`**). They are **pedagogical distillates**: abstract **`mappings`** (human-readable control-family prose), **`character`**, and **`causalReasoning`** — **not** shipped Serum preset binaries, not sample libraries, not vendor pack redistribution.
 
 | Label | File | `id` | `style` (summary) | Pedagogical role |
 |-------|------|------|-------------------|------------------|
@@ -26,7 +26,7 @@ Both are **committed JSON files** under **`packages/shared-engine/learning/corpu
 
 **Field labels:** `presetName` is a **human lesson title** (schema-required string ≥2 chars). Wording states **logic-only, not a vendor preset** — the committed artifact is **not** an assertion of rights to any commercial pack.
 
-**Compressed pedagogy layer (schema 1.0, required on every lesson — “Lesson 3 upgrade” to the contract):** **`priorityMappingKeys`** (which 2–3 `mappings` keys matter most), **`coreRules`** (2–3 compressed causal sentences), **`contrastWith`** (paired `lessonId` in corpus + `difference`). Validator enforces subset-of-`mappings`, non-self `contrastWith.lessonId`, and duplicate-id rejection.
+**Compressed pedagogy layer (required on every lesson):** **`priorityMappingKeys`**, **`coreRules`**, **`contrastWith`**. Schema **1.1+** adds optional **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`**, **`lessonVersion`**, **`changelog`**. Schema **1.2** adds optional **`cluster`**. Validator enforces subset-of-`mappings`, non-self `contrastWith` / `contrastMatrix.vs`, `antiPatterns.relatedTo` ⊆ `mappings` keys, and duplicate-id rejection.
 
 ---
 
@@ -34,7 +34,7 @@ Both are **committed JSON files** under **`packages/shared-engine/learning/corpu
 
 | Guarantee | Mechanism |
 |-----------|-----------|
-| Same schema | **`packages/shared-engine/learning/schema/lesson.schema.json`** (`x-alchemist-schema-version` **1.0**) |
+| Same schema | **`packages/shared-engine/learning/schema/lesson.schema.json`** (`x-alchemist-schema-version` **1.2**; lesson **`schemaVersion`** **`1.1`** or **`1.2`**) |
 | No silent skip | **`scripts/validate-learning-corpus.mjs`** walks **`corpus/**/*.json`** recursively |
 | Fail-closed CI | Invalid JSON or schema violation → **`pnpm learning:verify`** / **`pnpm verify:harsh`** **exit ≠ 0** |
 | Meaningfulness floor | `character` ≥20 chars, `causalReasoning` ≥40 chars, `mappings` ≥1 property (see **`Engine-School-Validation.md` §1**) |

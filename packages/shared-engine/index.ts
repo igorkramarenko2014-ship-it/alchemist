@@ -29,7 +29,7 @@ export {
   stubPanelistCandidates,
   TRIAD_PANELISTS,
 } from "./triad";
-export type { TriadPanelistChunk } from "./triad";
+export type { TriadFetcherContext, TriadPanelistChunk } from "./triad";
 export {
   finalizeCandidates,
 } from "./candidate-finalizer";

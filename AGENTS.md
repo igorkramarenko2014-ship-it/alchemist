@@ -58,7 +58,10 @@ pnpm verify:ci        # assert:hard-gate + encoder-diff prereq + verify:harsh + 
 pnpm health:audit     # read latest verify_post_summary artifact; ALCHEMIST_RELEASE_AUDIT=1 enforces release posture
 pnpm triad:parity-diff # stub vs live triad snapshots JSON (needs keys + running app for live)
 pnpm verify:harsh     # faster: no next build (includes Engine School `validate-learning-corpus.mjs` at end)
-pnpm learning:verify  # Engine School: schema + **corpus/ FS allowlist** (only *.json / *.md / .gitkeep)
+pnpm learning:verify  # Engine School: schema + corpus FS allowlist; auto-runs forget-presets once if junk under corpus/ (LEARNING_CORPUS_NO_AUTO_SANITIZE=1 to forbid)
+pnpm learning:assess-fitness  # static corpus fitness JSON + aggregate JSONL → learning-fitness-report + fitnessSnapshot merge (see learning/README.md)
+pnpm learning:aggregate-telemetry  # artifacts/learning-telemetry/*.jsonl → report + index fitnessSnapshot (alone)
+pnpm learning:forget-telemetry  # prune old JSONL shards (LEARNING_TELEMETRY_RETENTION_DAYS, default 90)
 pnpm learning:sanitize  # forget-presets + learning:verify — run when corpus picked up pack junk
 pnpm learning:teach   # Run Lesson (RL): print corpus lessons, then `learning:forget-presets` (DL/ untouched)
 pnpm learning:rl      # alias → `learning:teach`

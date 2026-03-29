@@ -172,6 +172,11 @@ export interface TriadRunTelemetry {
   triadLateJoinerPanelist?: Panelist;
   /** Explicit marker for fast-path observability (`triad_fast_path_resolved` on stderr telemetry). */
   triadFastPathResolved?: boolean;
+  /**
+   * Same as **`triad_run_end` / `triad_run_start` `runId`** for this client **`runTriad`** invocation — correlates
+   * three **`POST /api/triad/*`** panelist calls with merged gate telemetry.
+   */
+  triadSessionId?: string;
   /** Power Logic Fusion: detect -> validate -> probe -> confirm classification. */
   plf?: {
     confidence: "low" | "medium" | "high";

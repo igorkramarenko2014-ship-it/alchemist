@@ -34,9 +34,10 @@ These commands refresh **machine-audited** artifacts and docs **after** the code
 | Step | Command / artifact | Role |
 |------|----------------------|------|
 | Author lessons | **`packages/shared-engine/learning/corpus/**/*.json`** | Committed, schema-validated lessons (abstract mappings + character + **causalReasoning**) |
-| Schema | **`packages/shared-engine/learning/schema/lesson.schema.json`** | **`x-alchemist-schema-version` `1.0`** ↔ lesson **`schemaVersion`: `"1.0"`** |
-| Fail-closed gate | **`pnpm learning:verify`** (= **`scripts/validate-learning-corpus.mjs`**) | AJV validation of **every** corpus JSON; stdout one JSON line `{"status":"ok",...}` or fail |
-| Generated index (optional runtime) | **`pnpm learning:build-index`** → **`learning-index.json`** (gitignored) | Condensed index for prompt enrichment / affinity; **not** the canonical lesson text |
+| Schema | **`packages/shared-engine/learning/schema/lesson.schema.json`** | **`x-alchemist-schema-version` `1.2`** ↔ lesson **`schemaVersion`**: **`"1.1"`** or **`"1.2"`**; optional **`cluster`** |
+| Fail-closed gate | **`pnpm learning:verify`** (= **`scripts/validate-learning-corpus.mjs`**) | AJV validation of **every** corpus JSON; optional auto **`learning-forget-presets`** if **`corpus/`** has non-lesson files; stdout one JSON line `{"status":"ok",...}` or fail |
+| Generated index (optional runtime) | **`pnpm learning:build-index`** → **`learning-index.json`** (gitignored) | Condensed index (schema **1.2** payload; pedagogy fields + optional **`cluster`** / **`fitnessScore`** — **`Engine-School-Validation.md` §8**) for prompt enrichment / affinity; **not** the canonical lesson text |
+| Fitness snapshot (offline) | **`pnpm learning:assess-fitness`** | Static JSON ranking from corpus metadata (**v0**); real coverage uses aggregated **`engine_school_influence`** logs |
 | Operator methodology | **`docs/pack-archetype-extraction-sheet.md`**, **`docs/pack-fingerprints-tier-a.md`** | Human-only; **not** CI-validated Markdown |
 
 **Assessor note:** Lessons **do not** ship `.fxp` or assert Serum offsets. Encoder authority stays **`packages/fxp-encoder/serum-offset-map.ts`** + **`tools/validate-offsets.py`** per **HARD GATE**.
@@ -53,7 +54,8 @@ Use this order when describing **how** a pack becomes a lesson:
 4. **Validate** with **`pnpm learning:verify`** (or rely on **`pnpm verify:harsh`**, which invokes the same validator).
 5. **Hygiene:** **`pnpm learning:forget-presets`** removes stray binaries/audio outside **`DL/`** under the learning tree (see **`README.md`**).
 6. **Optional:** **`pnpm learning:build-index`** for Phase 2 / Phase 3 consumers; index file is **gitignored**.
-7. **Commit** lesson JSON + operator docs — **not** **`DL/`** blobs.
+7. **Optional:** **`pnpm learning:assess-fitness`** for an offline fitness snapshot from corpus fields (not a substitute for log-backed analysis).
+8. **Commit** lesson JSON + operator docs — **not** **`DL/`** blobs.
 
 Gold reference lessons: **`packages/shared-engine/learning/corpus/engine-school-role-model-v1.json`** (`engine_school_role_model_v1`) · **`packages/shared-engine/learning/corpus/engine-school-lesson-002-wide-pad-evolution.json`** (`engine_school_lesson_002`).
 
@@ -83,6 +85,7 @@ So: **any** invalid lesson JSON **fails the same verify** as typecheck / Vitest 
 | 3 | Doc metrics honesty | After green verify, **`pnpm fire:sync`** updates **`docs/FIRE.md`** / **`docs/fire-metrics.json`**; **`validate-fire-metrics.mjs`** passes in **`fire:sync`** |
 | 4 | Truth matrix | **`artifacts/truth-matrix.json`** consistent with **`validate-truth-matrix.mjs`** (part of verify + fire:sync) |
 | 5 | No lesson authority creep | Confirm **`ALCHEMIST_LEARNING_CONTEXT`** / **`ALCHEMIST_CORPUS_PRIOR`** (if used) are **advisory / ordering-only** per **`packages/shared-engine/learning/README.md`** — not gate mutation |
+| 6 | Optional telemetry / fitness | With Phase 2 on, **`ALCHEMIST_LEARNING_TELEMETRY=1`** may emit **`engine_school_influence`**; **`pnpm learning:assess-fitness`** is offline metadata only — confirm neither mutates gates or weights |
 
 ---
 
@@ -94,4 +97,4 @@ So: **any** invalid lesson JSON **fails the same verify** as typecheck / Vitest 
 
 ---
 
-**Document maintenance:** When the lesson schema version bumps, update **`docs/Engine-School-Validation.md`**, **`lesson.schema.json`**, and this file’s cross-references in the same change set.
+**Document maintenance:** When the lesson schema version bumps, update **`docs/Engine-School-Validation.md`**, **`lesson.schema.json`**, **`packages/shared-engine/learning/scripts/build-learning-index.mjs`** (index **`INDEX_SCHEMA_VERSION`**), and this file’s cross-references in the same change set. When adding new **`pnpm learning:*`** scripts, list them here and in **`packages/shared-engine/learning/README.md`** / **`AGENTS.md`**.

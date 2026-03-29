@@ -39,14 +39,14 @@ There are **no** preset binaries in **`corpus/`** by design. If something slippe
 | **`docs/pack-archetype-extraction-sheet.md`** | **Pack archetype extraction sheet** — 3-pass squeeze + master table for operators. |
 | **`docs/pack-fingerprints-tier-a.md`** | **Tier-A fingerprints** — one row per trusted pack (Pass 1); operator-filled. |
 | **`DL/`** | **Pending downloads / next pack staging.** Drop zips, folders, or `.fxp` here while you work. **`pnpm learning:forget-presets` never reads, deletes, or prunes inside `DL/`.** |
-| **`schema/`** | **`lesson.schema.json`** (draft 2020-12, **`x-alchemist-schema-version` `1.0`**). Each lesson includes **`"schemaVersion": "1.0"`** until the contract bumps. |
+| **`schema/`** | **`lesson.schema.json`** (draft 2020-12, **`x-alchemist-schema-version` `1.2`**). Each lesson sets **`schemaVersion`** to **`"1.1"`** or **`"1.2"`**; optional **`cluster`** (string); optional **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`**, **`lessonVersion`**, **`changelog`**. |
 
 There is **no** separate `presets/` tree. Optional TypeScript helpers may live next to this README.
 
 ## Lesson cycle
 
 1. **Stage** the new pack under **`DL/`** only (unpack there if you like).
-2. **Author** **`corpus/<id>.json`** with **`"schemaVersion": "1.0"`**, **`id`**, **`presetName`** (≥2 chars), **`style`**, **`mappings`** (≥1 key), **`character`** (≥20 chars), **`causalReasoning`** (≥40 chars), **`priorityMappingKeys`** (1–3 keys from `mappings`), **`coreRules`** (2–3 minimal causal strings), **`contrastWith`** (`lessonId` of another corpus lesson + `difference`); optional **`tags`**. Clone **`corpus/engine-school-role-model-v1.json`** (tight) or **`corpus/engine-school-lesson-002-wide-pad-evolution.json`** (large dataset), or mirror **`docs/Engine-School-Validation.md`** section 1.
+2. **Author** **`corpus/<id>.json`** with **`"schemaVersion": "1.2"`** (or **`"1.1"`**), **`id`**, **`presetName`** (≥2 chars), **`style`**, **`mappings`** (≥1 key), **`character`** (≥20 chars), **`causalReasoning`** (≥40 chars), **`priorityMappingKeys`** (1–3 keys from `mappings`), **`coreRules`** (2–3 minimal causal strings), **`contrastWith`** (`lessonId` of another corpus lesson + `difference`); optional **`cluster`**, **`tags`**, **`antiPatterns`**, **`difficulty`**, **`heuristics`**, **`contrastMatrix`**, **`lessonVersion`**, **`changelog`**. Clone **`corpus/engine-school-role-model-v1.json`** (tight) or **`corpus/engine-school-lesson-002-wide-pad-evolution.json`** (large dataset), or mirror **`docs/Engine-School-Validation.md`** section 1.
 3. **Strip** everything **outside `DL/`** that matches pack artifacts (binaries, pack images, noise txt). **`DL/` is left untouched.**
 
    ```bash
@@ -74,11 +74,13 @@ Teach only (no forget step): `LEARNING_TEACH_SKIP_FORGET=1 pnpm learning:teach`
 pnpm learning:verify
 ```
 
-**Fail-closed** for CI. **Stdout** prints one JSON line (`status` ok|fail). Optional: **`LEARNING_CORPUS_MIN_LESSONS=N`** (default 1). Also runs at the end of **`pnpm verify:harsh`**.
+**Fail-closed** for CI. **Stdout** prints one JSON line (`status` ok|fail). Optional: **`LEARNING_CORPUS_MIN_LESSONS=N`** (default 1). If **`corpus/`** contains any file that is not lesson **`*.json`**, optional **`*.md`**, or **`.gitkeep`**, the validator runs **`learning-forget-presets`** once and rescans (same as manual **`pnpm learning:sanitize`**). To require a clean tree with **no** auto-deletion (e.g. strict tests): **`LEARNING_CORPUS_NO_AUTO_SANITIZE=1`**. Also runs at the end of **`pnpm verify:harsh`**.
+
+**Cloud sync:** Prefer **`corpus/`** with only committed **`*.json`** (use **`DL/`** for staging packs). If sync re-hydrates junk, the validator’s one-shot sanitize usually clears it; for a non-mutating check, set **`LEARNING_CORPUS_NO_AUTO_SANITIZE=1`** or use a non-synced clone.
 
 ## Learning index
 
-**`learning-index.json`** is a **generated** artifact that condenses committed lessons (`id`, `style`, truncated `character` / `causalReasoning`, `tags`, `mappingKeys` only) for future **prompt enrichment** and **affinity scoring**. It is **not canonical**: full lesson text lives in **`corpus/`** and **`pnpm learning:verify`** stays the gate. **Gitignored** — do not hand-edit or commit it.
+**`learning-index.json`** is a **generated** artifact (payload **`schemaVersion`**: **`"1.2"`**) that condenses each committed lesson for **prompt enrichment** and **affinity scoring**. Per-lesson rows always include **`id`**, **`style`**, truncated **`character`** / **`causalReasoning`**, **`tags`**, **`mappingKeys`**; the builder also passes through **`priorityMappingKeys`**, **`coreRules`**, **`contrastWith`** when present, optional **`cluster`**, optional **`difficulty`**, **`lessonVersion`**, **`antiPatternCount`**, **`contrastMatrixVs`**, and merges **`fitnessScore`** from **`artifacts/learning-fitness-report.json`** when present. **No** full **`mappings`** values — see **`docs/Engine-School-Validation.md` §8**. It is **not canonical**: full lesson text lives in **`corpus/`** and **`pnpm learning:verify`** stays the gate. **Gitignored** — do not hand-edit or commit it.
 
 ```bash
 pnpm learning:build-index
@@ -106,19 +108,25 @@ Regenerate after you change committed lessons. Nothing in CI requires this file 
 pnpm learning:enrich-preview -- "warm analog pad"
 ```
 
-**Telemetry:** Existing **`triad_run_start`** logs include **`learningContextUsed`** (`injected`, `selectedLessonIds`) from the web route.
+**Telemetry:** **`triad_run_start`** logs include **`learningContextUsed`** (`injected`, `selectedLessonIds`, **`contextCharCount`**) from the web route. **`triadSessionId`** — one id per **`runTriad`** — may be sent on **`POST /api/triad/*`** JSON bodies and is echoed on **`triad_run_end`** and **`EngineSchoolTelemetryRecord`** JSONL so three panelist calls and Engine School rows line up. With **`ALCHEMIST_LEARNING_CONTEXT=1`**, **`engine_school_influence`** (stderr **`logEvent`**) is emitted when learning telemetry is enabled (**`apps/web-app/env.ts`**): default **on** in development and **Vercel preview** (`VERCEL_ENV=preview`), off in **production** and **`NODE_ENV=test`** unless **`ALCHEMIST_LEARNING_TELEMETRY=1`**; **`ALCHEMIST_LEARNING_TELEMETRY=0`** forces off. Payload includes lesson ids, context size, **`panelistPipeline`** (`rawFromFetcher` → echo audit → **`isValidCandidate`**), **`bestScore`/`meanScore`** on survivors, and **`fullGatePipeline`: `"client_runTriad"`** — Slavic/Undercover + triad merge still run in the browser.
+
+**Structured JSONL (local dev default):** When **`ALCHEMIST_LEARNING_TELEMETRY_FILE=1`**, or **unset** in local **`NODE_ENV=development`** (off on **Vercel** `VERCEL=1`, **production**, **`test`** unless **`=1`**), each **`engine_school_influence`** row is also appended to **`artifacts/learning-telemetry/YYYY-MM-DD.jsonl`** (gitignored). Shape: **`EngineSchoolTelemetryRecord`** in **`apps/web-app/lib/learning-telemetry-jsonl.ts`** — structured fields only (no raw prompts). Override directory: **`ALCHEMIST_LEARNING_TELEMETRY_DIR`** (absolute). **Serverless:** keep file sink off; rely on stderr **`logEvent`** or a writable path.
+
+**Aggregation:** **`pnpm learning:aggregate-telemetry`** reads all **`*.jsonl`** in that folder, computes per-lesson **`fitnessScore`** (recency-weighted; panelist pass proxy until triad correlation ships), writes **`artifacts/learning-fitness-report.json`**, and merges **`fitnessSnapshot`** into **`learning-index.json`** if **`pnpm learning:build-index`** produced it. **`pnpm learning:forget-telemetry`** drops shards older than **`LEARNING_TELEMETRY_RETENTION_DAYS`** (default **90**).
+
+**Fitness snapshot (offline v0 + telemetry):** **`pnpm learning:assess-fitness`** runs static corpus heuristics **then** aggregation (same command). Static-only: `node scripts/learning-assess-fitness.mjs`.
 
 **Not changed:** gate math, blend weights, HARD GATE, corpus validator.
 
-**Selection hygiene (Phase 2b):** meaningful prompt tokens are **length ≥ 3** and exclude a small **stopword** set; **mappingKey** overlap scores **+0.5** (token match only). **Dedup:** same `style` + overlapping `tags` keeps the highest-scoring lesson. **Budget:** `buildLearningContext` caps the **entire** block (advisory lines + lesson lines + end marker) at **800** characters by dropping lowest-ranked lessons, then hard-truncating the last line if needed.
+**Selection hygiene (Phase 2b):** meaningful prompt tokens are **length ≥ 3** and exclude a small **stopword** set; **mappingKey** overlap scores **+0.5** (token match only). **Dedup:** same `style` + overlapping `tags` keeps the highest-scoring lesson. **Default cap:** up to **2** lessons per run (override with **`maxLessons`**). **Budget:** `buildLearningContext` caps the **entire** block (advisory lines + lesson lines + end marker) at **800** characters by dropping lowest-ranked lessons, then hard-truncating the last line if needed.
 
 ## Phase 3 — corpus-affinity scoring prior (optional)
 
-**Behavior:** After **`filterValid`**, Slavic dedupe (**thresholds unchanged**), and intent blend sort, **`scoreCandidates`** **re-ranks** survivors using **`computeCorpusAffinity`** (deterministic): leaf paths under **`SerumState`** vs lesson **`mappingKeys`** (flexible path/segment match, not only exact string equality), **`priorityMappingKeys`** weighted higher when present, tag/style/**coreRules** word overlap in **`description`/`reasoning`**. Sort key is **`baseScore + affinity × weight`** — **candidates’ stored `score` is not mutated**; **no** new admissions, **no** gate overrides. **Default weight `0.08`**.
+**Behavior:** After **`filterValid`**, Slavic dedupe (**thresholds unchanged**), and intent blend sort, **`scoreCandidates`** **re-ranks** survivors using **`computeCorpusAffinity`** (deterministic): leaf paths under **`SerumState`** vs lesson **`mappingKeys`** (flexible path/segment match, not only exact string equality), **`priorityMappingKeys`** weighted higher when present, tag/style/**coreRules** word overlap in **`description`/`reasoning`**. When index lessons include telemetry-backed **`fitnessScore`**, affinity is **fitness-weighted** (advisory; gate math unchanged). Sort key is **`baseScore + affinity × effectiveWeight`** — **candidates’ stored `score` is not mutated**; **no** new admissions, **no** gate overrides. **Default base weight `0.08`**.
 
 **Opt-in (server):** Set **`ALCHEMIST_CORPUS_PRIOR=1`** and run **`pnpm learning:build-index`**. The home page uses the server action **`getCorpusScoringLessons()`** so the gitignored index is read on the server only. **`loadLearningIndex`** lives on **`@alchemist/shared-engine/node`** (filesystem) — not on the main **`@alchemist/shared-engine`** entry, so Next client bundles do not pull **`node:fs`**.
 
-**Telemetry:** When the prior runs, **`logEvent("score_candidates", { corpusAffinityApplied, corpusAffinityWeight, survivorCount, corpusAffinityLessonCount, corpusAffinityPriorityAware })`** is emitted.
+**Telemetry:** When the prior runs, **`logEvent("score_candidates", { corpusAffinityApplied, corpusAffinityWeight, corpusAffinityEffectiveWeight, corpusAffinityFitnessWeighted, survivorCount, corpusAffinityLessonCount, corpusAffinityPriorityAware })`** is emitted (fields may be omitted when not applicable).
 
 **Do not confuse with Phase 2:** Corpus affinity is **not** gated by **`ALCHEMIST_LEARNING_CONTEXT`**. That flag is **prompt injection only**. Scoring bias uses **`ALCHEMIST_CORPUS_PRIOR=1`** (web server env) + lessons fed into **`scoreCandidates`** — see **`compute-corpus-affinity.ts`** and **`score.ts`**.
 

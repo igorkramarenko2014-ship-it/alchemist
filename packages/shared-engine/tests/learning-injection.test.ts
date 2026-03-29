@@ -11,7 +11,7 @@ import { triadPanelistSystemPrompt } from "../triad-panelist-prompt";
 function idx(lessons: LearningIndex["lessons"]): LearningIndex {
   return {
     generatedAtUtc: "2026-03-27T00:00:00.000Z",
-    schemaVersion: "1.0",
+    schemaVersion: "1.2",
     lessonCount: lessons.length,
     lessons,
   };
@@ -34,6 +34,37 @@ describe("selectLessonsForPrompt", () => {
       },
     ]);
     expect(selectLessonsForPrompt(index, "zzz unrelated zzz")).toEqual([]);
+  });
+
+  it("defaults to at most 2 lessons per prompt when maxLessons omitted", () => {
+    const index = idx([
+      {
+        id: "a",
+        style: "warm analog",
+        character: "c1",
+        causalReasoning: "r1",
+        tags: ["bass"],
+        mappingKeys: [],
+      },
+      {
+        id: "b",
+        style: "warm analog",
+        character: "c2",
+        causalReasoning: "r2",
+        tags: ["bass", "thin"],
+        mappingKeys: [],
+      },
+      {
+        id: "c",
+        style: "cold",
+        character: "c3",
+        causalReasoning: "r3",
+        tags: ["bass"],
+        mappingKeys: [],
+      },
+    ]);
+    const out = selectLessonsForPrompt(index, "warm bass");
+    expect(out).toHaveLength(2);
   });
 
   it("returns top-N by score when matches exist", () => {

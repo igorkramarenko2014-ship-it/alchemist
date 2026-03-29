@@ -3,7 +3,7 @@
  * Fail-closed validation: every *.json under learning/corpus/ (recursive) vs lesson.schema.json.
  *
  * Machine-readable contract on stdout (single JSON line):
- *   {"status":"ok","validatedFiles":N,"schemaVersion":"1.0","minLessons":M}
+ *   {"status":"ok","validatedFiles":N,"schemaVersion":"1.2","minLessons":M}
  *   {"status":"fail","errors":[{"file":"...","path":"...","message":"..."}],...}
  *
  * Human detail also on stderr. Exit 0 only when status ok.
@@ -11,14 +11,17 @@
  * Env:
  *   LEARNING_CORPUS_MIN_LESSONS — default 1
  *   LEARNING_CORPUS_SKIP_FS_CLEAN_CHECK=1 — skip “only lesson *.json / optional *.md / .gitkeep under corpus/” (emergency only)
+ *   LEARNING_CORPUS_NO_AUTO_SANITIZE=1 — if FS check finds junk under corpus/, do not run learning-forget-presets (fail closed; tests/debug)
  *
  * Cross-checks (after AJV): priorityMappingKeys ⊆ mappings keys; contrastWith.lessonId exists
- * in corpus and ≠ this lesson id; duplicate lesson ids fail.
+ * in corpus and ≠ this lesson id; contrastMatrix.vs same; antiPatterns[].relatedTo ⊆ mappings keys;
+ * duplicate lesson ids fail.
  *
  * Usage (repo root):
  *   node scripts/validate-learning-corpus.mjs
  *   pnpm learning:verify
  */
+import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, extname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -147,7 +150,39 @@ if (!existsSync(corpusRoot)) {
 if (process.env.LEARNING_CORPUS_SKIP_FS_CLEAN_CHECK !== "1") {
   const allCorpusFiles = [];
   collectAllCorpusFilesRecursive(corpusRoot, allCorpusFiles);
-  const forbidden = allCorpusFiles.filter((p) => !isAllowedCorpusPath(p));
+  let forbidden = allCorpusFiles.filter((p) => !isAllowedCorpusPath(p));
+  if (
+    forbidden.length > 0 &&
+    process.env.LEARNING_CORPUS_NO_AUTO_SANITIZE !== "1"
+  ) {
+    const forgetScript = join(root, "scripts", "learning-forget-presets.mjs");
+    process.stderr.write(
+      "[validate-learning-corpus] non-lesson file(s) under corpus/ — running scripts/learning-forget-presets.mjs once\n",
+    );
+    const r = spawnSync(process.execPath, [forgetScript], { cwd: root, stdio: "inherit" });
+    if (r.status !== 0) {
+      emitResult(
+        {
+          status: "fail",
+          errors: [
+            {
+              file: relative(root, corpusRoot) || "corpus/",
+              path: "",
+              message: `learning-forget-presets exited ${r.status ?? "unknown"} — fix corpus/ or run pnpm learning:sanitize`,
+            },
+          ],
+          schemaVersion: "1.2",
+          minLessons: 1,
+          scannedFiles: 0,
+        },
+        [],
+      );
+      process.exit(1);
+    }
+    const allCorpusFilesAfter = [];
+    collectAllCorpusFilesRecursive(corpusRoot, allCorpusFilesAfter);
+    forbidden = allCorpusFilesAfter.filter((p) => !isAllowedCorpusPath(p));
+  }
   if (forbidden.length > 0) {
     const preview = forbidden.slice(0, 12);
     for (const p of preview) {
@@ -169,7 +204,7 @@ if (process.env.LEARNING_CORPUS_SKIP_FS_CLEAN_CHECK !== "1") {
             message: `${forbidden.length} non-lesson file(s) under corpus/ — run pnpm learning:forget-presets (or pnpm learning:sanitize)`,
           },
         ],
-        schemaVersion: "1.0",
+        schemaVersion: "1.2",
         minLessons: 1,
         scannedFiles: 0,
       },
@@ -194,7 +229,7 @@ try {
 }
 
 const declaredSchemaVersion = schema["x-alchemist-schema-version"];
-if (declaredSchemaVersion !== "1.0") {
+if (declaredSchemaVersion !== "1.2") {
   emitResult(
     {
       status: "fail",
@@ -202,7 +237,7 @@ if (declaredSchemaVersion !== "1.0") {
         {
           file: relative(root, schemaPath),
           path: "/x-alchemist-schema-version",
-          message: `expected x-alchemist-schema-version "1.0", got ${JSON.stringify(declaredSchemaVersion)}`,
+          message: `expected x-alchemist-schema-version "1.2", got ${JSON.stringify(declaredSchemaVersion)}`,
         },
       ],
     },
@@ -325,6 +360,41 @@ for (const { rel, doc } of parsed) {
         path: "/contrastWith/lessonId",
         message: `contrastWith.lessonId ${JSON.stringify(cw.lessonId)} not found among corpus lesson ids`,
       });
+    }
+  }
+  const cm = doc.contrastMatrix;
+  if (cm && typeof cm === "object" && typeof cm.vs === "string") {
+    if (cm.vs === doc.id) {
+      errors.push({
+        file: rel,
+        path: "/contrastMatrix/vs",
+        message: "contrastMatrix.vs must reference another lesson, not this lesson",
+      });
+    } else if (!allLessonIds.has(cm.vs)) {
+      errors.push({
+        file: rel,
+        path: "/contrastMatrix/vs",
+        message: `contrastMatrix.vs ${JSON.stringify(cm.vs)} not found among corpus lesson ids`,
+      });
+    }
+  }
+  const mappingKeySetForAnti = new Set(Object.keys(doc.mappings ?? {}));
+  const anti = doc.antiPatterns;
+  if (Array.isArray(anti)) {
+    for (let i = 0; i < anti.length; i += 1) {
+      const ap = anti[i];
+      if (!ap || typeof ap !== "object") continue;
+      const rt = ap.relatedTo;
+      if (!Array.isArray(rt)) continue;
+      for (const k of rt) {
+        if (typeof k !== "string" || !mappingKeySetForAnti.has(k)) {
+          errors.push({
+            file: rel,
+            path: `/antiPatterns/${i}/relatedTo`,
+            message: `each relatedTo entry must be a key of mappings; missing or unknown: ${JSON.stringify(k)}`,
+          });
+        }
+      }
     }
   }
 }

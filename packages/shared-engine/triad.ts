@@ -101,7 +101,12 @@ const TRIAD_FAST_RESOLVE_DEFAULT_FLOOR = 0.85;
 async function runFetcherChunksWithOptionalEarlyTwo(
   runId: string,
   prompt: string,
-  fetcher: (prompt: string, panelist: Panelist, signal: AbortSignal) => Promise<AICandidate[]>,
+  fetcher: (
+    prompt: string,
+    panelist: Panelist,
+    signal: AbortSignal,
+    ctx?: TriadFetcherContext,
+  ) => Promise<AICandidate[]>,
   parentSignal: AbortSignal | undefined,
   scoreOpts: ScoreCandidatesOptions,
   early: { enabled: boolean; scoreFloor: number }
@@ -151,7 +156,10 @@ async function runFetcherChunksWithOptionalEarlyTwo(
     }
     try {
       const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
-        withTimeout(fetcher(prompted, panelist, controllers[i].signal), panelClientTimeoutMs)
+        withTimeout(
+          fetcher(prompted, panelist, controllers[i].signal, { triadSessionId: runId }),
+          panelClientTimeoutMs
+        )
       );
       return {
         panelist,
@@ -408,29 +416,36 @@ const PANELIST_TO_SLUG: Record<Panelist, string> = {
   QWEN: "qwen",
 };
 
+/** Passed as 4th argument to triad fetchers — correlates panelist HTTP calls with `runTriad`’s `runId`. */
+export type TriadFetcherContext = {
+  triadSessionId: string;
+};
+
 /**
  * Build a triad fetcher for `runTriad`.
  * - `demo === true`: in-process stubs (no HTTP; for Storybook / offline).
- * - `demo === false`: POST `{ prompt }` to `${baseUrl}/api/triad/<slug>` (App Router panelist routes).
+ * - `demo === false`: POST `{ prompt, triadSessionId? }` to `${baseUrl}/api/triad/<slug>` (App Router panelist routes).
  */
 export function makeTriadFetcher(
   demo: boolean,
   baseUrl = "",
-  postOpts?: { userMode?: UserMode }
-): (prompt: string, panelist: Panelist, signal: AbortSignal) => Promise<AICandidate[]> {
+  postOpts?: { userMode?: UserMode; triadSessionId?: string }
+): (prompt: string, panelist: Panelist, signal: AbortSignal, ctx?: TriadFetcherContext) => Promise<AICandidate[]> {
   if (demo) {
-    return (prompt, panelist, signal) => stubPanelistCandidates(prompt, panelist, signal);
+    return (prompt, panelist, signal, _ctx) => stubPanelistCandidates(prompt, panelist, signal);
   }
   const root = baseUrl.replace(/\/$/, "");
-  return async (prompt, panelist, signal) => {
+  return async (prompt, panelist, signal, ctx) => {
     const slug = PANELIST_TO_SLUG[panelist];
     const url = `${root}/api/triad/${slug}`;
+    const session = ctx?.triadSessionId ?? postOpts?.triadSessionId;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         prompt,
         ...(postOpts?.userMode !== undefined ? { userMode: postOpts.userMode } : {}),
+        ...(session !== undefined && session.length > 0 ? { triadSessionId: session } : {}),
       }),
       signal,
     });
@@ -457,8 +472,13 @@ export async function runTriad(
   prompt: string,
   options?: {
     signal?: AbortSignal;
-    /** Override: custom fetcher (e.g. serverless route). If not set, stub is used. */
-    fetcher?: (prompt: string, panelist: Panelist, signal: AbortSignal) => Promise<AICandidate[]>;
+    /** Override: custom fetcher (e.g. serverless route). If not set, stub is used. Receives `triadSessionId` in 4th arg (same as internal `runId`). */
+    fetcher?: (
+      prompt: string,
+      panelist: Panelist,
+      signal: AbortSignal,
+      ctx?: TriadFetcherContext,
+    ) => Promise<AICandidate[]>;
     /** Run consensus validator on each candidate (param range [0,1]); set analysis.validationSummary. */
     runConsensusValidation?: boolean;
     /** When true, exclude candidates that fail consensus (param out-of-range). Default false. */
@@ -696,6 +716,7 @@ export async function runTriad(
     triadGovernanceScores: governance.scores,
     triadParityMode: parity.triadParityMode,
     triadDegraded: parity.triadDegraded,
+    triadSessionId: runId,
   });
 
   if (options?.throwIfTriadNotFullyLive === true && triadRunMode === "fetcher") {
@@ -795,6 +816,7 @@ export async function runTriad(
           triadParityMode: parity.triadParityMode,
           triadDegraded: parity.triadDegraded,
           triadPanelOutcomes: parity.triadPanelOutcomes,
+          triadSessionId: runId,
           pnhContextSurface: {
             triadLaneClass: pnhTriadLaneClassFromClientRun(triadRunMode, parity.triadParityMode),
             riskLevel: pnhEval.riskLevel,
@@ -836,6 +858,7 @@ export async function runTriad(
       triadParityMode: parity.triadParityMode,
       triadDegraded: parity.triadDegraded,
       triadPanelOutcomes: parity.triadPanelOutcomes,
+      triadSessionId: runId,
       pnhContextSurface: {
         triadLaneClass: pnhTriadLaneClassFromClientRun(triadRunMode, parity.triadParityMode),
         riskLevel: pnhEval.riskLevel,

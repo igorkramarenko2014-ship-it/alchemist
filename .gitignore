@@ -65,3 +65,6 @@ packages/shared-engine/learning/DL/**
 !packages/shared-engine/learning/DL/.gitkeep
 # Engine learning: generated index (pnpm learning:build-index)
 packages/shared-engine/learning/learning-index.json
+# Engine School: JSONL telemetry sink + aggregated fitness (local / explicit path — not committed)
+artifacts/learning-telemetry/
+artifacts/learning-fitness-report.json

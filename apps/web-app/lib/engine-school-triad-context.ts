@@ -14,7 +14,11 @@ export function getEngineSchoolTriadAugmentation(userPrompt: string): {
   learningContext: string;
   learningContextUsed: TriadRunLearningContextUsed;
 } {
-  const empty: TriadRunLearningContextUsed = { injected: false, selectedLessonIds: [] };
+  const empty: TriadRunLearningContextUsed = {
+    injected: false,
+    selectedLessonIds: [],
+    contextCharCount: 0,
+  };
   if (!env.learningContextEnabled) {
     return { learningContext: "", learningContextUsed: empty };
   }
@@ -29,6 +33,7 @@ export function getEngineSchoolTriadAugmentation(userPrompt: string): {
     learningContextUsed: {
       injected: learningContext.length > 0,
       selectedLessonIds: selected.map((l) => l.id),
+      contextCharCount: learningContext.length,
     },
   };
 }

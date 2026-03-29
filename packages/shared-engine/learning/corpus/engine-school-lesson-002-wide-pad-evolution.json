@@ -1,5 +1,11 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.2",
+  "cluster": "pads_wide_slow",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.1.0 — schema bump; antiPatterns + contrastMatrix; advanced difficulty; advisory heuristics for pad motion"
+  ],
+  "difficulty": "advanced",
   "id": "engine_school_lesson_002",
   "presetName": "Archetype distillate — wide evolving cinematic pad (logic-only, not a vendor preset)",
   "style": "cinematic wide evolving pad with controlled motion",
@@ -62,5 +68,34 @@
   "contrastWith": {
     "lessonId": "engine_school_role_model_v1",
     "difference": "Lesson 2 optimizes sustained beds, spectral drift, and space; lesson 1 optimizes attack, compact body, and mix-forward bass. The decision fork: need impact and slot under drums (lean lesson 1 time axis) vs need evolving harmonic scenery (lean lesson 2 time axis)—same hygiene, different irreducible core."
-  }
+  },
+  "contrastMatrix": {
+    "vs": "engine_school_role_model_v1",
+    "axes": ["envelope", "modulationRate", "spatialGoal", "mixRole"],
+    "differences": {
+      "envelope": "v1: fast attack, short decay; lesson 002: soft attack, long sustain/release as the main narrative.",
+      "modulationRate": "v1: subtle functional motion; lesson 002: multi-bar sweeps and irrational LFO ratios for non-repeating evolution.",
+      "spatialGoal": "v1: centered punch with cautious width; lesson 002: correlated width and reverb depth as part of the cinematic bed.",
+      "mixRole": "v1: forward rhythmic anchor; lesson 002: background-to-foreground swell that must not mask kick transients."
+    }
+  },
+  "antiPatterns": [
+    {
+      "description": "Fast audio-rate filter or pitch modulation on a sustained pad — reads as seasick or EDM twitch instead of cinematic breathing.",
+      "relatedTo": ["lfoRatesAndShapes", "filterModulationSources"],
+      "whyItFails": "Violates slow time-domain story; vestibular-like motion cues break the illusion of evolving space."
+    },
+    {
+      "description": "Uncontrolled sub build-up under long reverb tails — mud masks chord changes and kills translation.",
+      "relatedTo": ["fxReverbAndSpace", "spectralBalance"],
+      "whyItFails": "Low-frequency masking collapses clarity; ear stops tracking harmonic evolution."
+    }
+  ],
+  "heuristics": [
+    {
+      "condition": "style hints pad, ambient, cinematic, evolving, or wide bed",
+      "bias": "Prefer sub-audio to low-musical LFO rates on filter and keep mono low-mid anchor checks.",
+      "weight": 0.15
+    }
+  ]
 }

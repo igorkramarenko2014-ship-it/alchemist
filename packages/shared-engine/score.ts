@@ -231,6 +231,14 @@ function applyIntentBlendSort(
   return enriched;
 }
 
+function meanTelemetryFitness(lessons: LearningIndexLesson[]): number | null {
+  const fs = lessons
+    .map((l) => l.fitnessScore)
+    .filter((x): x is number => x != null && Number.isFinite(x));
+  if (fs.length === 0) return null;
+  return fs.reduce((a, b) => a + b, 0) / fs.length;
+}
+
 function applyCorpusAffinityResort(
   candidates: AICandidate[],
   options?: ScoreCandidatesOptions,
@@ -240,14 +248,17 @@ function applyCorpusAffinityResort(
     options?.corpusAffinityPrior === true && lessons != null && lessons.length > 0;
   if (!enabled || candidates.length <= 1) return candidates;
   const weight = options?.corpusAffinityWeight ?? 0.08;
+  const mf = meanTelemetryFitness(lessons!);
+  /** Stronger lessons (post-aggregation) increase the rerank nudge slightly — still advisory, no gate mutation. */
+  const effectiveWeight = mf == null ? weight : weight * (0.75 + 0.25 * Math.min(1, Math.max(0, mf)));
   try {
     const rows = candidates.map((c) => ({
       c,
       a: computeCorpusAffinity(c, lessons!),
     }));
     rows.sort((x, y) => {
-      const adjX = x.c.score + x.a * weight;
-      const adjY = y.c.score + y.a * weight;
+      const adjX = x.c.score + x.a * effectiveWeight;
+      const adjY = y.c.score + y.a * effectiveWeight;
       if (adjY !== adjX) return adjY - adjX;
       const wd = weightedScore(y.c) - weightedScore(x.c);
       if (wd !== 0) return wd;
@@ -256,6 +267,8 @@ function applyCorpusAffinityResort(
     logEvent("score_candidates", {
       corpusAffinityApplied: true,
       corpusAffinityWeight: weight,
+      corpusAffinityEffectiveWeight: effectiveWeight,
+      corpusAffinityFitnessWeighted: mf != null,
       survivorCount: candidates.length,
       corpusAffinityLessonCount: lessons!.length,
       corpusAffinityPriorityAware: lessons!.some(

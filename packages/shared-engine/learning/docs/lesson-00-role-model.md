@@ -1,6 +1,6 @@
 # Lesson 0 — Role model for Engine School lessons
 
-This document is the **canonical quality bar** for every committed lesson under `corpus/**/*.json`. It matches **`schema/lesson.schema.json`** (`schemaVersion` **`1.0`**) and the operator flow in **`README.md`**.
+This document is the **canonical quality bar** for every committed lesson under `corpus/**/*.json`. It matches **`schema/lesson.schema.json`** (`schemaVersion` **`1.1`** or **`1.2`**; **`1.2`** adds optional **`cluster`**) and the operator flow in **`README.md`**.
 
 ## What a lesson is (and is not)
 
@@ -25,7 +25,7 @@ Optional **`tags`** sharpen retrieval, deduping, and Phase 2 / Phase 3 overlap.
 
 | Field | Rule |
 |-------|------|
-| `schemaVersion` | **`"1.0"`** until the schema bumps |
+| `schemaVersion` | **`"1.1"`** or **`"1.2"`** (bump with `lesson.schema.json` in one changeset; **`1.2`** + optional **`cluster`**) |
 | `id` | Stable unique id (e.g. `engine_school_role_model_v1`, `engine_school_lesson_002`) |
 | `presetName` | Human label (≥ 2 chars). For archetype lessons: **pack + archetype**, not a single preset name unless that is the teaching unit |
 | `style` | Non-empty style class string |

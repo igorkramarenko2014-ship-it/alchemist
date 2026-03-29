@@ -2,6 +2,27 @@
  * Central env access for routes (expand with @t3-oss/env-nextjs + Zod per docs/FIRESTARTER §8).
  * Do not read `process.env` ad hoc in new API routes — add fields here.
  */
+
+function resolveLearningTelemetryEnabled(nodeEnv: string): boolean {
+  const v = process.env.ALCHEMIST_LEARNING_TELEMETRY;
+  if (v === "0") return false;
+  if (v === "1") return true;
+  if (nodeEnv === "test") return false;
+  if (process.env.VERCEL_ENV === "preview") return true;
+  return nodeEnv !== "production";
+}
+
+/** JSONL under `artifacts/learning-telemetry/` (or `ALCHEMIST_LEARNING_TELEMETRY_DIR`) for offline aggregation. */
+function resolveLearningTelemetryFileEnabled(nodeEnv: string): boolean {
+  const v = process.env.ALCHEMIST_LEARNING_TELEMETRY_FILE;
+  if (v === "0") return false;
+  if (v === "1") return true;
+  if (nodeEnv === "test") return false;
+  if (nodeEnv === "production") return false;
+  if (process.env.VERCEL === "1") return false;
+  return nodeEnv === "development";
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   /** Live `/api/triad/deepseek` when non-empty (`DEEPSEEK_API_KEY`). */
@@ -32,6 +53,20 @@ export const env = {
    * (build with `pnpm learning:build-index`). Default off — avoids extra tokens unless explicitly enabled.
    */
   learningContextEnabled: process.env.ALCHEMIST_LEARNING_CONTEXT === "1",
+  /**
+   * When **`engine_school_influence`** is emitted (requires **`ALCHEMIST_LEARNING_CONTEXT=1`** too).
+   * **`ALCHEMIST_LEARNING_TELEMETRY=1`** — always on. **`=0`** — always off.
+   * **Unset:** on in **`NODE_ENV=development`**, on on **Vercel preview** (`VERCEL_ENV=preview`), off in production and in **`NODE_ENV=test`** (avoid test noise unless explicitly **`1`**).
+   */
+  learningTelemetryEnabled: resolveLearningTelemetryEnabled(process.env.NODE_ENV ?? "development"),
+  /**
+   * Append structured rows to **`artifacts/learning-telemetry/*.jsonl`** when **`engine_school_influence`** fires.
+   * **`ALCHEMIST_LEARNING_TELEMETRY_FILE=1`** — on; **`=0`** — off.
+   * **Unset:** on in local **`development`** only; off on **Vercel** (`VERCEL=1`), **production**, **test** (use stderr `logEvent` or set **`ALCHEMIST_LEARNING_TELEMETRY_DIR`** to a writable path).
+   */
+  learningTelemetryFileEnabled: resolveLearningTelemetryFileEnabled(process.env.NODE_ENV ?? "development"),
+  /** Optional absolute directory for JSONL (default `artifacts/learning-telemetry/` under monorepo root). */
+  learningTelemetryDir: (process.env.ALCHEMIST_LEARNING_TELEMETRY_DIR ?? "").trim(),
   /**
    * When **`1`**, server action loads **`learning-index.json`** for **`scoreCandidates`** corpus-affinity
    * re-rank (Phase 3). Client still calls **`getCorpusScoringLessons()`** — no secrets in the browser.

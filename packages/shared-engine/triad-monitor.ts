@@ -23,6 +23,8 @@ export type TriadRunMode = "fetcher" | "stub" | "tablebase" | "unconfigured";
 export type TriadRunLearningContextUsed = {
   injected: boolean;
   selectedLessonIds: string[];
+  /** Length of appended Engine School block (0 when not injected). */
+  contextCharCount?: number;
 };
 
 export function logTriadRunStart(
@@ -82,12 +84,15 @@ export function logTriadRunEnd(
     };
     triadParityMode?: string;
     triadDegraded?: boolean;
+    /** Correlates with **`POST /api/triad/*`** `triadSessionId` body field (defaults to `runId`). */
+    triadSessionId?: string;
   }
 ): void {
   logEvent("triad_run_end", {
     runId,
     durationMs: Math.round(durationMs),
     ...meta,
+    triadSessionId: meta.triadSessionId ?? runId,
   });
 }
 

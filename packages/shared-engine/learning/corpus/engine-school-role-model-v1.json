@@ -1,5 +1,11 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.2",
+  "cluster": "bass_transient_punch",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.1.0 — schema bump; antiPatterns + heuristics; difficulty tier; fitness/telemetry hooks (advisory only)"
+  ],
+  "difficulty": "intermediate",
   "id": "engine_school_role_model_v1",
   "presetName": "Archetype distillate — modern aggressive bass (logic-only, not a vendor preset)",
   "style": "modern aggressive bass",
@@ -34,5 +40,24 @@
   "contrastWith": {
     "lessonId": "engine_school_lesson_002",
     "difference": "This archetype wins on transient time and forward density in the mix. Lesson 2 inverts the priority: long sustain, slow evolving spectrum, and space—if you keep lesson 1 envelope settings on a pad, you get a weak stab, not a bed; if you apply lesson 2 envelopes to bass punch, you lose impact under drums."
-  }
+  },
+  "antiPatterns": [
+    {
+      "description": "Excessive sustain and long release on a bass intended to read as punchy — smears transients and masks kick.",
+      "relatedTo": ["ampEnvelope", "mixRole"],
+      "whyItFails": "Human ear loses the attack-lock cue; perceived aggression drops because the time story becomes pad-like."
+    },
+    {
+      "description": "Wide stereo detune on the sub-heavy band without mono check — phasey lows and weak center anchor.",
+      "relatedTo": ["stereoField", "mixRole"],
+      "whyItFails": "Bass stops translating in mono playback; punch collapses even if stereo sounds huge on headphones."
+    }
+  ],
+  "heuristics": [
+    {
+      "condition": "prompt emphasizes transient, punch, or mix-forward bass",
+      "bias": "Favor short amp envelope tail and controlled saturation before stereo widening.",
+      "weight": 0.15
+    }
+  ]
 }

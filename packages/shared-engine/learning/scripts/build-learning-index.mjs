@@ -85,7 +85,8 @@ if (collectErrors.length) {
 
 if (files.length === 0) die("no lesson JSON under corpus/");
 
-const INDEX_SCHEMA_VERSION = "1.0";
+const INDEX_SCHEMA_VERSION = "1.2";
+const ALLOWED_LESSON_SCHEMA = new Set(["1.1", "1.2"]);
 const lessons = [];
 
 for (const filePath of files.sort()) {
@@ -96,8 +97,10 @@ for (const filePath of files.sort()) {
   } catch (e) {
     die(`invalid JSON: ${rel} (${e instanceof Error ? e.message : e})`);
   }
-  if (doc.schemaVersion !== INDEX_SCHEMA_VERSION) {
-    die(`${rel}: expected schemaVersion "${INDEX_SCHEMA_VERSION}", got ${JSON.stringify(doc.schemaVersion)}`);
+  if (!ALLOWED_LESSON_SCHEMA.has(doc.schemaVersion)) {
+    die(
+      `${rel}: expected schemaVersion one of ${[...ALLOWED_LESSON_SCHEMA].join(", ")}, got ${JSON.stringify(doc.schemaVersion)}`,
+    );
   }
   if (typeof doc.id !== "string" || !doc.id) die(`${rel}: missing id`);
   if (typeof doc.style !== "string" || !doc.style) die(`${rel}: missing style`);
@@ -129,7 +132,39 @@ for (const filePath of files.sort()) {
       difference: truncate(String(doc.contrastWith.difference ?? ""), 220),
     };
   }
+  if (typeof doc.difficulty === "string") row.difficulty = doc.difficulty;
+  if (typeof doc.lessonVersion === "number" && Number.isFinite(doc.lessonVersion)) {
+    row.lessonVersion = doc.lessonVersion;
+  }
+  if (Array.isArray(doc.antiPatterns)) {
+    row.antiPatternCount = doc.antiPatterns.length;
+  }
+  if (doc.contrastMatrix && typeof doc.contrastMatrix === "object" && typeof doc.contrastMatrix.vs === "string") {
+    row.contrastMatrixVs = doc.contrastMatrix.vs;
+  }
+  if (typeof doc.cluster === "string" && doc.cluster.trim()) {
+    row.cluster = doc.cluster.trim();
+  }
   lessons.push(row);
+}
+
+const fitnessReportPath = join(root, "artifacts", "learning-fitness-report.json");
+const fitnessById = new Map();
+if (existsSync(fitnessReportPath)) {
+  try {
+    const fr = JSON.parse(readFileSync(fitnessReportPath, "utf8"));
+    for (const e of fr.lessons ?? []) {
+      if (e && typeof e.lessonId === "string" && typeof e.fitnessScore === "number" && Number.isFinite(e.fitnessScore)) {
+        fitnessById.set(e.lessonId, e.fitnessScore);
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+}
+for (const row of lessons) {
+  const fs = fitnessById.get(row.id);
+  if (fs != null) row.fitnessScore = fs;
 }
 
 const lessonCount = lessons.length;
@@ -139,6 +174,19 @@ const payload = {
   lessonCount,
   lessons,
 };
+if (existsSync(fitnessReportPath)) {
+  try {
+    const fr = JSON.parse(readFileSync(fitnessReportPath, "utf8"));
+    payload.fitnessSnapshot = {
+      generatedAtUtc: new Date().toISOString(),
+      lessonFitness: fr.lessons ?? [],
+      coverage: fr.coverage ?? {},
+      totalEventsProcessed: fr.totalEventsProcessed ?? 0,
+    };
+  } catch {
+    /* ignore */
+  }
+}
 
 try {
   writeFileSync(outputAbs, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
