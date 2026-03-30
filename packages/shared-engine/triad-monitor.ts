@@ -27,6 +27,12 @@ export type TriadRunLearningContextUsed = {
   contextCharCount?: number;
   /** Cluster tags from selected lessons (schema ≥1.2) — telemetry only. */
   selectedClusters?: string[];
+  /** Per-lesson fitness from merged index snapshot — observability only. */
+  lessonFitnessTrace?: Array<{
+    lessonId: string;
+    fitnessScore: number | null;
+    fitnessConfidence: string | null;
+  }>;
 };
 
 export function logTriadRunStart(

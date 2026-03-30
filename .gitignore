@@ -72,3 +72,4 @@ packages/shared-engine/learning/taste/raw/**
 # Engine School: JSONL telemetry sink + aggregated fitness (local / explicit path — not committed)
 artifacts/learning-telemetry/
 artifacts/learning-fitness-report.json
+artifacts/preset-quality-report.json

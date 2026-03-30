@@ -63,6 +63,8 @@
         "orderChangeRate",
         "tasteClusterHitRate",
         "authoritative",
+        "sampleCount",
+        "confidence",
         "note"
       ],
       "properties": {
@@ -71,7 +73,9 @@
         "orderChangeRate": { "type": "number" },
         "tasteClusterHitRate": { "type": "number" },
         "authoritative": { "const": false },
-        "note": { "type": "string", "minLength": 1 }
+        "note": { "type": "string", "minLength": 1 },
+        "sampleCount": { "type": "number", "minimum": 0 },
+        "confidence": { "type": "string", "enum": ["low", "medium", "high"] }
       }
     },
     "metrics": {

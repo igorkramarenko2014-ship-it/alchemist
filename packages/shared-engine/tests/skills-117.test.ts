@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { generate117Skills } from "../initiator/skills-117";
 
 describe("skills-117 generator", () => {
-  it("produces exactly 117 advisory skills from 17 facts", () => {
+  it("generate117Skills output length and apex invariants (initiator contract)", () => {
     const facts = Array.from({ length: 17 }, (_, i) => `fact_${i + 1}`);
     const skills = generate117Skills(facts);
     expect(skills).toHaveLength(117);

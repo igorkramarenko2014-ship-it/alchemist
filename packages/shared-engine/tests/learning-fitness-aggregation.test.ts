@@ -57,7 +57,12 @@ describe("aggregate-learning-telemetry (Fitness v1)", () => {
       const report = JSON.parse(readFileSync(outReport, "utf8")) as {
         aggregationVersion: number;
         lessons: Array<{ lessonId: string; fitnessConfidence: string; sampleCount: number }>;
-        learningOutcomes: { authoritative: boolean; orderChangeRate: number };
+        learningOutcomes: {
+          authoritative: boolean;
+          orderChangeRate: number;
+          sampleCount: number;
+          confidence: string;
+        };
       };
       expect(report.aggregationVersion).toBe(3);
       const row = report.lessons.find((l) => l.lessonId === "lesson-low-n");
@@ -65,6 +70,8 @@ describe("aggregate-learning-telemetry (Fitness v1)", () => {
       expect(row?.sampleCount).toBe(1);
       expect(report.learningOutcomes.authoritative).toBe(false);
       expect(report.learningOutcomes.orderChangeRate).toBe(0);
+      expect(report.learningOutcomes.sampleCount).toBe(1);
+      expect(report.learningOutcomes.confidence).toBe("low");
     } finally {
       rmSync(tmpTelemetry, { recursive: true, force: true });
       try {

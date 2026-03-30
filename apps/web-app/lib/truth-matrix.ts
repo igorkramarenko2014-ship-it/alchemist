@@ -195,6 +195,11 @@ function validateTruthArtifactSchemaShape(artifact: Record<string, unknown> | nu
     if (!isFiniteNumber(lo.orderChangeRate)) issues.push("learningOutcomes.orderChangeRate must be number");
     if (!isFiniteNumber(lo.tasteClusterHitRate)) issues.push("learningOutcomes.tasteClusterHitRate must be number");
     if (lo.authoritative !== false) issues.push("learningOutcomes.authoritative must be false");
+    if (!isFiniteNumber(lo.sampleCount)) issues.push("learningOutcomes.sampleCount must be number");
+    if ((lo.sampleCount as number) < 0) issues.push("learningOutcomes.sampleCount must be >= 0");
+    if (lo.confidence !== "low" && lo.confidence !== "medium" && lo.confidence !== "high") {
+      issues.push("learningOutcomes.confidence must be low|medium|high");
+    }
     if (typeof lo.note !== "string" || lo.note.length === 0) issues.push("learningOutcomes.note must be non-empty string");
   }
   return issues;

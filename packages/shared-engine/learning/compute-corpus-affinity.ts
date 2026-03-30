@@ -105,12 +105,12 @@ function clamp01(x: number): number {
   return Math.min(1, Math.max(0, x));
 }
 
-/** Maps telemetry confidence to [0,1] — low = minimal nudge. */
+/** Maps telemetry confidence to [0,1] — low = minimal nudge (Phase 5 operator bands). */
 function fitnessConfidenceFactor(conf: LearningLesson["fitnessConfidence"]): number {
   if (conf === "high") return 1;
-  if (conf === "medium") return 0.55;
-  if (conf === "low") return 0.2;
-  return 0.35;
+  if (conf === "medium") return 0.75;
+  if (conf === "low") return 0.3;
+  return 0.3;
 }
 
 /**

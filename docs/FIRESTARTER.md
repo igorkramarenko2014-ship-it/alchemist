@@ -19,6 +19,7 @@
 
 **After a material move:** (1) **This file** — full narrative, tables, INIT if workflows change. (2) **`FIRE.md`** — update **§E–§L** only when **contracts** change (gates, legal, taxonomy rules, etc.); run **`pnpm fire:sync`** after a green verify to refresh the **sync block** (not hand-edited). **Cosmetic / typo-only** may touch one file. **Ship or compliance claims** must reconcile **FIRE** + **FIRESTARTER** §14 + root **`LEGAL.md`**.
 For compressed ops status, use **`docs/MINIMUM-OPERATING-NUMBER.md`** as the one-number contract mapped to `verify_post_summary`.
+For an assistant-facing working summary of the current repo picture and recent safe session changes, see **`docs/codex-narrative.md`**. It complements orientation, but does not override canon.
 
 ---
 

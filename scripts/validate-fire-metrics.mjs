@@ -90,6 +90,12 @@ function validateShape(doc) {
   assert(isFiniteNumber(lo.orderChangeRate), "learningOutcomes.orderChangeRate must be number");
   assert(isFiniteNumber(lo.tasteClusterHitRate), "learningOutcomes.tasteClusterHitRate must be number");
   assert(lo.authoritative === false, "learningOutcomes.authoritative must be false");
+  assert(isFiniteNumber(lo.sampleCount), "learningOutcomes.sampleCount must be number");
+  assert(lo.sampleCount >= 0, "learningOutcomes.sampleCount must be >= 0");
+  assert(
+    lo.confidence === "low" || lo.confidence === "medium" || lo.confidence === "high",
+    "learningOutcomes.confidence must be low|medium|high",
+  );
   assert(typeof lo.note === "string" && lo.note.length > 0, "learningOutcomes.note must be non-empty string");
 }
 

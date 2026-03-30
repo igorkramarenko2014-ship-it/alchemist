@@ -11,6 +11,7 @@
 | **`FIRESTARTER.md`** | Recovery bible, workflow appendices, INIT paste |
 | **`FIRE.md`** | Assessment contracts §A–L + **`pnpm fire:sync`** metrics |
 | **`brain.md`** | This file — deep orientation, §9a fusion, §9c–§9d Igor / IOM |
+| **`codex-narrative.md`** | Codex working narrative: current repo picture, recent safe changes, and session-close discipline |
 | **`FIRE.md`** (Assessment snapshot + §N) | Outside-assessment shell + synced metrics (ex–Brain+) |
 | **`docs/internal/inner-circle-agent.md`** | Full peer prompt + Canon FIREWALL (tone layer) |
 | **`iom.md`** | IOM — §9c + §9d discipline, growth protocol, §9c.1 fast-path moves |

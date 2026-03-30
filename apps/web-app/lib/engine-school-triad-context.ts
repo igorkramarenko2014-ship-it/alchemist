@@ -29,6 +29,26 @@ export function getEngineSchoolTriadAugmentation(userPrompt: string): {
   }
   const selected = selectLessonsForPrompt(index, userPrompt);
   const learningContext = buildLearningContext(selected);
+  const fitnessRows = index.fitnessSnapshot?.lessonFitness;
+  const fitnessById = new Map(
+    Array.isArray(fitnessRows)
+      ? fitnessRows.map((r: { lessonId?: string }) => [r.lessonId ?? "", r] as const)
+      : [],
+  );
+  const lessonFitnessTrace = selected.map((l) => {
+    const r = fitnessById.get(l.id) as
+      | { fitnessScore?: number; fitnessConfidence?: string }
+      | undefined;
+    return {
+      lessonId: l.id,
+      fitnessScore:
+        r != null && typeof r.fitnessScore === "number" && Number.isFinite(r.fitnessScore)
+          ? r.fitnessScore
+          : null,
+      fitnessConfidence:
+        r != null && typeof r.fitnessConfidence === "string" ? r.fitnessConfidence : null,
+    };
+  });
   return {
     learningContext,
     learningContextUsed: {
@@ -38,6 +58,7 @@ export function getEngineSchoolTriadAugmentation(userPrompt: string): {
       selectedClusters: selected
         .map((l) => l.cluster)
         .filter((c): c is string => typeof c === "string" && c.trim().length > 0),
+      lessonFitnessTrace,
     },
   };
 }

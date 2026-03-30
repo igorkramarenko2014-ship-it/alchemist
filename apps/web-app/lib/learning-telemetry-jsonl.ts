@@ -45,6 +45,14 @@ export type EngineSchoolTelemetryRecord = {
   cluster?: string;
   gateFailureReasons?: string[];
   soeHintMatched?: string;
+  /** Optional snapshot rows from merged learning index — mirrors stderr `engine_school_influence`. */
+  lessonFitnessTrace?: Array<{
+    lessonId: string;
+    fitnessScore: number | null;
+    fitnessConfidence: string | null;
+  }>;
+  /** Parallel to `lessonIds` when trace present — null when unknown. */
+  fitnessScores?: Array<number | null>;
 };
 
 function findMonorepoRoot(): string | null {

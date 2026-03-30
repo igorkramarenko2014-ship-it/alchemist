@@ -16,6 +16,8 @@ export function readLearningOutcomesFromFitnessReport(root) {
     orderChangeRate: 0,
     tasteClusterHitRate: 0,
     authoritative: false,
+    sampleCount: 0,
+    confidence: "low",
     note: DEFAULT_NOTE,
   };
   if (!existsSync(p)) return defaults;
@@ -41,6 +43,12 @@ export function readLearningOutcomesFromFitnessReport(root) {
             ? lo.tasteClusterHitRate
             : 0,
         authoritative: false,
+        sampleCount:
+          typeof lo.sampleCount === "number" && Number.isFinite(lo.sampleCount) ? lo.sampleCount : 0,
+        confidence:
+          lo.confidence === "high" || lo.confidence === "medium" || lo.confidence === "low"
+            ? lo.confidence
+            : "low",
         note: typeof lo.note === "string" && lo.note.length > 0 ? lo.note : DEFAULT_NOTE,
       };
     }

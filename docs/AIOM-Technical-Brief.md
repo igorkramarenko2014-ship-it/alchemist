@@ -27,9 +27,9 @@ This brief describes the operational purpose of AIOM (Alchemist integrity and or
 Data in this document is produced by repository scripts and canonical truth artifacts.
 
 - Document schema version: `v1.3`
-- Last verification timestamp from canonical truth artifact: `2026-03-29T16:22:49.082Z`
-- Metrics sync timestamp from canonical truth artifact: `2026-03-29T16:22:49.051Z`
-- Truth file hash: `8c07674ad1843ebee1a3fda88f944737c17f5e3f788228398a363be88117fa63`
+- Last verification timestamp from canonical truth artifact: `2026-03-30T02:31:06.554Z`
+- Metrics sync timestamp from canonical truth artifact: `2026-03-30T02:31:06.525Z`
+- Truth file hash: `8958a8f270e3f7516ad6b53851da43e011624b37aa2410e3b6895812c313f807`
 - Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
@@ -54,12 +54,12 @@ Primary sources:
 
 | Metric | Value | Expected | Definition | Source | Independent check |
 |--------|-------|----------|------------|--------|-------------------|
-| Tests passed | 359 / 359 | `metrics.testsPassed == metrics.testsTotal` | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`, `metrics.testsTotal`) | `jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json` |
+| Tests passed | 383 / 383 | `metrics.testsPassed == metrics.testsTotal` | Total passing tests in latest shared-engine Vitest run | `artifacts/truth-matrix.json` (`metrics.testsPassed`, `metrics.testsTotal`) | `jq '.metrics | { testsPassed, testsTotal }' artifacts/truth-matrix.json` |
 | IOM coverage | 1.000 | `0.000 <= metrics.iomCoverageScore <= 1.000` | Ratio of mapped IOM cells covered in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.iomCoverageScore`) | `jq '.metrics.iomCoverageScore' artifacts/truth-matrix.json` |
 | MON | value=117, ready=true | `metrics.mon.value == 117 and metrics.mon.ready == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon`) | `jq '.metrics.mon' artifacts/truth-matrix.json` |
 | PNH immunity | 25 / 25 (breaches: 0) [clean] | `metrics.pnhImmunity.status in {clean, breach}` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunity`) | `jq '.metrics.pnhImmunity' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
-| Sync timestamp (UTC) | 2026-03-29T16:22:49.051Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
+| Sync timestamp (UTC) | 2026-03-30T02:31:06.525Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
 | Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):
@@ -79,7 +79,7 @@ Audit procedure:
 
 ### MON (Minimum Operating Number) and the 117 scale
 
-The number **117** is **not** an arbitrary label: it is the **fixed scale factor** tied to the repository’s **initiator coverage set** (the enumerated “117 skills” manifest and `ONE_SEVENTEEN_CONSTANT` in code). During verify, **`verify_post_summary`** may emit `minimumOperatingNumber117` and `minimumOperatingReady`. The aggregation script stores **`metrics.mon`** from that summary. Conceptually, **MON117 = round(aiomIntegrityScore × 117)** and **`minimumOperatingReady` is true when `aiomIntegrityScore ≥ 0.9`** (see `minimumOperatingFormula` in `verify_post_summary` when present). **Value 117 with `ready: true`** means the integrity score hit the top of that scale and passed the ready threshold for this **AIOM metric lane**.
+**117** is the **fixed AIOM display scale** (`ONE_SEVENTEEN_CONSTANT` in code). The mapping from initiator fabric to that scale is **implementation-defined**; **derivation history is not a contract surface.** During verify, **`verify_post_summary`** may emit `minimumOperatingNumber117` and `minimumOperatingReady`. The aggregation script stores **`metrics.mon`** from that summary. Conceptually, **MON117 = round(aiomIntegrityScore × 117)** and **`minimumOperatingReady` is true when `aiomIntegrityScore ≥ 0.9`** (see `minimumOperatingFormula` in `verify_post_summary` when present). **Value 117 with `ready: true`** means the integrity score hit the top of that scale and passed the ready threshold for this **AIOM metric lane**.
 
 **Operational meaning when MON is below 117 or `ready` is false:** the last aggregated verify did not produce a “full scale / ready” posture for this metric, or inputs were missing—for example **`metrics.mon` with `value: 0`, `ready: false`, `source: "unresolved"`** when `verify_post_summary` did not include MON fields. That is a **signal to inspect verify outputs**, not a full diagnosis by itself.
 

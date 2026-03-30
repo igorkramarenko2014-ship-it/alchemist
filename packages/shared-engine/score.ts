@@ -255,6 +255,22 @@ export function tasteAffinityOrderChanged(before: AICandidate[], after: AICandid
   return corpusAffinityOrderChanged(before, after);
 }
 
+function worstCorpusConfidenceTier(
+  lessons: LearningIndexLesson[],
+): "low" | "medium" | "high" {
+  let worstRank = 3;
+  let worst: "low" | "medium" | "high" = "high";
+  for (const l of lessons) {
+    const c = l.fitnessConfidence;
+    const r = c === "high" ? 2 : c === "medium" ? 1 : 0;
+    if (r < worstRank) {
+      worstRank = r;
+      worst = c === "high" ? "high" : c === "medium" ? "medium" : "low";
+    }
+  }
+  return lessons.length ? worst : "low";
+}
+
 function applyCorpusAffinityResort(
   candidates: AICandidate[],
   options?: ScoreCandidatesOptions,
@@ -288,6 +304,8 @@ function applyCorpusAffinityResort(
       corpusAffinityApplied: true,
       corpusAffinityWeight: weight,
       corpusAffinityEffectiveWeight: effectiveWeight,
+      corpusAffinityFitnessWeighted: true,
+      corpusAffinityConfidenceTier: worstCorpusConfidenceTier(lessons!),
       corpusAffinityOrderChanged: orderChanged,
       corpusAffinityTopPanelistBefore: candidates[0]?.panelist,
       corpusAffinityTopPanelistAfter: afterCandidates[0]?.panelist,
@@ -335,6 +353,7 @@ function applyTasteAffinityResort(
       tasteAffinityApplied: true,
       tasteClusterHit: firstT.dominantCluster,
       tasteEffectiveWeight: firstT.effectiveWeight,
+      tasteConfidenceTier: null,
       tasteAffinityOrderChanged: orderChanged,
       tasteAffinityTopPanelistBefore: candidates[0]?.panelist,
       tasteAffinityTopPanelistAfter: afterCandidates[0]?.panelist,

@@ -116,6 +116,8 @@ pnpm learning:enrich-preview -- "warm analog pad"
 
 **Aggregation:** **`pnpm learning:aggregate-telemetry`** reads all **`*.jsonl`** in that folder, computes Fitness v1 per-lesson **`fitnessScore`** / **`fitnessConfidence`** / **`stalenessDays`**, writes **`artifacts/learning-fitness-report.json`** (**`aggregationVersion`**: **3** — includes **`learningOutcomes`**, **`provenance`**, **`uniqueTriadSessions`**, lesson evidence), and merges **`fitnessSnapshot`** into **`learning-index.json`** after **`pnpm learning:build-index`** (**`lessonFitness`** rows are **whitelisted fields only** — no raw telemetry blobs). Evidence is **pre–client-gate** (route validation only). **`pnpm learning:forget-telemetry`** drops shards older than **`LEARNING_TELEMETRY_RETENTION_DAYS`** (default **90**).
 
+**Preset quality paired report:** **`pnpm preset:quality`** writes **`artifacts/preset-quality-report.json`** (gitignored) — a deterministic same-prompt **priors OFF vs ON** comparison over existing **`scoreCandidates`** + corpus-affinity surfaces. The artifact is non-authoritative, records the applied **`corpusAffinityWeight`**, and is intended for local evaluation / review rather than CI truth.
+
 **Fitness snapshot (offline v0 + telemetry):** **`pnpm learning:assess-fitness`** runs **static v0** corpus heuristics (**stderr** line, then JSON with **`pipeline`: `static_metadata_v0`**) **then** aggregation. Static-only: `node scripts/learning-assess-fitness.mjs`.
 
 **Not changed:** gate math, blend weights, HARD GATE, corpus validator.

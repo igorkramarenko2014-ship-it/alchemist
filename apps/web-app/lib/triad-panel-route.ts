@@ -110,6 +110,11 @@ function logEngineSchoolInfluenceTelemetry(
     selectedLessonIds: string[];
     contextCharCount?: number;
     selectedClusters?: string[];
+    lessonFitnessTrace?: Array<{
+      lessonId: string;
+      fitnessScore: number | null;
+      fitnessConfidence: string | null;
+    }>;
   },
   candidateCount: number,
   mode: "unconfigured" | "circuit_open" | "fetcher",
@@ -146,6 +151,11 @@ function logEngineSchoolInfluenceTelemetry(
     best !== null && baselineScore !== null ? best - baselineScore : null;
   const passLift = mode === "fetcher" ? panelistPassRate : null;
 
+  const trace = learningContextUsed.lessonFitnessTrace ?? [];
+  const fitnessScores = learningContextUsed.selectedLessonIds.map((id) => {
+    const row = trace.find((t) => t.lessonId === id);
+    return row?.fitnessScore ?? null;
+  });
   logEvent("engine_school_influence", {
     runId,
     triadSessionId: sessionKey,
@@ -158,6 +168,7 @@ function logEngineSchoolInfluenceTelemetry(
     appliedRules: [...appliedRules],
     candidateCount,
     mode,
+    ...(trace.length > 0 ? { lessonFitnessTrace: trace, fitnessScores } : {}),
     ...(extras?.upstreamError ? { upstreamError: true } : {}),
     ...(pipe !== undefined
       ? {
@@ -195,6 +206,12 @@ function logEngineSchoolInfluenceTelemetry(
       learningContextUsed.selectedClusters?.filter(
         (c) => typeof c === "string" && c.trim().length > 0,
       ) ?? [],
+    ...(trace.length > 0
+      ? {
+          lessonFitnessTrace: trace,
+          fitnessScores,
+        }
+      : {}),
   };
   appendEngineSchoolTelemetryJsonl(row, {
     telemetryDirOverride: env.learningTelemetryDir,

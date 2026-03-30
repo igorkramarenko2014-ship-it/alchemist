@@ -744,7 +744,8 @@ function buildPnhSecurityRollup({ mode, pnhSimInvoked, pnhLast }) {
 }
 
 let pnhSimInvoked = false;
-if (mode === "verify-harsh" && finalExitCode === 0) {
+const skipPnhSimulate = process.env.ALCHEMIST_SKIP_PNH_SIMULATE === "1";
+if (mode === "verify-harsh" && finalExitCode === 0 && !skipPnhSimulate) {
   pnhSimInvoked = true;
   const withPnpm = join(root, "scripts", "with-pnpm.mjs");
   const simScript = join(root, "scripts", "pnh-simulate.ts");
@@ -763,6 +764,10 @@ if (mode === "verify-harsh" && finalExitCode === 0) {
       "[alchemist] PNH simulation failed — fix probes or refresh tools/pnh-simulation-baseline.json with pnpm pnh:simulate -- --write-baseline\n"
     );
   }
+} else if (mode === "verify-harsh" && finalExitCode === 0 && skipPnhSimulate) {
+  console.warn(
+    "[verify:harsh] ALCHEMIST_SKIP_PNH_SIMULATE=1 — pnh:simulate skipped (sandbox env). PNH status will be absent from verify_post_summary."
+  );
 }
 
 const durationMs = Date.now() - t0;

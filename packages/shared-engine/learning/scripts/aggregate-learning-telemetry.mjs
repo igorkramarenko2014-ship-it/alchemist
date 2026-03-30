@@ -225,12 +225,37 @@ const meanBestScoreWithLessons =
 /** Placeholder until `score_candidates` lines exist in JSONL (Phase 2 telemetry). */
 const orderChangeRate = 0;
 
+const aggregateSampleCount = lessons.reduce(
+  (acc, l) => acc + (typeof l.sampleCount === "number" && Number.isFinite(l.sampleCount) ? l.sampleCount : 0),
+  0,
+);
+
+/** Lowest tier across lessons (conservative aggregate for operators). */
+function worstOverallConfidence(lessonRows) {
+  if (!lessonRows.length) return "low";
+  let worstRank = 3;
+  let worstLabel = "high";
+  for (const l of lessonRows) {
+    const c = l.fitnessConfidence;
+    const r = c === "high" ? 2 : c === "medium" ? 1 : 0;
+    if (r < worstRank) {
+      worstRank = r;
+      worstLabel = c === "high" ? "high" : c === "medium" ? "medium" : "low";
+    }
+  }
+  return worstLabel;
+}
+
+const overallConfidence = worstOverallConfidence(lessons);
+
 const learningOutcomes = {
   candidateSuccessRate: Number(candidateSuccessRate.toFixed(4)),
   meanBestScoreWithLessons: Number(meanBestScoreWithLessons.toFixed(4)),
   orderChangeRate: Number(orderChangeRate.toFixed(4)),
   tasteClusterHitRate: Number(tasteClusterHitRate.toFixed(4)),
   authoritative: false,
+  sampleCount: aggregateSampleCount,
+  confidence: overallConfidence,
   note:
     "Non-authoritative quality trend for AIOM display only. orderChangeRate is 0 until score_candidates JSONL is aggregated; does not affect MON or integrity.",
 };

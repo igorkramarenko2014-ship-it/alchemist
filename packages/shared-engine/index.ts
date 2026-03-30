@@ -119,6 +119,16 @@ export {
 } from "./intent-alignment";
 export type { IntentAlignmentContext } from "./intent-alignment";
 export {
+  buildPresetQualityReport,
+  PRESET_QUALITY_EVAL_CASES,
+} from "./learning/preset-quality";
+export type {
+  PresetQualityCase,
+  PresetQualityComparison,
+  PresetQualityReport,
+  PresetQualityReportSummary,
+} from "./learning/preset-quality";
+export {
   adminWipeMess,
   ajiCompressionRatio,
   conceptualDensity,
@@ -196,6 +206,82 @@ export {
   varianceParamArray,
 } from "./validate";
 export type { ConsensusValidationResult, ParamViolation } from "./validate";
+export {
+  appendGFUSCDryrunRecord,
+  handleGFUSCVerdict,
+  resolveGFUSCMode,
+} from "./gfusc/dryrun";
+export type {
+  GFUSCDryrunRecord,
+  GFUSCMode,
+  HandleGFUSCVerdictOutcome,
+  HandleGFUSCVerdictOptions,
+} from "./gfusc/dryrun";
+export { runGFUSCScenarios } from "./gfusc/runner";
+export {
+  GFUSC_AGGREGATE_BURN_THRESHOLD,
+  computeGFUSCHarmIndex,
+  computeGFUSCVectorScore,
+  evaluateGFUSCVerdict,
+} from "./gfusc/verdict";
+export type {
+  GFUSCRunResult,
+  GFUSCScenario,
+  GFUSCScenarioSignal,
+  GFUSCScenarioSource,
+  GFUSCVectorScore,
+  GFUSCVerdict,
+} from "./gfusc/verdict";
+export {
+  sanitizeGFUSCSignalBundle,
+} from "./gfusc/signals";
+export type {
+  DeploymentContext,
+  DeploymentEnvironment,
+  ExternalSignals,
+  GFUSCSignalBundle,
+  SanitizedGFUSCSignalBundle,
+  UsageTopology,
+} from "./gfusc/signals";
+export {
+  GFUSC_CRITICAL_VECTOR_IDS,
+  GFUSC_DEFAULT_VECTOR_THRESHOLD,
+  GFUSC_MAX_SCORE,
+  GFUSC_SCHEMA_VERSION,
+  GFUSC_VECTOR_DEFINITIONS,
+  GFUSC_VECTOR_IDS,
+  GFUSC_VECTOR_THRESHOLD_OVERRIDES,
+  getGFUSCVectorDefinition,
+} from "./gfusc/vectors";
+export type {
+  HarmVectorDefinition,
+  HarmVectorFamily,
+  HarmVectorId,
+} from "./gfusc/vectors";
+export { evaluateRisk } from "./risk-evaluator";
+export type { RiskEvaluation, RiskLevel, SafetyEvent, SafetyEventCategory } from "./risk-evaluator";
+export {
+  acknowledgeSafetyRestriction,
+  adminUnlockSafetyState,
+  applyRiskEvaluation,
+  createInitialSafetyState,
+  DEFAULT_SAFETY_STATE_CONFIG,
+  expireSafetyRestriction,
+  formatRestrictedModeMessage,
+  formatWarningMessage,
+  RESTRICTED_MODE_MESSAGE_TEMPLATE,
+  resolveSafetyStateConfig,
+  USER_WARNING_MESSAGE_TEMPLATE,
+} from "./safety-state";
+export type {
+  SafetyAuditAction,
+  SafetyAuditEntry,
+  SafetyRestrictionState,
+  SafetyState,
+  SafetyStateConfig,
+  SafetyTransitionResult,
+  SensitiveCapability,
+} from "./safety-state";
 export {
   getIntegrityHealthSnapshot,
   logDegradedFallback,

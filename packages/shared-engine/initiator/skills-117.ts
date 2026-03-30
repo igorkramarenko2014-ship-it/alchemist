@@ -28,7 +28,7 @@ const DOMAIN_BY_INDEX: InitiatorDomain[] = [
 ];
 
 function skillCountForFact(factIndexZeroBased: number): number {
-  // 117 / 17 => 6 with remainder 15.
+  /* 117-cell fabric — derivation path not retained by design. */
   return factIndexZeroBased < 15 ? 7 : 6;
 }
 

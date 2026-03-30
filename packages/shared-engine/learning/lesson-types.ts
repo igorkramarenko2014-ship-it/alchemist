@@ -50,6 +50,8 @@ export type LearningIndex = {
       orderChangeRate?: number;
       tasteClusterHitRate?: number;
       authoritative?: boolean;
+      sampleCount?: number;
+      confidence?: "low" | "medium" | "high";
       note?: string;
     };
     totalEventsProcessed: number;
