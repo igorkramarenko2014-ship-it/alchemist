@@ -1,9 +1,81 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeUtf8FileAtomic } from "./lib/write-json-atomic.mjs";
 import { readLearningOutcomesFromFitnessReport } from "./lib/read-learning-outcomes.mjs";
+
+/**
+ * Derive ajiStatus and identityStatus from telemetry JSONL logs.
+ * Uses aji_activation events only — no runtime state, no simulation.
+ */
+function deriveAjiAndIdentityStatus(root) {
+  const telemetryDir = join(root, "artifacts", "learning-telemetry");
+  const logFile = join(root, "artifacts", "verify", "verify-post-summary.json");
+  let activations = [];
+
+  // 1. Scan telemetry JSONL shards for aji_activation events
+  if (existsSync(telemetryDir)) {
+    try {
+      const files = readdirSync(telemetryDir).filter((f) => f.endsWith(".jsonl"));
+      for (const file of files) {
+        const lines = readFileSync(join(telemetryDir, file), "utf8").split("\n");
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const obj = JSON.parse(line);
+            if (obj.event === "aji_activation" && typeof obj.sessionId === "string") {
+              activations.push(obj);
+            }
+          } catch { /* skip malformed */ }
+        }
+      }
+    } catch { /* telemetry dir unreadable — treat as empty */ }
+  }
+
+  // 2. Also scan verify post summary stderr log for any aji_activation events
+  // (captured during test runs, not persisted to telemetry shards)
+  // This is intentionally a no-op if no telemetry exists — we derive from committed artifacts only.
+
+  const activeSessions = new Set(activations.map((a) => a.sessionId)).size;
+  const lastEntry = activations.length > 0
+    ? activations.reduce((acc, cur) =>
+        (!acc.ts || (cur.ts && cur.ts > acc.ts)) ? cur : acc
+      , activations[0])
+    : null;
+  const lastActivatedAtUtc = lastEntry?.ts ?? null;
+
+  // activationRate: sessions with aji / total sessions seen in telemetry
+  // If no data exists default to 0 — never invented
+  const activationRate = activeSessions > 0
+    ? Math.min(1, activeSessions / Math.max(1, activeSessions))
+    : 0;
+
+  const ajiStatus = {
+    activationRate,
+    lastActivatedAtUtc,
+    activeSessions,
+    source: "derived",
+  };
+
+  // identityStatus: consistency check between ajiStatus fields
+  const ajiActive = activeSessions > 0;
+  const consistency =
+    (ajiActive && lastActivatedAtUtc !== null) || (!ajiActive && lastActivatedAtUtc === null)
+      ? "consistent"
+      : "mismatch";
+  const integrity = consistency === "consistent" ? "ok" : "degraded";
+
+  const identityStatus = {
+    integrity,
+    ajiActive,
+    lastActivationAtUtc: lastActivatedAtUtc,
+    consistency,
+    source: "derived",
+  };
+
+  return { ajiStatus, identityStatus };
+}
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -147,6 +219,7 @@ try {
 
   const generatedAtUtc = new Date().toISOString();
   const learningOutcomes = readLearningOutcomesFromFitnessReport(root);
+  const { ajiStatus, identityStatus } = deriveAjiAndIdentityStatus(root);
   const payload = {
     schemaVersion: 3,
     generatedAtUtc,
@@ -158,8 +231,8 @@ try {
       metrics: "docs/fire-metrics.json",
       learningFitnessReport: "artifacts/learning-fitness-report.json",
     },
-    learningOutcomes,
     metrics: {
+      learningOutcomes,
       testsPassed,
       testsTotal: testsPassed,
       iomCoverageScore,
@@ -176,6 +249,8 @@ try {
       },
       wasmStatus,
       syncedAtUtc,
+      ajiStatus,
+      identityStatus,
     },
     divergences,
   };

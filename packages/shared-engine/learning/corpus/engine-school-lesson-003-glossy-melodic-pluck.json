@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "pluck_gloss_resonant",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — Lesson 3 / Role Model 2.0; glossy melodic pluck archetype for short-decay tonal articulation"
+  ],
+  "difficulty": "intermediate",
+  "id": "engine_school_lesson_003",
+  "presetName": "Archetype distillate — glossy melodic pluck / glass-key hybrid (logic-only, not a vendor preset)",
+  "style": "glossy melodic pluck with controlled glass and front-edge articulation",
+  "tags": [
+    "lesson-003",
+    "pluck",
+    "melodic",
+    "glossy",
+    "glass-key",
+    "transient-articulation",
+    "short-decay",
+    "resonant-brightness",
+    "foreground-hook",
+    "causal-chain",
+    "human-perception",
+    "mapping-grammar"
+  ],
+  "mappings": {
+    "designIntent": "Prioritize memorable note articulation and tonal identity over sheer weight or sustained width: the sound should announce each note clearly, then get out of the way before harmonic clutter builds.",
+    "humanPerception": "Listeners read short bright attacks plus a tidy tonal tail as pluck, key, or mallet-like intent; too much sustain turns the archetype into a pad, while too much harsh upper energy turns it into cheap click instead of premium gloss.",
+    "ampEnvelope": "Fast attack for immediate definition; decay set to a musically short tail so pitch remains audible after the hit; sustain low or near-zero so repeated notes stay legible; release long enough to avoid zipper clicks but short enough that phrases stay articulate.",
+    "harmonicSource": "Start from harmonically rich but controllable sources such as saw-square blends, wavetable families with clear upper mids, or a lightly metallic secondary layer; enough overtone structure for sparkle without noise dominating the pitch story.",
+    "filterAndBrightness": "Cutoff typically sits high enough for shine, but the top edge is smoothed so the attack feels expensive rather than brittle; resonance may emphasize a sweet vowel or glassy peak when kept narrow and musical.",
+    "pluckContour": "A dedicated modulation contour often closes the filter or changes timbre right after the attack, creating the classic pluck gesture where the note begins bright and then settles into a smaller spectral footprint.",
+    "stereoField": "Width is supportive, not panoramic by default: the hook lives in an intelligible center with optional light spread on upper harmonics; excessive unison blur ruins note spelling and pitch confidence.",
+    "fxBodyAndSpace": "Short to medium delay or compact reverb gives polish and depth around the dry attack; space should trail the note, not swallow its front edge. Repeats usually darken so the main note stays first in attention.",
+    "velocityAndPerformance": "Velocity, macro, or mod-wheel often controls brightness, transient amount, or reverb send so performance dynamics feel expressive; a flat-response pluck quickly sounds like a preset demo rather than an instrument.",
+    "mixRole": "Foreground melodic layer that must cut through a track without occupying bass or pad territory; upper mids carry identity, low mids are trimmed to prevent boxiness, and tails are disciplined so fast phrases remain readable."
+  },
+  "character": "A clean, glossy melodic pluck with an obvious front edge, a bright but polished top, and a short tonal tail that keeps every note readable. It feels premium and musical rather than clicky: each hit speaks quickly, blooms just enough to imply body, then clears space for the next phrase.",
+  "causalReasoning": "This archetype works because the ear first categorizes note events by onset sharpness, then judges whether the remaining tail supports pitch or muddies it. A fast attack establishes confident articulation, while low sustain and disciplined release prevent notes from merging into a pad-like wash. Harmonic sources rich in upper mids provide the sparkle listeners interpret as gloss, but they need smoothing through filter position, resonance control, or post-processing so the attack does not become brittle. The classic pluck illusion comes from spectral contraction after the onset: if the sound begins brighter and quickly settles, the brain hears a struck or picked object rather than a static synth tone. Compact ambience and restrained width then frame the note without blurring the center, which keeps melodic hooks intelligible in dense arrangements. Together, envelope timing, spectral contour, and controlled space produce the semantic labels this lesson teaches: plucky, glassy, polished, and melodic.",
+  "priorityMappingKeys": [
+    "ampEnvelope",
+    "pluckContour",
+    "filterAndBrightness"
+  ],
+  "coreRules": [
+    "Fast attack + low sustain + short tonal decay tail -> every note speaks clearly before the phrase can smear into pad behavior.",
+    "Bright harmonic source shaped by post-attack spectral contraction -> the ear hears premium gloss and pluck, not brittle click.",
+    "Compact space and restrained width -> melodic hooks stay readable while still feeling polished and dimensional."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_role_model_v1",
+    "difference": "Lesson 3 shares transient awareness with lesson 1, but the goal is different: lesson 1 uses attack to create bass punch and mix-forward weight, while lesson 3 uses attack to spell melody and preserve note identity in the upper register. If you borrow lesson 1 density and low-end emphasis here, the pluck becomes a blunt stab; if you apply lesson 3 tail and brightness discipline to lesson 1, you lose bass authority."
+  },
+  "antiPatterns": [
+    {
+      "description": "Long sustain or oversized reverb tails on a supposed pluck line.",
+      "relatedTo": [
+        "ampEnvelope",
+        "fxBodyAndSpace",
+        "mixRole"
+      ],
+      "whyItFails": "The phrase stops reading as articulated notes and collapses toward pad or smear territory, especially in fast melodic passages."
+    },
+    {
+      "description": "Over-bright attack with no smoothing or post-onset contour.",
+      "relatedTo": [
+        "filterAndBrightness",
+        "pluckContour",
+        "harmonicSource"
+      ],
+      "whyItFails": "Human listeners hear brittle click and cheap harshness instead of polished gloss because the onset dominates without a musical decay story."
+    }
+  ],
+  "heuristics": [
+    {
+      "condition": "prompt emphasizes pluck, key, bell-pluck, glossy hook, or melodic articulation",
+      "bias": "Favor post-attack brightness taper and low sustain before adding width or long ambience.",
+      "weight": 0.15
+    }
+  ]
+}

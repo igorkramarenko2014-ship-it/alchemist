@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "noise_riser_fx",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — Lesson 008: Noise Riser archetype (completion of 5-lesson ear-pass)"
+  ],
+  "id": "engine_school_lesson_008",
+  "presetName": "V_RIOT_serum_fx_manual_riser.fxp",
+  "style": "Broadband noise riser transition element",
+  "tags": [
+    "lesson-008",
+    "fx",
+    "riser",
+    "transition",
+    "noise",
+    "sweep",
+    "spectral-motion",
+    "tension",
+    "uplifter"
+  ],
+  "mappings": {
+    "designIntent": "Generate evolving tension and spectral motion to signal upcoming transitions or builds.",
+    "ampEnvelope": "Slow-rising amplitude (longer attack or envelope-driven volume) to build energy over several bars.",
+    "harmonicSource": "Broadband Noise source (white or bright noise) to ensure full spectral occupancy without a dominant pitch.",
+    "filterAndSpectral": "Rising filter cutoff (high-pass or low-pass sweep) to gradually expose high-frequency energy.",
+    "modulation": "Tempo-locked or manual sweep of filter cutoff and reverb size to enhance the sense of expansion.",
+    "mixRole": "Transition element; used to build anticipation and tension between sections, rather than providing melodic or rhythmic foundation."
+  },
+  "character": "Broadband noise riser — evolving, high-frequency sweep that builds tension over time; non-pitched, airy, and expansive, designed to signal transition and anticipation.",
+  "causalReasoning": "A noise source (white or bright noise) is shaped by a rising filter cutoff or increasing amplitude envelope, gradually exposing more high-frequency content. Additional effects like reverb, stereo widening, or pitch modulation enhance the sense of expansion and motion. The perception of “rising” comes from increasing spectral brightness and energy over time rather than musical pitch.",
+  "priorityMappingKeys": [
+    "filterAndSpectral",
+    "ampEnvelope",
+    "modulation"
+  ],
+  "coreRules": [
+    "Motion defines identity — must evolve over time; static noise is not a riser.",
+    "Spectral lift over pitch — perceived rise comes from increasing high-frequency energy, not harmonic melody."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_lesson_006",
+    "difference": "006 (VR Big Room Lead) is tonal, stable, and melody-driven, while the riser is non-tonal, evolving, and used for transition rather than musical phrasing."
+  }
+}

@@ -60,6 +60,68 @@ import { selectCreativeStance } from "./creative-diversity-layer";
 import { evaluateProbeResult } from "./probe-intelligence-layer";
 import { registerOneSeventeenRun } from "./one-seventeen-skills";
 
+export type AjiTriggerReason = "schism_detected" | "soe_stressed" | "heavy_gate_drop";
+
+export interface AjiState {
+  expiresAtUtc: string;
+}
+
+const activeAjiSessions = new Map<string, AjiState>();
+
+export interface AjiInsights {
+  summary: string;
+  observations: string[];
+  hypotheses: string[];
+  suggestions: string[];
+}
+
+export function generateAjiInsight(triggerReason: AjiTriggerReason): AjiInsights {
+  return {
+    summary: `Mock insight for ${triggerReason}`,
+    observations: ["Mock observation"],
+    hypotheses: ["Mock hypothesis"],
+    suggestions: ["Mock suggestion"]
+  };
+}
+
+export function checkAndActivateAji(
+  triadSessionId: string,
+  triggerReason?: AjiTriggerReason
+): boolean {
+  if (!triggerReason) return false;
+  
+  const existing = activeAjiSessions.get(triadSessionId);
+  if (existing) {
+    const expired = new Date(existing.expiresAtUtc).getTime() <= nowMs();
+    if (expired) {
+      activeAjiSessions.delete(triadSessionId);
+    } else {
+      return false; // Already active, max 1 per session
+    }
+  }
+
+  const expiresAtMs = nowMs() + 10 * 60 * 1000;
+  const expiresAtUtc = new Date(expiresAtMs).toISOString();
+  if (!expiresAtUtc || isNaN(new Date(expiresAtUtc).getTime())) {
+    throw new Error("Invalid Aji expiresAtUtc at creation time");
+  }
+
+  activeAjiSessions.set(triadSessionId, { expiresAtUtc });
+  
+  const insight = generateAjiInsight(triggerReason);
+  const insightsCount = insight.observations.length + insight.hypotheses.length + insight.suggestions.length;
+  
+  logEvent("aji_activation", {
+    sessionId: triadSessionId,
+    triggerReason,
+    expiresAtUtc,
+    insightsCount,
+    note: "Aji single activation per session"
+  });
+  
+  return true;
+}
+
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
 
 /** Panelist chunks from `withTriadPanelistTiming`: each candidate inherits that call's `durationMs`. */
@@ -509,6 +571,10 @@ export async function runTriad(
     fastResolve?: boolean;
     /** Default **0.9** when **`triadEarlyResolveTwo`** is enabled. */
     triadEarlyResolveScoreFloor?: number;
+    /** Aji enforcement lock: trigger check. */
+    ajiTrigger?: AjiTriggerReason;
+    /** Override internal runId for Aji tests. */
+    triadSessionIdOverride?: string;
   }
 ): Promise<AIAnalysis> {
   const skipPnh = options?.skipPnhTriadDefense === true;
@@ -544,8 +610,14 @@ export async function runTriad(
   const runConsensus = options?.runConsensusValidation === true;
   const useConsensusFilter = options?.useConsensusFilter === true;
 
-  const runId = newTriadRunId();
+  const runId = options?.triadSessionIdOverride ?? newTriadRunId();
   const tRun0 = nowMs();
+
+  // Explicit Aji trigger check at the very start of runTriad
+  if (options?.ajiTrigger) {
+    checkAndActivateAji(runId, options.ajiTrigger);
+  }
+
   const tablebaseCandidate =
     options?.skipTablebase === true ? null : lookupTablebaseCandidate(prompt, runId);
   const triadRunMode = tablebaseCandidate

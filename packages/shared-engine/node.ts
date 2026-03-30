@@ -7,6 +7,17 @@ export type { LearningIndex, LearningLesson } from "./learning/lesson-types";
 export { loadTasteIndex } from "./learning/taste/load-taste-index";
 export type { TasteIndex } from "./learning/taste/taste-types";
 export {
+  appendGFUSCDryrunRecord,
+  handleGFUSCVerdict,
+  resolveGFUSCMode,
+} from "./gfusc/dryrun";
+export type {
+  GFUSCDryrunRecord,
+  GFUSCMode,
+  HandleGFUSCVerdictOutcome,
+  HandleGFUSCVerdictOptions,
+} from "./gfusc/dryrun";
+export {
   appendSafetyAuditLogRecord,
   readSafetyAuditLog,
   verifySafetyAuditLogIntegrity,

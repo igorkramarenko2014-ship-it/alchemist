@@ -60,6 +60,14 @@ jobs:
         # On GitHub Actions, pnh:simulate runs with --ci (fail on breach; fail on warning tier unless
         # ALCHEMIST_PNH_ALLOW_WARNING=1). Other CI: set ALCHEMIST_PNH_CI=1 for the same behavior.
 
+      - name: identity:sync (Lock 7 — derived ajiStatus + identityStatus consistency check)
+        run: node scripts/identity-sync.mjs
+        # Validates that metrics.ajiStatus and metrics.identityStatus in the committed
+        # truth-matrix.json are schema-valid and cross-field consistent.
+        # Fails if: fields missing, activationRate out of [0,1], timestamp mismatch,
+        # ajiActive inconsistent with activeSessions, or integrity/consistency not computable.
+        # Source of truth: artifacts/truth-matrix.json (written by verify:harsh → aggregate-truth.mjs).
+
       - name: assert:wasm (strict release gate)
         if: ${{ github.ref_name == 'main' || startsWith(github.ref_name, 'release/') || github.base_ref == 'main' || startsWith(github.base_ref, 'release/') }}
         env:

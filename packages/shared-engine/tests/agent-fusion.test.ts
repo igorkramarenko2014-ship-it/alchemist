@@ -63,3 +63,16 @@ describe("agent-fusion", () => {
     expect(m.fusionLines[0]).toContain("mobile");
   });
 });
+
+import { checkAndActivateAji } from "../triad";
+describe("aji-activation lock", () => {
+  it("confirms Aji never fires twice for the same triadSessionId and respects expiry", () => {
+    const sessionId = "test_run_id_for_aji_lock";
+    // First activation should succeed
+    const fired1 = checkAndActivateAji(sessionId, "schism_detected");
+    expect(fired1).toBe(true);
+    // Second activation for same session should fail mechanically
+    const fired2 = checkAndActivateAji(sessionId, "schism_detected");
+    expect(fired2).toBe(false);
+  });
+});

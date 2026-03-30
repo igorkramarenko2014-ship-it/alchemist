@@ -1,6 +1,6 @@
 # IOM architecture (auto-generated)
 
-Last sync: **2026-03-27** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
+Last sync: **2026-03-30** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
 
 > Diagnostic firewall: Tier 3 is advisory-only and must never mutate Tier 1 outcomes without an explicit tested bridge.
 
@@ -11,7 +11,7 @@ Last sync: **2026-03-27** — run `pnpm igor:docs` to refresh after editing `igo
 - **Tier:** `tier1_hot_path`
 - **Recommendation:** `KEEP`
 - **Responsibility:** LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.
-- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `triad-panelist-prompt.ts`, `triad-panelist-system-prompt.ts`, `explainability/decision-receipt.ts`, `constants.ts`, `circuit-breaker.ts`, `triad-parity-report.ts`
+- **Artifacts:** `triad.ts`, `triad-monitor.ts`, `candidate-finalizer.ts`, `triad-constraint-injection.ts`, `creative-diversity-layer.ts`, `power-logic-fusion.ts`, `arbitration/social-probe.ts`, `triad-panelist-prompt.ts`, `triad-panelist-system-prompt.ts`, `explainability/decision-receipt.ts`, `constants.ts`, `circuit-breaker.ts`, `triad-parity-report.ts`
 
 ### gatekeeper
 

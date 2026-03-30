@@ -165,8 +165,8 @@ describe("learning improves or is neutral vs baseline", () => {
       return;
     }
     const j = JSON.parse(readFileSync(p, "utf8")) as {
-      learningOutcomes?: { authoritative?: boolean };
+      metrics?: { learningOutcomes?: { authoritative?: boolean } };
     };
-    expect(j.learningOutcomes?.authoritative).toBe(false);
+    expect(j.metrics?.learningOutcomes?.authoritative).toBe(false);
   });
 });

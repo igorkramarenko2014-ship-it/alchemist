@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "big_room_super_saw",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — Lesson 006: VR Big Room Lead (operator-hardened / ENV-pluck correction)"
+  ],
+  "id": "engine_school_lesson_006",
+  "presetName": "V_RIOT_serum_lead_big_room.fxp",
+  "style": "Wide, bright, and stable Big Room lead",
+  "tags": [
+    "lesson-006",
+    "big-room",
+    "super-saw",
+    "wide",
+    "stable",
+    "virtual-riot",
+    "hands-up",
+    "noise-shine"
+  ],
+  "mappings": {
+    "designIntent": "Achieve a wide, melodic powerhouse lead that remains tonally stable and mix-disciplined.",
+    "ampEnvelope": "Fast attack and moderate decay to shape the perceived 'pluck' and maintain rhythmic control.",
+    "harmonicSource": "Multiple detuned saw voices (high unison count) to create density and stereo width while maintaining a centered tonal core.",
+    "filterAndSpectral": "Layered white noise for upper-spectrum brightness and festival-scale 'shine'.",
+    "modulation": "Primarily envelope-driven amplitude shaping; avoid over-reliance on LFO for rhythmic contours to preserve musical stability.",
+    "mixRole": "Dominant melodic element; designed for high spatial impact and clarity in large-scale EDM arrangements."
+  },
+  "character": "Wide, bright, and stable Big Room lead — stacked super-saw with strong stereo presence and a controlled high-end “shine” that cuts through without becoming harsh or chaotic.",
+  "causalReasoning": "Multiple detuned saw voices (high unison count) create width and density through phase spread, while maintaining a centered tonal core. A layered white noise source fills the upper spectrum, adding brightness and presence. The perceived “pluck” or rhythmic contour is primarily shaped by the amplitude envelope (fast attack, moderate decay), not LFO modulation, keeping the sound tight and rhythmically controlled.",
+  "priorityMappingKeys": [
+    "harmonicSource",
+    "ampEnvelope",
+    "filterAndSpectral"
+  ],
+  "coreRules": [
+    "High-unison detuned saws create width, but must retain a stable center to avoid smear.",
+    "High-frequency noise adds presence, but should support clarity rather than introduce harshness."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_lesson_004",
+    "difference": "004 (Gucci) is transient, narrow, and spectrum-limited, functioning as a percussive layer. This lead is sustained, wide, and harmonically dense, designed for melodic dominance and spatial impact."
+  }
+}

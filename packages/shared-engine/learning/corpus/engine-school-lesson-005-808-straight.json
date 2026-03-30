@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "808_sub_foundational",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — Lesson 005: 808 - Straight archetype for foundational low-end weight"
+  ],
+  "id": "engine_school_lesson_005",
+  "presetName": "808 - Straight.SerumPreset",
+  "style": "Full-range, clean 808 sub foundational voice",
+  "tags": [
+    "lesson-005",
+    "808",
+    "straight",
+    "sub",
+    "foundational",
+    "clean",
+    "low-end",
+    "sine-body"
+  ],
+  "mappings": {
+    "designIntent": "Establish a reliable, clean low-end foundation with sustained weight and clear transient articulation.",
+    "ampEnvelope": "Uses a longer decay setting (or higher sustain) to ensure the sub energy carries through the note duration without premature fading.",
+    "harmonicSource": "Likely driven by a pure Sine or near-sine wavetable with minimal harmonic saturation to prevent spectral scatter.",
+    "filterAndSpectral": "Absence of high-pass filtering (Full Pass) to preserve the 40Hz-60Hz fundamental authority.",
+    "pitchEnvelope": "Moderate pitch envelope depth and speed are used to create the soft transient 'knock' without becoming an aggressive click.",
+    "mixRole": "Foundational bass voice; intended to carry the entire low-end weight of a track with high clarity and minimal harmonic clutter."
+  },
+  "character": "Full-range, clean 808 sub — smooth sine-like body with a defined but not overly aggressive transient; carries consistent low-end weight without midrange distortion or thinning.",
+  "causalReasoning": "The sound is driven by a stable sine (or near-sine) oscillator with minimal harmonic saturation and no high-pass filtering. A moderate pitch envelope adds a soft transient “knock,” while a longer decay preserves sustained sub energy. The absence of distortion keeps the spectrum focused in the low frequencies, maintaining clarity and weight.",
+  "priorityMappingKeys": [
+    "harmonicSource",
+    "filterAndSpectral",
+    "ampEnvelope"
+  ],
+  "coreRules": [
+    "Preserve sub continuity — the defining trait is sustained low-frequency energy, not transient character.",
+    "Avoid introducing distortion or aggressive filtering that would shift energy into mids and reduce perceived weight."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_lesson_004",
+    "difference": "Unlike Gucci’s transient-only, high-passed knock, Straight retains full sub-body and sustain. Gucci functions as a top/percussive layer, while Straight is a foundational bass voice carrying the low-end weight."
+  }
+}

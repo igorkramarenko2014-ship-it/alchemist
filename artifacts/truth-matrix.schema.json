@@ -10,7 +10,6 @@
     "divergenceCheckedAtUtc",
     "verification",
     "sources",
-    "learningOutcomes",
     "metrics",
     "divergences"
   ],
@@ -54,30 +53,6 @@
         }
       }
     },
-    "learningOutcomes": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "candidateSuccessRate",
-        "meanBestScoreWithLessons",
-        "orderChangeRate",
-        "tasteClusterHitRate",
-        "authoritative",
-        "sampleCount",
-        "confidence",
-        "note"
-      ],
-      "properties": {
-        "candidateSuccessRate": { "type": "number" },
-        "meanBestScoreWithLessons": { "type": "number" },
-        "orderChangeRate": { "type": "number" },
-        "tasteClusterHitRate": { "type": "number" },
-        "authoritative": { "const": false },
-        "note": { "type": "string", "minLength": 1 },
-        "sampleCount": { "type": "number", "minimum": 0 },
-        "confidence": { "type": "string", "enum": ["low", "medium", "high"] }
-      }
-    },
     "metrics": {
       "type": "object",
       "additionalProperties": false,
@@ -88,9 +63,36 @@
         "mon",
         "pnhImmunity",
         "wasmStatus",
-        "syncedAtUtc"
+        "syncedAtUtc",
+        "learningOutcomes",
+        "ajiStatus",
+        "identityStatus"
       ],
       "properties": {
+        "learningOutcomes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "candidateSuccessRate",
+            "meanBestScoreWithLessons",
+            "orderChangeRate",
+            "tasteClusterHitRate",
+            "authoritative",
+            "sampleCount",
+            "confidence",
+            "note"
+          ],
+          "properties": {
+            "candidateSuccessRate": { "type": "number" },
+            "meanBestScoreWithLessons": { "type": "number" },
+            "orderChangeRate": { "type": "number" },
+            "tasteClusterHitRate": { "type": "number" },
+            "authoritative": { "const": false },
+            "note": { "type": "string", "minLength": 1 },
+            "sampleCount": { "type": "number", "minimum": 0 },
+            "confidence": { "type": "string", "enum": ["low", "medium", "high"] }
+          }
+        },
         "testsPassed": {
           "type": "number"
         },
@@ -159,6 +161,29 @@
         "syncedAtUtc": {
           "type": "string",
           "format": "date-time"
+        },
+        "ajiStatus": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["activationRate", "lastActivatedAtUtc", "activeSessions", "source"],
+          "properties": {
+            "activationRate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "lastActivatedAtUtc": { "type": ["string", "null"] },
+            "activeSessions": { "type": "number", "minimum": 0 },
+            "source": { "type": "string", "const": "derived" }
+          }
+        },
+        "identityStatus": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["integrity", "ajiActive", "lastActivationAtUtc", "consistency", "source"],
+          "properties": {
+            "integrity": { "type": "string", "enum": ["ok", "degraded"] },
+            "ajiActive": { "type": "boolean" },
+            "lastActivationAtUtc": { "type": ["string", "null"] },
+            "consistency": { "type": "string", "enum": ["consistent", "mismatch"] },
+            "source": { "type": "string", "const": "derived" }
+          }
         }
       }
     },

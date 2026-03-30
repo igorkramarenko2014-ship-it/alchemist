@@ -1,10 +1,10 @@
 {
   "schemaVersion": 3,
   "syncedDateUtc": "2026-03-30",
-  "generatedAtUtc": "2026-03-30T02:31:06.525Z",
-  "vitestTestsPassed": 383,
-  "vitestTestFilesPassed": 79,
-  "vitestTestTsOnDisk": 79,
+  "generatedAtUtc": "2026-03-30T12:10:57.547Z",
+  "vitestTestsPassed": 391,
+  "vitestTestFilesPassed": 81,
+  "vitestTestTsOnDisk": 81,
   "nextJsVersion": "14.2.35",
   "vst3BundlePresent": false,
   "vst3BundleBasename": null,
@@ -14,7 +14,7 @@
     "ready": true,
     "source": "verify_post_summary"
   },
-  "initiatorSkillsSha256": "ca2e3b40c91e9486890d80d3db695537e5ad4a7e6d8a0250062fcaaa27b19437",
+  "initiatorSkillsSha256": "c6671427fec34c1b1a97a7abd00792553c200cf2bc967c7fa19755b8f9ee8adf",
   "learningOutcomes": {
     "candidateSuccessRate": 0,
     "meanBestScoreWithLessons": 0,
@@ -23,7 +23,7 @@
     "authoritative": false,
     "sampleCount": 0,
     "confidence": "low",
-    "note": "Defaults: missing or unreadable learning-fitness-report.json. Non-authoritative; does not affect MON or integrity."
+    "note": "Non-authoritative quality trend for AIOM display only. orderChangeRate is 0 until score_candidates JSONL is aggregated; does not affect MON or integrity."
   },
   "verification": "Recompute via `pnpm fire:sync` (Vitest + truth consumers). Validate with `jq` and `sha256sum -c docs/fire-metrics.sha256` per docs/AIOM-Technical-Brief.md.",
   "divergences": []

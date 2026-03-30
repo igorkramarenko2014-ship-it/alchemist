@@ -57,15 +57,22 @@ The current GFUSC work is intentionally non-destructive and auditable.
 
 ## Verification state
 
-After the safe GFUSC scaffold, the transparent safety restriction system, and the preset-quality metric landed:
+After the safe GFUSC scaffold, the transparent safety restriction system, the preset-quality metric, and Engine School lesson 3 landed:
 
 - focused GFUSC tests passed
 - focused safety-system tests passed
 - `pnpm preset:quality` writes `artifacts/preset-quality-report.json`
 - the paired priors metric is non-authoritative and uses the existing `scoreCandidates` + corpus-affinity surfaces
+- Engine School now has three committed lessons:
+  - lesson 1: transient-first aggressive bass
+  - lesson 2: wide evolving cinematic pad
+  - lesson 3: glossy melodic pluck / glass-key hybrid
+- `pnpm learning:verify` passed with `validatedFiles = 3`
+- `pnpm learning:build-index` rebuilt the learning index with `lessonCount = 3`
+- `pnpm learning:assess-fitness` passed and refreshed the learning fitness report
 - `ALCHEMIST_SKIP_PNH_SIMULATE=1 pnpm verify:harsh` passed
 - `pnpm fire:sync` completed successfully after the green verify
-- shared-engine verify test run reached `383` tests
+- shared-engine verify test run reached `385` tests
 - `artifacts/truth-matrix.json` remained healthy with:
   - `MON = 117`
   - `ready = true`

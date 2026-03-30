@@ -1,26 +1,26 @@
 {
   "schemaVersion": 3,
-  "generatedAtUtc": "2026-03-30T02:31:06.554Z",
-  "divergenceCheckedAtUtc": "2026-03-30T02:31:06.554Z",
+  "generatedAtUtc": "2026-03-30T12:10:57.582Z",
+  "divergenceCheckedAtUtc": "2026-03-30T12:10:57.582Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
     "metrics": "docs/fire-metrics.json",
     "learningFitnessReport": "artifacts/learning-fitness-report.json"
   },
-  "learningOutcomes": {
-    "candidateSuccessRate": 0,
-    "meanBestScoreWithLessons": 0,
-    "orderChangeRate": 0,
-    "tasteClusterHitRate": 0,
-    "authoritative": false,
-    "sampleCount": 0,
-    "confidence": "low",
-    "note": "Defaults: missing or unreadable learning-fitness-report.json. Non-authoritative; does not affect MON or integrity."
-  },
   "metrics": {
-    "testsPassed": 383,
-    "testsTotal": 383,
+    "learningOutcomes": {
+      "candidateSuccessRate": 0,
+      "meanBestScoreWithLessons": 0,
+      "orderChangeRate": 0,
+      "tasteClusterHitRate": 0,
+      "authoritative": false,
+      "sampleCount": 0,
+      "confidence": "low",
+      "note": "Non-authoritative quality trend for AIOM display only. orderChangeRate is 0 until score_candidates JSONL is aggregated; does not affect MON or integrity."
+    },
+    "testsPassed": 391,
+    "testsTotal": 391,
     "iomCoverageScore": 1,
     "mon": {
       "value": 117,
@@ -34,7 +34,20 @@
       "status": "clean"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-03-30T02:31:06.525Z"
+    "syncedAtUtc": "2026-03-30T12:10:57.547Z",
+    "ajiStatus": {
+      "activationRate": 0,
+      "lastActivatedAtUtc": null,
+      "activeSessions": 0,
+      "source": "derived"
+    },
+    "identityStatus": {
+      "integrity": "ok",
+      "ajiActive": false,
+      "lastActivationAtUtc": null,
+      "consistency": "consistent",
+      "source": "derived"
+    }
   },
   "divergences": []
 }

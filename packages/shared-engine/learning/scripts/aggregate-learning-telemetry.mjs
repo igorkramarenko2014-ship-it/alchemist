@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 const SAMPLE_HIGH = 20;
 const SAMPLE_MEDIUM = 10;
+const ENGINE_SCHOOL_ALLOWED_MODES = new Set(["fetcher", "circuit_open", "unconfigured"]);
 
 function findMonorepoRoot(startDir) {
   let dir = startDir;
@@ -91,9 +92,23 @@ const reportPath =
 const indexPath = join(root, "packages", "shared-engine", "learning", "learning-index.json");
 const skipIndexMerge = process.env.ALCHEMIST_LEARNING_SKIP_INDEX_MERGE === "1";
 
-const events = loadJsonlEvents(telemetryDir).filter(
+const allEngineSchoolEvents = loadJsonlEvents(telemetryDir).filter(
   (e) => e && e.eventType === "engine_school_influence",
 );
+const rejectedEvents = [];
+const events = allEngineSchoolEvents.filter((e) => {
+  const mode = typeof e?.mode === "string" ? e.mode : null;
+  if (mode === null || !ENGINE_SCHOOL_ALLOWED_MODES.has(mode)) {
+    rejectedEvents.push({
+      triadSessionId:
+        typeof e?.triadSessionId === "string" && e.triadSessionId ? e.triadSessionId : null,
+      runId: typeof e?.runId === "string" && e.runId ? e.runId : null,
+      reason: mode === null ? "missing_mode" : `forbidden_mode:${mode}`,
+    });
+    return false;
+  }
+  return true;
+});
 
 /** @type {Map<string, { sessionIds: Set<string>, validRatios: number[], bestScores: number[], lastUsed: string, weightSum: number, contexts: Set<string> }>} */
 const lessonMap = new Map();
@@ -271,8 +286,9 @@ const reportPayload = {
   aggregationKind: "log_backed_engine_school_influence_jsonl_v1_fitness",
   generatedAtUtc: new Date().toISOString(),
   provenance:
-    "Fitness v1: 0.45*validRate + 0.35*qualityScore + 0.20*logScaledUsageRate per lesson. validRate = mean(panelist passedPanelistValidation/max(candidatesGenerated,1)). sampleCount = unique triadSessionId per lesson. confidence: high≥20, medium≥10, else low. learningOutcomes: non-authoritative; orderChangeRate placeholder until score_candidates telemetry is aggregated.",
+    "Fitness v1: 0.45*validRate + 0.35*qualityScore + 0.20*logScaledUsageRate per lesson. validRate = mean(panelist passedPanelistValidation/max(candidatesGenerated,1)). sampleCount = unique triadSessionId per lesson. confidence: high≥20, medium≥10, else low. learningOutcomes: non-authoritative; orderChangeRate placeholder until score_candidates telemetry is aggregated. Engine School aggregation is fail-closed on provenance: only engine_school_influence rows with mode in {fetcher,circuit_open,unconfigured} are accepted; stub/missing/unknown modes are excluded.",
   totalEventsProcessed: events.length,
+  rejectedEvents,
   uniqueTriadSessions,
   learningOutcomes,
   lessons,

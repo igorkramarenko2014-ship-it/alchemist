@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "bass_stab_melodic",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — Lesson 007: Stabb Bass archetype (canonical factory baseline)"
+  ],
+  "id": "engine_school_lesson_007",
+  "presetName": "SY - Melodic Bass Stab.SerumPreset",
+  "style": "Short, punchy bass stab hit",
+  "tags": [
+    "lesson-007",
+    "bass",
+    "stabb",
+    "stab",
+    "melodic",
+    "percussive-attack",
+    "hit",
+    "chord-impact",
+    "short-decay"
+  ],
+  "mappings": {
+    "designIntent": "Provide a rhythmic, percussive bass punctuation that spoken quickly and clears space for other elements.",
+    "ampEnvelope": "Fast attack, short decay, and little to no sustain to truncate the sound into a percussive hit-like shape.",
+    "harmonicSource": "Saw or square-based oscillator stack with mild detune for harmonic body.",
+    "filterAndSpectral": "Low-pass filter with envelope modulation creates the initial brightness that quickly closes for the 'stab' articulation.",
+    "modulation": "Dedicated filter envelope mapping to cutoff for spectral contraction; ensures the brightness is momentary.",
+    "mixRole": "Rhythmic punctuation or hit-like impact; designed to function as a percussive element rather than a continuous bassline melodic voice."
+  },
+  "character": "Short, punchy bass stab — tight low-mid hit with a quick decay, combining percussive attack and tonal body; feels like a “chord hit” or single-note impact rather than a sustained bassline.",
+  "causalReasoning": "A fast amplitude envelope (sharp attack, short decay, little to no sustain) truncates the sound into a hit-like shape. The oscillator stack (often saw or square-based with mild detune) provides harmonic body, while a low-pass filter with envelope modulation creates the initial brightness that quickly closes, producing the characteristic “stab” articulation. The low end remains present but controlled, avoiding long sub sustain.",
+  "priorityMappingKeys": [
+    "ampEnvelope",
+    "filterAndSpectral",
+    "harmonicSource"
+  ],
+  "coreRules": [
+    "Envelope defines identity — short decay and minimal sustain are essential; without it, it becomes a bassline, not a stab.",
+    "Transient + body balance — must have both initial attack and tonal weight; too soft = pad, too long = bassline."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_lesson_006",
+    "difference": "006 (VR Big Room Lead) is wide, sustained, and continuous, designed for melodic dominance, while the stab is short, percussive, and rhythmic, functioning as a punctuation element rather than a continuous voice."
+  }
+}

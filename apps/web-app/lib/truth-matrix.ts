@@ -184,23 +184,55 @@ function validateTruthArtifactSchemaShape(artifact: Record<string, unknown> | nu
     issues.push("metrics.syncedAtUtc must be ISO datetime");
   }
   if (!Array.isArray(artifact.divergences)) issues.push("divergences must be array");
-  const lo = artifact.learningOutcomes;
+  const lo = metrics.learningOutcomes;
   if (!isObjectRecord(lo)) {
-    issues.push("learningOutcomes object missing");
+    issues.push("metrics.learningOutcomes object missing");
   } else {
-    if (!isFiniteNumber(lo.candidateSuccessRate)) issues.push("learningOutcomes.candidateSuccessRate must be number");
+    if (!isFiniteNumber(lo.candidateSuccessRate)) issues.push("metrics.learningOutcomes.candidateSuccessRate must be number");
     if (!isFiniteNumber(lo.meanBestScoreWithLessons)) {
-      issues.push("learningOutcomes.meanBestScoreWithLessons must be number");
+      issues.push("metrics.learningOutcomes.meanBestScoreWithLessons must be number");
     }
-    if (!isFiniteNumber(lo.orderChangeRate)) issues.push("learningOutcomes.orderChangeRate must be number");
-    if (!isFiniteNumber(lo.tasteClusterHitRate)) issues.push("learningOutcomes.tasteClusterHitRate must be number");
-    if (lo.authoritative !== false) issues.push("learningOutcomes.authoritative must be false");
-    if (!isFiniteNumber(lo.sampleCount)) issues.push("learningOutcomes.sampleCount must be number");
-    if ((lo.sampleCount as number) < 0) issues.push("learningOutcomes.sampleCount must be >= 0");
+    if (!isFiniteNumber(lo.orderChangeRate)) issues.push("metrics.learningOutcomes.orderChangeRate must be number");
+    if (!isFiniteNumber(lo.tasteClusterHitRate)) issues.push("metrics.learningOutcomes.tasteClusterHitRate must be number");
+    if (lo.authoritative !== false) issues.push("metrics.learningOutcomes.authoritative must be false");
+    if (!isFiniteNumber(lo.sampleCount)) issues.push("metrics.learningOutcomes.sampleCount must be number");
+    if ((lo.sampleCount as number) < 0) issues.push("metrics.learningOutcomes.sampleCount must be >= 0");
     if (lo.confidence !== "low" && lo.confidence !== "medium" && lo.confidence !== "high") {
-      issues.push("learningOutcomes.confidence must be low|medium|high");
+      issues.push("metrics.learningOutcomes.confidence must be low|medium|high");
     }
-    if (typeof lo.note !== "string" || lo.note.length === 0) issues.push("learningOutcomes.note must be non-empty string");
+    if (typeof lo.note !== "string" || lo.note.length === 0) issues.push("metrics.learningOutcomes.note must be non-empty string");
+  }
+  // ajiStatus
+  const aji = metrics.ajiStatus;
+  if (!isObjectRecord(aji)) {
+    issues.push("metrics.ajiStatus object missing");
+  } else {
+    if (!isFiniteNumber(aji.activationRate)) issues.push("metrics.ajiStatus.activationRate must be number");
+    if ((aji.activationRate as number) < 0 || (aji.activationRate as number) > 1) {
+      issues.push("metrics.ajiStatus.activationRate must be in [0,1]");
+    }
+    if (!isFiniteNumber(aji.activeSessions)) issues.push("metrics.ajiStatus.activeSessions must be number");
+    if (aji.lastActivatedAtUtc !== null && typeof aji.lastActivatedAtUtc !== "string") {
+      issues.push("metrics.ajiStatus.lastActivatedAtUtc must be string or null");
+    }
+    if (aji.source !== "derived") issues.push("metrics.ajiStatus.source must be 'derived'");
+  }
+  // identityStatus
+  const idStatus = metrics.identityStatus;
+  if (!isObjectRecord(idStatus)) {
+    issues.push("metrics.identityStatus object missing");
+  } else {
+    if (idStatus.integrity !== "ok" && idStatus.integrity !== "degraded") {
+      issues.push("metrics.identityStatus.integrity must be ok|degraded");
+    }
+    if (typeof idStatus.ajiActive !== "boolean") issues.push("metrics.identityStatus.ajiActive must be boolean");
+    if (idStatus.lastActivationAtUtc !== null && typeof idStatus.lastActivationAtUtc !== "string") {
+      issues.push("metrics.identityStatus.lastActivationAtUtc must be string or null");
+    }
+    if (idStatus.consistency !== "consistent" && idStatus.consistency !== "mismatch") {
+      issues.push("metrics.identityStatus.consistency must be consistent|mismatch");
+    }
+    if (idStatus.source !== "derived") issues.push("metrics.identityStatus.source must be 'derived'");
   }
   return issues;
 }

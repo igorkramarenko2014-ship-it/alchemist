@@ -206,17 +206,6 @@ export {
   varianceParamArray,
 } from "./validate";
 export type { ConsensusValidationResult, ParamViolation } from "./validate";
-export {
-  appendGFUSCDryrunRecord,
-  handleGFUSCVerdict,
-  resolveGFUSCMode,
-} from "./gfusc/dryrun";
-export type {
-  GFUSCDryrunRecord,
-  GFUSCMode,
-  HandleGFUSCVerdictOutcome,
-  HandleGFUSCVerdictOptions,
-} from "./gfusc/dryrun";
 export { runGFUSCScenarios } from "./gfusc/runner";
 export {
   GFUSC_AGGREGATE_BURN_THRESHOLD,

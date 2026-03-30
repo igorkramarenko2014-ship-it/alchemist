@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "808_transient_top",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — Lesson 004: 808 - Gucci archetype based on operator ear-pass (no lows finding)"
+  ],
+  "id": "engine_school_lesson_004",
+  "presetName": "808 - Gucci [7 SKIES]",
+  "style": "808 Top Layer / Transient-focused knock with no sub-fundamental",
+  "tags": [
+    "lesson-004",
+    "808",
+    "gucci",
+    "no-lows",
+    "transient-knock",
+    "top-layer",
+    "high-pass",
+    "mid-range"
+  ],
+  "mappings": {
+    "designIntent": "Focus on the 'knock' and transient definition of an 808 without providing the sub-bass weight; intended for layering or as a specialized percussive element.",
+    "character": "No lows — thin, mid-range 'knock' with no sub fundamental; sounds like a transient-only top layer or a 'click' focused 808 variant.",
+    "causalReasoning": "A strong high-pass filter or extremely short decay removes the perceived sub body. What remains is the transient click and upper harmonics, giving a mid-range knock without sustained low-frequency energy.",
+    "filterAndSpectral": "High-pass filtering (typically >150Hz) or steep low-shelf reduction that isolates the harmonic residue above the fundamental.",
+    "envelopeAndTiming": "Often characterized by short decay on the fundamental or a very fast pitch envelope that establishes the 'knock' before the sub is removed spectraly.",
+    "mixRole": "Layering component; provides the 'point' and 'snap' to a separate sub-bass source, or acts as a mid-focused melodic bass in sparse arrangements."
+  },
+  "character": "No lows — thin, mid-range 'knock' with no sub fundamental; sounds like a transient-only top layer.",
+  "causalReasoning": "A strong high-pass filter or extremely short decay removes the perceived sub body. What remains is the transient click and upper harmonics, giving a mid-range knock without sustained low-frequency energy.",
+  "priorityMappingKeys": [
+    "filterAndSpectral",
+    "envelopeAndTiming"
+  ],
+  "coreRules": [
+    "Absence of sub fundamental + mid-range articulation -> defines the 'top layer' 808 archetype.",
+    "High-pass filter or ultra-short decay -> creates a percussive knock without fundamental weight."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_role_model_v1",
+    "difference": "004 is a 'no-lows' transient variant focused on mid-range knock, whereas Lesson 1 (Role Model) is a full-frequency 808 focused on weight and sub-bass authority. Using 004 logic for a main bass line will result in a weak, 'broken' sounding low-end."
+  }
+}
