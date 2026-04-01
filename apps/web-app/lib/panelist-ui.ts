@@ -1,4 +1,4 @@
-import { PANELIST_ALCHEMIST_CODENAME } from '@alchemist/shared-engine';
+import { PANELIST_ALCHEMIST_CODENAME } from '@alchemist/shared-engine/triad-panel-governance';
 import type { AICandidate, Panelist } from '@alchemist/shared-types';
 
 export function formatPanelistDisplayName(panelist: Panelist): string {

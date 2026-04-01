@@ -10,7 +10,11 @@ import {
   computeHealthAgentAjiChatFusion,
   getIgorOrchestratorManifest,
   getIOMHealthPulse,
+  InfluenceStatus,
 } from "@alchemist/shared-engine";
+import { loadLearningIndex } from "@alchemist/shared-engine/node";
+import { getTruthArtifact } from "@/lib/truth-matrix";
+import { getGFUSCBurnState } from "@/lib/gfusc-burn-check";
 import { NextResponse } from "next/server";
 
 /** Same heuristic as `lib/vst-bundle-health.ts` — dev server cwd may be `apps/web-app`. */
@@ -88,6 +92,10 @@ export async function GET(request: Request) {
     anyLive,
   });
   const soeSnapshot = getOptionalSoeTriadSnapshotFromEnv();
+
+  const burnState = getGFUSCBurnState();
+  const isBurned = burnState !== null;
+
   const repoRoot = resolveMonorepoRootForHealth();
   const offsetMapPath = repoRoot
     ? path.join(repoRoot, "packages", "fxp-encoder", "serum-offset-map.ts")
@@ -120,29 +128,92 @@ export async function GET(request: Request) {
   const systemHealth =
     repoRoot != null ? getSystemHealthMetricFromArtifacts(repoRoot) : null;
 
+  const learningIndex = loadLearningIndex();
+  const truthArtifact = getTruthArtifact();
+
+  const priorsStatus: InfluenceStatus["priorsStatus"] = {
+    active: env.learningContextEnabled || env.corpusPriorEnabled || env.tastePriorEnabled,
+    learningContext: env.learningContextEnabled,
+    corpusPrior: env.corpusPriorEnabled,
+    tastePrior: env.tastePriorEnabled,
+    confidence: (learningIndex?.fitnessSnapshot?.learningOutcomes?.confidence as any) ?? "low",
+    stalenessDays: (learningIndex?.fitnessSnapshot?.lessonFitness?.[0]?.stalenessDays as any) ?? null,
+  };
+
+  const learningStatus: InfluenceStatus["learningStatus"] = {
+    status: learningIndex ? "active" : "inactive",
+    confidence: (learningIndex?.fitnessSnapshot?.learningOutcomes?.confidence as any) ?? "low",
+    sampleCount: learningIndex?.fitnessSnapshot?.learningOutcomes?.sampleCount ?? 0,
+  };
+
+  const ajiStatus: InfluenceStatus["ajiStatus"] = {
+    active: (truthArtifact?.metrics as any)?.identityStatus?.ajiActive ?? false,
+    expiresAtUtc: process.env.ALCHEMIST_AJI_EXPIRES_AT ?? null,
+  };
+
+  const influence: InfluenceStatus = {
+    priorsStatus,
+    learningStatus,
+    ajiStatus,
+    triadMode: {
+      mode: httpTriadCoverage === "full" ? "fetcher" : httpTriadCoverage === "partial" ? "partial" : "stub",
+    },
+  };
+
   return NextResponse.json({
-    ok: true,
+    ok: !isBurned,
     wasm,
     vst,
+    influence,
+    live: {
+      status: isBurned ? "down" : "operational",
+      checks: {
+        gfusc: isBurned ? "burned" : "clear",
+        ...(isBurned ? { 
+          burnedAtUtc: burnState.burnedAtUtc, 
+          killswitchGeneration: burnState.killswitchGeneration,
+          triggerDetails: burnState.triggerDetails
+        } : {})
+      }
+    },
     triad: {
-      panelistRoutes: anyLive ? "live" : "unconfigured",
-      triadFullyLive: allLive,
-      livePanelists: liveList,
+      panelists: {
+        HERMES: {
+          model: env.llamaGroqModel,
+          baseUrl: env.llamaGroqBaseUrl,
+          status: isBurned ? "down" : (llamaLive ? "configured" : "missing"),
+        },
+        ATHENA: {
+          model: env.deepseekModel,
+          baseUrl: env.deepseekBaseUrl,
+          status: isBurned ? "down" : (deepseekLive ? "configured" : "missing"),
+        },
+        HESTIA: {
+          model: env.qwenModel || (env.qwenBaseUrl.toLowerCase().includes("openrouter") ? "qwen/qwen2.5-7b-instruct" : "qwen-plus"),
+          baseUrl: env.qwenBaseUrl,
+          status: isBurned ? "down" : (qwenLive ? "configured" : "missing"),
+        },
+      },
+      panelistRoutes: isBurned ? "down" : (anyLive ? "live" : "unconfigured"),
+      triadFullyLive: isBurned ? false : allLive,
+      livePanelists: isBurned ? [] : liveList,
       /**
        * Explicit coverage vs **`triadFullyLive`**: **`none`** = no keys; **`partial`** = 1–2 keys;
        * **`full`** = all three. Client stubs can still run when **`none`** — see **`note`**.
        */
-      httpTriadCoverage,
+      httpTriadCoverage: isBurned ? "none" : httpTriadCoverage,
       /** True when this server's `/api/triad/*` can call live providers (env keys). */
-      httpTriadProviderConfigured: anyLive,
+      httpTriadProviderConfigured: isBurned ? false : anyLive,
       /**
        * Client `runTriad` in the browser may still use **local stub fetchers** for demos when
        * keys are missing — that path is not this server's POST behavior. Audit network + 503.
        */
-      httpTriadPostWhenUnconfigured: "POST /api/triad/* → 503 triad_unconfigured (no upstream inference)",
-      note: anyLive
-        ? `Live panelist HTTP: ${liveList.join(", ")} (fetcher)${allLive ? " — full triad" : ""}. Keys: DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope or OpenRouter URL), GROQ_API_KEY or LLAMA_API_KEY (Groq Llama). Optional LLAMA_GROQ_MODEL. See docs/FIRESTARTER.md §5a.`
-        : "POST /api/triad/* returns 503 triad_unconfigured until keys are set (DEEPSEEK_API_KEY, QWEN_API_KEY, GROQ_API_KEY or LLAMA_API_KEY). Demo stubs: makeTriadFetcher(true). See docs/FIRESTARTER.md §5a.",
+      httpTriadPostWhenUnconfigured: isBurned ? "POST /api/triad/* → 410 gfusc_burn_active" : "POST /api/triad/* → 503 triad_unconfigured (no upstream inference)",
+      note: isBurned
+        ? "Engine burned (GFUSC killswitch) — all ingress denied."
+        : (anyLive
+          ? `Live panelist HTTP: ${liveList.join(", ")} (fetcher)${allLive ? " — full triad" : ""}. Keys: DEEPSEEK_API_KEY, QWEN_API_KEY (DashScope or OpenRouter URL), GROQ_API_KEY or LLAMA_API_KEY (Groq Llama). Optional LLAMA_GROQ_MODEL. See docs/FIRESTARTER.md §5a.`
+          : "POST /api/triad/* returns 503 triad_unconfigured until keys are set (DEEPSEEK_API_KEY, QWEN_API_KEY, GROQ_API_KEY or LLAMA_API_KEY). Demo stubs: makeTriadFetcher(true). See docs/FIRESTARTER.md §5a."),
       /** Parity / reviewer hints — empty when httpTriadCoverage is full. */
       triadParityWarnings,
     },
@@ -176,10 +247,10 @@ export async function GET(request: Request) {
     },
     igorOrchestrator: getIgorOrchestratorManifest(),
     pnh: {
-      riskLevel: pnhHealth.evaluation.riskLevel,
+      riskLevel: isBurned ? "critical" : pnhHealth.evaluation.riskLevel,
       environment: pnhHealth.evaluation.environment,
-      fragilityScore01: pnhHealth.fragilityScore01,
-      triadParityModeHint: pnhHealth.input.triadParityMode,
+      fragilityScore01: isBurned ? 1.0 : pnhHealth.fragilityScore01,
+      triadParityModeHint: isBurned ? "burned" : pnhHealth.input.triadParityMode,
       iomSchismCount: iomPulse.schisms.length,
       note: "PNH context snapshot from aggregate health signals — same model as shared-engine evaluatePnhContext.",
     },

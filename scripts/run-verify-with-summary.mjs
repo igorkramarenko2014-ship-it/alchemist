@@ -514,6 +514,10 @@ function runPipeline(root, mode) {
       label: "test:engine",
       args: wp("test:engine"),
     },
+    {
+      label: "triad:concurrency-stress",
+      args: wp("--filter", "@alchemist/shared-engine", "exec", "vitest", "run", "tests/triad-concurrency.test.ts"),
+    },
   ];
 
   if (mode === "verify-web") {
@@ -1015,6 +1019,7 @@ const verifySummaryBody = {
   ...pnhRollup,
   pnhWarGame: pnhWarGameCompact,
   pnhStatus: pnhStatusString,
+  triadConcurrencyPass: summaryFailedStep !== "triad:concurrency-stress" && finalExitCode === 0,
   pnhSimulation:
     pnhLast != null
       ? {

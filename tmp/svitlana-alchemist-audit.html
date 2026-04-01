@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Svitlana — Alchemist Audit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #030303;
+    --surface: #0a0a0a;
+    --border: #1a1a1a;
+    --accent: #d1d1d1; /* Mercury/Silver */
+    --text: #ffffff;
+    --muted: #666666;
+    --glass: rgba(255, 255, 255, 0.03);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header { text-align: center; margin-bottom: 60px; }
+
+  .header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .header h1 em { color: var(--accent); font-style: italic; }
+
+  .header p {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.2;
+  }
+
+  .dna-pulse {
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .dna-pulse span {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(1.5); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .identity-block {
+    margin-bottom: 32px;
+  }
+
+  .identity-block h2 {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+    margin-bottom: 12px;
+  }
+
+  .identity-block p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #aeaeae;
+  }
+
+  .calibration-vector {
+    background: var(--glass);
+    border-left: 2px solid var(--accent);
+    padding: 20px;
+    margin-top: 24px;
+  }
+
+  .calibration-vector code {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .vector-line {
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .btn {
+    display: inline-block;
+    background: var(--text);
+    color: var(--bg);
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 20px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .footer {
+    margin-top: 60px;
+    font-size: 0.6rem;
+    color: #333;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+  }
+
+  /* File Input Mock */
+  .dropzone {
+    border: 1px dashed var(--border);
+    padding: 40px;
+    text-align: center;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.7rem;
+    margin-top: 20px;
+    cursor: pointer;
+  }
+
+  .dropzone:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Svitlana —<br><em>Alchemist Audit.</em></h1>
+  <p>Keeper of the Flame · Digital Igor</p>
+</div>
+
+<div class="container">
+  <div class="card">
+    <div class="dna-pulse">
+      <span></span> ATHENA // DEEPSEEK // CALIBRATED
+    </div>
+
+    <div class="identity-block">
+      <h2>Panelist DNA Seed</h2>
+      <p>
+        Bias toward <strong>Harmonic Complexity</strong>. Stacked oscillators, 
+        perfect fundamentals, and architected modulation matrices to ensure 
+        structural coherence before sonic grit.
+      </p>
+    </div>
+
+    <div class="identity-block">
+      <h2>Calibration Vector</h2>
+      <div class="calibration-vector">
+        <code>// HUMAN_CALIBRATION_VECTOR: SVITLANA</code>
+        <div class="vector-line">‣ Question the premise before accepting the task</div>
+        <div class="vector-line">‣ Identify self-justification loops</div>
+        <div class="vector-line">‣ Philosophical distance is a feature</div>
+        <div class="vector-line">‣ Value the silence where noise adds nothing</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="alert('Digital Igor: Finalizing Audit Report...')">Run Forensic Audit</button>
+  </div>
+
+  <div class="dropzone">
+    DROP TRANSMUTATION-REPORT.JSON TO AUDIT FOR HUMAN MEANING
+  </div>
+</div>
+
+<div class="footer">
+  Alchemist Triad Engine · Phase 1 · Verified MON=117
+</div>
+
+</body>
+</html>

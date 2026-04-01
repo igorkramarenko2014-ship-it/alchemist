@@ -1,6 +1,6 @@
 'use client';
 
-import type { AgentAjiChatFusion } from '@alchemist/shared-engine';
+import type { AgentAjiChatFusion, InfluenceStatus } from '@alchemist/shared-engine';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface TriadHealthState {
@@ -11,6 +11,8 @@ export interface TriadHealthState {
   panelistRoutes: string;
   /** From GET /api/health `agentAjiChatFusion` — operator hints only. */
   agentAjiChatFusion: AgentAjiChatFusion | null;
+  /** From GET /api/health `influence` — Move 1 Influence Surface. */
+  influence: InfluenceStatus | null;
 }
 
 function isRecord(x: unknown): x is Record<string, unknown> {
@@ -35,7 +37,7 @@ function parseAgentAjiChatFusion(data: unknown): AgentAjiChatFusion | null {
 
 function parseTriadFromHealth(data: unknown): Pick<
   TriadHealthState,
-  'triadFullyLive' | 'livePanelists' | 'panelistRoutes' | 'agentAjiChatFusion'
+  'triadFullyLive' | 'livePanelists' | 'panelistRoutes' | 'agentAjiChatFusion' | 'influence'
 > | null {
   if (!isRecord(data)) return null;
   const triad = data.triad;
@@ -46,7 +48,8 @@ function parseTriadFromHealth(data: unknown): Pick<
     : [];
   const panelistRoutes = typeof triad.panelistRoutes === 'string' ? triad.panelistRoutes : '';
   const agentAjiChatFusion = parseAgentAjiChatFusion(data);
-  return { triadFullyLive, livePanelists, panelistRoutes, agentAjiChatFusion };
+  const influence = isRecord(data.influence) ? (data.influence as unknown as InfluenceStatus) : null;
+  return { triadFullyLive, livePanelists, panelistRoutes, agentAjiChatFusion, influence };
 }
 
 const POLL_MS = 30_000;
@@ -58,6 +61,7 @@ export function useTriadHealth(): TriadHealthState {
   const [livePanelists, setLivePanelists] = useState<string[]>([]);
   const [panelistRoutes, setPanelistRoutes] = useState('');
   const [agentAjiChatFusion, setAgentAjiChatFusion] = useState<AgentAjiChatFusion | null>(null);
+  const [influence, setInfluence] = useState<InfluenceStatus | null>(null);
   const mounted = useRef(true);
 
   const fetchHealth = useCallback(async (signal?: AbortSignal) => {
@@ -67,6 +71,7 @@ export function useTriadHealth(): TriadHealthState {
         if (!mounted.current) return;
         setError(true);
         setAgentAjiChatFusion(null);
+        setInfluence(null);
         setLoading(false);
         return;
       }
@@ -76,6 +81,7 @@ export function useTriadHealth(): TriadHealthState {
       if (!parsed) {
         setError(true);
         setAgentAjiChatFusion(null);
+        setInfluence(null);
         setLoading(false);
         return;
       }
@@ -83,6 +89,7 @@ export function useTriadHealth(): TriadHealthState {
       setLivePanelists(parsed.livePanelists);
       setPanelistRoutes(parsed.panelistRoutes);
       setAgentAjiChatFusion(parsed.agentAjiChatFusion);
+      setInfluence(parsed.influence);
       setError(false);
       setLoading(false);
     } catch (e) {
@@ -90,6 +97,7 @@ export function useTriadHealth(): TriadHealthState {
       if (!mounted.current) return;
       setError(true);
       setAgentAjiChatFusion(null);
+      setInfluence(null);
       setLoading(false);
     }
   }, []);
@@ -108,5 +116,5 @@ export function useTriadHealth(): TriadHealthState {
     };
   }, [fetchHealth]);
 
-  return { loading, error, triadFullyLive, livePanelists, panelistRoutes, agentAjiChatFusion };
+  return { loading, error, triadFullyLive, livePanelists, panelistRoutes, agentAjiChatFusion, influence };
 }

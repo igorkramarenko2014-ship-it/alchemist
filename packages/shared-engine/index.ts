@@ -29,7 +29,15 @@ export {
   stubPanelistCandidates,
   TRIAD_PANELISTS,
 } from "./triad";
-export type { TriadFetcherContext, TriadPanelistChunk } from "./triad";
+export type {
+  InfluenceAjiStatus,
+  InfluenceStatus,
+  InfluenceTriadMode,
+  LearningStatus,
+  PriorsStatus,
+  TriadFetcherContext,
+  TriadPanelistChunk,
+} from "./triad";
 export {
   finalizeCandidates,
 } from "./candidate-finalizer";
@@ -206,7 +214,7 @@ export {
   varianceParamArray,
 } from "./validate";
 export type { ConsensusValidationResult, ParamViolation } from "./validate";
-export { runGFUSCScenarios } from "./gfusc/runner";
+export { runGFUSCScenarios } from "./gfusc/runner-logic";
 export {
   GFUSC_AGGREGATE_BURN_THRESHOLD,
   computeGFUSCHarmIndex,
@@ -532,11 +540,11 @@ export type {
   GreatLibraryMergeResult,
 } from "./learning/great-library";
 export {
-  buildLearningContext,
   collectLeafParamPaths,
   computeCorpusAffinity,
   ENGINE_SCHOOL_CONTEXT_ADVISORY_LINE,
   ENGINE_SCHOOL_CONTEXT_DESCRIPTIVE_LINE,
+  buildLearningContext,
   selectLessonsForPrompt,
 } from "./learning/index";
 export type {
@@ -665,7 +673,7 @@ export type {
   PnhSimulationRow,
 } from "./pnh/pnh-simulation-engine";
 export { parseLegacySoeHintMessage } from "./soe-hint-structured";
-export type {
-  StructuredSoeHint,
-  StructuredSoeSeverity,
-} from "./soe-hint-structured";
+export { resolveTransmutation } from "./transmutation/transmutation-runner-logic";
+export { PolicyFamily } from "./transmutation/transmutation-types";
+export type { TransmutationResult, TransmutationProfile } from "./transmutation/transmutation-types";
+export type { StructuredSoeHint, StructuredSoeSeverity } from "./soe-hint-structured";

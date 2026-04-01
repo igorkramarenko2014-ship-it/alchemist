@@ -5,7 +5,6 @@ import { fetchDeepSeekCandidates } from "@/lib/fetch-deepseek-candidates";
 import { appendPnhHistoryJsonl, triadIntentPnhPartition } from "@/lib/pnh-triad-attack-log";
 import { getTriadCircuitBreakerForPanelist } from "@/lib/triad-circuit-breakers";
 import {
-  DEFAULT_LLAMA_GROQ_MODEL,
   fetchLlamaCandidates,
 } from "@/lib/fetch-llama-candidates";
 import { fetchQwenCandidates } from "@/lib/fetch-qwen-candidates";
@@ -25,6 +24,7 @@ import {
 } from "@alchemist/shared-engine";
 import type { AICandidate, Panelist } from "@alchemist/shared-types";
 import type { IntentHardenerReason } from "@alchemist/shared-engine";
+import { getGFUSCBurnState } from "./gfusc-burn-check";
 import { NextResponse } from "next/server";
 import {
   appendEngineSchoolTelemetryJsonl,
@@ -253,6 +253,20 @@ export async function triadPanelPost(
       ? (body as { triadSessionId: string }).triadSessionId.trim()
       : undefined;
 
+  const burnState = getGFUSCBurnState();
+  if (burnState) {
+    return NextResponse.json(
+      { error: "gfusc_burn_active", message: "Engine burned — killswitch active." },
+      { 
+        status: 410,
+        headers: {
+          "x-alchemist-gfusc": "burned",
+          "x-alchemist-burned-at": burnState.burnedAtUtc
+        }
+      }
+    );
+  }
+
   // Reality Loop: the user requested an output (triad view/generation intent).
   logRealitySignal("OUTPUT_VIEWED", { surface: "dock", panelist });
 
@@ -382,8 +396,9 @@ export async function triadPanelPost(
   const useDeepSeekLive = panelist === "DEEPSEEK" && deepseekConfigured;
   const useQwenLive = panelist === "QWEN" && qwenConfigured;
   const useLlamaLive = panelist === "LLAMA" && llamaConfigured;
-  const llamaModel =
-    env.llamaGroqModel.length > 0 ? env.llamaGroqModel : DEFAULT_LLAMA_GROQ_MODEL;
+  const llamaModel = env.llamaGroqModel;
+  const deepseekModel = env.deepseekModel;
+  const qwenModel = env.qwenModel || (env.qwenBaseUrl.toLowerCase().includes("openrouter") ? "qwen/qwen2.5-7b-instruct" : "qwen-plus");
 
   if (!(useDeepSeekLive || useQwenLive || useLlamaLive)) {
     logEvent("triad_run_start", {
@@ -489,6 +504,8 @@ export async function triadPanelPost(
   const { signal, dispose } = mergeAiTimeoutSignal(timeoutMs, request.signal);
   let candidates: AICandidate[] = [];
   let error: string | undefined;
+  let retryCount = 0;
+  let retryExhausted = false;
   let panelistPipeline:
     | {
         rawFromFetcher: number;
@@ -500,29 +517,44 @@ export async function triadPanelPost(
     | undefined;
   try {
     if (useDeepSeekLive) {
-      candidates = await fetchDeepSeekCandidates(
+      const result = await fetchDeepSeekCandidates(
         promptForTriad,
         env.deepseekApiKey,
         signal,
+        deepseekModel,
+        env.deepseekBaseUrl,
         learningContext,
+        runId,
       );
+      candidates = result.candidates;
+      retryCount = result.retryCount;
+      retryExhausted = result.retryExhausted;
     } else if (useQwenLive) {
-      candidates = await fetchQwenCandidates(
+      const result = await fetchQwenCandidates(
         promptForTriad,
         env.qwenApiKey,
         signal,
+        qwenModel,
         env.qwenBaseUrl,
         learningContext,
+        runId,
       );
+      candidates = result.candidates;
+      retryCount = result.retryCount;
+      retryExhausted = result.retryExhausted;
     } else {
-      candidates = await fetchLlamaCandidates(
+      const result = await fetchLlamaCandidates(
         promptForTriad,
         env.llamaApiKey,
         signal,
         llamaModel,
+        env.llamaGroqBaseUrl,
         runId,
         learningContext,
       );
+      candidates = result.candidates;
+      retryCount = result.retryCount;
+      retryExhausted = result.retryExhausted;
     }
     const rawFromFetcher = candidates.length;
     const echoAudited = auditTriadCandidatesForPnhResponseEcho(candidates, {
@@ -559,6 +591,8 @@ export async function triadPanelPost(
     candidateCount: candidates.length,
     durationMs,
     mode: "fetcher",
+    retryCount,
+    retryExhausted,
     ...(error !== undefined ? { error } : {}),
   });
   logEngineSchoolInfluenceTelemetry(
@@ -595,6 +629,8 @@ export async function triadPanelPost(
       candidates,
       triadModeTag: "fetcher" as const,
       triadPanelist: panelist,
+      retryCount,
+      retryExhausted,
     },
     { headers: triadResponseHeaders(panelist, "fetcher") }
   );

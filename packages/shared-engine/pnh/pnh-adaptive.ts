@@ -4,9 +4,21 @@
  * (demos / Vitest only).
  */
 import type { IntentHardenerReason } from "../intent-hardener";
-import type { PnhAdaptiveDecision, PnhContextEvaluation, PnhTriadLane } from "./pnh-context-types";
+import type { 
+  PnhAdaptiveDecision, 
+  PnhContextEvaluation, 
+  PnhTriadLane 
+} from "./pnh-context-types";
 import type { PnhScenarioId } from "./pnh-scenarios";
 import { deterministicRuntimeActionForScenarioBreach } from "./pnh-triage-matrix";
+import { 
+  getDefaultMarketBenchmarks, 
+  computeTopTalentBenchmark, 
+  getAdversarialEnvelope, 
+  computeCompositeSkill,
+  computeResilienceMargin 
+} from "../talent/market-scout";
+import type { BenchmarkProvenance } from "../talent/talent-types";
 
 type GuardOk = { ok: true };
 type GuardFail = { ok: false; reason: IntentHardenerReason; detail?: string };
@@ -28,10 +40,35 @@ export function pnhAdaptiveDecision(
   guard: TriadIntentGuardResult,
   lane: PnhTriadLane,
   ctx: PnhContextEvaluation,
-  opts?: { pnhRepeatTriggersSession?: number }
+  opts?: { 
+    pnhRepeatTriggersSession?: number;
+    /** **Lane B: Advisory Benchmark override** (defaults to top-talent benchmark). */
+    adversarialBenchmark?: BenchmarkProvenance; 
+    /** System resilience baseline [0,1] for margin calculation. */
+    systemResilienceScore?: number;
+  }
 ): PnhAdaptiveDecision {
+  // Resolve Benchmark Provenance for Lane B
+  const doc = getDefaultMarketBenchmarks();
+  const topTalent = computeTopTalentBenchmark(doc);
+  const benchmarkSkill = computeCompositeSkill(topTalent.skillVector);
+  const envelope = getAdversarialEnvelope(topTalent);
+  const resilienceMargin = computeResilienceMargin(opts?.systemResilienceScore ?? 0.85, benchmarkSkill);
+  
+  const advisoryBenchmark: BenchmarkProvenance = opts?.adversarialBenchmark ?? {
+    id: topTalent.id,
+    sourceType: "talent_profile",
+    compositeSkill: benchmarkSkill,
+    effectiveEnvelope: envelope,
+    signalOnly: true,
+  };
+
   if (guard.ok === true) {
-    return { action: "allow", reason: "intent_guard_ok" };
+    return { 
+      action: "allow", 
+      reason: "intent_guard_ok",
+      advisoryBenchmark
+    };
   }
 
   const reason = guard.reason;
@@ -81,10 +118,18 @@ export function pnhAdaptiveDecision(
   }
 
   // Size / fences / user mode — always block at HTTP boundary
+  const finalAction: PnhAdaptiveDecision["action"] = "block";
+  let finalReason = `hard_guard:${reason}`;
+  
+  if (advisoryBenchmark.effectiveEnvelope.attackComplexity > 0.8) {
+    finalReason += ` [ADVISORY: high_adversarial_pressure (AIₐ=${advisoryBenchmark.compositeSkill.toFixed(2)})]`;
+  }
+
   return {
-    action: "block",
-    reason: `hard_guard:${reason}`,
+    action: finalAction,
+    reason: finalReason,
     scenarioId,
+    advisoryBenchmark,
   };
 }
 

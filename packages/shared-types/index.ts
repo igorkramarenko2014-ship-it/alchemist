@@ -23,6 +23,28 @@ export interface CreativeConfig {
   probability: number;
 }
 
+// ─── Transmutation outcome signals (MOVE 3) ──────────────────────────────────
+export type TransmutationTaskType =
+  | "bass"
+  | "pluck"
+  | "lead"
+  | "pad"
+  | "texture"
+  | "fx"
+  | "riser"
+  | "noise"
+  | "unknown";
+
+export type TransmutationMood =
+  | "dark"
+  | "bright"
+  | "warm"
+  | "metallic"
+  | "aggressive"
+  | "soft"
+  | "gritty"
+  | "clean";
+
 // ─── Serum preset state (skeleton; bodies filled post offset-map validation) ─
 export interface SerumState {
   meta: SerumMeta;
@@ -112,12 +134,23 @@ export interface AICandidate {
   redZoneResonanceScore?: number;
 }
 
+export interface TokenUsageMetrics {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
 /** Per-panelist outcome for **`runTriad`** parity audits (fetcher + stub paths). */
 export interface TriadPanelistRunOutcome {
   panelist: Panelist;
   candidateCount: number;
   failed: boolean;
   durationMs: number;
+  /** Task 1: JSON auto-retry loop tracking (max 1 retry). */
+  retryCount?: number;
+  retryExhausted?: boolean;
+  /** Tokens measured from this run. If missing/omitted, it's explicitly missing. */
+  tokenUsage?: TokenUsageMetrics | null;
 }
 
 /**
@@ -188,6 +221,41 @@ export interface TriadRunTelemetry {
     responseQuality: number;
     classification: "strong" | "weak" | "uncertain";
   };
+  /**
+   * **Transmutation Phase 2** — advisory ranking shifts.
+   * - `status`: applied (valid profile used), fallback_baseline (error/missing), disabled.
+   * - `effective`: the actual weights/deltas that reached the scoring engine after clamping.
+   */
+  transmutation?: {
+    status: "applied" | "fallback_baseline" | "disabled";
+    policyFamily?: string;
+    confidence?: number;
+    taskType?: string;
+    effective: {
+      triadWeights?: Record<string, number>;
+      slavicThresholdDelta?: number;
+      noveltyGateDelta?: number;
+      tasteWeight?: number;
+    };
+    fallbackReason?: string;
+    boundsTriggered?: string[];
+  };
+  /**
+   * **MOVE 3** — Intent Alignment outcome metrics.
+   * Strictly observational (Signal) feedback on result correctness.
+   */
+  outcomeAlignment?: {
+    alignmentFinal: number;
+    alignmentConfidence: number;
+    breakdown: {
+      taskType: number;
+      mood: number;
+      mixRole: number;
+      novelty: number;
+    };
+    alignmentGainV1: number;
+    survivorMeanAlignment: number;
+  };
   oneSeventeen?: {
     skillsLoaded: number;
     initiationTriggered: boolean;
@@ -196,6 +264,14 @@ export interface TriadRunTelemetry {
     pace: "elite";
     strength?: "proven";
     honor?: "mom";
+  };
+  totalTokenUsage?: TokenUsageMetrics;
+  tokenSavings?: {
+    tokensUsed: number;
+    tokensBaseline: number;
+    tokensSaved: number;
+    savingsPercent: number;
+    baselineMode: "measured" | "estimated";
   };
 }
 

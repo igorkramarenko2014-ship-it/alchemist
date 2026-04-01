@@ -78,7 +78,7 @@ describe("transparent-arbitration", () => {
       prompt: "order_test",
       runId: "arb_order",
     });
-    const ws = r.orderedCandidates.map(weightedScore);
+    const ws = r.orderedCandidates.map((c) => weightedScore(c, null));
     if (r.winner === "ALPHA") {
       for (let i = 1; i < ws.length; i++) {
         expect(ws[i - 1]).toBeGreaterThanOrEqual(ws[i]);

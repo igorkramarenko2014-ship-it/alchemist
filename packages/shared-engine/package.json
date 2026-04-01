@@ -8,7 +8,20 @@
   "exports": {
     ".": "./index.ts",
     "./node": "./node.ts",
-    "./rll/outcome-sink": "./rll/outcome-sink.ts"
+    "./rll/outcome-sink": "./rll/outcome-sink.ts",
+    "./triad-panel-governance": "./triad-panel-governance.ts",
+    "./fxp-provenance": "./fxp-provenance.ts",
+    "./agent-fusion": "./agent-fusion.ts",
+    "./encoder": "./encoder.ts",
+    "./explainability/decision-receipt": "./explainability/decision-receipt.ts",
+    "./triad": "./triad.ts",
+    "./score": "./score.ts",
+    "./transmutation": "./transmutation/transmutation-runner.ts",
+    "./transmutation/transmutation-types": "./transmutation/transmutation-types.ts",
+    "./transmutation/refinery/refinery-types": "./transmutation/refinery/refinery-types.ts",
+    "./transmutation/refinery/refinery-aggregator": "./transmutation/refinery/refinery-aggregator.ts",
+    "./transmutation/refinery/scenarios": "./transmutation/refinery/scenarios.ts",
+    "./token-ledger": "./token-ledger.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

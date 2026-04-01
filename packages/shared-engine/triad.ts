@@ -11,6 +11,7 @@ import type {
   TriadPanelistRunOutcome,
   TriadParityMode,
   UserMode,
+  TokenUsageMetrics,
 } from "@alchemist/shared-types";
 import { MAX_CANDIDATES, TRIAD_PANELIST_CLIENT_TIMEOUT_MS } from "./constants";
 import { validatePromptForTriad } from "./prompt-guard";
@@ -59,6 +60,35 @@ import { computePlfDecision } from "./power-logic-fusion";
 import { selectCreativeStance } from "./creative-diversity-layer";
 import { evaluateProbeResult } from "./probe-intelligence-layer";
 import { registerOneSeventeenRun } from "./one-seventeen-skills";
+import { resolveTransmutation } from "./transmutation/transmutation-runner-logic";
+import { TRANSMUTATION_BOUNDS } from "./transmutation/transmutation-bounds";
+import type { TransmutationProfile } from "./transmutation/transmutation-types";
+import { effectivePanelistWeight } from "./score";
+import { isValidCandidate } from "./validate";
+
+/** 
+ * Robust hardening for panelist outputs: 
+ * - Discard invalid candidates (Gate integrity: strict schema + param integrity).
+ * - Limit candidate count (MAX_CANDIDATES).
+ * - Ensure all candidates are from the correct panelist.
+ */
+function hardenPanelistCandidates(
+  panelist: Panelist,
+  candidates: unknown,
+): AICandidate[] {
+  if (!Array.isArray(candidates)) return [];
+  const valid: AICandidate[] = [];
+  for (const c of candidates) {
+    if (valid.length >= MAX_CANDIDATES) break;
+    if (isValidCandidate(c as AICandidate)) {
+      const typed = c as AICandidate;
+      if (typed.panelist === panelist) {
+        valid.push(typed);
+      }
+    }
+  }
+  return valid;
+}
 
 export type AjiTriggerReason = "schism_detected" | "soe_stressed" | "heavy_gate_drop";
 
@@ -82,6 +112,37 @@ export function generateAjiInsight(triggerReason: AjiTriggerReason): AjiInsights
     hypotheses: ["Mock hypothesis"],
     suggestions: ["Mock suggestion"]
   };
+}
+
+export interface PriorsStatus {
+  active: boolean;
+  learningContext: boolean;
+  corpusPrior: boolean;
+  tastePrior: boolean;
+  confidence: "low" | "medium" | "high";
+  stalenessDays: number | null;
+}
+
+export interface LearningStatus {
+  status: "active" | "inactive" | "error";
+  confidence: "low" | "medium" | "high";
+  sampleCount: number;
+}
+
+export interface InfluenceAjiStatus {
+  active: boolean;
+  expiresAtUtc: string | null;
+}
+
+export interface InfluenceTriadMode {
+  mode: "fetcher" | "partial" | "stub" | "tablebase";
+}
+
+export interface InfluenceStatus {
+  priorsStatus: PriorsStatus | null;
+  learningStatus: LearningStatus | null;
+  ajiStatus: InfluenceAjiStatus | null;
+  triadMode: InfluenceTriadMode | null;
 }
 
 export function checkAndActivateAji(
@@ -125,7 +186,13 @@ export function checkAndActivateAji(
 export const TRIAD_PANELISTS: Panelist[] = ["LLAMA", "DEEPSEEK", "QWEN"];
 
 /** Panelist chunks from `withTriadPanelistTiming`: each candidate inherits that call's `durationMs`. */
-export type TriadPanelistChunk = { value: AICandidate[]; durationMs: number };
+export type TriadPanelistChunk = { 
+  value: AICandidate[]; 
+  durationMs: number;
+  retryCount?: number;
+  retryExhausted?: boolean;
+  tokenUsage?: TokenUsageMetrics | null;
+};
 
 /**
  * Flatten triad panel results preserving order (LLAMA → DEEPSEEK → QWEN) and align per-candidate
@@ -150,6 +217,9 @@ type TriadPanelChunk = {
   durationMs: number;
   failed: boolean;
   creativeStanceApplied: boolean;
+  retryCount?: number;
+  retryExhausted?: boolean;
+  tokenUsage?: TokenUsageMetrics | null;
 };
 
 const TRIAD_EARLY_RESOLVE_DEFAULT_FLOOR = 0.9;
@@ -168,7 +238,7 @@ async function runFetcherChunksWithOptionalEarlyTwo(
     panelist: Panelist,
     signal: AbortSignal,
     ctx?: TriadFetcherContext,
-  ) => Promise<AICandidate[]>,
+  ) => Promise<AICandidate[] | { candidates: AICandidate[]; retryCount?: number; retryExhausted?: boolean; tokenUsage?: TokenUsageMetrics | null }>,
   parentSignal: AbortSignal | undefined,
   scoreOpts: ScoreCandidatesOptions,
   early: { enabled: boolean; scoreFloor: number }
@@ -217,18 +287,27 @@ async function runFetcherChunksWithOptionalEarlyTwo(
       });
     }
     try {
-      const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
+      const rawResult = await withTriadPanelistTiming(runId, panelist, () =>
         withTimeout(
           fetcher(prompted, panelist, controllers[i].signal, { triadSessionId: runId }),
           panelClientTimeoutMs
         )
       );
+      const rawValue = Array.isArray(rawResult.value) ? rawResult.value : rawResult.value.candidates;
+      const value = hardenPanelistCandidates(panelist, rawValue);
+      const retryCount = Array.isArray(rawResult.value) ? 0 : rawResult.value.retryCount;
+      const retryExhausted = Array.isArray(rawResult.value) ? false : rawResult.value.retryExhausted;
+      const tokenUsage = Array.isArray(rawResult.value) ? null : (rawResult.value.tokenUsage ?? null);
+
       return {
         panelist,
         value,
-        durationMs,
+        durationMs: rawResult.durationMs,
         failed: false,
         creativeStanceApplied: cdl.applied,
+        retryCount,
+        retryExhausted,
+        tokenUsage,
       };
     } catch {
       return {
@@ -269,7 +348,13 @@ async function runFetcherChunksWithOptionalEarlyTwo(
 
     if (completedOrder.length === 2) {
       const flat = flattenTriadChunksWithDurations(
-        completedOrder.map((c) => ({ value: c.value, durationMs: c.durationMs }))
+        completedOrder.map((c) => ({ 
+          value: c.value, 
+          durationMs: c.durationMs,
+          retryCount: c.retryCount,
+          retryExhausted: c.retryExhausted,
+          tokenUsage: c.tokenUsage,
+        }))
       );
       const scoringLane = scoreOpts.pnhScoringLane ?? "fully_live";
       const pTrim = prompt.trim();
@@ -355,6 +440,9 @@ function buildTriadParityFields(
           candidateCount: c.value.length,
           failed: c.failed,
           durationMs: Math.round(c.durationMs),
+          retryCount: c.retryCount,
+          retryExhausted: c.retryExhausted,
+          tokenUsage: c.tokenUsage,
         }));
   if (triadRunMode === "stub") {
     return {
@@ -492,7 +580,12 @@ export function makeTriadFetcher(
   demo: boolean,
   baseUrl = "",
   postOpts?: { userMode?: UserMode; triadSessionId?: string }
-): (prompt: string, panelist: Panelist, signal: AbortSignal, ctx?: TriadFetcherContext) => Promise<AICandidate[]> {
+): (
+  prompt: string, 
+  panelist: Panelist, 
+  signal: AbortSignal, 
+  ctx?: TriadFetcherContext
+) => Promise<AICandidate[] | { candidates: AICandidate[]; retryCount?: number; retryExhausted?: boolean; tokenUsage?: TokenUsageMetrics | null }> {
   if (demo) {
     return (prompt, panelist, signal, _ctx) => stubPanelistCandidates(prompt, panelist, signal);
   }
@@ -517,11 +610,19 @@ export function makeTriadFetcher(
         `Triad ${PANELIST_ALCHEMIST_CODENAME[panelist]} failed: ${res.status} ${text}`
       );
     }
-    const data = (await res.json()) as { candidates?: AICandidate[] };
+    const data = (await res.json()) as { 
+      candidates?: AICandidate[];
+      retryCount?: number;
+      retryExhausted?: boolean;
+    };
     if (!data.candidates || !Array.isArray(data.candidates)) {
       throw new Error(`Triad ${PANELIST_ALCHEMIST_CODENAME[panelist]}: invalid response shape`);
     }
-    return data.candidates;
+    return {
+      candidates: data.candidates,
+      retryCount: data.retryCount,
+      retryExhausted: data.retryExhausted,
+    };
   };
 }
 
@@ -540,7 +641,7 @@ export async function runTriad(
       panelist: Panelist,
       signal: AbortSignal,
       ctx?: TriadFetcherContext,
-    ) => Promise<AICandidate[]>;
+    ) => Promise<AICandidate[] | { candidates: AICandidate[]; retryCount?: number; retryExhausted?: boolean; tokenUsage?: TokenUsageMetrics | null }>;
     /** Run consensus validator on each candidate (param range [0,1]); set analysis.validationSummary. */
     runConsensusValidation?: boolean;
     /** When true, exclude candidates that fail consensus (param out-of-range). Default false. */
@@ -575,6 +676,8 @@ export async function runTriad(
     ajiTrigger?: AjiTriggerReason;
     /** Override internal runId for Aji tests. */
     triadSessionIdOverride?: string;
+    /** Optional callback for token usage recording (e.g. for Node-side persist). */
+    onTokenUsage?: (params: { actual: Record<Panelist, TokenUsageMetrics | null>, baseline: Record<Panelist, number> }) => void;
   }
 ): Promise<AIAnalysis> {
   const skipPnh = options?.skipPnhTriadDefense === true;
@@ -612,6 +715,41 @@ export async function runTriad(
 
   const runId = options?.triadSessionIdOverride ?? newTriadRunId();
   const tRun0 = nowMs();
+
+  // Phase 2: Resolve Transmutation early (fail-open)
+  let transmutationProfile: TransmutationProfile | null = null;
+  let transmutationStatus: "applied" | "fallback_baseline" | "disabled" = "applied";
+  let transmutationPolicyFamily: string | undefined;
+  let transmutationConfidence: number | undefined;
+  let transmutationTaskType: string | undefined;
+  let transmutationFallbackReason: string | undefined;
+  let boundsTriggered: string[] = [];
+
+  try {
+    const res = resolveTransmutation(prompt);
+    transmutationProfile = res.transmutation_profile;
+    transmutationPolicyFamily = res.audit_trace.policy_family;
+    transmutationConfidence = res.confidence;
+    transmutationTaskType = res.audit_trace.policy_family; // or task_type if available
+    boundsTriggered = res.audit_trace.bounds_checks;
+    if (res.fallback_used) {
+      transmutationStatus = "fallback_baseline";
+      transmutationFallbackReason = res.audit_trace.reasons.join(", ");
+    }
+    
+    logEvent("transmutation_resolved", {
+      runId,
+      status: transmutationStatus,
+      policyFamily: transmutationPolicyFamily,
+      confidence: transmutationConfidence,
+      boundsTriggered,
+      fallbackReason: transmutationFallbackReason,
+      note: "Lane A: Transmutation Phase 2 advisory resolution complete."
+    });
+  } catch (err) {
+    transmutationStatus = "fallback_baseline";
+    transmutationFallbackReason = err instanceof Error ? err.message : "resolution_error";
+  }
 
   // Explicit Aji trigger check at the very start of runTriad
   if (options?.ajiTrigger) {
@@ -652,6 +790,7 @@ export async function runTriad(
     const scoreOptsForFetch: ScoreCandidatesOptions = {
       ...(options?.userMode !== undefined ? { userMode: options.userMode } : {}),
       pnhScoringLane: scoringLaneForFetch,
+      transmutationProfile,
     };
     const earlyEnabled = options?.triadEarlyResolveTwo === true || options?.fastResolve === true;
     const earlyFloor =
@@ -691,9 +830,10 @@ export async function runTriad(
   } else {
     const chunks = await Promise.all(
       TRIAD_PANELISTS.map(async (panelist) => {
-        const { value, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
+        const { value: rawValue, durationMs } = await withTriadPanelistTiming(runId, panelist, () =>
           stubPanelistCandidates(prompt, panelist, signal)
         );
+        const value = hardenPanelistCandidates(panelist, rawValue);
         return {
           panelist,
           value,
@@ -733,6 +873,7 @@ export async function runTriad(
   const scoreOpts: ScoreCandidatesOptions = {
     ...(options?.userMode !== undefined ? { userMode: options.userMode } : {}),
     pnhScoringLane: scoringLaneForPool,
+    transmutationProfile,
   };
   const scored = scoreGatedTriadPool(candidates, prompt, panelDurationsMs, scoreOpts);
 
@@ -875,7 +1016,7 @@ export async function runTriad(
 
   return {
     candidates: valid,
-    decisionReceipt: generateDecisionReceipt(
+      decisionReceipt: generateDecisionReceipt(
       {
         candidates: valid,
         triadRunTelemetry: {
@@ -913,6 +1054,34 @@ export async function runTriad(
                 }),
               }
             : {}),
+          transmutation: {
+            status: transmutationStatus,
+            policyFamily: transmutationPolicyFamily,
+            confidence: transmutationConfidence,
+            taskType: transmutationTaskType,
+            effective: {
+              triadWeights: transmutationProfile?.triad_weights
+                ? (Object.fromEntries(
+                    TRIAD_PANELISTS.map((p) => [
+                      p,
+                      effectivePanelistWeight({ panelist: p } as AICandidate, transmutationProfile),
+                    ])
+                  ) as Record<string, number>)
+                : undefined,
+              slavicThresholdDelta: transmutationProfile
+                ? Math.max(
+                    -TRANSMUTATION_BOUNDS.single_threshold_delta_max,
+                    Math.min(
+                      TRANSMUTATION_BOUNDS.single_threshold_delta_max,
+                      transmutationProfile.gate_offsets.slavic_threshold_delta
+                    )
+                  )
+                : undefined,
+              tasteWeight: transmutationProfile?.priors.taste_weight,
+            },
+            fallbackReason: transmutationFallbackReason,
+            boundsTriggered: boundsTriggered.length > 0 ? boundsTriggered : undefined,
+          },
         },
       },
       valid,
@@ -955,6 +1124,98 @@ export async function runTriad(
             }),
           }
         : {}),
+      transmutation: {
+        status: transmutationStatus,
+        policyFamily: transmutationPolicyFamily,
+        confidence: transmutationConfidence,
+        taskType: transmutationTaskType,
+        effective: {
+          triadWeights: transmutationProfile?.triad_weights
+            ? (Object.fromEntries(
+                TRIAD_PANELISTS.map((p) => [
+                  p,
+                  effectivePanelistWeight({ panelist: p } as AICandidate, transmutationProfile),
+                ])
+              ) as Record<string, number>)
+            : undefined,
+          slavicThresholdDelta: transmutationProfile
+            ? Math.max(
+                -TRANSMUTATION_BOUNDS.single_threshold_delta_max,
+                Math.min(
+                  TRANSMUTATION_BOUNDS.single_threshold_delta_max,
+                  transmutationProfile.gate_offsets.slavic_threshold_delta
+                )
+              )
+            : undefined,
+          tasteWeight: transmutationProfile?.priors.taste_weight,
+        },
+        fallbackReason: transmutationFallbackReason,
+        boundsTriggered: boundsTriggered.length > 0 ? boundsTriggered : undefined,
+      },
+      ...(() => {
+        const baseline = 2500;
+        const panelistBaselines: Record<Panelist, number> = {
+            LLAMA: baseline,
+            DEEPSEEK: baseline,
+            QWEN: baseline,
+        };
+        const actualUsage: Record<Panelist, TokenUsageMetrics | null> = {
+            LLAMA: null,
+            DEEPSEEK: null,
+            QWEN: null,
+        };
+        
+        if (panelChunks) {
+            panelChunks.forEach(pc => {
+                if (pc.tokenUsage) {
+                    actualUsage[pc.panelist] = pc.tokenUsage;
+                }
+            });
+        }
+
+        const totalActual: TokenUsageMetrics = {
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+        };
+
+        let activeCount = 0;
+        (Object.values(actualUsage) as (TokenUsageMetrics | null)[]).forEach(u => {
+            if (u) {
+                totalActual.promptTokens += u.promptTokens;
+                totalActual.completionTokens += u.completionTokens;
+                totalActual.totalTokens += u.totalTokens;
+                activeCount++;
+            }
+        });
+
+        const totalBaseline = TRIAD_PANELISTS.length * baseline;
+        const totalSaved = Math.max(0, totalBaseline - totalActual.totalTokens);
+        const savingsPercent = totalBaseline > 0 ? (totalSaved / totalBaseline) * 100 : 0;
+
+        // Save to ledger (if callback provided — usually Node side)
+        if (triadRunMode !== "stub" && activeCount > 0 && options?.onTokenUsage) {
+            try {
+                options.onTokenUsage({
+                    actual: actualUsage,
+                    baseline: panelistBaselines,
+                });
+            } catch (err) {
+                console.error("Failed to record token usage to ledger", err);
+            }
+        }
+
+        return {
+            totalTokenUsage: activeCount > 0 ? totalActual : undefined,
+            tokenSavings: activeCount > 0 ? {
+                tokensUsed: totalActual.totalTokens,
+                tokensBaseline: totalBaseline,
+                tokensSaved: totalSaved,
+                savingsPercent,
+                baselineMode: "estimated" as const,
+            } : undefined,
+        };
+      })(),
     },
     ...(triadExecutionPrompt !== undefined && { triadExecutionPrompt }),
     ...(validationSummary !== undefined && { validationSummary }),

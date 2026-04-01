@@ -16,7 +16,25 @@ const nextConfig = {
     '@alchemist/shared-types',
     '@alchemist/shared-ui',
   ],
-  webpack: (config, { dev }) => {
+    webpack: (config, { dev, isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        os: false,
+        crypto: false,
+        url: false,
+      };
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'node:fs': false,
+        'node:path': false,
+        'node:os': false,
+        'node:crypto': false,
+        'node:url': false,
+      };
+    }
     // macOS EMFILE: too many file watchers — apply to **server + client** dev compilers
     // (Next runs two webpack instances; only fixing the client left Watchpack failing on SSR.)
     if (dev) {

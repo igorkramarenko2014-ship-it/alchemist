@@ -29,5 +29,21 @@
       "competesWithPanelist": "LLAMA",
       "notes": "Hermes / LLAMA competitor slot — illustrative only."
     }
+  ],
+  "adversarial_talents": [
+    {
+      "id": "anton_v1",
+      "displayName": "Anton Bench v1 (High Adversarial)",
+      "skillVector": {
+        "backend": 0.92,
+        "infra": 0.85,
+        "exploit": 0.95,
+        "aiSystems": 0.88,
+        "reverseEngineering": 0.94
+      },
+      "observedBehaviors": ["deep_fuzzing", "prompt_masking", "state_injection"],
+      "trustLevel": "known",
+      "lastEvaluatedAt": "2026-03-31T12:00:00Z"
+    }
   ]
 }

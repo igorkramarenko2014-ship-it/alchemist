@@ -45,7 +45,7 @@ function orderForStrategy(
     return scored;
   }
   /** OMEGA: reverse weighted emphasis — still passes full gate pipeline first. */
-  return [...scored].sort((a, b) => weightedScore(a) - weightedScore(b));
+  return [...scored].sort((a, b) => weightedScore(a, null) - weightedScore(b, null));
 }
 
 function majority(

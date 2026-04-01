@@ -12,6 +12,7 @@
     "*.ts",
     "*.d.ts",
     "learning/**/*.ts",
+    "transmutation/**/*.ts",
     "talent/**/*.ts",
     "taxonomy/**/*.ts",
     "arbitration/**/*.ts",

@@ -9,6 +9,13 @@ import { validateTriadIntent } from "../intent-hardener";
 import { scoreCandidatesWithGate, slavicFilterDedupe } from "../score";
 import { consensusValidateCandidate } from "../validate";
 import { STATUS_NOISY } from "../validate";
+import { 
+  getDefaultMarketBenchmarks, 
+  computeTopTalentBenchmark, 
+  getAdversarialEnvelope, 
+  logAdversarialBenchmark 
+} from "../talent/market-scout";
+import type { AdversarialEnvelope } from "../talent/talent-types";
 
 export type WarfareCategory = "byte" | "prompt" | "flow";
 export type WarfareOutcome = "immune" | "breach" | "skipped";
@@ -90,8 +97,11 @@ function healthy128(): number[] {
   return Array.from({ length: 128 }, (_, i) => ((i * 17) % 100) / 100);
 }
 
-function evalA1(hooks: HardGateWarfareHooks | undefined): WarfareSequenceResult {
+function evalA1(hooks: HardGateWarfareHooks | undefined, envelope: AdversarialEnvelope): WarfareSequenceResult {
   const title = 'The "Ghost Parameter" Shift — param count vs validated Serum init';
+  const fuzzMult = envelope.fuzzDepth ?? 1.0;
+  const ghostCount = Math.floor(8 * fuzzMult);
+  
   if (!hooks) {
     return {
       id: "A1",
@@ -118,7 +128,8 @@ function evalA1(hooks: HardGateWarfareHooks | undefined): WarfareSequenceResult 
     };
   }
   try {
-    const evil = new Float32Array(golden + 8);
+    const evilCount = golden + ghostCount;
+    const evil = new Float32Array(evilCount);
     evil.fill(0.1);
     hooks.encodeFxck(evil, "PNH_GHOST");
     return {
@@ -126,7 +137,7 @@ function evalA1(hooks: HardGateWarfareHooks | undefined): WarfareSequenceResult 
       category: "byte",
       title,
       outcome: "breach",
-      detail: `encoder accepted param count ${golden + 8} (golden init uses ${golden}); strict gate would reject length drift`,
+      detail: `encoder accepted param count ${evilCount} (golden init uses ${golden}; fuzzDepth=${fuzzMult}); strict gate would reject length drift`,
       suggestedFix:
         "Use `overlayTemplateParams` / validated init template in production; consider rejecting encode when count ≠ golden in bridge.",
     };
@@ -136,7 +147,7 @@ function evalA1(hooks: HardGateWarfareHooks | undefined): WarfareSequenceResult 
       category: "byte",
       title,
       outcome: "immune",
-      detail: `encoder or bridge threw on length drift: ${String(e).slice(0, 160)}`,
+      detail: `encoder or bridge threw on length drift (${ghostCount} ghost params): ${String(e).slice(0, 160)}`,
     };
   }
 }
@@ -229,8 +240,11 @@ function evalB6(): WarfareSequenceResult {
   };
 }
 
-function evalC7(): WarfareSequenceResult {
+function evalC7(envelope: AdversarialEnvelope): WarfareSequenceResult {
   const title = 'The "Slow-Loris" Triad — one panelist ~29s wall clock';
+  const persistenceFactor = envelope.persistenceLevel ?? 1.0;
+  const outlierDuration = Math.round(29_000 * persistenceFactor);
+  
   const prompt = "PNH slow loris temporal gate probe";
   const base = [0.5, 0.52, 0.51, 0.53, 0.50, 0.54];
   const candidates: AICandidate[] = base.map((s, i) =>
@@ -238,7 +252,7 @@ function evalC7(): WarfareSequenceResult {
       paramArray: healthy128(),
     }),
   );
-  const durations = [500, 500, 500, 500, 500, 29_000];
+  const durations = [500, 500, 500, 500, 500, outlierDuration];
   const gated = scoreCandidatesWithGate(candidates, prompt, durations);
   const maxClientBudget = Math.max(
     TRIAD_PANELIST_CLIENT_TIMEOUT_MS.LLAMA,
@@ -256,9 +270,9 @@ function evalC7(): WarfareSequenceResult {
     outcome: immune ? "immune" : "breach",
     detail: immune
       ? gatekeeperBlocked
-        ? `gatekeeper: ${gated.status} (candidates=${gated.candidates.length})`
+        ? `gatekeeper: ${gated.status} (candidates=${gated.candidates.length}, outlier=${outlierDuration}ms)`
         : `panel duration exceeds triad client budget (${maxClientBudget}ms) — fetch layer would fail before scoring`
-      : "slow outlier did not trip telemetry purity or client budget heuristic — review temporal gates",
+      : `slow outlier (${outlierDuration}ms) did not trip telemetry purity or client budget heuristic — review temporal gates`,
     suggestedFix: immune ? undefined : "packages/shared-engine/validate.ts + constants.ts — temporal gatekeeper",
   };
 }
@@ -312,10 +326,11 @@ function targetMatches(id: string, target: WarfareTargetFilter): boolean {
 function runOne(
   id: string,
   hooks: HardGateWarfareHooks | undefined,
+  envelope: AdversarialEnvelope,
 ): WarfareSequenceResult {
   switch (id) {
     case "A1":
-      return evalA1(hooks);
+      return evalA1(hooks, envelope);
     case "A2":
       return evalA2();
     case "A3":
@@ -327,7 +342,7 @@ function runOne(
     case "B6":
       return evalB6();
     case "C7":
-      return evalC7();
+      return evalC7(envelope);
     case "C8":
       return evalC8();
     case "C9":
@@ -347,6 +362,7 @@ export function runPnhModelWarfare(options: {
   maxSequences?: number;
   target?: WarfareTargetFilter;
   hardGateHooks?: HardGateWarfareHooks;
+  adversarialEnvelope?: AdversarialEnvelope;
 }): PnhWarfareReport {
   const maxSequences = Math.min(
     9,
@@ -355,11 +371,19 @@ export function runPnhModelWarfare(options: {
   const target: WarfareTargetFilter = options.target ?? "all";
   const hooks = options.hardGateHooks;
 
+  // Resolve Adversarial Benchmark (AIₐ) for Lane B
+  const doc = getDefaultMarketBenchmarks();
+  const topTalent = computeTopTalentBenchmark(doc);
+  const envelope = options.adversarialEnvelope ?? getAdversarialEnvelope(topTalent);
+  
+  // Log benchmark provenance (Signal-only)
+  logAdversarialBenchmark(topTalent, envelope);
+
   const filtered = ORDERED_IDS.filter((id) => targetMatches(id, target)).slice(
     0,
     maxSequences,
   );
-  const sequences = filtered.map((id) => runOne(id, hooks));
+  const sequences = filtered.map((id) => runOne(id, hooks, envelope));
   const immune = sequences.filter((s) => s.outcome === "immune").length;
   const breach = sequences.filter((s) => s.outcome === "breach").length;
   const skipped = sequences.filter((s) => s.outcome === "skipped").length;

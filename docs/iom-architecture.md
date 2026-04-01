@@ -1,6 +1,6 @@
 # IOM architecture (auto-generated)
 
-Last sync: **2026-03-30** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
+Last sync: **2026-03-31** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
 
 > Diagnostic firewall: Tier 3 is advisory-only and must never mutate Tier 1 outcomes without an explicit tested bridge.
 

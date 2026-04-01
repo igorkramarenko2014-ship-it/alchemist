@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "window": {
+    "totalRequests": 4,
+    "totalActualTokens": 1600,
+    "totalBaselineTokens": 12000,
+    "totalSavedTokens": 10400,
+    "savingsPercent": 86.66666666666667
+  },
+  "byProvider": {
+    "llama": {
+      "actual": 1200,
+      "baseline": 4000,
+      "saved": 2800
+    },
+    "deepseek": {
+      "actual": 400,
+      "baseline": 4000,
+      "saved": 3600
+    },
+    "qwen": {
+      "actual": 0,
+      "baseline": 4000,
+      "saved": 4000
+    }
+  },
+  "lastUpdatedUtc": "2026-03-31T15:29:02.719Z"
+}

@@ -1,7 +1,5 @@
-/**
- * PNH runtime context — **typed inputs** for adaptive policy (no hidden globals).
- */
 import type { TriadParityMode } from "@alchemist/shared-types";
+import type { BenchmarkProvenance } from "../talent/talent-types";
 
 /** Where triad intent is evaluated (server API vs local stub). */
 export type PnhTriadLane = "stub" | "mixed" | "fully_live" | "unconfigured_http";
@@ -40,4 +38,10 @@ export interface PnhAdaptiveDecision {
   reason: string;
   /** Stable scenario id for telemetry when mapped from intent reasons. */
   scenarioId?: "GATE_BYPASS_PAYLOAD" | "PROMPT_HIJACK_TRIAD" | "SLAVIC_SWARM_CREDIT_DRAIN";
+  /** 
+   * **Lane B: Advisory Adversarial Benchmark (Signal-only)**
+   * When present, includes benchmark provenance for TBV scaling. 
+   * It must NOT directly mutate the core pass/fail 'action'.
+   */
+  advisoryBenchmark?: BenchmarkProvenance;
 }

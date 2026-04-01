@@ -11,6 +11,7 @@
 
 | Document | Role |
 |----------|------|
+| **`CONSTITUTION.md`** | **Highest Principle** — formalizes the immutable architectural laws of Alchemist (Prompt H); defines **Law vs Signal** distinction, non-authority of learning, and no-shadow governance. |
 | **`FIRESTARTER.md` (this file)** | **Recovery bible** — if other docs are missing, you can **reconstruct the product from this file**: what Alchemist is, monorepo layout, build order, HARD GATE, triad, gates, monitoring, optional modules (arbitration, talent, AGL, taxonomy), web app, verification scripts, WASM, mobile/`vst`, doc index, roadmap, legal summary (**§14**), appendices (workflow, INIT). **Anyone** onboarding or implementing features reads here first. |
 | **`FIRE.md`** | **Lightweight outside assessment** — **§E** verify → assess → suggest, **§F–§L** contract tables, **§A–C** invariants. **Machine block:** Vitest counts + Next version between **`ALCHEMIST:FIRE_METRICS`** HTML comments — refresh with **`pnpm fire:sync`** (runs engine tests; optional **`ALCHEMIST_FIRE_SYNC=1`** on **`pnpm harshcheck`** / **`verify:harsh`**). **Auditable hooks:** **`verify_post_summary`** / **`soeHint`** on stderr, SOE (**no** shadow state). **Do not** duplicate FIRESTARTER’s long narrative in FIRE — link sections instead. |
 | **`Minimum Operating Number (MON)`** | Emitted by **`verify_post_summary`** as **`minimumOperatingNumber`** (`[0,1]`), **`minimumOperatingNumber117`** (`round(MON*117)`), and **`minimumOperatingReady`** (`MON >= 0.9`). MON is an operator readiness scalar, not a gate override. |
@@ -98,7 +99,9 @@ For an assistant-facing working summary of the current repo picture and recent s
 
 **Codenames** (UI + logs only): **DEEPSEEK→ATHENA**, **LLAMA→HERMES**, **QWEN→HESTIA** (`triad-panel-governance.ts`). Logs: **`alchemistCodename`** on `triad_panelist_end`.
 
-**Flow:** Up to **8** candidates → score → gates → discard invalid → UI.
+**Flow:** Up to **8** candidates → score → gates → discard invalid → UI. **Hardened V4 Refinery:** Mandatory pre-parse validation and auto-retries on panelist malformed JSON (HESTIA / ATHENA / HERMES) eliminate "amnesia" failures.
+
+**Transmutation Phase 2:** advisory profiles from `resolveTransmutation` shift panelist weights, Slavic thresholds, and prior weights (corpus/taste) within the scoring pipeline — strictly advisory, bounded, and telemetry-flagged (`transmutation_status`).
 
 **Timeouts:** **`AI_TIMEOUT_MS` = 8000** per panelist.
 
@@ -135,7 +138,7 @@ This subsection is the **canonical map** of logic shipped in **`packages/shared-
 | **`triad.ts`** | **`runTriad`**, **`makeTriadFetcher`**, **`stubPanelistCandidates`**, **`TRIAD_PANELISTS`**. Optional **`skipTablebase`**; tablebase hit skips HTTP/stub fetch. Parallel panelist calls; per-panelist client **`withTimeout`** (**`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`**); gates; optional consensus summary. |
 | **`reliability/`** | **`tablebase-schema.ts`**, **`tablebase-db.ts`** (empty **`TABLEBASE_RECORDS`** until validated rows land), **`checkers-fusion.ts`** — **`lookupTablebaseCandidate`**, **`findTablebaseRecordForPrompt`**. |
 | **`validate.ts`** | **`REASONING_LEGIBILITY_MIN_CHARS` = 15**; **`filterValid`** / **`isValidCandidate`** (**`reasoning`** trimmed length ≥ 15); **Undercover** distribution gate; **Slavic** contextual entropy + variance; **`validateSerumParamArray`** **[0, 1]**; **`consensusValidateCandidate`**, **`filterConsensusValid`**, **`buildValidationSummary`**. |
-| **`score.ts`** | **`weightedScore(c)`**; **`cosineSimilarityParamArrays`**; **`SLAVIC_FILTER_COSINE_THRESHOLD` = 0.80**; **`SLAVIC_TEXT_DICE_THRESHOLD` = 0.75**; **`slavicLegibilityText`**, **`diceBigramSimilarity`**; **`slavicFilterDedupe`**; **`scoreCandidates`** = filterValid → dedupe (no redundant re-sort — order preserved from dedupe pass). |
+| **`score.ts`** | **`weightedScore(c, profile?)`** (profile-aware); **`cosineSimilarityParamArrays`**; **`SLAVIC_FILTER_COSINE_THRESHOLD` = 0.80**; **`SLAVIC_TEXT_DICE_THRESHOLD` = 0.75**; **`slavicFilterDedupe`** (profile-aware); **`scoreCandidates`** = filterValid → dedupe → intent blend → corpus/taste resort (advisory-aware). |
 | **`encoder.ts`** | **`encodeFxp(params, programName)`** — dynamic import **`@alchemist/fxp-encoder/wasm`**, **`encode_fxp_fxck`**. Fails loudly if WASM not built. |
 | **`triad-panel-governance.ts`** | **`computeTriadGovernance`** — default weights **45% / 35% / 20%** (fidelity / velocity / frugality); **`velocityScoreFromMeanPanelistMs`** (piecewise vs **18_000 ms** and **800 ms**); **`athenaSoeRecalibrationRecommended`** when velocity component **&lt; 0.7**. |
 | **`triad-monitor.ts`** | Run / panelist timing; **`logTriadRunStart`**, **`logTriadPanelistEnd`**, **`logTriadRunEnd`**, **`logAthenaSoeRecalibration`**. **`TriadRunMode`**: **`stub`** \| **`fetcher`** \| **`tablebase`**. |
@@ -151,7 +154,7 @@ This subsection is the **canonical map** of logic shipped in **`packages/shared-
    - **Post-merge gates (in order):** **`filterValid`** → **`candidatePassesDistributionGate`** → **`candidatePassesAdversarial(c, prompt)`** → **`.slice(0, MAX_CANDIDATES)`**.  
    - **Optional:** **`runConsensusValidation`** → per-candidate **`consensusValidateCandidate`** + **`buildValidationSummary`** on **`analysis.validationSummary`**; **`useConsensusFilter`** → **`filterConsensusValid`** then slice again.  
    - **Governance:** **`computeTriadGovernance`** from **`meanPanelistMs`**, **`triadFailureRate`**, **`gateDropRate`**; optional **`logAthenaSoeRecalibration`**.  
-   - **`runTriad` does *not* call `scoreCandidates`.** It does **not** apply cosine dedupe; that is **`scoreCandidates`**’s job.
+   - **`runTriad` does *not* call `scoreCandidates` directly** in orchestrator mode, but uses its gate logic; it is now hardened for **concurrency** (up to 32 parallel runs) with mandatory JSON validation and retry loops.
 
 2. **`scoreCandidates(candidates)`** — **client / re-rank path** (e.g. web UI after triad)  
    - **`filterValid`** → **`slavicFilterDedupe`** (sort by **`weightedScore`** desc first; drop if param cosine **&gt; 0.80** vs a kept row **and** (if both have legible **`description` || `reasoning`**) **Dice(bigram)** **&gt; 0.75**; **no** or empty **`paramArray`** → always kept). Output order is already descending by weighted score (**no** second sort).

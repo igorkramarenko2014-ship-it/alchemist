@@ -8,11 +8,19 @@
  * **Intent alignment (IOM MOVE 3):** when **`prompt`** is non-empty, after Slavic dedupe each survivor
  * gets **`intentAlignmentScore`** and is re-sorted by **`intentBlendRankKey`** (**0.7 × model score +
  * 0.3 × alignment**), scaled by panelist weight — not a gate override.
+ *
+ * **Transmutation Phase 2:** when **`options.transmutationProfile`** is set, panelist weights,
+ * Slavic threshold delta, and prior weights are shifted by the advisory profile — all clamped
+ * to `TRANSMUTATION_BOUNDS`. Gate law (validate / PNH / HARD GATE) is not affected.
  */
-import type { AICandidate, UserMode } from "@alchemist/shared-types";
+import type { AICandidate, Panelist, UserMode } from "@alchemist/shared-types";
 import type { GameChanger } from "./aji-logic";
 import { runAjiCrystallization } from "./aji-logic";
+import { logEvent } from "./telemetry";
+import { interpretTask } from "./transmutation/task-interpreter";
+import { computeOutcomeAlignment } from "./transmutation/transmutation-outcome";
 import { PANELIST_WEIGHTS } from "./constants";
+import { TRANSMUTATION_BOUNDS } from "./transmutation/transmutation-bounds";
 import { generateEntropy } from "./entropy";
 import { getSegmentCosineThreshold, slavicCosineThresholdForPrompt } from "./gates";
 import { computeIntentAlignmentScore } from "./intent-alignment";
@@ -29,7 +37,7 @@ import type { PnhTriadLane } from "./pnh/pnh-context-types";
 import { computeCorpusAffinity, type LearningIndexLesson } from "./learning/compute-corpus-affinity";
 import { computeTasteAffinity } from "./learning/taste/compute-taste-affinity";
 import type { TasteIndex } from "./learning/taste/taste-types";
-import { logEvent } from "./telemetry";
+import type { TransmutationProfile } from "./transmutation/transmutation-types";
 
 /** Same panelist + identical param fingerprint (or score+reasoning slice) — second row dropped. */
 function gateDuplicateFingerprint(c: AICandidate): string {
@@ -59,8 +67,32 @@ function dropDuplicateGateFingerprints(candidates: AICandidate[]): AICandidate[]
   return out;
 }
 
-export function weightedScore(c: AICandidate): number {
-  const w = PANELIST_WEIGHTS[c.panelist] ?? 0;
+/**
+ * Returns the effective panelist weight for this candidate.
+ * Phase 2: if transmutation profile is provided, uses its bounded triad_weights instead of the
+ * global PANELIST_WEIGHTS constant — advisory shift only, not gate law.
+ * Enforces TRANSMUTATION_BOUNDS.triad_weight_shift_max relative to baseline.
+ */
+export function effectivePanelistWeight(
+  c: AICandidate,
+  profile?: TransmutationProfile | null,
+): number {
+  const baseline = PANELIST_WEIGHTS[c.panelist] ?? 0;
+  if (profile?.triad_weights) {
+    const requested = profile.triad_weights[c.panelist];
+    // Fallback: malformed numeric value (NaN/Infinity) -> use baseline
+    if (requested == null || !Number.isFinite(requested)) {
+      return baseline;
+    }
+    // Clamp: extreme numeric values -> bounded application
+    const maxShift = TRANSMUTATION_BOUNDS.triad_weight_shift_max;
+    return Math.min(baseline + maxShift, Math.max(baseline - maxShift, requested));
+  }
+  return baseline;
+}
+
+export function weightedScore(c: AICandidate, profile?: TransmutationProfile | null): number {
+  const w = effectivePanelistWeight(c, profile);
   return c.score * w;
 }
 
@@ -138,9 +170,52 @@ function slavicTextSimilarityFromStrings(sa: string, sb: string): number | null 
  * almost identical to an already kept one (no paramArray → always kept).
  * With legible text on both sides, param similarity alone is insufficient — text must align too.
  */
-export function slavicFilterDedupe(candidates: AICandidate[], prompt?: string): AICandidate[] {
+export function slavicFilterDedupe(
+  candidates: AICandidate[],
+  prompt?: string,
+  profile?: TransmutationProfile | null
+): AICandidate[] {
   const cosineThreshold = slavicCosineThresholdForPrompt(prompt);
-  const scored = [...candidates].sort((a, b) => weightedScore(b) - weightedScore(a));
+  const scored = [...candidates].sort((a, b) => weightedScore(b, profile) - weightedScore(a, profile));
+  const legibility = new Map<AICandidate, string>();
+  for (const c of scored) {
+    legibility.set(c, slavicLegibilityText(c));
+  }
+  const kept: AICandidate[] = [];
+  for (const c of scored) {
+    const pa = c.paramArray;
+    if (pa == null || !Array.isArray(pa) || pa.length === 0) {
+      kept.push(c);
+      continue;
+    }
+    const isDup = kept.some((k) => {
+      const pk = k.paramArray;
+      if (pk == null || !Array.isArray(pk) || pk.length === 0) return false;
+      const paramClose = cosineSimilarityParamArrays(pa, pk) > cosineThreshold;
+      if (!paramClose) return false;
+      const paramMirror = cosineSimilarityParamArrays(pa, pk) > SLAVIC_PARAMS_MIRROR_THRESHOLD;
+      if (paramMirror) return true;
+      const ts = slavicTextSimilarityFromStrings(legibility.get(c)!, legibility.get(k)!);
+      if (ts === null) return true;
+      return ts > SLAVIC_TEXT_DICE_THRESHOLD;
+    });
+    if (!isDup) kept.push(c);
+  }
+  return kept;
+}
+
+/**
+ * Phase 2 variant: same as `slavicFilterDedupe` but accepts a pre-computed cosine
+ * threshold (from transmutation gate_offsets.slavic_threshold_delta). The original
+ * `slavicFilterDedupe` is unchanged — this path is only taken when slavicDelta !== 0.
+ */
+function slavicFilterDedupeWithThreshold(
+  candidates: AICandidate[],
+  _prompt: string | undefined,
+  cosineThreshold: number,
+  profile?: TransmutationProfile | null,
+): AICandidate[] {
+  const scored = [...candidates].sort((a, b) => weightedScore(b, profile) - weightedScore(a, profile));
   const legibility = new Map<AICandidate, string>();
   for (const c of scored) {
     legibility.set(c, slavicLegibilityText(c));
@@ -170,6 +245,7 @@ export function slavicFilterDedupe(candidates: AICandidate[], prompt?: string): 
 
 export type ScoreCandidatesGateStatus = "OK" | typeof STATUS_NOISY;
 
+
 /** Optional Aji-style residue when the scored batch is a dead end (gate fail or empty after filters). */
 export type CreativePivot = GameChanger;
 
@@ -196,6 +272,16 @@ export interface ScoreCandidatesOptions {
   tasteIndex?: TasteIndex | null;
   /** Default **0.06** — added to `candidate.score` for sort only. */
   tasteWeight?: number;
+  noveltyGateDelta?: number;
+  runId?: string;
+  /**
+   * **Transmutation Phase 2** — advisory profile from `resolveTransmutation`. When present:
+   * - `triad_weights` replaces `PANELIST_WEIGHTS` in intent-blend sort and corpus/taste resort
+   * - `gate_offsets.slavic_threshold_delta` shifts the Slavic cosine threshold (bounded)
+   * - `priors.corpus_affinity_weight` and `priors.taste_weight` override the Phase 3/4 defaults
+   * Gate law (validate / PNH / HARD GATE) is not affected.
+   */
+  transmutationProfile?: TransmutationProfile | null;
 }
 
 function clamp01(x: number): number {
@@ -204,11 +290,18 @@ function clamp01(x: number): number {
 
 /**
  * Panelist-weighted blend: **0.7 × model `score` + 0.3 × `intentAlignment`** (IOM MOVE 3).
+ * Phase 2: uses `effectivePanelistWeight` so transmutation profile shifts are honoured.
  */
-export function intentBlendRankKey(c: AICandidate, intentAlignment: number): number {
-  const w = PANELIST_WEIGHTS[c.panelist] ?? 0;
-  const resonance = clamp01(c.socialResonanceScore ?? 0.5);
-  const redZone = clamp01(c.redZoneResonanceScore ?? 0.5);
+export function intentBlendRankKey(
+  c: AICandidate,
+  intentAlignment: number,
+  profile?: TransmutationProfile | null,
+  externalResonance?: number,
+  externalRedZone?: number,
+): number {
+  const w = effectivePanelistWeight(c, profile);
+  const resonance = clamp01(externalResonance ?? c.socialResonanceScore ?? 0.5);
+  const redZone = clamp01(externalRedZone ?? c.redZoneResonanceScore ?? 0.5);
   const core = 0.7 * clamp01(c.score) + 0.3 * clamp01(intentAlignment);
   const spaBonus = 0.07 * resonance + 0.08 * redZone;
   return w * Math.min(1, core + spaBonus);
@@ -223,18 +316,28 @@ function applyIntentBlendSort(
   if (p.length === 0 || candidates.length <= 1) {
     return candidates;
   }
-  const enriched = candidates.map((c) => ({
-    ...c,
-    intentAlignmentScore: computeIntentAlignmentScore(p, c, opts),
-    socialResonanceScore: detectCreativeResonance(p, c),
-    redZoneResonanceScore: detectRedZoneResonance(p, c),
-  }));
+  const profile = opts?.transmutationProfile ?? null;
+  const enriched = candidates.map((c) => {
+    const ia = computeIntentAlignmentScore(p, c, opts);
+    const resonance = detectCreativeResonance(p, c);
+    const redZone = detectRedZoneResonance(p, c);
+    const rank = intentBlendRankKey(c, ia, profile, resonance, redZone);
+    return {
+      ...c,
+      intentAlignmentScore: ia,
+      socialResonanceScore: resonance,
+      redZoneResonanceScore: redZone,
+      rank,
+    };
+  });
+
   enriched.sort((a, b) => {
-    const ia = a.intentAlignmentScore ?? 0.5;
-    const ib = b.intentAlignmentScore ?? 0.5;
-    const d = intentBlendRankKey(b, ib) - intentBlendRankKey(a, ia);
+    const d = b.rank - a.rank;
     if (d !== 0) return d;
-    const wd = weightedScore(b) - weightedScore(a);
+    // Transmutation-adjusted fallback weighted score
+    const wa = weightedScore(a, profile);
+    const wb = weightedScore(b, profile);
+    const wd = wb - wa;
     if (wd !== 0) return wd;
     return a.panelist.localeCompare(b.panelist);
   });
@@ -279,8 +382,13 @@ function applyCorpusAffinityResort(
   const enabled =
     options?.corpusAffinityPrior === true && lessons != null && lessons.length > 0;
   if (!enabled || candidates.length <= 1) return candidates;
-  /** Default tuned for Fitness v1 multipliers in `computeCorpusAffinity` (0.05–0.15 per lesson). */
-  const weight = options?.corpusAffinityWeight ?? 0.45;
+  const profile = options?.transmutationProfile ?? null;
+  /**
+   * Phase 2: if a transmutation profile overrides corpus_affinity_weight, use it.
+   * Explicit `options.corpusAffinityWeight` still takes precedence (caller override wins).
+   */
+  const defaultWeight = profile?.priors?.corpus_affinity_weight ?? 0.45;
+  const weight = options?.corpusAffinityWeight ?? defaultWeight;
   const effectiveWeight = weight;
   try {
     const rows = candidates.map((c) => ({
@@ -291,7 +399,10 @@ function applyCorpusAffinityResort(
       const adjX = x.c.score + x.a * effectiveWeight;
       const adjY = y.c.score + y.a * effectiveWeight;
       if (adjY !== adjX) return adjY - adjX;
-      const wd = weightedScore(y.c) - weightedScore(x.c);
+      // Phase 2: transmutation-shifted weighted score for tiebreak
+      const wx = effectivePanelistWeight(x.c, profile) * x.c.score;
+      const wy = effectivePanelistWeight(y.c, profile) * y.c.score;
+      const wd = wy - wx;
       if (wd !== 0) return wd;
       return x.c.panelist.localeCompare(y.c.panelist);
     });
@@ -332,7 +443,13 @@ function applyTasteAffinityResort(
   const idx = options?.tasteIndex;
   const enabled = options?.tastePrior === true && idx != null;
   if (!enabled || candidates.length <= 1) return candidates;
-  const weight = options?.tasteWeight ?? 0.06;
+  const profile = options?.transmutationProfile ?? null;
+  /**
+   * Phase 2: if a transmutation profile overrides taste_weight, use it.
+   * Explicit `options.tasteWeight` still takes precedence (caller override wins).
+   */
+  const defaultWeight = profile?.priors?.taste_weight ?? 0.06;
+  const weight = options?.tasteWeight ?? defaultWeight;
   try {
     const rows = candidates.map((c) => ({
       c,
@@ -389,10 +506,28 @@ function buildCreativePivotForDeadEnd(prompt?: string): CreativePivot {
   return runAjiCrystallization(mess);
 }
 
+function isProfileMalformed(p: TransmutationProfile): boolean {
+  if (!p.triad_weights || typeof p.triad_weights !== "object") return true;
+  if (!p.gate_offsets || typeof p.gate_offsets !== "object") return true;
+  if (!p.priors || typeof p.priors !== "object") return true;
+  
+  // Weights check: must have all three mandatory panelists
+  for (const k of ["LLAMA", "DEEPSEEK", "QWEN"] as Panelist[]) {
+    const w = p.triad_weights[k];
+    if (w == null || !Number.isFinite(w)) return true;
+  }
+  
+  return false;
+}
+
 /**
  * Same pipeline as `scoreCandidates`, but surfaces **`STATUS_NOISY`** when the Gatekeeper
  * rejects the batch: scores (IQR + rolling Z) and, when provided, parallel **`durationMs`**
  * (floor + same stats). **`durationMs` is not mutated or attached** to candidates.
+ *
+ * **Transmutation Phase 2:** if `options.transmutationProfile` is set, the Slavic cosine
+ * threshold is shifted by `gate_offsets.slavic_threshold_delta` before dedup.
+ * Gate law (validate / PNH / HARD GATE) is unchanged.
  */
 export function scoreCandidatesWithGate(
   candidates: AICandidate[],
@@ -429,7 +564,22 @@ export function scoreCandidatesWithGate(
     };
   }
   const valid = dropDuplicateGateFingerprints(filterValid(candidates));
-  const deduped = slavicFilterDedupe(valid, prompt);
+
+  const profile = options?.transmutationProfile;
+  const isFallback = !profile || isProfileMalformed(profile);
+  const effectiveProfile = isFallback ? null : profile;
+
+  // Phase 2: apply Slavic threshold shift from transmutation profile (bounded; advisory only)
+  const slavicDeltaRaw = effectiveProfile?.gate_offsets?.slavic_threshold_delta ?? 0;
+  const slavicDelta = Math.max(-0.03, Math.min(0.03, slavicDeltaRaw)); // TRANSMUTATION_BOUNDS.single_threshold_delta_max
+  const baseSlavicThreshold = slavicCosineThresholdForPrompt(p);
+  const effectiveSlavicThreshold = Math.max(0.5, Math.min(0.99, baseSlavicThreshold + slavicDelta));
+
+  const deduped =
+    slavicDelta === 0
+      ? slavicFilterDedupe(valid, prompt, effectiveProfile)
+      : slavicFilterDedupeWithThreshold(valid, prompt, effectiveSlavicThreshold, effectiveProfile);
+
   if (deduped.length === 0) {
     return {
       status: "OK",
@@ -437,11 +587,75 @@ export function scoreCandidatesWithGate(
       creativePivot: buildCreativePivotForDeadEnd(prompt),
     };
   }
-  const blended = applyIntentBlendSort(deduped, prompt, options);
-  const corpusSorted = applyCorpusAffinityResort(blended, options);
+
+  const optionsWithProfile = { ...options, transmutationProfile: effectiveProfile };
+  const blended = applyIntentBlendSort(deduped, prompt, optionsWithProfile);
+  const withCorpus = applyCorpusAffinityResort(blended, optionsWithProfile);
+  const ranked = applyTasteAffinityResort(withCorpus, optionsWithProfile);
+
+  if (profile) {
+    const weights: Record<string, number> = {};
+    const weightClamped: Record<string, boolean> = {};
+    for (const p of ["LLAMA", "DEEPSEEK", "QWEN"] as Panelist[]) {
+      const baseline = PANELIST_WEIGHTS[p] ?? 0;
+      const effective = effectivePanelistWeight({ panelist: p } as AICandidate, effectiveProfile);
+      weights[p] = effective;
+      const requested = profile.triad_weights?.[p];
+      weightClamped[p] = !isFallback && requested != null && Number.isFinite(requested) && (requested > baseline + 0.12 || requested < baseline - 0.12);
+    }
+    
+    logEvent("transmutation_scoring_applied", {
+      status: isFallback ? "fallback_baseline" : "applied",
+      policy_family: profile ? (isFallback ? "CORRUPT" : "active") : "none",
+      // Resolved vs Effective (Audit Trail)
+      resolved_slavic_delta: profile.gate_offsets?.slavic_threshold_delta ?? 0,
+      effective_slavic_delta: slavicDelta,
+      slavic_clamped: !isFallback && (profile.gate_offsets?.slavic_threshold_delta ?? 0) !== slavicDelta,
+      
+      resolved_weights: profile.triad_weights,
+      effective_weights: weights,
+      weights_clamped: Object.values(weightClamped).some(v => v),
+      
+      resolved_priors: profile.priors,
+      effective_priors: {
+        corpus_affinity_weight: options?.corpusAffinityWeight ?? (effectiveProfile?.priors?.corpus_affinity_weight ?? 0.45),
+        taste_weight: options?.tasteWeight ?? (effectiveProfile?.priors?.taste_weight ?? 0.06),
+      },
+      priors_clamped: false, 
+      
+      survivor_count: ranked.length,
+      fallback_reason: isFallback ? (profile ? "malformed_shape" : "missing_profile") : undefined,
+      note: "Audit trail: resolved intent vs bounded effective application."
+    });
+
+    // MOVE 3: Intent Alignment (Outcome Signal)
+    const winner = ranked[0];
+    if (winner && deduped.length > 0) {
+      const taskSchemaSnapshot = interpretTask(p ?? "");
+      const survivorAlignments = deduped.map(c => 
+        computeOutcomeAlignment(taskSchemaSnapshot, c).final
+      );
+      const winnerAlignment = computeOutcomeAlignment(taskSchemaSnapshot, winner);
+      const survivorMeanAlignment = survivorAlignments.reduce((a, b) => a + b, 0) / survivorAlignments.length;
+
+      logEvent("transmutation_outcome_alignment", {
+        runId: options?.runId ?? "none",
+        status: isFallback ? "fallback_baseline" : "applied",
+        alignmentFinal: winnerAlignment.final,
+        alignmentConfidence: winnerAlignment.confidence,
+        breakdown: winnerAlignment.breakdown,
+        taskSchemaSnapshot: taskSchemaSnapshot,
+        alignmentGainV1: winnerAlignment.final - survivorMeanAlignment,
+        survivorMeanAlignment: survivorMeanAlignment,
+        policyFamily: profile ? (isFallback ? "CORRUPT" : "active") : "none",
+        note: "Evaluation of behavior shift correctness (MOVE 3)."
+      });
+    }
+  }
+
   return {
     status: "OK",
-    candidates: applyTasteAffinityResort(corpusSorted, options),
+    candidates: ranked,
   };
 }
 

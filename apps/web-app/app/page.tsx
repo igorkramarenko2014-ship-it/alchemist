@@ -1,20 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  buildFxpExportProvenanceV1,
-  computeAgentAjiChatFusionFromTriadTelemetry,
-  encodeFxp,
-  fxpProvenanceSidecarFilename,
-  generateDecisionReceipt,
-  makeTriadFetcher,
-  REALITY_TELEMETRY_EVENTS,
-  runTriad,
-  scoreCandidates,
-  type AIAnalysis,
-  type AICandidate,
-  type DecisionReceipt,
-} from "@alchemist/shared-engine";
+import Link from "next/link";
+import { buildFxpExportProvenanceV1, fxpProvenanceSidecarFilename } from "@alchemist/shared-engine/fxp-provenance";
+import { computeAgentAjiChatFusionFromTriadTelemetry } from "@alchemist/shared-engine/agent-fusion";
+import { encodeFxp } from "@alchemist/shared-engine/encoder";
+import { generateDecisionReceipt } from "@alchemist/shared-engine/explainability/decision-receipt";
+import { makeTriadFetcher, runTriad } from "@alchemist/shared-engine/triad";
+import { scoreCandidates } from "@alchemist/shared-engine/score";
+import type { AIAnalysis, AICandidate, DecisionReceipt } from "@alchemist/shared-types";
+import { REALITY_TELEMETRY_EVENTS } from "@alchemist/shared-types";
 import { TriadHealth } from "@/components/TriadHealth";
 import { PromptAudioDock, type WasmHealthStatus } from "@/components/ui/PromptAudioDock";
 import { TokenUsageIndicator } from "@/components/ui/TokenUsageIndicator";
@@ -113,6 +108,13 @@ export default function Home() {
         // Re-enable after gate calibration with real data confirms paramArray quality.
         runConsensusValidation: false,
         signal,
+        onTokenUsage: (p) => {
+          void fetch("/api/usage", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(p),
+          });
+        },
       });
       if (signal.aborted || triadGenRef.current !== gen) return;
       const tel = analysis.triadRunTelemetry;
@@ -511,6 +513,15 @@ export default function Home() {
           {postRunAgentFusionLine}
         </p>
       ) : null}
+
+      <div className="mt-12 flex justify-center border-t border-white/5 pt-8">
+        <Link 
+          href="/ops/refinery" 
+          className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600 hover:text-[#5EEAD4] transition-colors"
+        >
+          Refinery Dashboard
+        </Link>
+      </div>
 
     </main>
   );

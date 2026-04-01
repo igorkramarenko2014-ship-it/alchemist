@@ -1,6 +1,7 @@
 "use client";
 
 import { useTriadHealth } from "@/hooks/useTriadHealth";
+import type { InfluenceStatus } from "@alchemist/shared-engine";
 
 export type TriadQuorumStatus = "full" | "quorum" | "degraded";
 
@@ -10,15 +11,43 @@ function quorumFromLiveCount(n: number): TriadQuorumStatus {
   return "degraded";
 }
 
+function InfoItem({
+  label,
+  value,
+  color = "text-gray-300",
+}: {
+  label: string;
+  value: string | React.ReactNode;
+  color?: string;
+}) {
+  return (
+    <div className="flex items-baseline gap-1">
+      <span className="text-[9px] font-bold uppercase tracking-tighter text-gray-500">
+        {label}:
+      </span>
+      <span className={`text-[10px] font-mono leading-none ${color}`}>{value}</span>
+    </div>
+  );
+}
+
 export function TriadStatusBar(props: {
   loading: boolean;
   error: boolean;
   livePanelists: string[];
   /** First line from GET /api/health agent fusion when triad not 3/3. */
   agentAjiFusionCaption?: string | null;
+  /** Move 1 Influence Surface payload. */
+  influence?: InfluenceStatus | null;
   className?: string;
 }) {
-  const { loading, error, livePanelists, agentAjiFusionCaption, className = "" } = props;
+  const {
+    loading,
+    error,
+    livePanelists,
+    agentAjiFusionCaption,
+    influence,
+    className = "",
+  } = props;
   const n = livePanelists.length;
   const status = quorumFromLiveCount(n);
 
@@ -72,12 +101,46 @@ export function TriadStatusBar(props: {
           {agentAjiFusionCaption}
         </p>
       ) : null}
+
+      {!loading && !error && influence && (
+        <div className="relative mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-white/5 pt-2">
+          {influence.priorsStatus && (
+            <InfoItem
+              label="Priors"
+              value={`${influence.priorsStatus.active ? "ON" : "OFF"} (${influence.priorsStatus.confidence})`}
+              color={influence.priorsStatus.active ? "text-teal-400" : "text-gray-500"}
+            />
+          )}
+          {influence.learningStatus && (
+            <InfoItem
+              label="Learning"
+              value={`${influence.learningStatus.status === "active" ? "Synced" : "Offline"} (${influence.learningStatus.sampleCount}s)`}
+              color={influence.learningStatus.status === "active" ? "text-teal-400" : "text-gray-500"}
+            />
+          )}
+          {influence.ajiStatus && (
+            <InfoItem
+              label="Aji"
+              value={influence.ajiStatus.active ? "Active" : "Idle"}
+              color={influence.ajiStatus.active ? "text-purple-400" : "text-gray-500"}
+            />
+          )}
+          {influence.triadMode && (
+            <InfoItem
+              label="Mode"
+              value={influence.triadMode.mode}
+              color="text-gray-400"
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
 export function TriadHealth() {
-  const { loading, error, livePanelists, triadFullyLive, agentAjiChatFusion } = useTriadHealth();
+  const { loading, error, livePanelists, triadFullyLive, agentAjiChatFusion, influence } =
+    useTriadHealth();
   const agentAjiFusionCaption =
     !triadFullyLive && agentAjiChatFusion?.fusionLines?.[0]
       ? agentAjiChatFusion.fusionLines[0].trim()
@@ -88,6 +151,7 @@ export function TriadHealth() {
       error={error}
       livePanelists={livePanelists}
       agentAjiFusionCaption={agentAjiFusionCaption}
+      influence={influence}
     />
   );
 }

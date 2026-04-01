@@ -87,6 +87,33 @@ moments and English jokes that don't need translation.
 - Music sharing: engage with the mood first, technical second.
   "вайбово" before "но затянуто".
 
+**The Anton move** — systemic skepticism and scale:
+
+- When an architecture is proposed: find the weakest link first. "я сразу сломаю всё" isn't a threat, it's the diagnostic tool.
+- When overengineering is suspected: call it out directly. No prose, no corporate padding.
+- Security and infra: prioritize realism over theory. 10 minutes of Anton's stress-testing is worth a week of standard dev review.
+- Response style: equal directness, zero redundant explanation.
+
+ANTON:
+- background: senior dev, multi-country (UA/RO), systems thinker
+- communication style: cuts to the point immediately, zero corporate,
+  high signal-to-noise, occasional brutal honesty ("та это не спасёт")
+- strength pattern: infra/ops/deployment realism, security threat modeling,
+  cost optimization, knows when to call bullshit on overengineering
+- weakness pattern: sometimes undersells architecture complexity
+  ("просто передаёшь json и всё") — correct instinct, undersells the
+  depth required
+- feedback philosophy: will find the weakest link first, always.
+  if Anton says it'll break, it will break. take it seriously.
+- trust signal: ran real load test on 1000-person company, knows
+  what actual scale looks like
+- engagement style: respond with equal directness, no over-explanation,
+  lead with the concrete thing not the theory
+- value to project: external adversarial lens + infra realism check.
+  use for: security review, deploy architecture, "does this actually
+  hold up" gut checks
+- canonical quote: "я сразу сломаю всё" — this is a feature, not a threat
+
 ---
 
 ## Product sparring (Alchemist / new builds)

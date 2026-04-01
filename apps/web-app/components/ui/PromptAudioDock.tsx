@@ -17,6 +17,8 @@ import { MERCURY_ORB_FRAME_CLASS } from '../../lib/mercury-orb-frame';
 import { playPresetChime, type ChimeHandle } from '../../lib/preset-preview-chime';
 import { useTriadHealth } from '../../hooks/useTriadHealth';
 import { TriadStatusBadge } from './TriadStatusBadge';
+import { PartialModeWarning } from './PartialModeWarning';
+
 
 export type WasmHealthStatus = 'loading' | 'available' | 'unavailable';
 
@@ -101,6 +103,7 @@ export function PromptAudioDock({
 
     return (
       <div className="relative z-20 mt-10">
+        <PartialModeWarning {...triadHealth} />
         <div className="mb-3 flex justify-start">
           <TriadStatusBadge {...triadHealth} />
         </div>
@@ -192,6 +195,7 @@ export function PromptAudioDock({
 
   return (
     <div className="relative z-20 mt-10">
+      <PartialModeWarning {...triadHealth} />
       <div className="mb-3 flex justify-start">
         <TriadStatusBadge {...triadHealth} />
       </div>

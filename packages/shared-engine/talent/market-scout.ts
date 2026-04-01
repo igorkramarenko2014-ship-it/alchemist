@@ -8,6 +8,12 @@
 import type { Panelist } from "@alchemist/shared-types";
 import { computeTalentAgentAjiChatFusion, type AgentAjiChatFusion } from "../agent-fusion";
 import { logEvent } from "../telemetry";
+import type { 
+  AdversarialEnvelope, 
+  BenchmarkProvenance, 
+  SkillVector, 
+  TalentProfile 
+} from "./talent-types";
 import marketBenchmarksJson from "./market-benchmarks.json";
 
 export type MarketTalentRow = {
@@ -27,6 +33,7 @@ export type MarketBenchmarksDocument = {
     updated?: string;
   };
   talents: MarketTalentRow[];
+  adversarial_talents?: TalentProfile[];
 };
 
 function isPanelist(s: string): s is Panelist {
@@ -78,6 +85,9 @@ export function parseMarketBenchmarksDocument(raw: unknown): MarketBenchmarksDoc
         ? (o.meta as MarketBenchmarksDocument["meta"])
         : undefined,
     talents,
+    adversarial_talents: Array.isArray(o.adversarial_talents) 
+      ? (o.adversarial_talents as TalentProfile[]) 
+      : [],
   };
 }
 
@@ -229,5 +239,77 @@ export function logTalentMarketAnalysis(
     operatorReviewSuggested: result.operatorReviewSuggested,
     agentAjiFusionLines: result.agentAjiChatFusion.fusionLines,
     note: "Hint only — no automatic model swap; deployer updates configuration.",
+  });
+}
+
+/**
+ * **Lane B: Adversarial Benchmark (Capability Ceiling)**
+ * Compute the composite skill score for a profile [0,1].
+ */
+export function computeCompositeSkill(v: SkillVector): number {
+  return (v.exploit * 0.4 + v.aiSystems * 0.2 + v.reverseEngineering * 0.2 + v.backend * 0.1 + v.infra * 0.1);
+}
+
+/**
+ * Select the top-of-set adversarial talent profile (the moving ceiling).
+ */
+export function computeTopTalentBenchmark(doc: MarketBenchmarksDocument): TalentProfile {
+  const list = doc.adversarial_talents ?? [];
+  if (list.length === 0) {
+    // Fallback if none defined
+    return {
+      id: "baseline_adversary",
+      displayName: "Baseline Adversary",
+      skillVector: { backend: 0.5, infra: 0.5, exploit: 0.5, aiSystems: 0.5, reverseEngineering: 0.5 },
+      observedBehaviors: [],
+      trustLevel: "external",
+      lastEvaluatedAt: new Date().toISOString(),
+    };
+  }
+  return [...list].sort((a, b) => computeCompositeSkill(b.skillVector) - computeCompositeSkill(a.skillVector))[0];
+}
+
+/**
+ * Map a talent profile to a testing-pressure envelope (Signal-only).
+ */
+export function getAdversarialEnvelope(talent: TalentProfile): AdversarialEnvelope {
+  const v = talent.skillVector;
+  return {
+    attackComplexity: Math.max(v.exploit, v.reverseEngineering),
+    fuzzDepth: v.exploit > 0.8 ? 2.0 : 1.0,
+    promptVariance: v.aiSystems,
+    persistenceLevel: v.infra,
+  };
+}
+
+/**
+ * **Resilience Margin**
+ * Positive = system ahead; Negative = benchmark catching up.
+ * Derived from PNH success rate vs Top Talent composite skill.
+ */
+export function computeResilienceMargin(
+  systemResilienceScore: number,
+  benchmarkSkill: number
+): number {
+  return systemResilienceScore - benchmarkSkill;
+}
+
+/**
+ * Provenance telemetry for Lane B.
+ */
+export function logAdversarialBenchmark(
+  talent: TalentProfile,
+  envelope: AdversarialEnvelope,
+  resilienceMargin?: number
+): void {
+  logEvent("adversarial_benchmark_emitted", {
+    benchmark: {
+      id: talent.id,
+      sourceType: "talent_profile",
+      compositeSkill: computeCompositeSkill(talent.skillVector),
+      effectiveEnvelope: envelope,
+      resilienceMargin,
+      signalOnly: true, // Law vs Signal Invariant
+    },
   });
 }

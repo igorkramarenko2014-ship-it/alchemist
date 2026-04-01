@@ -27,8 +27,14 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   /** Live `/api/triad/deepseek` when non-empty (`DEEPSEEK_API_KEY`). */
   deepseekApiKey: process.env.DEEPSEEK_API_KEY ?? "",
+  /** Optional DeepSeek model id (default `deepseek-chat`). */
+  deepseekModel: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
+  /** Optional DeepSeek base URL (default `https://api.deepseek.com/v1`). */
+  deepseekBaseUrl: (process.env.DEEPSEEK_BASE_URL ?? "").trim() || "https://api.deepseek.com/v1",
   /** Live `/api/triad/qwen` (DashScope OpenAI-compatible) when non-empty (`QWEN_API_KEY`). */
   qwenApiKey: process.env.QWEN_API_KEY ?? "",
+  /** Optional Qwen model id (default inferred from baseUrl). */
+  qwenModel: process.env.QWEN_MODEL ?? "",
   /**
    * OpenAI-compatible API root for Qwen (no trailing slash required).
    * Default Alibaba DashScope compatible v1; use `https://openrouter.ai/api/v1` for OpenRouter (`qwen/qwen-plus` model).
@@ -42,7 +48,9 @@ export const env = {
    */
   llamaApiKey: process.env.GROQ_API_KEY ?? process.env.LLAMA_API_KEY ?? "",
   /** Optional Groq model id for Llama panelist (default `llama-3.3-70b-versatile`). */
-  llamaGroqModel: process.env.LLAMA_GROQ_MODEL ?? "",
+  llamaGroqModel: process.env.LLAMA_GROQ_MODEL ?? "llama-3.3-70b-versatile",
+  /** Optional Llama (Groq) base URL (default `https://api.groq.com/openai/v1`). */
+  llamaGroqBaseUrl: (process.env.LLAMA_GROQ_BASE_URL ?? "").trim() || "https://api.groq.com/openai/v1",
   /**
    * When set, **`GET /api/health/iom`** accepts matching **`X-Ops-Token`** header (operator dashboard).
    * Empty → route returns 503 (disabled).

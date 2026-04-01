@@ -10,9 +10,9 @@ Triad handoff, WASM export path, web shell — satellite of **`docs/FIRE.md`**.
 
 ## B. Triad optimization (canonical)
 
-**Weights:** DeepSeek **0.40**, Llama **0.35**, Qwen **0.25**. **8** candidates; **8s** / panelist (default client fetch; **QWEN** **18s** — **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`**). **`shared-types`** = payload truth. **Source:** `shared-engine` + `app/api/triad/*`.
+**Weights:** DeepSeek **0.40**, Llama **0.35**, Qwen **0.25**. **8** candidates; **8s** / panelist (default client fetch; **QWEN** **18s** — **`TRIAD_PANELIST_CLIENT_TIMEOUT_MS`**). **Hardened V4 Refinery:** Mandatory pre-parse validation and auto-retries on panelist malformed JSON (HESTIA / ATHENA / HERMES) eliminate "amnesia" failures. **Concurrency stress** verified to 32 parallel runs. **`shared-types`** = payload truth. **Source:** `shared-engine` + `app/api/triad/*`.
 
-**Gates (TS):** **`REASONING_LEGIBILITY_MIN_CHARS` = 15**; **`SLAVIC_FILTER_COSINE_THRESHOLD` = 0.80**; **`SLAVIC_TEXT_DICE_THRESHOLD` = 0.75** — **`validate.ts`**, **`score.ts`** (loosened from stub-tight defaults after live **`pnpm test:real-gates`** calibration).
+**Gates (TS):** **`REASONING_LEGIBILITY_MIN_CHARS` = 15**; **`SLAVIC_FILTER_COSINE_THRESHOLD` = 0.80**; **`SLAVIC_TEXT_DICE_THRESHOLD` = 0.75** — **`validate.ts`**, **`score.ts`** (loosened from stub-tight defaults after live **`pnpm test:real-gates`** calibration). **Transmutation Phase 2:** advisory profiles shift weights, Slavic deltas, and prior weights (corpus/taste) within the scoring pipeline.
 
 ---
 
