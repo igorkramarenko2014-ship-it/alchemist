@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
-  "generatedAtUtc": "2026-04-01T09:47:16.020Z",
-  "divergenceCheckedAtUtc": "2026-04-01T09:47:16.020Z",
+  "generatedAtUtc": "2026-04-01T11:47:40.092Z",
+  "divergenceCheckedAtUtc": "2026-04-01T11:47:40.092Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -34,7 +34,7 @@
       "status": "clean"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-01T09:47:15.989Z",
+    "syncedAtUtc": "2026-04-01T11:47:40.061Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,

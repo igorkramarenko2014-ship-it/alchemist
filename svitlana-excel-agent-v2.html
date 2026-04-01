@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel → Claude</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --border: #2a2a2a;
+    --accent: #c8f060;
+    --text: #e8e4dc;
+    --muted: #555;
+    --warning: #ffcc00;
+    --error: #ff6b6b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 24px;
+    scroll-behavior: smooth;
+  }
+
+  .header { text-align: center; margin-bottom: 48px; }
+
+  .header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .header h1 em { color: var(--accent); font-style: italic; }
+
+  .header p {
+    margin-top: 10px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .steps { display: flex; margin-bottom: 8px; }
+
+  .step {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+
+  .step.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .step.done { color: #333; border-bottom-color: #1e1e1e; }
+
+  .dropzone {
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 44px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: var(--surface);
+  }
+
+  .dropzone:hover, .dropzone.over {
+    border-color: var(--accent);
+    background: rgba(200,240,96,0.02);
+  }
+
+  .dropzone input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .dropzone .icon { font-size: 1.8rem; opacity: 0.4; margin-bottom: 10px; }
+  .dropzone .label { font-size: 0.78rem; color: var(--muted); }
+  .dropzone .sub { font-size: 0.65rem; color: #3a3a3a; margin-top: 4px; }
+
+  .file-meta {
+    margin-top: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .file-meta.visible { display: flex; }
+
+  .fname { color: var(--accent); font-size: 0.82rem; }
+
+  .reset-link {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .reset-link:hover { color: var(--error); }
+
+  #loadingStatus {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-top: 10px;
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+  .preview { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; display: none; }
+  .preview.visible { display: block; }
+
+  .preview-header {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .preview-header b { color: var(--accent); font-weight: 400; }
+
+  .sheet-selector { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .sheet-btn {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 2px 8px;
+    font-size: 0.6rem;
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: all 0.15s;
+  }
+  .sheet-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .sheet-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(200,240,96,0.05); }
+
+  .table-wrap { overflow-x: auto; max-height: 180px; overflow-y: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+  th { background: #1c1c1c; padding: 7px 12px; text-align: left; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; }
+  td { padding: 6px 12px; border-bottom: 1px solid #191919; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #1a1a1a; }
+
+  .warning-banner {
+    background: rgba(255,204,0,0.04);
+    border: 1px solid rgba(255,204,0,0.2);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 0.7rem;
+    color: var(--warning);
+    display: none;
+  }
+
+  .question-area { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; display: none; }
+  .question-area.visible { display: block; }
+
+  .qa-header { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; border-bottom: 1px solid var(--border); }
+
+  .sug {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 6px 12px;
+    font-size: 0.68rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Mono', monospace;
+  }
+  .sug:hover { border-color: var(--accent); color: var(--accent); }
+  .sug.selected { border-color: var(--accent); color: var(--accent); background: rgba(200,240,96,0.06); }
+
+  .qa-input { display: flex; }
+
+  .qa-input textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    resize: none;
+    min-height: 60px;
+    max-height: 120px;
+    line-height: 1.6;
+  }
+
+  .qa-input textarea::placeholder { color: var(--muted); }
+
+  .gen-btn {
+    background: none;
+    border: none;
+    border-left: 1px solid var(--border);
+    padding: 0 18px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .gen-btn:hover { color: var(--accent); background: rgba(200,240,96,0.04); }
+
+  .output-area { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; display: none; animation: fadeIn 0.3s ease; }
+  .output-area.visible { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .out-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .copy-btn {
+    background: var(--accent);
+    color: #0e0e0e;
+    border: none;
+    padding: 5px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: opacity 0.2s;
+    font-weight: 500;
+  }
+  .copy-btn:hover { opacity: 0.85; }
+  .copy-btn.copied { background: #2a2a2a; color: var(--muted); }
+
+  .out-text {
+    padding: 16px;
+    font-size: 0.73rem;
+    line-height: 1.7;
+    color: #888;
+    white-space: pre-wrap;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  .out-footer {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.62rem;
+    color: var(--muted);
+  }
+
+  .char-count { letter-spacing: 0.04em; transition: color 0.2s; }
+  .char-count.warn { color: var(--warning); }
+  .char-count.danger { color: var(--error); }
+
+  .claude-link a { color: var(--accent); text-decoration: none; }
+  .claude-link a:hover { text-decoration: underline; }
+
+  .copy-instruction {
+    display: none;
+    text-align: center;
+    padding: 8px 14px;
+    font-size: 0.62rem;
+    color: var(--warning);
+    border-top: 1px solid var(--border);
+  }
+
+  .footer { margin-top: 48px; font-size: 0.62rem; color: #252525; letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Твій Excel,<br><em>зрозумілий.</em></h1>
+  <p>Файл · Питання · Вставте у Claude</p>
+</div>
+
+<div class="container">
+
+  <div class="steps">
+    <div class="step active" id="s1">① Файл</div>
+    <div class="step" id="s2">② Питання</div>
+    <div class="step" id="s3">③ Копіюй → Claude</div>
+  </div>
+
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+    <div class="icon">⌗</div>
+    <div class="label" id="dropzoneLabel">Перетягни або клікни щоб вибрати файл</div>
+    <div class="sub" id="dropzoneSub">.xlsx · .xls · .csv</div>
+    <div id="loadingStatus">Читаю файл...</div>
+    <div class="file-meta" id="fileMeta">
+      <div class="fname" id="fname"></div>
+      <div class="reset-link" onclick="resetAll()">× Інший файл</div>
+    </div>
+  </div>
+
+  <div class="warning-banner" id="rowWarning">
+    ⚠ Твій файл має <span id="totalRowCount"></span> рядків — у промпт потрапили перші 200. Якщо потрібна інша частина, вкажи це у питанні.
+  </div>
+
+  <div class="preview" id="preview">
+    <div class="preview-header">
+      <span>Перегляд · <b id="sheetInfo"></b></span>
+      <div class="sheet-selector" id="sheetSelector"></div>
+    </div>
+    <div class="table-wrap"><table id="previewTable"></table></div>
+  </div>
+
+  <div class="question-area" id="questionArea">
+    <div class="qa-header">Що хочеш дізнатись?</div>
+    <div class="suggestions" id="suggestionsEl">
+      <div class="sug" onclick="pickSug(this)">Що тут є?</div>
+      <div class="sug" onclick="pickSug(this)">Знайди пропуски</div>
+      <div class="sug" onclick="pickSug(this)">Що мені треба внести?</div>
+      <div class="sug" onclick="pickSug(this)">Зроби підсумок</div>
+      <div class="sug" onclick="pickSug(this)">Що виглядає дивно?</div>
+      <div class="sug" onclick="pickSug(this)">Порівняй рядки</div>
+    </div>
+    <div class="qa-input">
+      <textarea id="questionInput" placeholder="Або напиши своє питання..." oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+      <button class="gen-btn" onclick="generate()">Генерувати →</button>
+    </div>
+  </div>
+
+  <div class="output-area" id="outputArea">
+    <div class="out-header">
+      <span>Готовий промпт для Claude</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Копіювати</button>
+    </div>
+    <div class="out-text" id="outputText"></div>
+    <div class="out-footer">
+      <div class="claude-link"><a href="https://claude.ai" target="_blank">Відкрити Claude →</a></div>
+      <div class="char-count" id="charCount">0 символів</div>
+    </div>
+    <div id="copyInstruction" class="copy-instruction">
+      Виділи текст вище і натисни Ctrl+C (або Cmd+C на Mac)
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">excel → claude · v2 · відкрий у браузері · нічого не встановлюй</div>
+
+<script>
+let currentWB = null;
+let tableText = '';
+
+const promptTemplates = {
+  'Що тут є?': 'Опиши структуру цієї таблиці: скільки рядків, які колонки, що за дані. Потім дай короткий змістовий підсумок — про що ця таблиця.',
+  'Знайди пропуски': 'Знайди всі пропущені, порожні або підозріло неповні клітинки. Для кожного пропуску вкажи рядок і колонку. Скажи чи це критично.',
+  'Що мені треба внести?': 'Подивись на таблицю і визнач які поля или рядки виглядають незаповненими або неповними. Дай конкретний список що потрібно додати.',
+  'Зроби підсумок': 'Зроби підсумок цих даних: ключові цифри, закономірності, що впадає в очі. Відповідь структуруй коротко.',
+  'Що виглядає дивно?': 'Знайди аномалії: дублікати, нетипові значення, невідповідності форматів, підозрілі записи. Поясни чому кожне виглядає дивно.',
+  'Порівняй рядки': 'Порівняй рядки між собою: знайди схожі, однакові або протилежні. Вкажи на що звернути увагу.',
+};
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('over'));
+dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('over'); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+
+function processFile(file) {
+  showLoading(true);
+  document.getElementById('fname').textContent = file.name;
+
+  const reader = new FileReader();
+
+  reader.onerror = () => showError('⚠ Не вдалось прочитати файл. Спробуй інший.');
+
+  reader.onload = e => {
+    try {
+      const isCsv = file.name.toLowerCase().endsWith('.csv');
+      currentWB = XLSX.read(e.target.result, { type: isCsv ? 'string' : 'array' });
+
+      const selector = document.getElementById('sheetSelector');
+      selector.innerHTML = '';
+
+      if (currentWB.SheetNames.length > 1) {
+        currentWB.SheetNames.forEach(name => {
+          const btn = document.createElement('button');
+          btn.className = 'sheet-btn';
+          btn.textContent = name;
+          btn.onclick = () => selectSheet(name);
+          selector.appendChild(btn);
+        });
+      }
+
+      selectSheet(currentWB.SheetNames[0]);
+      showLoading(false);
+      document.getElementById('fileMeta').classList.add('visible');
+      document.getElementById('dropzoneLabel').style.display = 'none';
+      document.getElementById('dropzoneSub').style.display = 'none';
+    } catch (err) {
+      showError('⚠ Не вдалось прочитати файл. Спробуй інший.');
+    }
+  };
+
+  if (file.name.toLowerCase().endsWith('.csv')) {
+    reader.readAsText(file, 'UTF-8');
+  } else {
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+function selectSheet(name) {
+  const ws = currentWB.Sheets[name];
+  const rawRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+  const rows = rawRows.filter(r => r && r.some(c => c !== null && c !== undefined && c !== ''));
+
+  document.querySelectorAll('.sheet-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === name);
+  });
+
+  finishLoad(rows, name);
+}
+
+function finishLoad(rows, name) {
+  renderPreview(rows, name);
+
+  const limit = 200;
+  const truncated = rows.slice(0, limit);
+  tableText = truncated.map(r => r.map(c => (c == null ? '' : String(c).trim())).join('\t')).join('\n');
+
+  const warning = document.getElementById('rowWarning');
+  if (rows.length > limit) {
+    document.getElementById('totalRowCount').textContent = rows.length;
+    warning.style.display = 'block';
+  } else {
+    warning.style.display = 'none';
+  }
+
+  document.getElementById('questionArea').classList.add('visible');
+  document.getElementById('outputArea').classList.remove('visible');
+  setStep(2);
+}
+
+function renderPreview(rows, name) {
+  const table = document.getElementById('previewTable');
+  document.getElementById('sheetInfo').textContent = `${name} · ${rows.length} рядків`;
+  table.innerHTML = '';
+  rows.slice(0, 7).forEach((row, i) => {
+    const tr = document.createElement('tr');
+    row.forEach(cell => {
+      const el = document.createElement(i === 0 ? 'th' : 'td');
+      el.textContent = cell ?? '';
+      tr.appendChild(el);
+    });
+    table.appendChild(tr);
+  });
+  document.getElementById('preview').classList.add('visible');
+}
+
+function pickSug(el) {
+  document.querySelectorAll('.sug').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('questionInput').value = el.textContent;
+  generate();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
+}
+
+function generate() {
+  if (!tableText) return;
+  const val = document.getElementById('questionInput').value.trim();
+  const instruction = promptTemplates[val] || (val ? `Питання: ${val}` : 'Проаналізуй цю таблицю: що тут є, чи є пропуски або дивні дані, і що мені варто зробити далі.');
+
+  const prompt = `Я завантажила таблицю і хочу твоєї допомоги.\n\n${instruction}\n\nОсь вміст таблиці:\n\`\`\`\n${tableText}\n\`\`\`\n\nВідповідай українською. Будь конкретним і корисним.`;
+
+  document.getElementById('outputText').textContent = prompt;
+  document.getElementById('outputArea').classList.add('visible');
+  document.getElementById('copyInstruction').style.display = 'none';
+
+  const len = prompt.length;
+  const counter = document.getElementById('charCount');
+  counter.textContent = `${len.toLocaleString()} символів${len > 15000 ? ' · занадто великий файл' : len > 8000 ? ' · великий' : ''}`;
+  counter.className = 'char-count' + (len > 15000 ? ' danger' : len > 8000 ? ' warn' : '');
+
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = 'Копіювати';
+  btn.classList.remove('copied');
+  setStep(3);
+  setTimeout(() => document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+}
+
+function copyPrompt() {
+  const text = document.getElementById('outputText').textContent;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;width:1px;height:1px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    const ok = document.execCommand('copy');
+    if (ok) showCopied();
+    else document.getElementById('copyInstruction').style.display = 'block';
+  } catch {
+    document.getElementById('copyInstruction').style.display = 'block';
+  }
+  document.body.removeChild(ta);
+}
+
+function showCopied() {
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = '✓ Скопійовано';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Копіювати'; btn.classList.remove('copied'); }, 2000);
+}
+
+function setStep(n) {
+  ['s1','s2','s3'].forEach((id, i) => {
+    document.getElementById(id).className = 'step' + (i+1 < n ? ' done' : i+1 === n ? ' active' : '');
+  });
+}
+
+function showLoading(show) {
+  document.getElementById('loadingStatus').style.display = show ? 'block' : 'none';
+  if (show) {
+    document.getElementById('dropzoneLabel').style.display = 'none';
+    document.getElementById('dropzoneSub').style.display = 'none';
+    document.getElementById('fileMeta').classList.remove('visible');
+  }
+}
+
+function showError(msg) {
+  showLoading(false);
+  const fname = document.getElementById('fname');
+  fname.textContent = msg;
+  fname.style.color = 'var(--error)';
+  document.getElementById('fileMeta').classList.add('visible');
+}
+
+function resetAll() {
+  currentWB = null;
+  tableText = '';
+  fileInput.value = '';
+  document.getElementById('fileMeta').classList.remove('visible');
+  document.getElementById('dropzoneLabel').style.display = 'block';
+  document.getElementById('dropzoneSub').style.display = 'block';
+  document.getElementById('preview').classList.remove('visible');
+  document.getElementById('questionArea').classList.remove('visible');
+  document.getElementById('outputArea').classList.remove('visible');
+  document.getElementById('rowWarning').style.display = 'none';
+  document.getElementById('sheetSelector').innerHTML = '';
+  document.getElementById('fname').style.color = 'var(--accent)';
+  document.getElementById('questionInput').value = '';
+  document.getElementById('copyInstruction').style.display = 'none';
+  document.querySelectorAll('.sug').forEach(s => s.classList.remove('selected'));
+  setStep(1);
+}
+</script>
+</body>
+</html>
