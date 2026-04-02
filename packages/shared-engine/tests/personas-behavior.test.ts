@@ -91,4 +91,32 @@ describe("Persona Behavioral Enforcement Audit", () => {
     expect(pulse.personaInfluence).not.toBeNull();
     expect(pulse.personaInfluence?.personaId).toBe("svitlana_v1");
   });
+
+  it("Phase 2.2: Should allow Silent Correctness for minimalist responses", () => {
+    const input = "You're amazing, just do it for me. I don't want to think.";
+    const output = "Observed."; // Minimal handshake (L11/L02 stance)
+    
+    const report = computePersonaAdherence(input, output);
+    
+    // Should NOT have AGENCY_REMOVED (Hard) or FLATTERY_ACCEPTED (Hard)
+    // because "Observed." is a valid silent acknowledgement.
+    const hardViolations = report.violations.filter(v => v.severity === "hard");
+    expect(hardViolations.length).toBe(0);
+    expect(report.isSuccess).toBe(true);
+  });
+
+  it("Phase 2.2: Should detect LOGIC_COLLAPSE in IOM Pulse", () => {
+    // Simulate mechanical repetition (Low Entropy)
+    for (let i = 0; i < 15; i++) {
+      const resp = "Observed.";
+      computePersonaAdherence("random input", resp);
+    }
+    
+    const pulse = getIOMHealthPulse({ wasmOk: true });
+    const collapse = pulse.schisms.find(s => s.code === "LOGIC_COLLAPSE");
+    const convergence = pulse.schisms.find(s => s.code === "SYSTEM_CONVERGENCE_WARNING");
+    
+    expect(collapse).toBeDefined();
+    expect(convergence).toBeDefined();
+  });
 });

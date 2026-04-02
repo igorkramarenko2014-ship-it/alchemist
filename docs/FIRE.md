@@ -27,7 +27,7 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 | Signal | Value |
 |--------|-------|
 | **Synced (UTC)** | **2026-04-02** |
-| **Vitest** (`@alchemist/shared-engine`) | **479** tests passed, **96** files (runner) · **95** `*.test.ts` on disk |
+| **Vitest** (`@alchemist/shared-engine`) | **481** tests passed, **96** files (runner) · **95** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 | **Canonical metrics JSON** | `docs/fire-metrics.json` — verify: `sha256sum -c docs/fire-metrics.sha256` (repo root) |
 

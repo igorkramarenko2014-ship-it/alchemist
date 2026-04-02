@@ -23,6 +23,8 @@ export interface PersonaInfluenceSnapshot {
   sampleSize: number;
   stabilityScore: number;
   dominantLogics: string[];
+  logicDistribution: Record<string, number>; // L01 -> 0.32 etc.
+  logicEntropyScore: number; // 0.0 to 1.0 (Shannon)
   signatureRates: {
     pauseRate: number;
     flatteryResistanceRate: number;
@@ -30,9 +32,13 @@ export interface PersonaInfluenceSnapshot {
     verbosityControlRate: number;
   };
   driftRisk: "low" | "medium" | "high";
+  status: "active" | "insufficient_persona_signal";
 }
 
 const RING_MAX_SIGNALS = 100;
+const MIN_SIGNALS_FOR_ENTROPY = 10;
+const TOTAL_LOGICS = 17; // L01-L17
+
 const signalRing: PersonaPerspectiveSignal[] = [];
 
 export function recordPerspectiveSignal(signal: PersonaPerspectiveSignal): void {
@@ -55,14 +61,31 @@ export function getPersonaInfluenceSnapshot(personaId: string, windowMs = 360000
   
   // Logic popularity
   const logicCounts: Record<string, number> = {};
+  let totalLogicHits = 0;
   win.forEach(s => s.activeLogics.forEach(l => {
     logicCounts[l] = (logicCounts[l] || 0) + 1;
+    totalLogicHits++;
   }));
   
   const dominantLogics = Object.entries(logicCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
     .map(([l]) => l);
+
+  const logicDistribution: Record<string, number> = {};
+  Object.entries(logicCounts).forEach(([l, count]) => {
+    logicDistribution[l] = count / totalLogicHits;
+  });
+
+  // Shannon Entropy: H = -sum(p * log2(p))
+  // Normalized: H / log2(17)
+  let entropy = 0;
+  if (totalLogicHits > 0) {
+    Object.values(logicDistribution).forEach(p => {
+      if (p > 0) entropy -= p * Math.log2(p);
+    });
+  }
+  const logicEntropyScore = totalLogicHits > 0 ? entropy / Math.log2(TOTAL_LOGICS) : 0;
 
   const signatureRates = {
     pauseRate: sum(s => s.signature.pauseApplied) / n,
@@ -76,8 +99,11 @@ export function getPersonaInfluenceSnapshot(personaId: string, windowMs = 360000
     sampleSize: n,
     stabilityScore,
     dominantLogics,
+    logicDistribution,
+    logicEntropyScore,
     signatureRates,
-    driftRisk: stabilityScore > 0.85 ? "low" : stabilityScore > 0.7 ? "medium" : "high"
+    driftRisk: stabilityScore > 0.85 ? "low" : stabilityScore > 0.7 ? "medium" : "high",
+    status: n < MIN_SIGNALS_FOR_ENTROPY ? "insufficient_persona_signal" : "active"
   };
 }
 

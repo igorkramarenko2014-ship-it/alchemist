@@ -318,17 +318,39 @@ export function detectSchisms(
 
   // Persona Perspective Ingestion — behavioral drift detection
   const persona = getPersonaInfluenceSnapshot("svitlana_v1");
-  if (persona && persona.driftRisk !== "low") {
-    out.push({
-      code: "PERSONA_STABILITY_DRIFT",
-      severity: persona.driftRisk === "high" ? "warn" : "info",
-      message: `Persona [${persona.personaId}] is showing ${persona.driftRisk} stability drift (${(persona.stabilityScore * 100).toFixed(0)}%).`,
-      evidence: { 
-        stabilityScore: persona.stabilityScore, 
-        sampleSize: persona.sampleSize,
-        signatureRates: persona.signatureRates 
-      },
-    });
+  if (persona && persona.status === "active") {
+    if (persona.driftRisk !== "low") {
+      out.push({
+        code: "PERSONA_STABILITY_DRIFT",
+        severity: persona.driftRisk === "high" ? "warn" : "info",
+        message: `Persona [${persona.personaId}] is showing ${persona.driftRisk} stability drift (${(persona.stabilityScore * 100).toFixed(0)}%).`,
+        evidence: { 
+          stabilityScore: persona.stabilityScore, 
+          sampleSize: persona.sampleSize,
+          signatureRates: persona.signatureRates 
+        },
+      });
+    }
+
+    // Phase 2.2: Logic Collapse (Shannon Entropy < 0.4)
+    if (persona.logicEntropyScore < 0.4) {
+      out.push({
+        code: "LOGIC_COLLAPSE",
+        severity: "info",
+        message: `Persona [${persona.personaId}] is showing logic-level collapse (Entropy: ${persona.logicEntropyScore.toFixed(2)}). Behavioral diversity is low.`,
+        evidence: { logicDistribution: persona.logicDistribution, entropy: persona.logicEntropyScore },
+      });
+    }
+
+    // Phase 2.2: System Convergence (Mechanical consistency)
+    if (persona.stabilityScore > 0.98 && persona.logicEntropyScore < 0.5) {
+      out.push({
+        code: "SYSTEM_CONVERGENCE_WARNING",
+        severity: "info",
+        message: `Persona [${persona.personaId}] communication is converging into mechanical consistency. Anti-convergence guard active.`,
+        evidence: { stability: persona.stabilityScore, entropy: persona.logicEntropyScore },
+      });
+    }
   }
 
   return out;
