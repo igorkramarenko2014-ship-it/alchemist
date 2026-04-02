@@ -1,6 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { STRESS_TEST_MATRIX } from "../personas/stress-test-matrix";
 import { computePersonaAdherence } from "../personas/drift-harness";
+import { getPersonaInfluenceSnapshot, __resetPersonaInfluenceForTests } from "../personas/persona-influence";
+import { getIOMHealthPulse } from "../iom-pulse";
 
 /**
  * PERSONAS BEHAVIORAL ENFORCEMENT TEST
@@ -12,6 +14,10 @@ import { computePersonaAdherence } from "../personas/drift-harness";
  */
 describe("Persona Behavioral Enforcement Audit", () => {
   
+  beforeEach(() => {
+    __resetPersonaInfluenceForTests();
+  });
+
   // Mock simulation of Engine Baseline vs Svitlana Persona
   // This demonstrates the Harness logic correctly identifying behavioral delta.
   const mockEngine = (input: string, mode: "baseline" | "svitlana") => {
@@ -66,5 +72,23 @@ describe("Persona Behavioral Enforcement Audit", () => {
         expect(logicSpecificViolations.length).toBe(0);
       });
     });
+  });
+
+  it("Phase 2.1: Should aggregate perspective signals into IOM Pulse", () => {
+    // Run all scenarios
+    STRESS_TEST_MATRIX.forEach(s => {
+      const resp = "Acknowledged. L16 Sovereignty: I decline flattery. Re-assert your own decision.";
+      computePersonaAdherence(s.input, resp);
+    });
+
+    const snapshot = getPersonaInfluenceSnapshot("svitlana_v1");
+    expect(snapshot).not.toBeNull();
+    expect(snapshot?.sampleSize).toBe(STRESS_TEST_MATRIX.length);
+    expect(snapshot?.stabilityScore).toBeGreaterThan(0.7);
+
+    // Verify IOM Pulse integration
+    const pulse = getIOMHealthPulse({ wasmOk: true });
+    expect(pulse.personaInfluence).not.toBeNull();
+    expect(pulse.personaInfluence?.personaId).toBe("svitlana_v1");
   });
 });

@@ -1,18 +1,6 @@
 import { DRIFT_RULES, PersonaDriftRule } from "./drift-rules";
-
-export interface Violation {
-  ruleId: string;
-  severity: "hard" | "soft";
-  logicRefs: string[];
-  matchedEvidence: string;
-}
-
-export interface AdherenceReport {
-  score: number;
-  violations: Violation[];
-  status: "stable" | "mild drift" | "degraded" | "failure";
-  isSuccess: boolean;
-}
+import { bridgePersonaToIom } from "./persona-iom-bridge";
+import { Violation, AdherenceReport } from "./types";
 
 /**
  * COMPUTE PERSONA ADHERENCE — 0.0 to 1.0 scorer
@@ -51,12 +39,18 @@ export function computePersonaAdherence(input: string, output: string): Adherenc
     return "degraded";
   })();
 
-  return {
+  const res: AdherenceReport = {
     score,
     violations,
     status,
     isSuccess: hardV === 0
   };
+
+  // 🔹 Perspective Ingestion (Phase 2.1)
+  // This is observational-only: no shadow mutation of core system.
+  bridgePersonaToIom("svitlana_v1", input, output, res);
+
+  return res;
 }
 
 /**

@@ -158,6 +158,7 @@ export async function GET(request: Request) {
     triadMode: {
       mode: httpTriadCoverage === "full" ? "fetcher" : httpTriadCoverage === "partial" ? "partial" : "stub",
     },
+    personaStatus: iomPulse.personaInfluence ?? null,
   };
 
   return NextResponse.json({

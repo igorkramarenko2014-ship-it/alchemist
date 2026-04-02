@@ -22,6 +22,7 @@ import { getVstObserverPulseSlice, type VstSyncStatusPulse } from "./vst-observe
 import { getVstWrapperPulseSlice, type VstWrapperStatusPulse } from "./vst-wrapper-pulse";
 import { getCoreModelState, IntegrityHealthSnapshot } from "./integrity";
 import { getRealitySignalAggregates } from "./reality-loop-layer";
+import { getPersonaInfluenceSnapshot, PersonaInfluenceSnapshot } from "./personas/persona-influence";
 import type { CoreModelState, Panelist } from "@alchemist/shared-types";
 
 export const IOM_PULSE_VERSION = 5 as const;
@@ -103,6 +104,8 @@ export interface IOMHealthPulseResult {
   vstSyncStatus: VstSyncStatusPulse;
   /** JUCE FXP bridge diagnostic slice (`vst_wrapper` cell) — native plugin logs outside TS. */
   vstWrapperStatus: VstWrapperStatusPulse;
+  /** Persona behavioral footprint summary (Phase 2.1). */
+  personaInfluence?: PersonaInfluenceSnapshot | null;
   note: string;
 }
 
@@ -313,6 +316,21 @@ export function detectSchisms(
     });
   }
 
+  // Persona Perspective Ingestion — behavioral drift detection
+  const persona = getPersonaInfluenceSnapshot("svitlana_v1");
+  if (persona && persona.driftRisk !== "low") {
+    out.push({
+      code: "PERSONA_STABILITY_DRIFT",
+      severity: persona.driftRisk === "high" ? "warn" : "info",
+      message: `Persona [${persona.personaId}] is showing ${persona.driftRisk} stability drift (${(persona.stabilityScore * 100).toFixed(0)}%).`,
+      evidence: { 
+        stabilityScore: persona.stabilityScore, 
+        sampleSize: persona.sampleSize,
+        signatureRates: persona.signatureRates 
+      },
+    });
+  }
+
   return out;
 }
 
@@ -498,6 +516,7 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
     coreModel: core,
     vstSyncStatus: getVstObserverPulseSlice(),
     vstWrapperStatus: getVstWrapperPulseSlice(),
+    personaInfluence: getPersonaInfluenceSnapshot("svitlana_v1"),
     note:
       "IOM pulse — diagnostic merge; schisms + suggestions are explicit heuristics. No auto gate mutation. Pass soeSnapshot from stderr/log aggregates for full numeric schisms and SOE fusion cues.",
   };
