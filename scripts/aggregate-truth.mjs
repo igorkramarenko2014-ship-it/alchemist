@@ -169,6 +169,12 @@ try {
   const verify = readJsonStrict(verifyPath, "verify summary");
   const metrics = readJsonStrict(metricsPath, "fire metrics");
 
+  const humanitarianPath = join(root, "packages/shared-engine/artifacts/humanitarian-summary.json");
+  let humanitarianIntegrity = null;
+  if (existsSync(humanitarianPath)) {
+    humanitarianIntegrity = readJsonStrict(humanitarianPath, "humanitarian summary");
+  }
+
   const testsPassed = toFiniteNumber(metrics?.vitestTestsPassed, "metrics.vitestTestsPassed", true);
   const iomCoverageScore = toFiniteNumber(
     verify?.iomCoverageScore,
@@ -220,9 +226,11 @@ try {
   const generatedAtUtc = new Date().toISOString();
   const learningOutcomes = readLearningOutcomesFromFitnessReport(root);
   const { ajiStatus, identityStatus } = deriveAjiAndIdentityStatus(root);
+
   const payload = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     generatedAtUtc,
+    integrityStatus: humanitarianIntegrity?.anyHardStop ? "compromised" : "nominal",
     // Same instant as generation; audit trail that divergences were evaluated this run.
     divergenceCheckedAtUtc: generatedAtUtc,
     verification: "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
@@ -251,6 +259,7 @@ try {
       syncedAtUtc,
       ajiStatus,
       identityStatus,
+      humanitarianIntegrity,
     },
     divergences,
   };

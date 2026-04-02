@@ -144,6 +144,9 @@
   "devDependencies": {
     "@alchemist/fxp-encoder": "workspace:*",
     "@alchemist/shared-engine": "workspace:*",
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0",
+    "@babel/types": "^7.29.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "tsx": "^4.19.2",

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "grounding_integrity",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — initial Sve chat fusion; honesty-filter prior"
+  ],
+  "difficulty": "intermediate",
+  "id": "engine_school_sve_honesty_filter",
+  "presetName": "Grounding distillate — semantic integrity (Sve-honest)",
+  "style": "semantic integrity / grounding",
+  "tags": [
+    "sve-fusion",
+    "honesty",
+    "grounding",
+    "integrity",
+    "priors",
+    "human-honesty"
+  ],
+  "mappings": {
+    "designIntent": "Establish the baseline 'not-lying' filter: the sound must actually do what it claims to do. No semantic drift between the prompt and the audible transient.",
+    "humanPerception": "Listener detects 'bullshit' when the timbre is masked by unnecessary processing or when the attack doesn't match the announced energy.",
+    "ampEnvelope": "Precise attack alignment: if it's 'honest', the envelope reveals the source rather than hiding it under artificial sustain.",
+    "harmonicSource": "Original, raw harmonic structure is prioritized; no 'gilding the lily' with excessive clutter that masks the core intent.",
+    "filterAndSpectralBalance": "Cutoff reflects actual energy; resonance supports clarity rather than adding false 'hype' that doesn't exist in the source.",
+    "stereoField": "Width is honest; if a sound is mono, let it be mono. Don't 'lie' with phase tricks to hide a weak core.",
+    "saturationOrDrive": "Drive is used to reveal texture, not to bury truth. Aggression must be earned by the harmonic content, not just added as an effect.",
+    "modulationRole": "Movement is intentional and sourced; no jitter that masks the lack of structural integrity.",
+    "mixRole": "Grounding: the sound anchors the mix by being exactly what it is, resisting the urge to 'perform' for the listener."
+  },
+  "character": "Rooted, honest, and unadorned semantic integrity: no 'fake' brightness, no 'lying' transients. A sound that stays true to its source, providing a baseline of trust for the rest of the mix.",
+  "causalReasoning": "The 'not-lying' filter (Sve-grounding) works by enforcing a one-to-one mapping between intent and timbre. When the engine attempts to 'bullshit' (e.g., adding air to a sub-bass or using width to hide a thin transient), the ear detects a lack of grounding. By prioritizing mappings that favor transparency and structural honesty (ampEnvelope accuracy, spectral coherence), we anchor the sonic output in the same way that 'not lying to yourself' anchors human emotional state. This filter resists 'vibe-washing' and ensures that every parameter change is grounded in a physical or semantic necessity.",
+  "priorityMappingKeys": ["designIntent", "ampEnvelope", "harmonicSource"],
+  "coreRules": [
+    "No gilding the lily → if the source is simple, keep the processing honest.",
+    "Envelope-truth → transient energy must match the perceived semantic weight.",
+    "Not lying to yourself → if the sound isn't working, don't use width or noise to mask the failure."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_role_model_v1",
+    "difference": "Role Model v1 is about aggressive archetype; Honesty Filter is about the absolute baseline integrity of that archetype. One defines the style, the other defines the truth of the state."
+  },
+  "antiPatterns": [
+    {
+      "description": "Using high-pass noise or phase tricks to simulate an 'expensive' top end on a dull source — sonic lying.",
+      "relatedTo": ["harmonicSource", "filterAndSpectralBalance"],
+      "whyItFails": "Ear detects the disjointed layers; the sound loses grounding and feels 'floating' or 'unearned'."
+    }
+  ],
+  "heuristics": [
+    {
+      "condition": "prompt implies grounding, honesty, truth, or baseline integrity",
+      "bias": "Favor raw harmonic transparency and envelope precision over additive effects.",
+      "weight": 0.2
+    }
+  ]
+}

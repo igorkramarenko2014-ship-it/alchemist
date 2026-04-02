@@ -1,5 +1,6 @@
 import {
   buildLearningContext,
+  logEvent,
   selectLessonsForPrompt,
   type TriadRunLearningContextUsed,
 } from "@alchemist/shared-engine";
@@ -28,6 +29,17 @@ export function getEngineSchoolTriadAugmentation(userPrompt: string): {
     return { learningContext: "", learningContextUsed: empty };
   }
   const selected = selectLessonsForPrompt(index, userPrompt);
+
+  // Telemetry for Sve chat fusion (advisory influence only)
+  const sveLessons = selected.filter((l) => l.tags.includes("sve-fusion"));
+  if (sveLessons.length > 0) {
+    logEvent("engine_school_influence", {
+      source: "sve_real_chat",
+      lessonIds: sveLessons.map((l) => l.id),
+      promptLen: userPrompt.length,
+    });
+  }
+
   const learningContext = buildLearningContext(selected);
   const fitnessRows = index.fitnessSnapshot?.lessonFitness;
   const fitnessById = new Map(

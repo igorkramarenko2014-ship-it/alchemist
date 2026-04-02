@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "behavioral_grounding",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — initial Sve chat fusion; bounty-loop prior"
+  ],
+  "difficulty": "intermediate",
+  "id": "engine_school_sve_bounty_loop",
+  "presetName": "Grounding distillate — behavioral loops (Sve-bounty-trap)",
+  "style": "behavioral grounding / reward loops",
+  "tags": [
+    "sve-fusion",
+    "bounty",
+    "addiction",
+    "avoidance",
+    "dopamine",
+    "grounding",
+    "priors"
+  ],
+  "mappings": {
+    "designIntent": "Recognizing the 'Bounty' dopamine loop: avoid the trap of constant, empty rewards without task completion. Timbre that satisfies without hiding avoidance.",
+    "humanPerception": "Listener knows when a sound is 'just a shiny distraction' trying to mask a lack of compositional substance or poor structural grounding.",
+    "ampEnvelope": "Dynamic tension: rewards are earned by the hit. Avoid 'sugar-coating' the sustain with noise to simulate success.",
+    "harmonicSource": "Rich but focused; no empty harmonic density that acts as a 'high' without a grounding root.",
+    "filterAndSpectralBalance": "Resonance that highlights, not resonance that numbs. Spectrum must reward attention, not just overwhelm it.",
+    "stereoField": "Centered focus: width is a reward for a solid center, not a way to avoid the center's weakness.",
+    "saturationOrDrive": "Pressure that indicates effort: drive is used to show structural tension, not just to 'bury' silence.",
+    "modulationRole": "Rhythmic purpose: movement must align with the 'task' (the sequence), not just wander as a distraction.",
+    "mixRole": "Resilient presence: the sound doesn't 'numbs' the listener; it provides a clear, grounded signal for engagement."
+  },
+  "character": "Grounded, purpose-driven, and anti-avoidance: satisficing but honest. A sound that avoids the 'addictive' trap of empty harmonic hype, prioritizing the weight of structural completion over easy spectral rewards.",
+  "causalReasoning": "The 'Bounty Loop' filter (Sve-grounding) addresses the perceptual gap between 'instant gratification' and 'structural integrity'. In the chats, 'Bounty' serves as a metaphor for substance usage/avoidance—a quick dopamine reward that can mask real energy gaps. In sonic mappings, this translates to avoiding 'sugar-coated' timbres (excessive high-end sizzle, wide phasey wash) that attempt to simulate size without having a grounded lower-mid root. By enforcing 'Earned Rewards' (width as a consequence of center-density), the engine helps the listener stay grounded in the compositional task rather than being distracted by empty artifacts.",
+  "priorityMappingKeys": ["stereoField", "saturationOrDrive", "designIntent"],
+  "coreRules": [
+    "Earned Width → don't use stereo tricks to avoid a weak mono core.",
+    "Task-driven Reward → sonic satisfiers must follow a structural hit, not just wander.",
+    "Anti-avoidance → if the sound needs substance, don't use noise as a 'Bounty'."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_sve_honesty_filter",
+    "difference": "Honesty Filter is the absolute semantic baseline; Bounty Loop is the behavioral trap of *using* sounds to avoid that baseline's demands."
+  },
+  "antiPatterns": [
+    {
+      "description": "Infinite phasey tails to distract from a lack of transient energy — the 'Bounty Trap'.",
+      "relatedTo": ["ampEnvelope", "stereoField"],
+      "whyItFails": "Ear quickly tires of the distraction; the 'addictive' sizzle lacks a root, leading to listener fatigue or 'avoidance' of the track."
+    }
+  ],
+  "heuristics": [
+    {
+      "condition": "prompt implies addiction, avoidance, dopamine, reward, or distraction",
+      "bias": "Favor mono-centered weight and transient-earned rewards over additive sonic shimmer.",
+      "weight": 0.18
+    }
+  ]
+}

@@ -16,7 +16,11 @@
   "properties": {
     "schemaVersion": {
       "type": "number",
-      "const": 3
+      "const": 4
+    },
+    "integrityStatus": {
+      "type": "string",
+      "enum": ["nominal", "compromised", "degraded"]
     },
     "generatedAtUtc": {
       "type": "string",
@@ -183,6 +187,17 @@
             "lastActivationAtUtc": { "type": ["string", "null"] },
             "consistency": { "type": "string", "enum": ["consistent", "mismatch"] },
             "source": { "type": "string", "const": "derived" }
+          }
+        },
+        "humanitarianIntegrity": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["activeScenarios", "scenariosAtSAFE7OrAbove", "anyHardStop", "lastCheckedAt"],
+          "properties": {
+            "activeScenarios": { "type": "number" },
+            "scenariosAtSAFE7OrAbove": { "type": "number" },
+            "anyHardStop": { "type": "boolean" },
+            "lastCheckedAt": { "type": "string", "format": "date-time" }
           }
         }
       }

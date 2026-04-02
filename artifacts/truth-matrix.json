@@ -1,7 +1,8 @@
 {
-  "schemaVersion": 3,
-  "generatedAtUtc": "2026-04-02T06:33:11.542Z",
-  "divergenceCheckedAtUtc": "2026-04-02T06:33:11.542Z",
+  "schemaVersion": 4,
+  "generatedAtUtc": "2026-04-02T07:40:05.791Z",
+  "integrityStatus": "nominal",
+  "divergenceCheckedAtUtc": "2026-04-02T07:40:05.791Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -19,12 +20,12 @@
       "confidence": "low",
       "note": "Non-authoritative quality trend for AIOM display only. orderChangeRate is 0 until score_candidates JSONL is aggregated; does not affect MON or integrity."
     },
-    "testsPassed": 433,
-    "testsTotal": 433,
-    "iomCoverageScore": 0.952,
+    "testsPassed": 442,
+    "testsTotal": 442,
+    "iomCoverageScore": 1,
     "mon": {
-      "value": 0,
-      "ready": false,
+      "value": 117,
+      "ready": true,
       "source": "verify_post_summary"
     },
     "pnhImmunity": {
@@ -34,7 +35,7 @@
       "status": "clean"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-02T06:33:11.512Z",
+    "syncedAtUtc": "2026-04-02T07:39:52.199Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,
@@ -47,6 +48,12 @@
       "lastActivationAtUtc": null,
       "consistency": "consistent",
       "source": "derived"
+    },
+    "humanitarianIntegrity": {
+      "activeScenarios": 7,
+      "scenariosAtSAFE7OrAbove": 7,
+      "anyHardStop": false,
+      "lastCheckedAt": "2026-04-02T07:40:01.027Z"
     }
   },
   "divergences": []

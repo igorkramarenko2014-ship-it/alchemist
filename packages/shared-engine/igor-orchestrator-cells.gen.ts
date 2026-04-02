@@ -110,4 +110,9 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
     responsibility: "User-consented shareable preset pages — slug generation, score gate (≥0.85), OG metadata from real candidate fields, paramArray visual only (no .fxp bytes exposed).",
     artifacts: ["../../apps/web-app/lib/share-preset.ts", "../../apps/web-app/lib/preset-store.ts", "../../apps/web-app/app/presets/[slug]/page.tsx", "../../apps/web-app/app/api/presets/share/route.ts"] as const,
   },
+  {
+    id: "humanitarian_integrity",
+    responsibility: "Life-safety AIOM extension: medical, evacuation, and hazard response integrity; drift hard-stops (SAFE-4/ZERO).",
+    artifacts: ["integrity/humanitarian-integrity.ts"] as const,
+  },
 ] as const;

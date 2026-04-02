@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "embodied_presence",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — initial Sve chat fusion; somatic-energy prior"
+  ],
+  "difficulty": "intermediate",
+  "id": "engine_school_sve_somatic_energy",
+  "presetName": "Grounding distillate — somatic resonance (Sve-energy-blockage)",
+  "style": "embodied presence / somatic resonance",
+  "tags": [
+    "sve-fusion",
+    "thyroid",
+    "energy",
+    "body",
+    "grounding",
+    "somatic",
+    "priors"
+  ],
+  "mappings": {
+    "designIntent": "Connecting the body state (Thyroid/Energy) to sonic presence: clear the 'blockage' (no mud, no hiss). Rooted in physical grounding.",
+    "humanPerception": "Listener 'feels' the sound in the same way the body feels blockage or flow. Clear resonance maps to throat/nasopharyngeal openness.",
+    "ampEnvelope": "Natural breathing: attack/decay that follows the curve of human movement, not mechanical automation.",
+    "harmonicSource": "Organic richness: oscillator content that resonates with the vocal/human range rather than stay in purely artificial spectrum.",
+    "filterAndSpectralBalance": "The 'nasopharyngeal openness' filter: cutoff and resonance that allow the sound to breathe. No 'choked' mids.",
+    "stereoField": "Expansive but centered: width feels like it's coming from a physical body, not a virtual void.",
+    "saturationOrDrive": "Warmth that indicates vitality: drive used as heat, not as destruction or distortion.",
+    "modulationRole": "Pulse over jitter: movement must feel like a heartbeat or breath, avoiding the 'shaking' of anxious energy.",
+    "mixRole": "Vocal/Human presence: sitting in the 'speaking' frequency band with authority and somatic grounding."
+  },
+  "character": "Embodied, breathing, and somatically grounded: centered in the physical energy of the body. A sound that avoids 'throat blockage' (muddy lower-mids) and prioritizes spectral flow and resonant clarity.",
+  "causalReasoning": "The 'Somatic Energy' filter (Sve-grounding) maps the human state of physical health—specifically the 'nasopharyngeal and thyroid blockages' mentioned in the chats—to spectral balance. In the chats, 'cleaning' and 'healing' those areas are key to feeling energy flow again. In sonic mappings, this translates to removing frequency congestion in the vocal-mid region (not-blocked) while allowing 'breath' to exist in the upper harmonics. By prioritizing 'heartbeat' pulse over synthetic jitter, the engine steers the user toward sounds that feel physically present and alive, providing an anchor for creative energy.",
+  "priorityMappingKeys": ["filterAndSpectralBalance", "modulationRole", "designIntent"],
+  "coreRules": [
+    "No Choked Mids → clear the 'throat' of the sound to allow presence flow.",
+    "Pulse not Jitter → movement must follow somatic rhythm, not anxious noise.",
+    "Resonant Breathing → spectral balance should have the 'openness' of clear health."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_sve_honesty_filter",
+    "difference": "Honesty Filter is about the truth of the signal; Somatic Energy is about the health and vitality of the creative body behind the signal."
+  },
+  "antiPatterns": [
+    {
+      "description": "Congested low-mid resonance that feels 'suffocated' or 'choked' — the 'Thyroid Blockage'.",
+      "relatedTo": ["filterAndSpectralBalance", "mixRole"],
+      "whyItFails": "Ear perceives lack of flow; the sound feels sickly or ungrounded, inducing perceptual tension."
+    }
+  ],
+  "heuristics": [
+    {
+      "condition": "prompt implies body, energy, health, thyroid, throat, or breath",
+      "bias": "Favor open spectral balance in the 1-3kHz range and organic envelope pulsing.",
+      "weight": 0.15
+    }
+  ]
+}

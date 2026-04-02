@@ -122,9 +122,30 @@ pub fn decode_fxp_fxck(data: &[u8]) -> Result<JsValue, JsError> {
     Ok(out.into())
 }
 
+/// Returns a deterministic hash of a byte slice. 
+/// Used by the Quantum Sentinel to verify memory integrity.
+#[wasm_bindgen]
+pub fn get_internal_state_hash(data: &[u8]) -> String {
+    let mut h: u64 = 0x811c9dc5; // FNV offset basis
+    for &b in data {
+        h ^= b as u64;
+        h = h.wrapping_mul(0x01000193); // FNV prime
+    }
+    format!("{:016x}", h)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_hash() {
+        let h1 = get_internal_state_hash(b"Alchemist");
+        let h2 = get_internal_state_hash(b"Alchemist");
+        let h3 = get_internal_state_hash(b"Alchemist!");
+        assert_eq!(h1, h2);
+        assert_ne!(h1, h3);
+    }
 
     #[test]
     fn roundtrip_fxck() {

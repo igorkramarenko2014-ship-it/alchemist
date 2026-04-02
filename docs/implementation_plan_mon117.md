@@ -1,66 +1,64 @@
-# Implementation Plan — Alchemist MON 117: Miltech Integrity (Capability Guard & Sentinel)
+# Implementation Plan — Alchemist MON 117: Hardening & Observability (Phase 0-2)
 
-This plan transmutates the Alchemist Brain into a high-integrity, mission-critical core. We are implementing the **Capability Expansion Guard (AST-Based)** and the **Quantum Sentinel (Memory Stickiness)** according to the "Production-Ready" Miltech specifications.
+This plan transmutates the Alchemist Brain from a "clean creative tool" to a "high-integrity mission-critical core" by focusing on mechanical enforcement and observable influence. We follow the user's "Blunt Recommendation" for a realistic maturity roadmap.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Dependency Addition**: We must add `@babel/parser`, `@babel/traverse`, and `@babel/types` to the root `devDependencies`.
-> **WASM Hardening**: `packages/fxp-encoder/src/lib.rs` will be modified to export a deterministic state hash. A full `pnpm build:wasm` is required.
-> **Enforcement Level**: Memory stickiness check (`Quantum Sentinel`) will be wired into `verify:harsh`. Any drift will fail the build.
+> **Pivot**: We are deprioritizing the Phase 3 "Quantum Sentinel" (memory drift) in favor of Phase 0/1 **Influence Visibility** and **Priors Non-Regression**.
+> **Visibility**: `/api/health` will now expose `priorsStatus` and `influenceSummary`.
+> **Enforcement**: Mechanical Aji enforcement (Locks 1-5) will be built into the scoring pipeline.
 
 ## Proposed Changes
 
-### [Phase 1] Capability Expansion Guard (AST-Gated)
-Implement the "Default Deny" contract using Babel AST analysis.
+### [Phase 1] Monitoring & Observability (High Leverage)
+Make influence observable and accountable.
 
-#### [NEW] [root.capabilities.json](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/capabilities/root.capabilities.json)
-- Define `version 1.0` manifest: endpoints (`GET /health`, `POST /api/v1/submit`), `wasmAccess` (`readOnlyMemory`), and `allowedFailureModes`.
-
-#### [NEW] [capability-detector.mjs](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/scripts/capability-detector.mjs)
-- AST-based detector for `app.get`, `router.post`, `WebAssembly.*` calls, and `ThrowStatement` modes.
-
-#### [NEW] [verify-capabilities.mjs](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/scripts/verify-capabilities.mjs)
-- Compare `git diff origin/main...HEAD` findings against the manifest.
-- Support PR-level bypass with the `allowed-capability-expansion: true` flag.
-
----
-
-### [Phase 2] Quantum Sentinel (Live Memory Integrity)
-Protect against "Heisenberg Echo" (memory drift) using multi-worker stress checks.
-
-#### [MODIFY] [lib.rs](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/packages/fxp-encoder/src/lib.rs)
-- Export `get_internal_state_hash` using `wasm_bindgen` for real-time memory verification.
-
-#### [NEW] [sentinel.ts](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/packages/shared-engine/security/sentinel.ts)
-- `verifyLiveBufferSync`: Constant-time comparison of runtime WASM hash with `truth-matrix.json`.
-
-#### [NEW] [validate-memory-stickiness.mjs](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/scripts/validate-memory-stickiness.mjs)
-- 8-worker stress test using `Worker` and `Atomics` to provocatively check for memory race windows and drift.
-
----
-
-### [Phase 3] Integration & System Hardening
-
-#### [MODIFY] [package.json (root)](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/package.json)
-- Add `verify:capabilities` and `verify:sentinel`.
-- Update `verify:harsh` to include these new checks.
+#### [MODIFY] [integrity.ts](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/packages/shared-engine/integrity.ts)
+- Add `influenceSummary` to the health snapshot.
+- Include `priorsStatus` (staleness, weight, count).
 
 #### [MODIFY] [route.ts (health)](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/apps/web-app/app/api/health/route.ts)
-- Wire `X-AIOM-Integrity-Live: enforce` support to trigger Sentinel verification on `truth-matrix` requests.
+- Surface `influenceSummary` and `priorsStatus` in the 117_STABLE payload.
+
+#### [MODIFY] [telemetry.ts](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/packages/shared-engine/telemetry.ts)
+- Add `triad_run_influence` log event: which priors were used, confidence delta, and staleness penalty.
+
+---
+
+### [Phase 2] Mechanical Alignment (Locks 1-5)
+Move from advisory to mechanical Aji enforcement.
+
+#### [MODIFY] [score.ts](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/packages/shared-engine/score.ts)
+- Implement trigger limits and advisory banners based on Aji pressure.
+- Enforce Lock 1-5 invariants programmatically during `scoreCandidates`.
+
+#### [NEW] [priors-non-regression.test.ts](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/packages/shared-engine/tests/priors-non-regression.test.ts)
+- A "Proof-of-Value" test: run a baseline prompt set, ensure new priors/logic do not regress the score vs a deterministic seed.
+
+---
+
+### [Phase 3] Capability Expansion Guard (Safety Baseline)
+Maintain the "Default Deny" contract via AST analysis.
+
+#### [NEW] [root.capabilities.json](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/capabilities/root.capabilities.json)
+- Explicit allowlist of endpoints and WASM levels.
+
+#### [NEW] [verify-capabilities.mjs](file:///Users/igorkramarenko/Desktop/Vibe%20Projects/scripts/verify-capabilities.mjs)
+- AST-gated build check (already partially implemented).
 
 ## Open Questions
 
-- **WASM Hash Algorithm**: Should we use SHA-256 for the state hash, or a faster deterministic XOR sum as an initial baseline? (SHA-256 preferred for "Miltech").
-- **CI Environment**: Verifying if the GitHub runner has `git` and local `origin/main` for diffing.
+- **Non-Regression Baseline**: Should we store the "Gold Standard" baseline in `artifacts/priors-baseline.json`?
+- **Staleness Penalty**: Current plan is a linear decay after 7 days; is this aggressive enough for high-stakes domains?
 
 ## Verification Plan
 
 ### Automated Tests
-- `pnpm verify:capabilities` (Local file mutation test).
-- `pnpm verify:sentinel` (Stress test with 8 workers).
-- `pnpm verify:harsh` (Full suite check — 117_STABLE target).
+- `pnpm test:engine:priors-non-regression`
+- `pnpm verify:capabilities`
+- `pnpm verify:harsh` (117_STABLE target)
 
 ### Manual Verification
-- Verify `pnpm alc:doctor` still reports nominal.
-- Check `GET /api/health` with the integrity header to ensure Sentinel detects (or doesn't) simulated drift.
+- Check `GET /api/health` to confirm `influenceSummary` reflects recent triad runs.
+- Attempt an unauthorized endpoint addition and verify build failure.

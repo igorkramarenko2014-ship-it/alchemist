@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.2",
+  "cluster": "resilience_grounding",
+  "lessonVersion": 1,
+  "changelog": [
+    "1.0.0 — initial Sve chat fusion; chaos-resilience prior"
+  ],
+  "difficulty": "intermediate",
+  "id": "engine_school_sve_chaos_resilience",
+  "presetName": "Grounding distillate — chaos resilience (Sve-revolve)",
+  "style": "chaos resilience / grounding",
+  "tags": [
+    "sve-fusion",
+    "chaos",
+    "resilience",
+    "grounding",
+    "fluctuation",
+    "priors"
+  ],
+  "mappings": {
+    "designIntent": "Grounding in the flux: 'Крутит вертит'—when everything revolves, the sound must maintain its stance. Resilience through structural stability.",
+    "humanPerception": "Listener perceives a 'steady hand' behind the sound even when the modulation is intense. The Phantom Center is never lost.",
+    "ampEnvelope": "Consistent recovery: envelope that resets reliably even during rapid sequence changes. No cumulative drift.",
+    "harmonicSource": "Root-locked: oscillators that maintain their fundamental even when sidebands are distorted by chaos.",
+    "filterAndSpectralBalance": "Dynamic stability: filter motion that stays within a safe, grounded range, avoiding 'screams' that lose their footing.",
+    "stereoField": "Monolithic center: in chaos, the center becomes the only anchor. Width is reduced as complexity increases (automatic narrowing).",
+    "saturationOrDrive": "Pressure-resistant clipping: drive that thickens the sound during 'rotations' rather than breaking it apart.",
+    "modulationRole": "Circular but locked: modulation that follows the 'rotation' (LFO/Envelope) without breaking the core rhythm.",
+    "mixRole": "The immovable object: a sound that survives a dense mix or high-velocity sequence by being structurally resilient."
+  },
+  "character": "Resilient, steady, and rotationally grounded: maintain the center when the flux is high. A sound that avoids 'spinning out' (losing the fundamental/center) and prioritizes structural lock-in over ornamental artifacts.",
+  "causalReasoning": "The 'Chaos Resilience' filter (Sve-grounding) addresses the human state of being 'revolved and turned' (Крутит вертит) by life's chaos. In the chats, the goal is to not lose oneself ('не парюсь'). In sonic mappings, this translates to maintaining the spectral fundamental and stereo phantom center even when high-rate modulation or saturation attempt to dissolve the tone. By enforcing 'mono-narrowing' on high-fluctuation signals, the engine helps the user maintain grounding in the mix, mirroring the psychological need for a 'steady hand' during intense emotional or situational turbulence.",
+  "priorityMappingKeys": ["stereoField", "harmonicSource", "modulationRole"],
+  "coreRules": [
+    "Phantom Center Priority → as complexity rises, width must narrow to keep the anchor.",
+    "Root-Lock → don't allow distortion to mask the fundamental frequency.",
+    "Consistent Recovery → envelopes must reset precisely to avoid 'ghosting' from previous rotation."
+  ],
+  "contrastWith": {
+    "lessonId": "engine_school_sve_bounty_loop",
+    "difference": "Bounty Loop is about avoiding distraction; Chaos Resilience is about maintaining your stance when the distraction/chaos is already happening."
+  },
+  "antiPatterns": [
+    {
+      "description": "Losing the fundamental/phantom center during intense LFO or high-velocity sequences — the 'Spin Out'.",
+      "relatedTo": ["modulationRole", "stereoField", "harmonicSource"],
+      "whyItFails": "Listener loses the grounding; the track becomes noise rather than a resilient signal."
+    }
+  ],
+  "heuristics": [
+    {
+      "condition": "prompt implies chaos, rotation, spinning, fluctuation, or resilience",
+      "bias": "Favor mono phantom center and fundamental harmonic lock-in over dispersive width.",
+      "weight": 0.17
+    }
+  ]
+}

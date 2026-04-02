@@ -273,6 +273,41 @@ export interface TriadRunTelemetry {
     savingsPercent: number;
     baselineMode: "measured" | "estimated";
   };
+  /**
+   * **MON 117 — Influence Observability**
+   * How priors and learning outcomes influenced this specific run.
+   */
+  influenceSummary?: InfluenceSummary;
+}
+
+export interface InfluenceSummary {
+  /** IDs or keys of priors that matched this run. */
+  matchedPriors: string[];
+  /** Aggregate confidence boost/penalty from priors in [0,1]. */
+  totalConfidenceDelta: number;
+  /** Mean staleness (days) of the priors used. */
+  meanStalenessDays: number;
+  /** Applied weight multiplier after staleness penalty. */
+  appliedWeight: number;
+  /** Qualitative signal: improvement, regression (detected), or neutral. */
+  influenceSignal: "improvement" | "regression" | "neutral";
+}
+
+/**
+ * **MON 117 — Priors Health**
+ * Static-ish summary of the learning corpus/priors database.
+ */
+export interface PriorsStatus {
+  /** Count of active priors in the corpus. */
+  priorsCount: number;
+  /** Last time the corpus was updated or synchronized. */
+  lastUpdated: string;
+  /** Mean confidence across the entire corpus. */
+  meanConfidence: number;
+  /** Percentage of priors considered 'stale' (> 7 days). */
+  stalenessRate: number;
+  /** Integrity check result for the priors store. */
+  status: "nominal" | "corrupt" | "empty";
 }
 
 export interface DecisionReceiptRejectionReason {
