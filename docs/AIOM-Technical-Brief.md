@@ -27,9 +27,9 @@ This brief describes the operational purpose of AIOM (Alchemist integrity and or
 Data in this document is produced by repository scripts and canonical truth artifacts.
 
 - Document schema version: `v1.3`
-- Last verification timestamp from canonical truth artifact: `2026-04-02T07:39:52.230Z`
-- Metrics sync timestamp from canonical truth artifact: `2026-04-02T07:39:52.199Z`
-- Truth file hash: `a4f43b0f64a0b7122ddf0470bcfdef1177afaa236ba057b86ae26db4be80e0af`
+- Last verification timestamp from canonical truth artifact: `2026-04-02T07:49:20.569Z`
+- Metrics sync timestamp from canonical truth artifact: `2026-04-02T07:49:20.539Z`
+- Truth file hash: `a9f8d1b56f54b34107a5fd917b0cd1ad69111d9e0698405218bc0803e229e761`
 - Source file: `artifacts/truth-matrix.json`
 
 How to verify independently:
@@ -59,7 +59,7 @@ Primary sources:
 | MON | value=117, ready=true | `metrics.mon.value == 117 and metrics.mon.ready == true` for release-ready posture | Unified operating number resolved in canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.mon`) | `jq '.metrics.mon' artifacts/truth-matrix.json` |
 | PNH immunity | 25 / 25 (breaches: 0) [clean] | `metrics.pnhImmunity.status in {clean, breach}` | Scenario-based resilience result from canonical truth artifact | `artifacts/truth-matrix.json` (`metrics.pnhImmunity`) | `jq '.metrics.pnhImmunity' artifacts/truth-matrix.json` |
 | WASM status | available | Value is one of `available` or `unavailable` | Browser encoder artifact availability | `artifacts/truth-matrix.json` (`metrics.wasmStatus`) | `jq '.metrics.wasmStatus' artifacts/truth-matrix.json` |
-| Sync timestamp (UTC) | 2026-04-02T07:39:52.199Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
+| Sync timestamp (UTC) | 2026-04-02T07:49:20.539Z | ISO 8601 timestamp | Time written by truth aggregation script | `artifacts/truth-matrix.json` (`metrics.syncedAtUtc`) | `jq '.metrics.syncedAtUtc' artifacts/truth-matrix.json` |
 | Divergences | 0 | `length(divergences) == 0` for clean state | Canonical divergence array (runtime/artifact mismatch, schema failure, or freshness violation) | `artifacts/truth-matrix.json` (`divergences`) | `jq '.divergences | length' artifacts/truth-matrix.json` |
 
 Re-sync procedure (if any metric shows unknown):

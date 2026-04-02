@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "syncedDateUtc": "2026-04-02",
-  "generatedAtUtc": "2026-04-02T07:39:52.199Z",
+  "generatedAtUtc": "2026-04-02T07:49:20.539Z",
   "vitestTestsPassed": 442,
   "vitestTestFilesPassed": 90,
   "vitestTestTsOnDisk": 90,
@@ -14,7 +14,7 @@
     "ready": true,
     "source": "verify_post_summary"
   },
-  "initiatorSkillsSha256": "ca80f5ecd788627621dfb069f562527d1649fc51c3990fda982c940184ebccf3",
+  "initiatorSkillsSha256": "5ca99b3265cd46b25418c4f55459e96ee3be5e57aeaf7be9508e95496d588816",
   "learningOutcomes": {
     "candidateSuccessRate": 0,
     "meanBestScoreWithLessons": 0,
