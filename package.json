@@ -140,7 +140,8 @@
     "engine:estimate": "tsx scripts/engine-estimate.ts",
     "soe:migrate": "tsx scripts/migrate-structured-soe-hints.ts",
     "iom:ghost:check": "node scripts/iom-ghost-check.mjs",
-    "personas:verify": "node packages/shared-engine/personas/scripts/validate-personas.mjs"
+    "personas:verify": "node packages/shared-engine/personas/scripts/validate-personas.mjs",
+    "test:personas": "pnpm --filter @alchemist/shared-engine exec vitest run tests/personas-behavior.test.ts"
   },
   "devDependencies": {
     "@alchemist/fxp-encoder": "workspace:*",
