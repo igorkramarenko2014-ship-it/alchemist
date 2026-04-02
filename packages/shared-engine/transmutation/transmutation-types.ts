@@ -60,6 +60,7 @@ export enum PolicyFamily {
   SESSION_CONSISTENCY = "SESSION_CONSISTENCY",
   EXPLORATION = "EXPLORATION",
   GUARDED_AMBIGUITY = "GUARDED_AMBIGUITY",
+  HUMANITARIAN = "HUMANITARIAN",
 }
 
 export interface TransmutationProfile {

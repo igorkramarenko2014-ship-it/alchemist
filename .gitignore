@@ -73,3 +73,6 @@ packages/shared-engine/learning/taste/raw/**
 artifacts/learning-telemetry/
 artifacts/learning-fitness-report.json
 artifacts/preset-quality-report.json
+
+# AIOM Hardening: Edge signing key (operator-managed)
+.aiom-signing-key

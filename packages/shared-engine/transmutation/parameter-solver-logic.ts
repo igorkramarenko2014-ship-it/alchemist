@@ -73,6 +73,12 @@ export function solveParameters(
       deltas.push("AIOM_STRICTNESS high");
       break;
     }
+    case PolicyFamily.HUMANITARIAN: {
+      verification_profile.aiom_strictness = 1.0;
+      verification_profile.drift_tolerance = TRANSMUTATION_BOUNDS.drift_tolerance_min;
+      deltas.push("HUMANITARIAN_LOCK: strict=1.0, drift=min");
+      break;
+    }
     case PolicyFamily.BASELINE_STATIC:
     default:
       // No deltas

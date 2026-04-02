@@ -1,8 +1,13 @@
 {
-  "schemaVersion": 4,
-  "generatedAtUtc": "2026-04-02T07:49:46.066Z",
+  "schemaVersion": 5,
+  "generatedAtUtc": "2026-04-02T19:39:54.810Z",
+  "generationSequence": 4,
+  "generationNonce": "ef8a8e85-7a44-468d-930c-f81ee974cf67",
+  "buildTimestamp": "2026-04-02T19:39:54.810Z",
   "integrityStatus": "nominal",
-  "divergenceCheckedAtUtc": "2026-04-02T07:49:46.066Z",
+  "traceRootHash": "1a34949d6f7ee943a5c006eb8133c5565aea4112168077a0563eed57fcd24136",
+  "signingKeyId": "aiom-key-v2",
+  "divergenceCheckedAtUtc": "2026-04-02T19:39:54.810Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -20,22 +25,26 @@
       "confidence": "low",
       "note": "Non-authoritative quality trend for AIOM display only. orderChangeRate is 0 until score_candidates JSONL is aggregated; does not affect MON or integrity."
     },
-    "testsPassed": 442,
-    "testsTotal": 442,
-    "iomCoverageScore": 1,
+    "testsPassed": 454,
+    "testsTotal": 454,
+    "iomCoverageScore": 0.957,
+    "iomCellCount": 23,
+    "iomCoveredCount": 22,
+    "wasmBinaryHash": "eb29271ce3f3b8fd2133591d1db3e1aa18a40d2853ef1ecc8c0781caf55b9a22",
     "mon": {
-      "value": 117,
-      "ready": true,
+      "value": 0,
+      "ready": false,
       "source": "verify_post_summary"
     },
     "pnhImmunity": {
       "passed": 25,
       "total": 25,
       "breaches": 0,
-      "status": "clean"
+      "status": "clean",
+      "scenarioManifestHash": "0e6d7b1e2b4b314888e839f5174360647a32849cc5033e44490264bdcea352b3"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-02T07:49:46.036Z",
+    "syncedAtUtc": "2026-04-02T09:08:06.111Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,
@@ -53,7 +62,7 @@
       "activeScenarios": 7,
       "scenariosAtSAFE7OrAbove": 7,
       "anyHardStop": false,
-      "lastCheckedAt": "2026-04-02T07:49:44.048Z"
+      "lastCheckedAt": "2026-04-02T18:50:31.441Z"
     }
   },
   "divergences": []

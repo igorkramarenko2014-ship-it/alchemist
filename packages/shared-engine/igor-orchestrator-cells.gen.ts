@@ -115,4 +115,9 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
     responsibility: "Life-safety AIOM extension: medical, evacuation, and hazard response integrity; drift hard-stops (SAFE-4/ZERO).",
     artifacts: ["integrity/humanitarian-integrity.ts"] as const,
   },
+  {
+    id: "mentor_grounding_core",
+    responsibility: "Combined mentor grounding logic: Natalia (heavy grounding, boundaries, 'Зачем?') + Lyubchenko (sincere support, 'Bravo', progress recognition). Heaviest weighting (0.90) for high-energy ideation management.",
+    artifacts: ["../../.cursor/skills/inner-circle-voice/SKILL.md", "../../docs/internal/inner-circle-agent.md"] as const,
+  },
 ] as const;
