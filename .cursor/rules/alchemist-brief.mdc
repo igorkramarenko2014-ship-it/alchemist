@@ -5,9 +5,11 @@ alwaysApply: true
 
 # Alchemist
 
-- **HARD GATE**: `packages/fxp-encoder/serum-offset-map.ts` MUST exist and be validated (via `tools/validate-offsets.py` against a real Serum init .fxp) before any encoder, preset generation, .fxp writes, or SerumState parameter values. No placeholders. No hallucinated offsets.
-- **Browser Export .fxp**: wasm-pack **`pkg/`** via `packages/fxp-encoder` **`pnpm run build:wasm`** (Rust). Web **`GET /api/health/wasm`** gates UI. **`harshcheck`** may pass without Rust (stub). **`docs/FIRESTARTER.md` §10**, **`docs/FIRE.md` §C**.
-- **Build order**: 1 shared-types (skeleton) → 2 validate-offsets.py + source offset map → 3 serum-offset-map.ts → 4 fxp-encoder (Rust WASM) → 5 shared-engine → 6 web-app → 7 mobile-app → 8 vst.
-- **Stack**: Next.js 14 App Router, TS strict, Tailwind, Expo, JUCE + Python sidecar, Vercel serverless, Rust→WASM fxp-encoder client-side.
-- **AI Triad**: DeepSeek (w=0.40), Llama (w=0.35), Qwen (w=0.25). 8 candidates, score, discard invalid/out-of-range. **UI/telemetry codenames:** DEEPSEEK→ATHENA, LLAMA→HERMES, QWEN→HESTIA. **Hardened Pipeline:** Mandatory pre-parse JSON validation + nudged retries; dynamic model/endpoint configuration via `.env` overrides.
-- **Design**: #111827 bg, #5EEAD4 primary, sharp flat geometric, dark-mode-first. Fail loudly; 8s AI timeout; shared-types is source of truth. **System:** Concurrency stress-tested isolation for parallel generations.
+- **MILTECH INTEGRITY (MON 117)**: High-integrity "missile-tracking" precision. **117_STABLE** target. 
+    - **Capability Expansion Guard**: AST-based "Default Deny" contract. Any new endpoint or WASM exposure MUST be mapped in `capabilities/root.capabilities.json` and justified in PR (flag `allowed-capability-expansion: true`).
+    - **Quantum Sentinel**: Mandatory live-memory verification. WASM runtime hashes compared via constant-time (timingSafeEqual) against `truth-matrix.json`. Drift threshold: `< 50ms` drift latency under high concurrency (8+ workers).
+- **HARD GATE**: `packages/fxp-encoder/serum-offset-map.ts` MUST existing and be validated (via `tools/validate-offsets.py` against a real Serum init .fxp). **Expanded Hard Gate**: Build fails if `verify:capabilities` or `verify:sentinel` (Heisenberg Echo detection) fail.
+- **Build order**: 1 shared-types → 2 capabilities/root.capabilities → 3 validate-offsets.py → 4 serum-offset-map.ts → 5 fxp-encoder (Rust WASM) → 6 shared-engine → 7 web-app.
+- **Stack**: Next.js 14, TS Strict, Babel AST parse, Rust→WASM, Worker Threads (Sentinel Stress), Node ≥ 20.
+- **AI Triad**: DeepSeek (ATHENA), Llama (HERMES), Qwen (HESTIA). 8 candidates, score, Slavic/Undercover TS gates. **Integrity Pulse**: `detectSchisms` reports `CORE_RESONANCE_LOSS` or `MEMORY_DRIFT` to operators.
+- **Design**: #111827 bg, #5EEAD4 primary. Fail loudly; **Miltech Directive**: See `miltech_mission_integrity.md`.

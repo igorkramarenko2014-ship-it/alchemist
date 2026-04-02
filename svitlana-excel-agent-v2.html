@@ -319,8 +319,8 @@
 <body>
 
 <div class="header">
-  <h1>Твій Excel,<br><em>зрозумілий.</em></h1>
-  <p>Файл · Питання · Вставте у Claude</p>
+  <h1>Excel Co-pilot<br><em>Твій помічник.</em></h1>
+  <p>Файл · Режим · Копіюй → Результат</p>
 </div>
 
 <div class="container">
@@ -344,7 +344,14 @@
   </div>
 
   <div class="warning-banner" id="rowWarning">
-    ⚠ Твій файл має <span id="totalRowCount"></span> рядків — у промпт потрапили перші 200. Якщо потрібна інша частина, вкажи це у питанні.
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span>⚠ Твій файл має <span id="totalRowCount"></span> рядків. У промпт потрапили перші <span id="currentLimitText">200</span>.</span>
+      <div style="display: flex; gap: 8px;">
+        <button class="sheet-btn" onclick="updateLimit(100)">100</button>
+        <button class="sheet-btn" onclick="updateLimit(500)">500</button>
+        <button class="sheet-btn" onclick="updateLimit(1000)">1000</button>
+      </div>
+    </div>
   </div>
 
   <div class="preview" id="preview">
@@ -356,15 +363,12 @@
   </div>
 
   <div class="question-area" id="questionArea">
-    <div class="qa-header">Що хочеш дізнатись?</div>
-    <div class="suggestions" id="suggestionsEl">
-      <div class="sug" onclick="pickSug(this)">Що тут є?</div>
-      <div class="sug" onclick="pickSug(this)">Знайди пропуски</div>
-      <div class="sug" onclick="pickSug(this)">Що мені треба внести?</div>
-      <div class="sug" onclick="pickSug(this)">Зроби підсумок</div>
-      <div class="sug" onclick="pickSug(this)">Що виглядає дивно?</div>
-      <div class="sug" onclick="pickSug(this)">Порівняй рядки</div>
+    <div class="mode-tabs">
+      <div class="mode-tab active" id="modeAnalysis" onclick="setMode('analysis')">Аналіз</div>
+      <div class="mode-tab" id="modeFormulas" onclick="setMode('formulas')">Формули ✨</div>
     </div>
+    <div class="qa-header" id="qaHeader">Що хочеш дізнатись?</div>
+    <div class="suggestions" id="suggestionsEl"></div>
     <div class="qa-input">
       <textarea id="questionInput" placeholder="Або напиши своє питання..." oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
       <button class="gen-btn" onclick="generate()">Генерувати →</button>
@@ -373,7 +377,7 @@
 
   <div class="output-area" id="outputArea">
     <div class="out-header">
-      <span>Готовий промпт для Claude</span>
+      <span id="outputTitle">Готовий промпт для Claude</span>
       <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Копіювати</button>
     </div>
     <div class="out-text" id="outputText"></div>
@@ -388,19 +392,45 @@
 
 </div>
 
-<div class="footer">excel → claude · v2 · відкрий у браузері · нічого не встановлюй</div>
+<div class="footer">excel co-pilot · v2.1 · відкрий у браузері · нічого не встановлюй</div>
+
+<style>
+  /* New Styles for Mode Switch and Truncation */
+  .mode-tabs { display: flex; background: #1a1a1a; border-bottom: 1px solid var(--border); }
+  .mode-tab { 
+    flex: 1; padding: 12px; text-align: center; font-size: 0.7rem; 
+    text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; 
+    color: var(--muted); transition: all 0.2s; border-bottom: 2px solid transparent;
+  }
+  .mode-tab:hover { color: var(--text); }
+  .mode-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(200,240,96,0.03); }
+  
+  .warning-banner { display: none; margin-bottom: 8px; }
+  #rowWarning span { font-weight: 500; }
+</style>
 
 <script>
 let currentWB = null;
+let currentRows = [];
+let currentSheetName = '';
 let tableText = '';
+let currentMode = 'analysis';
+let rowLimit = 200;
 
-const promptTemplates = {
-  'Що тут є?': 'Опиши структуру цієї таблиці: скільки рядків, які колонки, що за дані. Потім дай короткий змістовий підсумок — про що ця таблиця.',
-  'Знайди пропуски': 'Знайди всі пропущені, порожні або підозріло неповні клітинки. Для кожного пропуску вкажи рядок і колонку. Скажи чи це критично.',
-  'Що мені треба внести?': 'Подивись на таблицю і визнач які поля или рядки виглядають незаповненими або неповними. Дай конкретний список що потрібно додати.',
-  'Зроби підсумок': 'Зроби підсумок цих даних: ключові цифри, закономірності, що впадає в очі. Відповідь структуруй коротко.',
-  'Що виглядає дивно?': 'Знайди аномалії: дублікати, нетипові значення, невідповідності форматів, підозрілі записи. Поясни чому кожне виглядає дивно.',
-  'Порівняй рядки': 'Порівняй рядки між собою: знайди схожі, однакові або протилежні. Вкажи на що звернути увагу.',
+const suggestions = {
+  analysis: [
+    { label: 'Що тут є?', prompt: 'Опиши структуру цієї таблиці: скільки рядків, які колонки, що за дані. Потім дай короткий змістовий підсумок — про що ця таблиця.' },
+    { label: 'Знайди пропуски', prompt: 'Знайди всі пропущені, порожні або підозріло неповні клітинки. Для кожного пропуску вкажи рядок і колонку. Скажи чи це критично.' },
+    { label: 'Зроби підсумок', prompt: 'Зроби підсумок цих даних: ключові цифри, закономірності, що впадає в очі. Відповідь структуруй коротко.' },
+    { label: 'Що виглядає дивно?', prompt: 'Знайди аномалії: дублікати, нетипові значення, невідповідності форматів, підозрілі записи. Поясни чому кожне виглядає дивно.' },
+  ],
+  formulas: [
+    { label: 'Порівняй колонки', prompt: 'Мені потрібно порівняти дві колонки. Згенеруй формулу, яка вкаже, чи значення однакові. Дай версію для сучасного Excel (XLOOKUP/IF) та поясни, куди вставити.' },
+    { label: 'Знайди дублікати', prompt: 'Як знайти дублікати в цій таблиці? Згенеруй формулу для позначення повторів. Опиши кроки.' },
+    { label: 'Сума з умовою', prompt: 'Мені потрібно порахувати суму значень, якщо виконується певна умова в іншій колонці. Згенеруй формулу SUMIF або SUMIFS.' },
+    { label: 'ВПР / XLOOKUP', prompt: 'Допоможи підтягнути дані з однієї колонки в іншу за ключем. Згенеруй формулу XLOOKUP (або VLOOKUP для старих версій).' },
+    { label: 'Текстові операції', prompt: 'Мені потрібно склеїти текст із кількох колонок або витягти частину тексту. Згенеруй відповідну формулу.' }
+  ]
 };
 
 const dropzone = document.getElementById('dropzone');
@@ -414,19 +444,14 @@ fileInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e
 function processFile(file) {
   showLoading(true);
   document.getElementById('fname').textContent = file.name;
-
   const reader = new FileReader();
-
   reader.onerror = () => showError('⚠ Не вдалось прочитати файл. Спробуй інший.');
-
   reader.onload = e => {
     try {
       const isCsv = file.name.toLowerCase().endsWith('.csv');
-      currentWB = XLSX.read(e.target.result, { type: isCsv ? 'string' : 'array' });
-
+      currentWB = XLSX.read(e.target.result, { type: isCsv ? 'string' : 'array', cellDates: true, cellNF: true, cellText: true });
       const selector = document.getElementById('sheetSelector');
       selector.innerHTML = '';
-
       if (currentWB.SheetNames.length > 1) {
         currentWB.SheetNames.forEach(name => {
           const btn = document.createElement('button');
@@ -436,46 +461,65 @@ function processFile(file) {
           selector.appendChild(btn);
         });
       }
-
       selectSheet(currentWB.SheetNames[0]);
       showLoading(false);
       document.getElementById('fileMeta').classList.add('visible');
       document.getElementById('dropzoneLabel').style.display = 'none';
       document.getElementById('dropzoneSub').style.display = 'none';
     } catch (err) {
+      console.error(err);
       showError('⚠ Не вдалось прочитати файл. Спробуй інший.');
     }
   };
-
-  if (file.name.toLowerCase().endsWith('.csv')) {
-    reader.readAsText(file, 'UTF-8');
-  } else {
-    reader.readAsArrayBuffer(file);
-  }
+  if (file.name.toLowerCase().endsWith('.csv')) reader.readAsText(file, 'UTF-8');
+  else reader.readAsArrayBuffer(file);
 }
 
 function selectSheet(name) {
+  currentSheetName = name;
   const ws = currentWB.Sheets[name];
-  const rawRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-  const rows = rawRows.filter(r => r && r.some(c => c !== null && c !== undefined && c !== ''));
+  const rawRows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true });
+  currentRows = rawRows.filter(r => r && r.some(c => c !== null && c !== undefined && c !== ''));
+  
+  // Apply date normalization
+  currentRows = currentRows.map(row => row.map(cell => normalizeCell(cell)));
 
   document.querySelectorAll('.sheet-btn').forEach(btn => {
     btn.classList.toggle('active', btn.textContent === name);
   });
-
-  finishLoad(rows, name);
+  updateDisplay();
 }
 
-function finishLoad(rows, name) {
-  renderPreview(rows, name);
+function normalizeCell(val) {
+  if (val instanceof Date) {
+    return val.toISOString().split('T')[0];
+  }
+  // Heuristic for Excel serial dates (roughly between year 2000 and 2050)
+  if (typeof val === 'number' && val > 36526 && val < 54789) {
+    // Check if it might be a date (this is a bit risky but requested)
+    // We can use a small trick: if it's an integer, it's more likely a date than a precise decimal
+    if (Number.isInteger(val)) {
+       const d = XLSX.SSF.parse_date_code(val);
+       if (d) return `${String(d.d).padStart(2, '0')}.${String(d.m).padStart(2, '0')}.${d.y}`;
+    }
+  }
+  return val;
+}
 
-  const limit = 200;
-  const truncated = rows.slice(0, limit);
+function updateLimit(newLimit) {
+  rowLimit = newLimit;
+  document.getElementById('currentLimitText').textContent = newLimit;
+  updateDisplay();
+}
+
+function updateDisplay() {
+  renderPreview(currentRows, currentSheetName);
+  const truncated = currentRows.slice(0, rowLimit);
   tableText = truncated.map(r => r.map(c => (c == null ? '' : String(c).trim())).join('\t')).join('\n');
 
   const warning = document.getElementById('rowWarning');
-  if (rows.length > limit) {
-    document.getElementById('totalRowCount').textContent = rows.length;
+  if (currentRows.length > rowLimit || currentRows.length > 200) {
+    document.getElementById('totalRowCount').textContent = currentRows.length;
     warning.style.display = 'block';
   } else {
     warning.style.display = 'none';
@@ -483,6 +527,7 @@ function finishLoad(rows, name) {
 
   document.getElementById('questionArea').classList.add('visible');
   document.getElementById('outputArea').classList.remove('visible');
+  renderSuggestions();
   setStep(2);
 }
 
@@ -490,7 +535,7 @@ function renderPreview(rows, name) {
   const table = document.getElementById('previewTable');
   document.getElementById('sheetInfo').textContent = `${name} · ${rows.length} рядків`;
   table.innerHTML = '';
-  rows.slice(0, 7).forEach((row, i) => {
+  rows.slice(0, 10).forEach((row, i) => {
     const tr = document.createElement('tr');
     row.forEach(cell => {
       const el = document.createElement(i === 0 ? 'th' : 'td');
@@ -502,32 +547,55 @@ function renderPreview(rows, name) {
   document.getElementById('preview').classList.add('visible');
 }
 
-function pickSug(el) {
-  document.querySelectorAll('.sug').forEach(s => s.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('questionInput').value = el.textContent;
-  generate();
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeAnalysis').classList.toggle('active', mode === 'analysis');
+  document.getElementById('modeFormulas').classList.toggle('active', mode === 'formulas');
+  document.getElementById('qaHeader').textContent = mode === 'analysis' ? 'Що хочеш дізнатись?' : 'Яку формулу творимо? 🧪';
+  renderSuggestions();
 }
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+function renderSuggestions() {
+  const container = document.getElementById('suggestionsEl');
+  container.innerHTML = '';
+  suggestions[currentMode].forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'sug';
+    div.textContent = s.label;
+    div.onclick = () => {
+      document.querySelectorAll('.sug').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('questionInput').value = s.label;
+      generate(s.prompt);
+    };
+    container.appendChild(div);
+  });
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
-}
-
-function generate() {
+function generate(forcedPrompt) {
   if (!tableText) return;
   const val = document.getElementById('questionInput').value.trim();
-  const instruction = promptTemplates[val] || (val ? `Питання: ${val}` : 'Проаналізуй цю таблицю: що тут є, чи є пропуски або дивні дані, і що мені варто зробити далі.');
+  const selectedSug = suggestions[currentMode].find(s => s.label === val);
+  
+  let instruction = forcedPrompt || (selectedSug ? selectedSug.prompt : (val ? `Питання: ${val}` : ''));
+  
+  if (!instruction) {
+    instruction = currentMode === 'analysis' 
+      ? 'Проаналізуй цю таблицю: що тут є, чи є пропуски або дивні дані, і що мені варто зробити далі.'
+      : 'Згенеруй Excel формулу на основі даних нижче.';
+  }
 
-  const prompt = `Я завантажила таблицю і хочу твоєї допомоги.\n\n${instruction}\n\nОсь вміст таблиці:\n\`\`\`\n${tableText}\n\`\`\`\n\nВідповідай українською. Будь конкретним і корисним.`;
+  let prompt = '';
+  if (currentMode === 'formulas') {
+    prompt = `Я завантажила таблицю і мені потрібна Excel формула.\n\nЗАВДАННЯ: ${instruction}\n\nОсь заголовки та перші рядки таблиці:\n\`\`\`\n${tableText}\n\`\`\`\n\nБУДЬ ЛАСКА, НАДАЙ ВІДПОВІДЬ У ТАКОМУ ФОРМАТІ:\n1. 🏁 ГОРТОВА ФОРМУЛА (у блоці коду)\n2. 💡 ПОЯСНЕННЯ (1-2 речення, як вона працює)\n3. 📍 КУДИ ВСТАВИТИ (в яку колонку/клітинку)\n4. 🔄 АЛЬТЕРНАТИВА (якщо є суттєва різниця між старим Excel та новим Microsoft 365)\n\nВідповідай українською.`;
+  } else {
+    prompt = `Я завантажила таблицю і хочу твоєї допомоги.\n\n${instruction}\n\nОсь вміст таблиці:\n\`\`\`\n${tableText}\n\`\`\`\n\nВідповідай українською. Будь конкретним і корисним.`;
+  }
 
   document.getElementById('outputText').textContent = prompt;
   document.getElementById('outputArea').classList.add('visible');
   document.getElementById('copyInstruction').style.display = 'none';
+  document.getElementById('outputTitle').textContent = currentMode === 'formulas' ? 'Твій Formula-Prompt для Claude' : 'Готовий промпт для Claude';
 
   const len = prompt.length;
   const counter = document.getElementById('charCount');
@@ -539,6 +607,15 @@ function generate() {
   btn.classList.remove('copied');
   setStep(3);
   setTimeout(() => document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); }
 }
 
 function copyPrompt() {
@@ -599,6 +676,7 @@ function showError(msg) {
 
 function resetAll() {
   currentWB = null;
+  currentRows = [];
   tableText = '';
   fileInput.value = '';
   document.getElementById('fileMeta').classList.remove('visible');
@@ -612,9 +690,11 @@ function resetAll() {
   document.getElementById('fname').style.color = 'var(--accent)';
   document.getElementById('questionInput').value = '';
   document.getElementById('copyInstruction').style.display = 'none';
-  document.querySelectorAll('.sug').forEach(s => s.classList.remove('selected'));
   setStep(1);
 }
+
+// Init
+renderSuggestions();
 </script>
 </body>
 </html>

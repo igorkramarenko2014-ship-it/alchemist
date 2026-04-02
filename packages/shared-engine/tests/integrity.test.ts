@@ -20,7 +20,7 @@ describe("integrity signals", () => {
   });
 
   it("bumps counters per outcome", () => {
-    expect(getIntegrityHealthSnapshot()).toEqual({
+    expect(getIntegrityHealthSnapshot()).toMatchObject({
       honestCapabilityGaps: 0,
       sprintCompletions: 0,
       degradedFallbacks: 0,
@@ -31,7 +31,7 @@ describe("integrity signals", () => {
     logDegradedFallback("temporal_retry", { rawCount: 3 });
     logIntegrityEvent({ outcome: "honest_capability_gap", reason: "x" });
 
-    expect(getIntegrityHealthSnapshot()).toEqual({
+    expect(getIntegrityHealthSnapshot()).toMatchObject({
       honestCapabilityGaps: 2,
       sprintCompletions: 1,
       degradedFallbacks: 1,

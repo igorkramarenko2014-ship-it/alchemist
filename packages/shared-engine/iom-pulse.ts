@@ -20,8 +20,9 @@ import {
 import { drainSurgicalRepairSchisms } from "./surgical-repair";
 import { getVstObserverPulseSlice, type VstSyncStatusPulse } from "./vst-observer";
 import { getVstWrapperPulseSlice, type VstWrapperStatusPulse } from "./vst-wrapper-pulse";
-import type { Panelist } from "@alchemist/shared-types";
+import { getCoreModelState, IntegrityHealthSnapshot } from "./integrity";
 import { getRealitySignalAggregates } from "./reality-loop-layer";
+import type { CoreModelState, Panelist } from "@alchemist/shared-types";
 
 export const IOM_PULSE_VERSION = 5 as const;
 
@@ -96,6 +97,8 @@ export interface IOMHealthPulseResult {
   schisms: IomSchismFinding[];
   /** Schism- and SOE-derived cues for dashboards / `pnpm iom:review` style tooling. */
   suggestions: IomSuggestion[];
+  /** Cyclic integrity state machine (v1.0) — Z*29 resonance. */
+  coreModel: CoreModelState;
   /** VST/Serum bridge diagnostic slice (`vst_observer` cell) — no auto file I/O here. */
   vstSyncStatus: VstSyncStatusPulse;
   /** JUCE FXP bridge diagnostic slice (`vst_wrapper` cell) — native plugin logs outside TS. */
@@ -300,6 +303,16 @@ export function detectSchisms(
     });
   }
 
+  const core = getCoreModelState();
+  if (core.level !== "FULL") {
+    out.push({
+      code: "CORE_RESONANCE_LOSS",
+      severity: "critical",
+      message: `System degradation detected: ${core.level} — Interpretive (Decimal) engine offline; resonance is 0. Manual TOTP restore required.`,
+      evidence: { level: core.level, state: core.state, humanReadable: core.humanReadable },
+    });
+  }
+
   return out;
 }
 
@@ -449,6 +462,7 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
   const generatedAtMs = Date.now();
   const manifest = getIgorOrchestratorManifest();
   const manifestDigest = digestIgorManifestForPulse(manifest);
+  const core = getCoreModelState();
   const schisms = [...detectSchisms(input, manifest), ...drainSurgicalRepairSchisms()];
   const suggestions: IomSuggestion[] = schisms.map((s) => schismToSuggestion(s, generatedAtMs));
 
@@ -481,6 +495,7 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
     soe,
     schisms,
     suggestions,
+    coreModel: core,
     vstSyncStatus: getVstObserverPulseSlice(),
     vstWrapperStatus: getVstWrapperPulseSlice(),
     note:

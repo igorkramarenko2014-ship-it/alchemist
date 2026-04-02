@@ -35,6 +35,7 @@ export const IOM_CELL_VITEST_MAP: Readonly<Record<string, readonly string[]>> = 
   vst_observer: ["tests/vst-observer.test.ts", "tests/surgical-repair.test.ts"],
   vst_wrapper: ["tests/vst-wrapper-pulse.test.ts"],
   preset_share: ["tests/preset-share-cell.test.ts"],
+  cyclic_integrity: ["tests/core-model.test.ts"],
 } as const;
 
 export interface IOMCoverageReport {

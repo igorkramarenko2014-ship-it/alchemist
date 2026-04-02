@@ -41,6 +41,11 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
     artifacts: ["integrity.ts", "encoder.ts", "igor-orchestrator-layer.ts", "engine-valuation-heuristic.ts", "fxp-provenance.ts"] as const,
   },
   {
+    id: "cyclic_integrity",
+    responsibility: "Alchemist Core Model v1.0 — Z*29 state machine; Dual-Base Resonance (Binary/Decimal); Miller-compliant SAFE-7 mode; degradation triggers.",
+    artifacts: ["core-model.ts", "integrity.ts", "iom-pulse.ts"] as const,
+  },
+  {
     id: "aji_entropy",
     responsibility: "Deterministic seed generation and signature-based entropy analysis for parameter randomization. Does not influence DSP or Gate logic.",
     artifacts: ["entropy.ts", "aji-logic.ts"] as const,

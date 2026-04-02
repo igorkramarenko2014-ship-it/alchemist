@@ -325,6 +325,21 @@ export interface AIAnalysis {
  * Browser exports cannot run **`validate-offsets.py`**; **`hardGateValidated`** stays false unless a future
  * pipeline merges CI attestation without inventing offsets.
  */
+// ─── Cyclic Integrity / Core Model (Theory v1.0) ─────────────────────────────
+export type DegradationLevel = "FULL" | "SAFE-14" | "SAFE-7" | "SAFE-4" | "ZERO";
+
+export interface CoreModelState {
+  level: DegradationLevel;
+  /** Current state s in Z*29 (1-28). */
+  state: number;
+  /** 0-1 resonance score (1.0 for FULL, else 0.0). */
+  resonance: number;
+  /** True if |S| <= 7 (Miller-compliant). */
+  humanReadable: boolean;
+  /** Current output digit from 1/29 cycle. */
+  digit: number;
+}
+
 export interface FxpExportProvenanceV1 {
   schema: "alchemist.fxp_provenance";
   version: 1;
