@@ -1,13 +1,13 @@
 {
   "schemaVersion": 5,
-  "generatedAtUtc": "2026-04-02T21:37:58.660Z",
-  "generationSequence": 20,
-  "generationNonce": "bb3c053a-8763-466b-8c8f-8bd90488f6d0",
-  "buildTimestamp": "2026-04-02T21:37:58.660Z",
+  "generatedAtUtc": "2026-04-02T21:41:54.946Z",
+  "generationSequence": 23,
+  "generationNonce": "8174c44c-bde3-433d-bb9d-3cb7dd4c577e",
+  "buildTimestamp": "2026-04-02T21:41:54.946Z",
   "integrityStatus": "nominal",
-  "traceRootHash": "4e0224d97179a1363b1bcf8deacedcb7cebcc65e4a5a60d146a22421ac215701",
+  "traceRootHash": "c3060e6c796889e03c6cd3b8761903598237253a0333fdc4d10276598552a2fa",
   "signingKeyId": "aiom-key-v2",
-  "divergenceCheckedAtUtc": "2026-04-02T21:37:58.660Z",
+  "divergenceCheckedAtUtc": "2026-04-02T21:41:54.946Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -44,7 +44,7 @@
       "scenarioManifestHash": "0e6d7b1e2b4b314888e839f5174360647a32849cc5033e44490264bdcea352b3"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-02T21:37:58.623Z",
+    "syncedAtUtc": "2026-04-02T21:41:54.911Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,
@@ -62,7 +62,7 @@
       "activeScenarios": 7,
       "scenariosAtSAFE7OrAbove": 7,
       "anyHardStop": false,
-      "lastCheckedAt": "2026-04-02T21:37:55.551Z"
+      "lastCheckedAt": "2026-04-02T21:41:51.847Z"
     }
   },
   "divergences": []
