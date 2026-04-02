@@ -113,11 +113,16 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "humanitarian_integrity",
     responsibility: "Life-safety AIOM extension: medical, evacuation, and hazard response integrity; drift hard-stops (SAFE-4/ZERO).",
-    artifacts: ["integrity/humanitarian-integrity.ts"] as const,
+    artifacts: ["integrity/humanitarian-integrity.ts", "tests/humanitarian.test.ts"] as const,
   },
   {
     id: "mentor_grounding_core",
     responsibility: "Combined mentor grounding logic: Natalia (heavy grounding, boundaries, 'Зачем?') + Lyubchenko (sincere support, 'Bravo', progress recognition). Heaviest weighting (0.90) for high-energy ideation management.",
-    artifacts: ["../../.cursor/skills/inner-circle-voice/SKILL.md", "../../docs/internal/inner-circle-agent.md"] as const,
+    artifacts: ["../../.cursor/skills/inner-circle-voice/SKILL.md", "../../docs/internal/inner-circle-agent.md", "tests/mentor-grounding.test.ts"] as const,
+  },
+  {
+    id: "engine_wrapper",
+    responsibility: "3-layer trust adaptive adapter: intake, transmutation lock, and AIOM trust surface integration. Provides human-readable confidence and fallback signals.",
+    artifacts: ["wrapper/engine-wrapper.ts", "wrapper/engine-wrapper.types.ts", "tests/engine-wrapper.test.ts"] as const,
   },
 ] as const;

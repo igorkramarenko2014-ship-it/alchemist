@@ -16,7 +16,7 @@
   "properties": {
     "schemaVersion": {
       "type": "number",
-      "const": 4
+      "const": 5
     },
     "integrityStatus": {
       "type": "string",
@@ -29,6 +29,25 @@
     "divergenceCheckedAtUtc": {
       "type": "string",
       "format": "date-time"
+    },
+    "generationSequence": {
+      "type": "number"
+    },
+    "generationNonce": {
+      "type": "string"
+    },
+    "buildTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "traceRootHash": {
+      "type": "string"
+    },
+    "signingKeyId": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "string"
     },
     "verification": {
       "type": "string",
@@ -64,9 +83,12 @@
         "testsPassed",
         "testsTotal",
         "iomCoverageScore",
+        "iomCellCount",
+        "iomCoveredCount",
         "mon",
         "pnhImmunity",
         "wasmStatus",
+        "wasmBinaryHash",
         "syncedAtUtc",
         "learningOutcomes",
         "ajiStatus",
@@ -106,6 +128,12 @@
         "iomCoverageScore": {
           "type": "number"
         },
+        "iomCellCount": {
+          "type": "number"
+        },
+        "iomCoveredCount": {
+          "type": "number"
+        },
         "mon": {
           "type": "object",
           "additionalProperties": false,
@@ -134,7 +162,8 @@
             "passed",
             "total",
             "breaches",
-            "status"
+            "status",
+            "scenarioManifestHash"
           ],
           "properties": {
             "passed": {
@@ -152,6 +181,9 @@
                 "clean",
                 "breach"
               ]
+            },
+            "scenarioManifestHash": {
+              "type": "string"
             }
           }
         },
@@ -161,6 +193,9 @@
             "available",
             "unavailable"
           ]
+        },
+        "wasmBinaryHash": {
+          "type": ["string", "null"]
         },
         "syncedAtUtc": {
           "type": "string",

@@ -37,6 +37,8 @@ export const IOM_CELL_VITEST_MAP: Readonly<Record<string, readonly string[]>> = 
   preset_share: ["tests/preset-share-cell.test.ts"],
   cyclic_integrity: ["tests/core-model.test.ts"],
   humanitarian_integrity: ["tests/humanitarian.test.ts"],
+  mentor_grounding_core: ["tests/mentor-grounding.test.ts"],
+  engine_wrapper: ["tests/engine-wrapper.test.ts"],
 } as const;
 
 export interface IOMCoverageReport {
