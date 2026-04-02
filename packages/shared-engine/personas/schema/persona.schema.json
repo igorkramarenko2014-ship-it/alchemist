@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alchemist.local/schemas/persona.schema.json",
+  "title": "Alchemist Persona",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "schemaVersion",
+    "name",
+    "role",
+    "sourceType",
+    "anonymous",
+    "character",
+    "coreValues",
+    "logics",
+    "commands",
+    "aiomFunction",
+    "contrastWith"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "role": {
+      "type": "string",
+      "minLength": 10
+    },
+    "sourceType": {
+      "enum": ["chat_export", "operator_notes", "interview"]
+    },
+    "anonymous": {
+      "type": "boolean"
+    },
+    "character": {
+      "type": "string",
+      "minLength": 30
+    },
+    "coreValues": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "minLength": 5
+      }
+    },
+    "logics": {
+      "type": "array",
+      "minItems": 17,
+      "maxItems": 17,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "description"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^L[0-9]{2}$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 3
+          },
+          "description": {
+            "type": "string",
+            "minLength": 20
+          }
+        }
+      }
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 117,
+      "maxItems": 117,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "logic", "command", "intent"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^C[0-9]{3}$"
+          },
+          "logic": {
+            "type": "string",
+            "pattern": "^L[0-9]{2}$"
+          },
+          "command": {
+            "type": "string",
+            "minLength": 5
+          },
+          "intent": {
+            "type": "string",
+            "minLength": 10
+          }
+        }
+      }
+    },
+    "aiomFunction": {
+      "type": "string",
+      "minLength": 10
+    },
+    "contrastWith": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      }
+    }
+  }
+}

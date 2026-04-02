@@ -44,7 +44,7 @@
     "pnh:proposals": "tsx scripts/pnh-proposals.ts",
     "pnh:wargame": "tsx scripts/pnh-wargame.ts",
     "test:engine:grep": "pnpm --filter @alchemist/shared-engine exec vitest run",
-    "verify:harsh": "pnpm identity:sync && pnpm igor:sync && node scripts/run-verify-with-summary.mjs verify-harsh && node scripts/aggregate-truth.mjs && node scripts/validate-truth-matrix.mjs && node scripts/validate-fire-metrics.mjs && node scripts/validate-learning-corpus.mjs",
+    "verify:harsh": "pnpm identity:sync && pnpm igor:sync && node scripts/run-verify-with-summary.mjs verify-harsh && node scripts/aggregate-truth.mjs && node scripts/validate-truth-matrix.mjs && node scripts/validate-fire-metrics.mjs && node scripts/validate-learning-corpus.mjs && pnpm personas:verify",
     "verify:harsh:fire": "ALCHEMIST_FIRE_SYNC=1 node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:harsh:selective": "ALCHEMIST_SELECTIVE_VERIFY=1 node scripts/run-verify-with-summary.mjs verify-harsh",
     "verify:web": "node scripts/run-verify-with-summary.mjs verify-web",
@@ -139,7 +139,8 @@
     "estimate": "tsx scripts/engine-estimate.ts",
     "engine:estimate": "tsx scripts/engine-estimate.ts",
     "soe:migrate": "tsx scripts/migrate-structured-soe-hints.ts",
-    "iom:ghost:check": "node scripts/iom-ghost-check.mjs"
+    "iom:ghost:check": "node scripts/iom-ghost-check.mjs",
+    "personas:verify": "node packages/shared-engine/personas/scripts/validate-personas.mjs"
   },
   "devDependencies": {
     "@alchemist/fxp-encoder": "workspace:*",

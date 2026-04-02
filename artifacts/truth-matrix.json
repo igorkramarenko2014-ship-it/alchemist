@@ -1,13 +1,13 @@
 {
   "schemaVersion": 5,
-  "generatedAtUtc": "2026-04-02T20:02:06.149Z",
-  "generationSequence": 12,
-  "generationNonce": "4e7b3081-5053-4379-a25e-1bfad040fcbd",
-  "buildTimestamp": "2026-04-02T20:02:06.149Z",
+  "generatedAtUtc": "2026-04-02T20:18:10.925Z",
+  "generationSequence": 15,
+  "generationNonce": "3abe6436-591c-4146-8696-90b5bae6bb57",
+  "buildTimestamp": "2026-04-02T20:18:10.925Z",
   "integrityStatus": "nominal",
-  "traceRootHash": "03b674450d33474e58726fc5886c7e85e9fc4a58bba561c34ff366b21ca27dbe",
+  "traceRootHash": "6a3497a86ea12a5bd185919bfae283634ec019dd990d5512fdac1d3c94abed28",
   "signingKeyId": "aiom-key-v2",
-  "divergenceCheckedAtUtc": "2026-04-02T20:02:06.149Z",
+  "divergenceCheckedAtUtc": "2026-04-02T20:18:10.925Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -25,8 +25,8 @@
       "confidence": "low",
       "note": "Non-authoritative quality trend for AIOM display only. orderChangeRate is 0 until score_candidates JSONL is aggregated; does not affect MON or integrity."
     },
-    "testsPassed": 462,
-    "testsTotal": 462,
+    "testsPassed": 470,
+    "testsTotal": 470,
     "iomCoverageScore": 1,
     "iomCellCount": 24,
     "iomCoveredCount": 24,
@@ -44,7 +44,7 @@
       "scenarioManifestHash": "0e6d7b1e2b4b314888e839f5174360647a32849cc5033e44490264bdcea352b3"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-02T20:02:06.114Z",
+    "syncedAtUtc": "2026-04-02T20:18:10.892Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,
@@ -62,7 +62,7 @@
       "activeScenarios": 7,
       "scenariosAtSAFE7OrAbove": 7,
       "anyHardStop": false,
-      "lastCheckedAt": "2026-04-02T20:02:02.541Z"
+      "lastCheckedAt": "2026-04-02T20:18:08.496Z"
     }
   },
   "divergences": []
