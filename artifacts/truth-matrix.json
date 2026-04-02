@@ -1,8 +1,8 @@
 {
   "schemaVersion": 4,
-  "generatedAtUtc": "2026-04-02T07:49:20.569Z",
+  "generatedAtUtc": "2026-04-02T07:49:46.066Z",
   "integrityStatus": "nominal",
-  "divergenceCheckedAtUtc": "2026-04-02T07:49:20.569Z",
+  "divergenceCheckedAtUtc": "2026-04-02T07:49:46.066Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -35,7 +35,7 @@
       "status": "clean"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-02T07:49:20.539Z",
+    "syncedAtUtc": "2026-04-02T07:49:46.036Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,
@@ -53,7 +53,7 @@
       "activeScenarios": 7,
       "scenariosAtSAFE7OrAbove": 7,
       "anyHardStop": false,
-      "lastCheckedAt": "2026-04-02T07:49:19.099Z"
+      "lastCheckedAt": "2026-04-02T07:49:44.048Z"
     }
   },
   "divergences": []
