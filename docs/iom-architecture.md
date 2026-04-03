@@ -1,6 +1,6 @@
 # IOM architecture (auto-generated)
 
-Last sync: **2026-03-31** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
+Last sync: **2026-04-03** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
 
 > Diagnostic firewall: Tier 3 is advisory-only and must never mutate Tier 1 outcomes without an explicit tested bridge.
 
@@ -82,6 +82,7 @@ Last sync: **2026-03-31** — run `pnpm igor:docs` to refresh after editing `igo
 |------|------|----------------|-----------------|
 | `soe` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `agent_fusion` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
+| `cyclic_integrity` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `aji_entropy` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `schism` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `triad_governance` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
@@ -90,4 +91,7 @@ Last sync: **2026-03-31** — run `pnpm igor:docs` to refresh after editing `igo
 | `perf_boss` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `pnh` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 | `vst_wrapper` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
+| `humanitarian_integrity` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
+| `mentor_grounding_core` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
+| `engine_wrapper` | `tier3_advisory` | `QUARANTINE` | diagnostic only, no gate mutation / no export authority / no triad override |
 

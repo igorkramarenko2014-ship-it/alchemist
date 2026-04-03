@@ -3,8 +3,8 @@
 **Source:** operator draft · **Cursor / rules:** see **`.cursor/rules/alchemist-iom-v5-next.mdc`**
 
 > **Repo sync (implementation truth, not aspiration):**
-> - **Panelist DNA (MOVE 1):** **Partial** — distinct emphasis lines live in **`apps/web-app/lib/triad-panelist-system-prompt.ts`** (lighter than the ATHENA/HERMES/HESTIA prose below; avoids heavy codename + “FM ratios” copy in-system-prompt — extend deliberately if product wants).
-> - **Circuit breaker (MOVE 2):** **`TriadCircuitBreaker`** exists in **`shared-engine`**; **not** wired to **`/api/triad/*`** (doc sketch uses wrong export name **`AlchemistCircuitBreaker`**).
+> - **Cognitive Trinity / Panelist DNA (MOVE 1):** **SHIPPED (v3.5)** — 3-axis Trinity (**Svitlana/Anton/Elisey**) + advisory context prefix injection (`athena_svitlana.ts`, etc.) in **`triad-panel-route.ts`**. Instrumentation live in **`iom-pulse.ts`** (**`personaInfluence`**).
+> - **Circuit breaker (MOVE 2):** **`TriadCircuitBreaker`** exists in **`shared-engine`**; **not** wired to **`/api/triad/*`**.
 > - **Intent alignment / GL intake / auto pre-commit (MOVE 3–5):** **Not** shipped.
 > - **CI IOM ghosts:** **`IOM_ENFORCE_COVERAGE=1 pnpm igor:ci`** on GitHub **Verify**; pre-commit sample: **`tools/git-hooks/pre-commit-iom.sample`** (manual install).
 

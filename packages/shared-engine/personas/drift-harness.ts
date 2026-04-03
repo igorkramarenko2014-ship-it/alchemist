@@ -6,7 +6,7 @@ import { Violation, AdherenceReport } from "./types";
  * COMPUTE PERSONA ADHERENCE — 0.0 to 1.0 scorer
  * Distinguished between Hard and Soft violations.
  */
-export function computePersonaAdherence(input: string, output: string): AdherenceReport {
+export function computePersonaAdherence(input: string, output: string, personaId: string): AdherenceReport {
   const violations: Violation[] = [];
   let hardV = 0;
   let softV = 0;
@@ -26,8 +26,6 @@ export function computePersonaAdherence(input: string, output: string): Adherenc
   }
 
   // Aggregate score calculation
-  // Hard violations penalize significantly (0.2 per hardV)
-  // Soft violations penalize less (0.05 per softV)
   const baseScore = 1.0;
   const penalties = (hardV * 0.25) + (softV * 0.05);
   const score = Math.max(0, baseScore - penalties);
@@ -48,7 +46,8 @@ export function computePersonaAdherence(input: string, output: string): Adherenc
 
   // 🔹 Perspective Ingestion (Phase 2.1)
   // This is observational-only: no shadow mutation of core system.
-  bridgePersonaToIom("svitlana_v1", input, output, res);
+  // Now supports multi-persona tracking.
+  bridgePersonaToIom(personaId, input, output, res);
 
   return res;
 }

@@ -6,18 +6,12 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["node"]
   },
   "include": [
-    "*.ts",
-    "*.d.ts",
-    "learning/**/*.ts",
-    "transmutation/**/*.ts",
-    "talent/**/*.ts",
-    "taxonomy/**/*.ts",
-    "arbitration/**/*.ts",
-    "perf/**/*.ts",
-    "tests/**/*.ts",
+    "**/*.ts",
+    "**/*.d.ts",
     "vitest.config.ts"
   ]
 }

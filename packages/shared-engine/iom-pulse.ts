@@ -24,6 +24,8 @@ import { getCoreModelState, IntegrityHealthSnapshot } from "./integrity";
 import { getRealitySignalAggregates } from "./reality-loop-layer";
 import { getPersonaInfluenceSnapshot, PersonaInfluenceSnapshot } from "./personas/persona-influence";
 import type { CoreModelState, Panelist } from "@alchemist/shared-types";
+import { OperatorState } from "./operator/operator-types";
+import { DEFAULT_OPERATOR_STATE } from "./operator/operator-resonance";
 
 export const IOM_PULSE_VERSION = 5 as const;
 
@@ -104,9 +106,58 @@ export interface IOMHealthPulseResult {
   vstSyncStatus: VstSyncStatusPulse;
   /** JUCE FXP bridge diagnostic slice (`vst_wrapper` cell) — native plugin logs outside TS. */
   vstWrapperStatus: VstWrapperStatusPulse;
-  /** Persona behavioral footprint summary (Phase 2.1). */
-  personaInfluence?: PersonaInfluenceSnapshot | null;
+  /** Persona behavioral footprint summary (Phase 2.1 / Phase 3.4). */
+  personaInfluence: PersonaInfluenceSnapshot[];
+  /** Operator Resonance and Mission Continuity (Phase 3.7 / Shigor Core). */
+  operator?: OperatorState;
+  /** Guardrail metadata ensuring diagnostic-only status. */
+  precedence: PulsePrecedenceGuardResult;
   note: string;
+}
+
+export interface PulsePrecedenceGuardResult {
+  diagnosticOnly: true;
+  routingWritable: false;
+  reasons: string[];
+}
+
+/**
+ * Pulse Precedence Guard
+ *
+ * IOM Pulse may observe operator / triad / governor state,
+ * but may not becoming a hidden source of routing decisions.
+ */
+export function enforcePulsePrecedenceGuard(input?: {
+  requestedRoutingMutation?: boolean;
+  requestedLeadPersonaOverride?: string | null;
+  requestedTruthDeferOverride?: boolean;
+}): PulsePrecedenceGuardResult {
+  if (input?.requestedRoutingMutation) {
+    throw new Error("iom-pulse precedence violation: diagnostic layer cannot mutate routing");
+  }
+
+  if (input?.requestedLeadPersonaOverride) {
+    throw new Error("iom-pulse precedence violation: diagnostic layer cannot override leadPersona");
+  }
+
+  if (typeof input?.requestedTruthDeferOverride === "boolean") {
+    throw new Error("iom-pulse precedence violation: diagnostic layer cannot override deferTruth");
+  }
+
+  return {
+    diagnosticOnly: true,
+    routingWritable: false,
+    reasons: [
+      "iom-pulse is advisory-only",
+      "diagnostic slices must not mutate triad routing",
+      "operator snapshot must not bypass shigor-core",
+      "oracle governor signals must not be re-emitted as routing authority",
+    ],
+  };
+}
+
+export function toAdvisoryOperatorSlice<T>(value: T): Readonly<T> {
+  return Object.freeze(value);
 }
 
 export function digestIgorManifestForPulse(m: IgorOrchestratorManifest): IOMManifestDigest {
@@ -317,41 +368,54 @@ export function detectSchisms(
   }
 
   // Persona Perspective Ingestion — behavioral drift detection
-  const persona = getPersonaInfluenceSnapshot("svitlana_v1");
-  if (persona && persona.status === "active") {
-    if (persona.driftRisk !== "low") {
-      out.push({
-        code: "PERSONA_STABILITY_DRIFT",
-        severity: persona.driftRisk === "high" ? "warn" : "info",
-        message: `Persona [${persona.personaId}] is showing ${persona.driftRisk} stability drift (${(persona.stabilityScore * 100).toFixed(0)}%).`,
-        evidence: { 
-          stabilityScore: persona.stabilityScore, 
-          sampleSize: persona.sampleSize,
-          signatureRates: persona.signatureRates 
-        },
-      });
-    }
+  const personaIds = ["svitlana_v1", "anton_v1", "elisey_v1"];
+  personaIds.forEach(pId => {
+    const persona = getPersonaInfluenceSnapshot(pId);
+    if (persona && persona.status === "active") {
+      if (persona.driftRisk !== "low") {
+        out.push({
+          code: "PERSONA_STABILITY_DRIFT",
+          severity: persona.driftRisk === "high" ? "warn" : "info",
+          message: `Persona [${persona.personaId}] is showing ${persona.driftRisk} stability drift (${(persona.stabilityScore * 100).toFixed(0)}%).`,
+          evidence: { 
+            stabilityScore: persona.stabilityScore, 
+            sampleSize: persona.sampleSize,
+            signatureRates: persona.signatureRates 
+          },
+        });
+      }
 
-    // Phase 2.2: Logic Collapse (Shannon Entropy < 0.4)
-    if (persona.logicEntropyScore < 0.4) {
-      out.push({
-        code: "LOGIC_COLLAPSE",
-        severity: "info",
-        message: `Persona [${persona.personaId}] is showing logic-level collapse (Entropy: ${persona.logicEntropyScore.toFixed(2)}). Behavioral diversity is low.`,
-        evidence: { logicDistribution: persona.logicDistribution, entropy: persona.logicEntropyScore },
-      });
-    }
+      // Phase 2.2: Logic Collapse (Shannon Entropy < 0.4)
+      if (persona.logicEntropyScore < 0.4) {
+        out.push({
+          code: "LOGIC_COLLAPSE",
+          severity: "info",
+          message: `Persona [${persona.personaId}] is showing logic-level collapse (Entropy: ${persona.logicEntropyScore.toFixed(2)}). Behavioral diversity is low.`,
+          evidence: { logicDistribution: persona.logicDistribution, entropy: persona.logicEntropyScore },
+        });
+      }
 
-    // Phase 2.2: System Convergence (Mechanical consistency)
-    if (persona.stabilityScore > 0.98 && persona.logicEntropyScore < 0.5) {
-      out.push({
-        code: "SYSTEM_CONVERGENCE_WARNING",
-        severity: "info",
-        message: `Persona [${persona.personaId}] communication is converging into mechanical consistency. Anti-convergence guard active.`,
-        evidence: { stability: persona.stabilityScore, entropy: persona.logicEntropyScore },
-      });
+      // Phase 3.4: Epistemic Gap Detection (Elisey ONLY or any persona with high epistemic hits)
+      if (persona.epistemicGapScore > 0.4) {
+        out.push({
+          code: "EPISTEMIC_GAP_DETECTED",
+          severity: "warn",
+          message: `High Epistemic Gap detected via [${persona.personaId}] (${(persona.epistemicGapScore * 100).toFixed(0)}%). Mechanism uncertainty high.`,
+          evidence: { epistemicGapScore: persona.epistemicGapScore, sampler: persona.personaId },
+        });
+      }
+
+      // Phase 2.2 / Phase 3.4: System Convergence (Mechanical consistency)
+      if (persona.stabilityScore > 0.98 && persona.logicEntropyScore < 0.5) {
+        out.push({
+          code: "SYSTEM_CONVERGENCE_WARNING",
+          severity: "info",
+          message: `Persona [${persona.personaId}] communication is converging into mechanical consistency. Anti-convergence guard active.`,
+          evidence: { stability: persona.stabilityScore, entropy: persona.logicEntropyScore },
+        });
+      }
     }
-  }
+  });
 
   return out;
 }
@@ -538,7 +602,11 @@ export function getIOMHealthPulse(input: IOMPulseInput): IOMHealthPulseResult {
     coreModel: core,
     vstSyncStatus: getVstObserverPulseSlice(),
     vstWrapperStatus: getVstWrapperPulseSlice(),
-    personaInfluence: getPersonaInfluenceSnapshot("svitlana_v1"),
+    personaInfluence: ["svitlana_v1", "anton_v1", "elisey_v1"]
+      .map((id) => getPersonaInfluenceSnapshot(id))
+      .filter((s): s is PersonaInfluenceSnapshot => s !== null),
+    operator: toAdvisoryOperatorSlice(DEFAULT_OPERATOR_STATE),
+    precedence: enforcePulsePrecedenceGuard(),
     note:
       "IOM pulse — diagnostic merge; schisms + suggestions are explicit heuristics. No auto gate mutation. Pass soeSnapshot from stderr/log aggregates for full numeric schisms and SOE fusion cues.",
   };

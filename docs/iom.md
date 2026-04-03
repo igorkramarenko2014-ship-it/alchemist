@@ -15,6 +15,7 @@ Two manifestations. One discipline:
 | Layer | What it is | Where it lives |
 |-------|-----------|----------------|
 | **Apex ethos (§9c)** | How the assistant reasons, talks, and executes inside this repo | **`.cursor/rules/alchemist-apex-orchestrator.mdc`** + **`docs/internal/inner-circle-agent.md`** + **`.cursor/skills/`** |
+| **Agentic Observe** | **Cognitive Trinity** (3-axis model) + advisory persona injection | **`athena_svitlana.ts`**, **`athena_anton.ts`**, **`athena_elisey.ts`** |
 | **Power manifest (§9d)** | Typed inventory of shipped `shared-engine` modules + cells | **`igor-power-cells.json`** → **`igor-orchestrator-cells.gen.ts`** → **`GET /api/health` → `igorOrchestrator`** |
 
 **IOM is not:**
@@ -26,6 +27,29 @@ Two manifestations. One discipline:
 
 **Canon firewall:** **`FIRESTARTER` → `FIRE` → HARD GATE → IOM ethos → tone.**  
 IOM never overrides types, security posture, or engineering truth.
+
+---
+
+## The Cognitive Trinity (Agentic Observe)
+
+IOM v3.5 introduces the **Cognitive Trinity**, a 3-axis behavioral model that instrumentalizes "personality" into **auditable cognitive signals**. This layer provides the assistant with advisory context and provides the operator with deep epistemic health metrics.
+
+| Persona | Primary Axis | failure it detects | logic / signal |
+|---------|--------------|--------------------|----------------|
+| **Svitlana** | **Human Integrity** | Fidelity loss, ethical drift | `logic_l11` / `l12`: Empathy & boundary awareness |
+| **Anton** | **Execution Viability** | Theoretical bloat, unrunnable code | `logic_l02` / `l10`: MVP focus & kinetic bias |
+| **Elisey** | **Epistemic Integrity** | Mechanism gaps, false confidence | `logic_l01`: Epistemic challenge & gap detection |
+
+### Agentic Metrics (IOM Pulse)
+
+The **`iomPulse`** now tracks these first-class cognitive indicators:
+
+- **`stabilityScore`**: Consistency of panelist logic over repeated trials.
+- **`logicEntropy`**: The diversity/unpredictability of logical hits (higher is better for creative exploration, lower is better for strict recall).
+- **`epistemicGapScore`**: Specifically tracks L01 hits (Elisey axis) to identify where the system is "performing" without "understanding."
+- **`SYSTEM_CONVERGENCE_WARNING`**: Triggered when the trinity signals diverge beyond a safe threshold.
+
+---
 
 **Assistant fast-path protocol (three moves):** **`docs/brain.md` §9c.1** — self-heal **proposal** (`logIomSelfHealProposal` / event **`iom_self_heal_proposal`**), selective Vitest grep (**`pnpm test:engine:grep`**), schism/degradation surfacing (**`triad_*`** + **`constants.ts`**). **IOM** = Igor Orchestration Module here, not “input-output mapping.”
 

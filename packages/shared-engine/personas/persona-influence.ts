@@ -31,6 +31,7 @@ export interface PersonaInfluenceSnapshot {
     agencyReturnRate: number;
     verbosityControlRate: number;
   };
+  epistemicGapScore: number; // 0.0 to 1.0 (High = many gaps)
   driftRisk: "low" | "medium" | "high";
   status: "active" | "insufficient_persona_signal";
 }
@@ -94,6 +95,12 @@ export function getPersonaInfluenceSnapshot(personaId: string, windowMs = 360000
     verbosityControlRate: sum(s => s.signature.verbosityControlled) / n
   };
 
+  // Phase 3.4: Epistemic Gap Score
+  // Measured by Mechanism Gaps (L03), Illusion Breaks (L01), and Goal Misalignment (L14)
+  const epistemicLogics = ["L01_ILLUSION_BREAK", "L02_CAUSAL_DEMAND", "L03_MECHANISM_GAP", "L15_KNOWLEDGE_TOPOLOGY"];
+  const epistemicHits = win.filter(s => s.activeLogics.some(l => epistemicLogics.includes(l))).length;
+  const epistemicGapScore = epistemicHits / n;
+
   return {
     personaId,
     sampleSize: n,
@@ -102,6 +109,7 @@ export function getPersonaInfluenceSnapshot(personaId: string, windowMs = 360000
     logicDistribution,
     logicEntropyScore,
     signatureRates,
+    epistemicGapScore,
     driftRisk: stabilityScore > 0.85 ? "low" : stabilityScore > 0.7 ? "medium" : "high",
     status: n < MIN_SIGNALS_FOR_ENTROPY ? "insufficient_persona_signal" : "active"
   };

@@ -17,6 +17,7 @@ import {
   isValidCandidate,
   logEvent,
   logRealitySignal,
+  getPersonaContextAugmentation,
   newTriadRunId,
   PANELIST_ALCHEMIST_CODENAME,
   pnhIntentFailureDecisionWithMemory,
@@ -390,6 +391,21 @@ export async function triadPanelPost(
 
   const runId = newTriadRunId();
   const { learningContext, learningContextUsed } = getEngineSchoolTriadAugmentation(promptForTriad);
+  
+  // Phase 3.5: Persona Context Layer (Advisory)
+  const personaAug = getPersonaContextAugmentation(
+    ["svitlana_v1", "anton_v1", "elisey_v1"],
+    { enabled: env.personaContextEnabled }
+  );
+  if (personaAug) {
+    promptForTriad = `${personaAug.contextPrefix}\n\n${promptForTriad}`;
+    logEvent("persona_context_injected", {
+      activePersonas: personaAug.activePersonas,
+      contextCharCount: personaAug.contextCharCount,
+      source: "persona_corpus"
+    });
+  }
+
   const alchemistCodename = PANELIST_ALCHEMIST_CODENAME[panelist];
   const promptLength = promptForTriad.length;
 

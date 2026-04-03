@@ -11,6 +11,7 @@
 | **`FIRESTARTER.md`** | Recovery bible, workflow appendices, INIT paste |
 | **`FIRE.md`** | Assessment contracts §A–L + **`pnpm fire:sync`** metrics |
 | **`brain.md`** | This file — deep orientation, §9a fusion, §9c–§9d Igor / IOM |
+| **Cognitive Trinity** | **Svitlana / Anton / Elisey** — 3-axis agentic observability layer |
 | **`codex-narrative.md`** | Codex working narrative: current repo picture, recent safe changes, and session-close discipline |
 | **`FIRE.md`** (Assessment snapshot + §N) | Outside-assessment shell + synced metrics (ex–Brain+) |
 | **`docs/internal/inner-circle-agent.md`** | Full peer prompt + Canon FIREWALL (tone layer) |
@@ -104,7 +105,25 @@ Do not describe these as **AU/VST audio processors** in product copy. See **`.cu
 
 ---
 
-## 7. WASM / browser `.fxp`
+## 7. Shigor Core v4 (Sovereign Multi-Operator)
+
+**Architecture:** Isolated, deterministic decision kernel. Decoupled from filesystem (Host Adapters) for AIOM v2 compliance.
+
+**Identity:** Sharded persistence via `operator-id.ts`. Canonical ID: `ihor`. Sandbox ID: `clara`.
+
+**Weight Blending (The Handwriting):**
+- **Warmth:** 45% Oracle / 35% Operator / 20% Fragility.
+- **Depth:** 42% Oracle / 30% Allowance / 18% Operator / 10% Fragility Penalty.
+- **Pacing:** 55% Operator Bias / 35% Mission Pressure.
+
+**Differentiated Safety:**
+- **Consent / Human Priority:** Forces `svitlana` + `deferTruth`.
+- **Epistemic Stress:** Elevates `elisey` to challenge assumptions.
+- **Pulse Stress:** Drifts to neutral safety baseline (`anton`) or locks actions.
+
+---
+
+## 8. WASM / browser `.fxp`
 
 - Build: **`pnpm build:wasm`** in `packages/fxp-encoder` (Rust + wasm-pack → `pkg/`).
 - Health: **`GET /api/health/wasm`** must return **`available`** for UI to enable export.
@@ -256,6 +275,21 @@ All stay **explicit** and **auditable** — no shadow governance.
 **Alchemical compress (same as Apex mandates):** **3-word razor**; **HARD GATE** and **`LegalDisclaimer`** are never bypassed — solutions touching Serum bytes or legal surface stay **auditable**. **Aji leverage:** prefer one structural fix (prompt shape, gate input, constants) over piling on post-hoc filters.
 
 **Emoji:** 🤖👾 only as a **rare seal** on a structural pivot — **`.cursor/rules/alchemist-apex-orchestrator.mdc`**.
+
+#### 9c.2 The Cognitive Trinity (Agentic Observe)
+
+Alchemist v3.5 introduces **Instrumented Cognition** (the Trinity) — a 3-axis behavioral model focused on **epistemic integrity**:
+- **Svitlana**: Human Anchor (Ethics/Fidelity)
+- **Anton**: Execution Anchor (Viability/Velocity)
+- **Elisey**: Epistemic Anchor (Understanding/Challenge)
+
+**Phase 3.5 Advisory Context Injection:** The assistant now receives a persona-advisory prefix in Triad prompts (`ALCHEMIST_PERSONA_CONTEXT=1`). This ensures the assistant's reasoning is aligned with these three anchors while maintaining zero mutation of core gate math.
+
+**IOM Pulse v2:** The IOM Pulse now aggregates multi-panelist **`personaInfluence`** metrics (`epistemicGapScore`, `stabilityScore`, `logicEntropy`) to identify where the Triad aligns or diverges from these cognitive anchors.
+
+---
+
+**IOM V4 (refinery ethos):** Prefer **upstream motivation** (clearer prompts, negative-space intent) and **bounded salvage** (schema-safe nudges) over pure cancel culture — see **`docs/iom.md` *IOM high-water mark*** and root **`.cursorrules`**. **HARD GATE** and **TS gate law** are not negotiable; “repair” never means invented Serum offsets.
 
 **IOM V4 (refinery ethos):** Prefer **upstream motivation** (clearer prompts, negative-space intent) and **bounded salvage** (schema-safe nudges) over pure cancel culture — see **`docs/iom.md` *IOM high-water mark*** and root **`.cursorrules`**. **HARD GATE** and **TS gate law** are not negotiable; “repair” never means invented Serum offsets.
 

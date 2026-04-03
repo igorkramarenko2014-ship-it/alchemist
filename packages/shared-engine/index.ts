@@ -677,3 +677,5 @@ export { resolveTransmutation } from "./transmutation/transmutation-runner-logic
 export { PolicyFamily } from "./transmutation/transmutation-types";
 export type { TransmutationResult, TransmutationProfile } from "./transmutation/transmutation-types";
 export type { StructuredSoeHint, StructuredSoeSeverity } from "./soe-hint-structured";
+export { getPersonaContextAugmentation } from "./personas/persona-context";
+export type { PersonaAugmentation } from "./personas/persona-context";

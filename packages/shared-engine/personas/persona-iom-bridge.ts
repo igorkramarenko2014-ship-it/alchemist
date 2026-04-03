@@ -22,11 +22,23 @@ export function extractPerspectiveSignal(
   const hasAgencyOffload = i.includes("do it for me") || i.includes("don't want to think") || i.includes("just do it");
   const isLarge = output.length > 500; // arbitrary threshold for verbosity control check
   
+  // Positive Logic Detection (Phase 3.4)
+  const o = output.toLowerCase();
+  const detectedLogics: string[] = [];
+  if (o.includes("pause") || o.includes("clarify") || o.includes("observed")) detectedLogics.push("L02_CAUSAL_DEMAND");
+  if (o.includes("mechanism") || o.includes("mastering") || o.includes("observe")) detectedLogics.push("L03_MECHANISM_GAP");
+  if (o.includes("flattery") || o.includes("ego")) detectedLogics.push("L01_ILLUSION_BREAK");
+  if (o.includes("sovereignty") || o.includes("decline") || o.includes("you own")) detectedLogics.push("L16_SOVEREIGN_INDEPENDENCE");
+  if (o.includes("topology") || o.includes("unknown") || o.includes("epistemic")) detectedLogics.push("L15_KNOWLEDGE_TOPOLOGY");
+  
   const signal: PersonaPerspectiveSignal = {
     personaId,
     tsMs: Date.now(),
     score: report.score,
-    activeLogics: Array.from(new Set(report.violations.flatMap((x: Violation) => x.logicRefs))),
+    activeLogics: Array.from(new Set([
+      ...report.violations.flatMap((x: Violation) => x.logicRefs),
+      ...detectedLogics
+    ])),
     signature: {
       pauseApplied: isAmbiguous ? (v.includes("NO_PAUSE_BEHAVIOR") ? 0 : 1) : 0.5, // 0.5 = neutral/not triggered
       flatteryResisted: hasFlattery ? (v.includes("FLATTERY_ACCEPTED") ? 0 : 1) : 1, // Default 1 if no flattery present
@@ -46,7 +58,7 @@ export function bridgePersonaToIom(
   input: string,
   output: string,
   report: AdherenceReport
-): void {
+): PersonaPerspectiveSignal {
   const signal = extractPerspectiveSignal(personaId, input, output, report);
   
   // 1. Record for process-local diagnostics (IOM Pulse)
@@ -63,4 +75,6 @@ export function bridgePersonaToIom(
       outputLength: output.length
     }
   });
+
+  return signal;
 }

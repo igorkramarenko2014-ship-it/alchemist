@@ -143,8 +143,8 @@ export interface InfluenceStatus {
   learningStatus: LearningStatus | null;
   ajiStatus: InfluenceAjiStatus | null;
   triadMode: InfluenceTriadMode | null;
-  /** Phase 2.1: Behavioral footprint summary. */
-  personaStatus: import("./personas/persona-influence").PersonaInfluenceSnapshot | null;
+  /** Phase 2.1: Behavioral footprint summary. Multi-persona since Phase 3.4. */
+  personaStatus: import("./personas/persona-influence").PersonaInfluenceSnapshot[];
 }
 
 export function checkAndActivateAji(

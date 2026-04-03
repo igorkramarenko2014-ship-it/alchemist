@@ -81,7 +81,12 @@ export const env = {
    */
   corpusPriorEnabled: process.env.ALCHEMIST_CORPUS_PRIOR === "1",
   /**
-   * When **`1`**, server action may load **`taste-index.json`** (or example) for **`scoreCandidates`**
+   * When **`1`**, triad fetchers append Persona roles as context prefix to triad prompt.
+   * Mirror behavior of Engine School (advisory only). Default off.
+   */
+  personaContextEnabled: process.env.ALCHEMIST_PERSONA_CONTEXT === "1",
+  /**
+   * When **`1`**, server action loads **`taste-index.json`** (or example) for **`scoreCandidates`**
    * taste-affinity re-rank (Phase 4). Advisory only; default off.
    */
   tastePriorEnabled: process.env.ALCHEMIST_TASTE_PRIOR === "1",

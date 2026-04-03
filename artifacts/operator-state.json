@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "operatorId": "ihor",
+  "updatedAtUtc": "2026-04-03T00:00:00.000Z",
+  "source": "operator_resonance_pipeline",
+  "authoritative": false,
+  "diagnosticOnly": true,
+
+  "missionState": {
+    "continuityScore": 0.0,
+    "missionClarity": 0.0,
+    "priorityIntegrity": 0.0,
+    "driftRisk": 0.0
+  },
+
+  "resonanceState": {
+    "readiness": 0.0,
+    "overload": 0.0,
+    "stability": 0.0,
+    "trustContinuity": 0.0,
+    "truthTolerance": 0.0,
+    "silenceTolerance": 0.0
+  },
+
+  "deliveryProfile": {
+    "preferredWarmth": 0.0,
+    "preferredDepth": 0.0,
+    "deferTruthBias": 0.0,
+    "pacingBias": 0.0,
+    "compressionPreference": 0.0
+  },
+
+  "triadInfluence": {
+    "svitlana": 0.0,
+    "anton": 0.0,
+    "elisey": 0.0,
+    "pythia": 0.0
+  },
+
+  "governorState": {
+    "truthDensity": 0.0,
+    "readinessMatch": 0.0,
+    "silenceAfterBias": 0.0,
+    "deferTruthActive": false,
+    "leadPersona": "svitlana"
+  },
+
+  "integrityFlags": {
+    "humanPriorityOverride": false,
+    "epistemicBrake": false,
+    "executionGateOpen": true,
+    "consentLocked": true
+  },
+
+  "recentSignals": {
+    "dominantLogicIds": [],
+    "dominantFailureModes": [],
+    "activeSchisms": []
+  },
+
+  "notes": {
+    "summary": "Initial seed state for Phase 3.7",
+    "operatorConfirmed": false
+  }
+}
