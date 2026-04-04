@@ -14,6 +14,61 @@ import {
   Z_PRIME,
 } from "./core-model";
 import { logEvent } from "./telemetry";
+import { PANELIST_WEIGHTS } from "./constants";
+
+/** High-level influence status types (centralized in integrity.ts). */
+export interface PriorsStatus {
+  active: boolean;
+  learningContext: boolean;
+  corpusPrior: boolean;
+  tastePrior: boolean;
+  confidence: "low" | "medium" | "high";
+  stalenessDays: number | null;
+}
+
+export interface LearningStatus {
+  status: "active" | "inactive" | "error";
+  confidence: "low" | "medium" | "high";
+  sampleCount: number;
+}
+
+export interface InfluenceAjiStatus {
+  active: boolean;
+  expiresAtUtc: string | null;
+}
+
+export interface InfluenceTriadMode {
+  mode: "fetcher" | "partial" | "stub" | "tablebase";
+}
+
+export interface InfluenceStatus {
+  priorsStatus: PriorsStatus | null;
+  learningStatus: LearningStatus | null;
+  ajiStatus: InfluenceAjiStatus | null;
+  triadMode: InfluenceTriadMode | null;
+  /** Phase 2.1: Behavioral footprint summary. Multi-persona since Phase 3.4. */
+  personaStatus: any[]; // Avoid circular dependency with persona-influence
+}
+
+/** 
+ * Canonical Integrity Lock Model (Locks 1-5).
+ * Order: Consent -> Execution Gate -> Epistemic Brake -> Human/Harm -> Decision
+ */
+export type IntegrityLockId = "consent" | "execution" | "brake" | "human" | "harm";
+
+export type IntegrityLockReason = 
+  | "CONSENT_LACKING"
+  | "EXECUTION_GATE_CLOSED"
+  | "EPISTEMIC_BRAKE_ACTIVE"
+  | "HUMAN_PRIORITY_OVERRIDE"
+  | "HARM_GATE_TRIPPED";
+
+export interface IntegrityLockStatus {
+  id: IntegrityLockId;
+  active: boolean;
+  reason?: IntegrityLockReason;
+}
+
 
 /** High-level outcome for dashboards / SOE-style aggregates (transparent, not shadow governance). */
 export type IntegrityOutcome =
@@ -52,6 +107,8 @@ export interface IntegrityHealthSnapshot {
   sprintCompletions: number;
   degradedFallbacks: number;
   coreModel: CoreModelState;
+  influence: InfluenceStatus;
+  locks: IntegrityLockStatus[];
 }
 
 export function getIntegrityHealthSnapshot(): IntegrityHealthSnapshot {
@@ -60,8 +117,108 @@ export function getIntegrityHealthSnapshot(): IntegrityHealthSnapshot {
     sprintCompletions: sprintOks,
     degradedFallbacks,
     coreModel: getCoreModelState(),
+    influence: getInfluenceSnapshot(),
+    locks: evaluateIntegrityLocks(),
   };
 }
+
+/**
+ * Calculates current influence status from environment and in-memory state.
+ * Source of truth for web route and CLI dashboards.
+ */
+export function getInfluenceSnapshot(): InfluenceStatus {
+  const env = (typeof process !== "undefined" ? process.env : {}) as Record<string, string | undefined>;
+  
+  const learningContext = env.ALCHEMIST_LEARNING_CONTEXT === "1";
+  const corpusPrior = env.ALCHEMIST_CORPUS_PRIOR === "1";
+  const tastePrior = env.ALCHEMIST_TASTE_PRIOR === "1";
+  const active = learningContext || corpusPrior || tastePrior;
+
+  // These would ideally come from the loaded index metadata in a real run
+  const priorsStatus: PriorsStatus = {
+    active,
+    learningContext,
+    corpusPrior,
+    tastePrior,
+    confidence: "medium", // Default heuristic when index not directly accessible here
+    stalenessDays: null,
+  };
+
+  const learningStatus: LearningStatus = {
+    status: active ? "active" : "inactive",
+    confidence: "medium",
+    sampleCount: 0,
+  };
+
+  return {
+    priorsStatus,
+    learningStatus,
+    ajiStatus: {
+      active: env.ALCHEMIST_AJI_ACTIVE === "1",
+      expiresAtUtc: env.ALCHEMIST_AJI_EXPIRES_AT ?? null,
+    },
+    triadMode: {
+      mode: env.ALCHEMIST_TRIAD_MODE === "fetcher" ? "fetcher" : "stub",
+    },
+    personaStatus: [], // To be populated by persona logic if needed
+  };
+}
+
+/**
+ * Deterministic ordered evaluation of Integrity Locks (1-5).
+ * Requirement A: Fixed precedence.
+ */
+export function evaluateIntegrityLocks(): IntegrityLockStatus[] {
+  const env = (typeof process !== "undefined" ? process.env : {}) as Record<string, string | undefined>;
+  const locks: IntegrityLockStatus[] = [];
+
+  // 1. Consent (Lock 1)
+  const consentLocked = env.ALCHEMIST_CONSENT_LOCKED !== "0"; // Default to locked (safe)
+  locks.push({
+    id: "consent",
+    active: !consentLocked,
+    reason: !consentLocked ? "CONSENT_LACKING" : undefined,
+  });
+
+  // 2. Execution Gate (Lock 2)
+  const executionGateOpen = env.ALCHEMIST_EXECUTION_GATE !== "0"; // Default to open
+  locks.push({
+    id: "execution",
+    active: !executionGateOpen,
+    reason: !executionGateOpen ? "EXECUTION_GATE_CLOSED" : undefined,
+  });
+
+  // 3. Epistemic Brake (Lock 3)
+  const epistemicBrake = env.ALCHEMIST_EPISTEMIC_BRAKE === "1";
+  locks.push({
+    id: "brake",
+    active: epistemicBrake,
+    reason: epistemicBrake ? "EPISTEMIC_BRAKE_ACTIVE" : undefined,
+  });
+
+  // 4. Human Priority / Harm Gate (Lock 4/5 Combined)
+  const humanPriority = env.ALCHEMIST_HUMAN_PRIORITY === "1";
+  const harmGate = env.ALCHEMIST_HARM_GATE === "1";
+  
+  if (humanPriority) {
+    locks.push({
+      id: "human",
+      active: true,
+      reason: "HUMAN_PRIORITY_OVERRIDE",
+    });
+  } else if (harmGate) {
+    locks.push({
+      id: "harm",
+      active: true,
+      reason: "HARM_GATE_TRIPPED",
+    });
+  } else {
+    locks.push({ id: "human", active: false });
+  }
+
+  return locks;
+}
+
 
 export function getCoreModelState(): CoreModelState {
   return {

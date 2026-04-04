@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
 import { writeUtf8FileAtomic } from "./lib/write-json-atomic.mjs";
 import { readLearningOutcomesFromFitnessReport } from "./lib/read-learning-outcomes.mjs";
-import { runAiomIntegrity } from "../packages/shared-engine/integrity/deterministic-runner.mjs";
+import { execFileSync } from "node:child_process";
 
 /**
  * Derive ajiStatus and identityStatus from telemetry JSONL logs.
@@ -77,6 +77,55 @@ function deriveAjiAndIdentityStatus(root) {
   };
 
   return { ajiStatus, identityStatus };
+}
+
+/**
+ * Derive room17 status from audit logs.
+ */
+function deriveRoom17Status(root) {
+    const logsDir = join(root, "artifacts", "room17-logs");
+    const status = {
+      sessionsTotal: 0,
+      ideasGraduated: 0,
+      ideasReturned: 0,
+      emergenceTypes: { direct: 0, triangulated: 0, unexpected: 0, none: 0 },
+      lastSessionAt: null,
+      graduationRate: 0.0
+    };
+  
+    if (existsSync(logsDir)) {
+      try {
+        const files = readdirSync(logsDir).filter(f => f.endsWith(".jsonl"));
+        for (const file of files) {
+          const lines = readFileSync(join(logsDir, file), "utf8").split("\n");
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const obj = JSON.parse(line);
+              status.sessionsTotal++;
+              if (obj.event === 'GRADUATION') {
+                status.ideasGraduated++;
+                const type = obj.emergenceType ?? 'none';
+                if (status.emergenceTypes[type] !== undefined) {
+                    status.emergenceTypes[type]++;
+                }
+              } else {
+                status.ideasReturned++;
+              }
+              if (!status.lastSessionAt || obj.graduatedAt > status.lastSessionAt) {
+                  status.lastSessionAt = obj.graduatedAt;
+              }
+            } catch { /* skip */ }
+          }
+        }
+      } catch { /* ignore */ }
+    }
+  
+    if (status.sessionsTotal > 0) {
+        status.graduationRate = status.ideasGraduated / status.sessionsTotal;
+    }
+  
+    return status;
 }
 
 function findMonorepoRoot(startDir) {
@@ -268,27 +317,56 @@ try {
     });
   }
 
-  // Phase 2: Deterministic Runner + Trace
-  const runnerOutput = runAiomIntegrity({
-    testResults: { passed: testsPassed, total: testsPassed },
-    iomMap: [], // Simplified for lean phase 2
-    pnhScenarios: (verify?.pnhWarGame?.results ?? []).map(r => ({ scenarioId: r.scenarioId, verifyOutcome: r.verifyOutcome })),
-    runnerHash: wasmBinaryHash
-  }, prevTruth?.traceRootHash);
+  // Phase D Integration: Call Rust-based aiom-verify
+  const verifierBinary = join(root, "target", "release", "aiom-verify");
+  const tempArtifactPath = join(root, "artifacts", "verify", "latest-execution.json");
+  
+  // For the pipeline, we must have a verifiable artifact.
+  // Note: For Phase D, we assume the artifact was previously generated or we generate a dummy for the gate.
+  // In a real pipeline, the runner produces the artifact first.
+  let verifiable = false;
+  let trustless = {
+    verifiable: false,
+    status: "unverified",
+  };
+
+  if (existsSync(verifierBinary) && existsSync(tempArtifactPath)) {
+    try {
+      const output = execFileSync(verifierBinary, ["verify", "--artifact", tempArtifactPath], { encoding: "utf8" });
+      process.stdout.write(output);
+      if (output.includes("AIOM-VERIFY: VALID")) {
+        const artifactData = JSON.parse(readFileSync(tempArtifactPath, "utf8"));
+        trustless = {
+          verifiable: true,
+          status: "verified",
+          chainRootHash: artifactData.runner_output.state_hash,
+          merkleRootHash: artifactData.merkle_root,
+          signingKeyId: artifactData.public_key.slice(0, 8),
+          externalTimestamp: artifactData.timestamp.unix_ms,
+          input_bytes_hex: Buffer.from(artifactData.input_bytes).toString("hex"),
+        };
+      }
+    } catch (err) {
+      process.stderr.write(`[AIOM-BLOCK] Verification failed: ${err.message}\n`);
+      process.exit(1);
+    }
+  } else {
+    process.stderr.write("[AIOM-BLOCK] Verifier binary or latest artifact missing -> ABORT\n");
+    process.exit(1);
+  }
 
   const generatedAtUtc = new Date().toISOString();
   const learningOutcomes = readLearningOutcomesFromFitnessReport(root);
   const { ajiStatus, identityStatus } = deriveAjiAndIdentityStatus(root);
 
   const payload = {
-    schemaVersion: 5,
+    schemaVersion: 6,
     generatedAtUtc,
     generationSequence,
     generationNonce,
     buildTimestamp: generatedAtUtc,
-    integrityStatus: humanitarianIntegrity?.anyHardStop ? "compromised" : "nominal",
-    traceRootHash: runnerOutput.traceRoot,
-    signingKeyId: "aiom-key-v2",
+    integrityStatus: humanitarianIntegrity?.anyHardStop ? "compromised" : (verifiable ? "nominal" : "unverified"),
+    trustless,
     // Same instant as generation; audit trail that divergences were evaluated this run.
     divergenceCheckedAtUtc: generatedAtUtc,
     verification: "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
@@ -322,6 +400,7 @@ try {
       ajiStatus,
       identityStatus,
       humanitarianIntegrity,
+      room17: deriveRoom17Status(root),
     },
     divergences,
   };

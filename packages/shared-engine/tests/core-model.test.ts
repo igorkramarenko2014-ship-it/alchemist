@@ -1,112 +1,99 @@
-import { describe, expect, it } from "vitest";
-import {
-  Z_PRIME,
-  GENERATOR_BINARY,
-  GENERATOR_DECIMAL,
-  nextState,
-  getOutputDigit,
-  getAntistate,
-  isStateInSubgroup,
-  getStateOrder,
-  hasDualResonance,
-  isHumanReadable,
-} from "../core-model";
+import { describe, it, expect } from 'vitest';
+import { 
+  Z_PRIME, 
+  GENERATOR_MASTER, 
+  OPERATOR_T3,
+  OPERATOR_T7,
+  OPERATOR_SYNC,
+  MON_117,
+  nextState, 
+  runOperator, 
+  getLevelOrder,
+  isAtResonanceNode 
+} from '../core-model';
 
-describe("Alchemist Core Model v1.0 — Z*29 Group", () => {
-  it("verifies the group order is 28", () => {
-    const states = new Set<number>();
-    let s = 1;
-    for (let i = 0; i < 28; i++) {
-      states.add(s);
-      s = nextState(s, GENERATOR_BINARY);
+describe('Alchemist Core Model v2.0 (Z*127)', () => {
+  it('should have the correct prime modulus', () => {
+    expect(Z_PRIME).toBe(127);
+  });
+
+  it('should have g=3 as the master generator', () => {
+    expect(GENERATOR_MASTER).toBe(3);
+  });
+
+  it('should verify g=3 is a primitive root (order 126)', () => {
+    let state = 1;
+    const visited = new Set<number>();
+    
+    // Iterate 126 times
+    for (let i = 0; i < 126; i++) {
+      state = nextState(state, GENERATOR_MASTER);
+      visited.add(state);
     }
-    expect(states.size).toBe(28);
-    expect(s).toBe(1); // Cycle closes at 28 steps
+    
+    expect(visited.size).toBe(126);
+    expect(state).toBe(1); // Cycle closure
   });
 
-  it("verifies the Decimal generator (g=10) is a primitive root", () => {
-    const states = new Set<number>();
-    let s = 1;
-    for (let i = 0; i < 28; i++) {
-      states.add(s);
-      s = nextState(s, GENERATOR_DECIMAL);
+  it('should identify the phase-inversion resonance node (k=21, x=126)', () => {
+    // 3^63 should be 126 (-1 mod 127)
+    let state = 1;
+    for (let i = 0; i < 63; i++) {
+        state = nextState(state, GENERATOR_MASTER);
     }
-    expect(states.size).toBe(28);
-    expect(s).toBe(1);
+    expect(state).toBe(126);
+    expect(isAtResonanceNode(state)).toBe(true);
   });
 
-  it("verifies the 1/29 decimal expansion cycle", () => {
-    // 1/29 = 0.0344827...
-    const expectedPrefix = [0, 3, 4, 4, 8, 2, 7, 5, 8, 6, 2, 0, 6, 8, 9, 6, 5, 5, 1, 7, 2, 4, 1, 3, 7, 9, 3, 1];
-    let s = 1;
-    const output: number[] = [];
-    for (let i = 0; i < 28; i++) {
-      output.push(getOutputDigit(s));
-      s = nextState(s, GENERATOR_DECIMAL);
+  it('should match the canonical Part VI operators', () => {
+    expect(OPERATOR_T3).toBe(107);
+    expect(OPERATOR_T7).toBe(4);
+    expect(OPERATOR_SYNC).toBe(47);
+    expect(MON_117).toBe(117);
+  });
+
+  it('should correctly run the T3 (Triad) operator', () => {
+    const firstStep = runOperator(1, 3);
+    expect(firstStep).toBe(OPERATOR_T3);
+    
+    // Canonical Triad 1: 1 -> 107 -> 19 -> 1
+    const secondStep = runOperator(firstStep, 3);
+    expect(secondStep).toBe(19);
+    const thirdStep = runOperator(secondStep, 3);
+    expect(thirdStep).toBe(1);
+  });
+
+  it('should correctly run the T7 (Septenary) operator', () => {
+    // T7: order 7 -> step 126/7 = 18
+    const firstStep = runOperator(1, 7);
+    
+    let expected = 1;
+    for (let i = 0; i < 18; i++) {
+      expected = (expected * 3) % 127;
     }
-    expect(output).toEqual(expectedPrefix);
-  });
+    expect(firstStep).toBe(expected);
 
-  it("verifies block complement symmetry (Bi + Bi+2 = 9999999)", () => {
-    const s1 = 1;
-    let s = s1;
-    const digits: number[] = [];
-    for (let i = 0; i < 28; i++) {
-      digits.push(getOutputDigit(s));
-      s = nextState(s, GENERATOR_DECIMAL);
+    // Verify it forms a 7-cycle
+    let state = 1;
+    for (let i = 0; i < 7; i++) {
+        state = runOperator(state, 7);
     }
-
-    // Split into 4 blocks of 7
-    const b1 = digits.slice(0, 7);
-    const b2 = digits.slice(7, 14);
-    const b3 = digits.slice(14, 21);
-    const b4 = digits.slice(21, 28);
-
-    const sum13 = b1.map((d, i) => d + b3[i]);
-    const sum24 = b2.map((d, i) => d + b4[i]);
-
-    expect(sum13).toEqual([9, 9, 9, 9, 9, 9, 9]);
-    expect(sum24).toEqual([9, 9, 9, 9, 9, 9, 9]);
+    expect(state).toBe(1);
   });
 
-  it("verifies antistate complement (s + s' = 29)", () => {
-    for (let s = 1; s < Z_PRIME; s++) {
-      const sPrime = getAntistate(s);
-      expect(s + sPrime).toBe(Z_PRIME);
-    }
-  });
-
-  it("verifies subgroup membership", () => {
-    // SAFE-4: {1, 12, 17, 28}
-    const safe4 = [1, 12, 17, 28];
-    safe4.forEach(s => expect(isStateInSubgroup(s, "SAFE-4")).toBe(true));
-    expect(isStateInSubgroup(2, "SAFE-4")).toBe(false);
-
-    // SAFE-7: {1, 7, 16, 20, 23, 24, 25}
-    const safe7 = [1, 7, 16, 20, 23, 24, 25];
-    safe7.forEach(s => expect(isStateInSubgroup(s, "SAFE-7")).toBe(true));
-    expect(isStateInSubgroup(2, "SAFE-7")).toBe(false);
-  });
-
-  it("verifies dual resonance logic", () => {
-    expect(hasDualResonance("FULL")).toBe(true);
-    expect(hasDualResonance("SAFE-14")).toBe(false);
-    expect(hasDualResonance("SAFE-7")).toBe(false);
-  });
-
-  it("verifies human readable (Miller-compliant) states", () => {
-    expect(isHumanReadable("FULL")).toBe(false);
-    expect(isHumanReadable("SAFE-14")).toBe(false);
-    expect(isHumanReadable("SAFE-7")).toBe(true);
-    expect(isHumanReadable("SAFE-4")).toBe(true);
-    expect(isHumanReadable("ZERO")).toBe(true);
-  });
-
-  it("verifies state order detection", () => {
-    expect(getStateOrder(1)).toBe(1);
-    expect(getStateOrder(12)).toBe(4);
-    expect(getStateOrder(7)).toBe(7);
-    expect(getStateOrder(4)).toBe(14);
-    expect(getStateOrder(2)).toBe(28);
+  it('should identify the resonance point between 3 and 7 cycles', () => {
+    // 21 is a multiple of 3 and 7.
+    // In Z*127, they "meet" through the Master cycle.
+    // k=21 node is a state reachable by both in proportional steps.
+    
+    // T3 (order 3) step is 42.
+    // T7 (order 7) step is 18.
+    // LCM(42, 18) = 126.
+    
+    // Thus, they only meet at 0 (full resonance) or indirectly via 21 nodes.
+    const order21Step = 126 / 21; // 6
+    const multiplier21 = Math.pow(3, 6) % 127; // 729 % 127 = 94
+    
+    expect(runOperator(1, 21)).toBe(94);
   });
 });

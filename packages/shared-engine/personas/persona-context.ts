@@ -15,11 +15,11 @@ export interface PersonaAugmentation {
   oracleSignal?: OracleSignal;
 }
 
-const PERSONA_ROLE_SIGNALS: Record<string, string> = {
-  svitlana_v1: "Ethics / Human Anchor / Integrity",
-  elisey_v1: "Epistemics / Truth Anchor / Understanding",
-  anton_v1: "Execution / Kinetic Anchor / Viability"
-};
+import { FRAMEWORK_OF_16 } from "./registry";
+ 
+ const PERSONA_ROLE_SIGNALS: Record<string, string> = Object.fromEntries(
+   Object.values(FRAMEWORK_OF_16).map(m => [m.id, m.roleSignal])
+ );
 
 /**
  * Builds the advisory context block for the triad prompt.

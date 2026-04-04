@@ -44,8 +44,16 @@ import {
   STATUS_NOISY,
 } from "./validate";
 import { validateTriadIntent } from "./intent-hardener";
-import { logDegradedFallback } from "./integrity";
+import {
+  InfluenceAjiStatus,
+  InfluenceStatus,
+  InfluenceTriadMode,
+  LearningStatus,
+  logDegradedFallback,
+  PriorsStatus,
+} from "./integrity";
 import { lookupTablebaseCandidate } from "./reliability/checkers-fusion";
+
 import { scoreCandidatesWithGate, type ScoreCandidatesOptions } from "./score";
 import { evaluatePnhContext, pnhContextFragilityScore } from "./pnh/pnh-context-evaluator";
 import type { PnhContextInput } from "./pnh/pnh-context-types";
@@ -112,39 +120,6 @@ export function generateAjiInsight(triggerReason: AjiTriggerReason): AjiInsights
     hypotheses: ["Mock hypothesis"],
     suggestions: ["Mock suggestion"]
   };
-}
-
-export interface PriorsStatus {
-  active: boolean;
-  learningContext: boolean;
-  corpusPrior: boolean;
-  tastePrior: boolean;
-  confidence: "low" | "medium" | "high";
-  stalenessDays: number | null;
-}
-
-export interface LearningStatus {
-  status: "active" | "inactive" | "error";
-  confidence: "low" | "medium" | "high";
-  sampleCount: number;
-}
-
-export interface InfluenceAjiStatus {
-  active: boolean;
-  expiresAtUtc: string | null;
-}
-
-export interface InfluenceTriadMode {
-  mode: "fetcher" | "partial" | "stub" | "tablebase";
-}
-
-export interface InfluenceStatus {
-  priorsStatus: PriorsStatus | null;
-  learningStatus: LearningStatus | null;
-  ajiStatus: InfluenceAjiStatus | null;
-  triadMode: InfluenceTriadMode | null;
-  /** Phase 2.1: Behavioral footprint summary. Multi-persona since Phase 3.4. */
-  personaStatus: import("./personas/persona-influence").PersonaInfluenceSnapshot[];
 }
 
 export function checkAndActivateAji(

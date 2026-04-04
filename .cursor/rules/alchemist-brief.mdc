@@ -6,10 +6,12 @@ alwaysApply: true
 # Alchemist
 
 - **MILTECH INTEGRITY (MON 117)**: High-integrity "missile-tracking" precision. **117_STABLE** target. 
+    - **GF(127) Unified Foundation**: The 117 scale is structurally emergent ($126 - 9$). Any mismatch in the unified core-model ($g=3$, $T_3=107$, $T_7=4$) triggers an immediate halt.
+    - **Room 17 Filter**: Mandatory meta-space intersection before graduation to 117 operational cells. No ideas enter MON 117 without Step 17 ($3^{17} \pmod{127}$) pre-sync validation.
     - **Capability Expansion Guard**: AST-based "Default Deny" contract. Any new endpoint or WASM exposure MUST be mapped in `capabilities/root.capabilities.json` and justified in PR (flag `allowed-capability-expansion: true`).
     - **Quantum Sentinel**: Mandatory live-memory verification. WASM runtime hashes compared via constant-time (timingSafeEqual) against `truth-matrix.json`. Drift threshold: `< 50ms` drift latency under high concurrency (8+ workers).
 - **HARD GATE**: `packages/fxp-encoder/serum-offset-map.ts` MUST existing and be validated (via `tools/validate-offsets.py` against a real Serum init .fxp). **Expanded Hard Gate**: Build fails if `verify:capabilities` or `verify:sentinel` (Heisenberg Echo detection) fail.
-- **Build order**: 1 shared-types → 2 capabilities/root.capabilities → 3 validate-offsets.py → 4 serum-offset-map.ts → 5 fxp-encoder (Rust WASM) → 6 shared-engine → 7 web-app.
+- **Build order**: 1 shared-types → 2 capabilities/root.capabilities → 3 validate-offsets.py → 4 serum-offset-map.ts → 5 fxp-encoder (Rust WASM) → 6 shared-engine (incl. room17) → 7 web-app.
 - **Stack**: Next.js 14, TS Strict, Babel AST parse, Rust→WASM, Worker Threads (Sentinel Stress), Node ≥ 20.
 - **AI Triad**: DeepSeek (ATHENA), Llama (HERMES), Qwen (HESTIA). 8 candidates, score, Slavic/Undercover TS gates. **Integrity Pulse**: `detectSchisms` reports `CORE_RESONANCE_LOSS` or `MEMORY_DRIFT` to operators.
 - **Design**: #111827 bg, #5EEAD4 primary. Fail loudly; **Miltech Directive**: See `miltech_mission_integrity.md`.

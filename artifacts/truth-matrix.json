@@ -1,13 +1,20 @@
 {
-  "schemaVersion": 5,
-  "generatedAtUtc": "2026-04-03T02:13:41.803Z",
-  "generationSequence": 39,
-  "generationNonce": "526d141b-89c9-4a6e-89b0-edee38239404",
-  "buildTimestamp": "2026-04-03T02:13:41.803Z",
-  "integrityStatus": "nominal",
-  "traceRootHash": "0178b4023bfd5cdea62fac0345afd084d200d3ce8aef5b8e6f8845353c7b1452",
-  "signingKeyId": "aiom-key-v2",
-  "divergenceCheckedAtUtc": "2026-04-03T02:13:41.803Z",
+  "schemaVersion": 6,
+  "generatedAtUtc": "2026-04-04T02:05:09.393Z",
+  "generationSequence": 43,
+  "generationNonce": "34183985-c015-46be-9c18-3fd1580b99b4",
+  "buildTimestamp": "2026-04-04T02:05:09.393Z",
+  "integrityStatus": "unverified",
+  "trustless": {
+    "verifiable": true,
+    "status": "verified",
+    "chainRootHash": "75706da6c2cd2300c39204ba16732da80c117ee5cbbf304b19ff2e11cf73a02a",
+    "merkleRootHash": "merkle_root_456",
+    "signingKeyId": "3b6a27bc",
+    "externalTimestamp": 1712160000000,
+    "input_bytes_hex": "676f6c64656e2d696e707574"
+  },
+  "divergenceCheckedAtUtc": "2026-04-04T02:05:09.393Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -25,8 +32,8 @@
       "confidence": "low",
       "note": "Non-authoritative quality trend for AIOM display only. orderChangeRate is 0 until score_candidates JSONL is aggregated; does not affect MON or integrity."
     },
-    "testsPassed": 491,
-    "testsTotal": 491,
+    "testsPassed": 564,
+    "testsTotal": 564,
     "iomCoverageScore": 1,
     "iomCellCount": 24,
     "iomCoveredCount": 24,
@@ -44,7 +51,7 @@
       "scenarioManifestHash": "0e6d7b1e2b4b314888e839f5174360647a32849cc5033e44490264bdcea352b3"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-03T02:13:25.300Z",
+    "syncedAtUtc": "2026-04-04T02:05:09.351Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,
@@ -62,7 +69,20 @@
       "activeScenarios": 7,
       "scenariosAtSAFE7OrAbove": 7,
       "anyHardStop": false,
-      "lastCheckedAt": "2026-04-03T02:13:35.007Z"
+      "lastCheckedAt": "2026-04-04T02:05:07.329Z"
+    },
+    "room17": {
+      "sessionsTotal": 0,
+      "ideasGraduated": 0,
+      "ideasReturned": 0,
+      "emergenceTypes": {
+        "direct": 0,
+        "triangulated": 0,
+        "unexpected": 0,
+        "none": 0
+      },
+      "lastSessionAt": null,
+      "graduationRate": 0
     }
   },
   "divergences": []

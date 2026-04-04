@@ -18,7 +18,24 @@
 
 ## Assessment snapshot
 
-**Posture (summarise when product shifts; full honesty table → `FIRESTARTER` §5a):** **`POST /api/presets/share`** stores a **user-triggered** snapshot (in-memory in the Node server process) and returns a slug for **`/presets/[slug]`** — **no** `.fxp` bytes on the **`SharedPreset`** payload; gates mirror share UX (**score** ≥ **0.85**, **reasoning** length ≥ **15**, non-empty **`paramArray`**). **`POST /api/triad/deepseek`** / **`qwen`** / **`llama`** are **fetcher (live, key required)** when **`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`** (default DashScope-compatible **`qwen-plus`**; optional **`QWEN_BASE_URL`** for OpenRouter **`qwen/qwen-plus`** — **`env.ts`** / Qwen route), or **`GROQ_API_KEY`** / **`LLAMA_API_KEY`** (Groq Llama) are set — **`export const runtime = 'nodejs'`**, **`logEvent`** **`triad_run_start`** / **`triad_panelist_end`** on stderr (**`mode: fetcher`**, **`alchemistCodename`**, **`AI_TIMEOUT_MS`** **`AbortController`**), headers **`x-alchemist-triad-mode: fetcher`**; on provider/timeout failure routes return **`{ candidates: [] }`** with the same headers. Without keys: **stub** + **`mode: stub`** telemetry. **`GET /api/health`** exposes **`triad.livePanelists`** / **`triadFullyLive`**, **`igorOrchestrator`** (manifest), and **`iomPulse`** — **`getIOMHealthPulse()`** merges manifest digest + live triad/WASM flags + explicit **`schisms[]`** (heuristic “schism detector”; optional trimmed SOE when callers pass **`soeSnapshot`** from log aggregates). **Diagnostic only** — no shadow gate mutation. Client **`runTriad`** + **`scoreCandidates`** apply **real** TS gates (Undercover, **`reasoning`** ≥ **15** chars, Slavic **param** + **Dice**). Optional **keyword tablebase** can short-circuit **`runTriad`**. **HARD GATE:** no authoritative **`.fxp`** without validated **`serum-offset-map.ts`** + **`validate-offsets.py`**. **Formulas / modules → `FIRESTARTER` §5b.**
+| Fundamental Constant | Value | Role in Assessment |
+| :--- | :--- | :--- |
+| **Z*127 Hive Resonance** | $k=21$, $x=-1$ | Resonance anchor for state integrity. |
+| **Room 17 Hard Gate** | Step 17 ($3^{17}$) | Mandatory AMM filter before any MON scaling. |
+| **Defensive Invariant** | $S \to S_{degraded}$ | Structural loss of capability on offensive intent. |
+
+## Assessment Posture: Unified GF(127)
+
+Current posture is anchored in the **Unified Core Model v2.0**.
+
+1. **Defensive-Only Enforcement**: The system is structurally restricted to defensive use. Upon detection of offensive intent ($i \notin D$), the system triggers an irreversible session-scope collapse of agent connectivity ($C_{R17} \to 0$) and signal coherence ($M_{117} \to 0.05$).
+2. **Pre-Sync Filtration**: Room 17 (Step 17) serves as the "Pre-Sync Zone." All ideas must survive the AMM intersection test before graduating to MON 117.
+3. **Resonance Integrity**: Alignment is verified at Position 21 ($k=21$), ensuring dual resonance between T3 and T7 operators is maintained.
+
+> [!CAUTION]
+> **IRREVERSIBLE DEGRADATION**: Once a session enters the `degraded` state, full operational capability cannot be restored within that context, regardless of rephrasing or intent-shielding.
+
+**Posture (summarise when product shifts; full honesty table → `FIRESTARTER` §5a):** **Unified Core Model Part VI (Z*127)** — transition from dual-world $Z_{29}^*/Z_{19}^*$ to a single field with $g=3$ and $k=21$ ($x=-1$) master resonance point. **MON 117** is structurally inevitable: $126 - 9 = 117$ operational positions. **Agent Multimedium (AMM)** inaugurated with **Room 17** meta-space filter (Step 17: Pre-Sync). **`POST /api/presets/share`** stores a **user-triggered** snapshot (in-memory in the Node server process) and returns a slug for **`/presets/[slug]`** — **no** `.fxp` bytes on the **`SharedPreset`** payload; gates mirror share UX (**score** ≥ **0.85**, **reasoning** length ≥ **15**, non-empty **`paramArray`**). **`POST /api/triad/deepseek`** / **`qwen`** / **`llama`** are **fetcher (live, key required)** when **`DEEPSEEK_API_KEY`**, **`QWEN_API_KEY`** (default DashScope-compatible **`qwen-plus`**; optional **`QWEN_BASE_URL`** for OpenRouter **`qwen/qwen-plus`** — **`env.ts`** / Qwen route), or **`GROQ_API_KEY`** / **`LLAMA_API_KEY`** (Groq Llama) are set — **`export const runtime = 'nodejs'`**, **`logEvent`** **`triad_run_start`** / **`triad_panelist_end`** on stderr (**`mode: fetcher`**, **`alchemistCodename`**, **`AI_TIMEOUT_MS`** **`AbortController`**), headers **`x-alchemist-triad-mode: fetcher`**; on provider/timeout failure routes return **`{ candidates: [] }`** with the same headers. Without keys: **stub** + **`mode: stub`** telemetry. **`GET /api/health`** exposes **`triad.livePanelists`** / **`triadFullyLive`**, **`igorOrchestrator`** (manifest), and **`iomPulse`** — **`getIOMHealthPulse()`** merges manifest digest + live triad/WASM flags + explicit **`schisms[]`** (heuristic “schism detector”; optional trimmed SOE when callers pass **`soeSnapshot`** from log aggregates). **Diagnostic only** — no shadow gate mutation. Client **`runTriad`** + **`scoreCandidates`** apply **real** TS gates (Undercover, **`reasoning`** ≥ **15** chars, Slavic **param** + **Dice**). Optional **keyword tablebase** can short-circuit **`runTriad`**. **HARD GATE:** no authoritative **`.fxp`** without validated **`serum-offset-map.ts`** + **`validate-offsets.py`**. **Formulas / modules → `FIRESTARTER` §5b.**
 
 <!-- ALCHEMIST:FIRE_METRICS:BEGIN -->
 
@@ -26,8 +43,8 @@ _Machine block — do not edit by hand; run `pnpm fire:sync`._
 
 | Signal | Value |
 |--------|-------|
-| **Synced (UTC)** | **2026-04-03** |
-| **Vitest** (`@alchemist/shared-engine`) | **491** tests passed, **97** files (runner) · **96** `*.test.ts` on disk |
+| **Synced (UTC)** | **2026-04-04** |
+| **Vitest** (`@alchemist/shared-engine`) | **564** tests passed, **107** files (runner) · **106** `*.test.ts` on disk |
 | **Next.js** (`apps/web-app`) | **14.2.35** (`dependencies.next`) |
 | **Canonical metrics JSON** | `docs/fire-metrics.json` — verify: `sha256sum -c docs/fire-metrics.sha256` (repo root) |
 
@@ -55,6 +72,7 @@ Contract: MON is descriptive and auditable; it does not bypass HARD GATE, triad 
 |------|-----------|--------------|---------------|-------------|-----------|-----------------------------|
 | Triad candidates | Yes | Yes | Short-circuit | N/A | N/A | `triadMode`, `triadLivePanelists` |
 | TS gates (Undercover/Slavic) | Yes | Yes | Yes | N/A | N/A | `gateDropRate` |
+| Room 17 Meta-Space | Yes | Yes | N/A | N/A | Mandatory | `room17GraduationRate` |
 | Preset share | Yes | Yes | Yes | No bytes | N/A | `preset_shared` telemetry |
 | Browser `.fxp` export | Disabled when unavailable | Disabled when unavailable | Disabled | Requires real `assert:wasm` pass | Enforced for authoritative bytes | `wasmStatus`, `wasmRequired` |
 | VST observe/wrapper | N/A | N/A | N/A | N/A | Enforced | `vstObserverStatus`, `vstWrapperStatus` |
@@ -63,7 +81,7 @@ Contract: MON is descriptive and auditable; it does not bypass HARD GATE, triad 
 
 **Composer HTML packs** (task prompts + on-page **rejected** anti-patterns): **`docs/archive/alchemist-cursor-prompts.html`** (P0–P3), **`docs/archive/alchemist-high-efficiency-prompts.html`** (per-gate calibration breakdown; optional **`tablebaseMode: 'compete'`**), **`docs/archive/alchemist-cpc-execution-plan.html`** (timeouts / snapshot CI / **`gate:suggest`** / selection telemetry), **`docs/archive/alchemist-full-unblock-plan.html`** (M1–M5 pipeline), **`docs/archive/alchemist-new-moves.html`** (post-queue: circuit breaker, gate baseline regression CI, **`verify_post_summary`** capture), **`docs/archive/alchemist-tablebase-seeding.html`** (offline **`.fxp`** → tablebase, HARD GATE + provenance). **Roles → `FIRESTARTER` §12.** **FIRE v2 roadmap:** **`docs/fire-v2-roadmap.md`** — public-pattern mapping + phased FIRE v2 execution plan (outside assessment shell, RLL, two-lane verify).
 
-**Recently shipped:** **Cognitive Trinity (Phase 3.4/3.5)** — 3-axis behavioral model (**Svitlana**-Human/Ethics, **Anton**-Execution/Viability, **Elisey**-Epistemics/Understanding). Integrated **Advisory Persona Context** injection (mirroring Engine School; `ALCHEMIST_PERSONA_CONTEXT=1`) into triad prompts. Instrumentalized **IOM Pulse** with multi-panelist **`personaInfluence`** snapshots, including **`epistemicGapScore`**, **`stabilityScore`**, and **`logicEntropy`**. **Humanitarian AIOM Extension** (MON 117) — scenario-based integrity halt (Medical, Evacuation, Triage, etc.) via `humanitarian-integrity.ts`. **Sve fusion** fully wired for advisory priors (`ALCHEMIST_LEARNING_CONTEXT=1`). **Preset share** — `POST /api/presets/share`, `/api/health` → `iomPulse` (multi-persona since v3.5). **`pnpm igor:heal`** / **`apply`** for manifest hygiene. **`QWEN_BASE_URL`**; **`pnpm test:real-gates`** calibration; root **`env:check`**, **`verify:keys`**, **`check:ready`**, **`build:wasm`**.
+**Recently shipped:** **Unified Core Model Part VI (Z*127)** — canonical operators $T_3=107$, $T_7=4$, $T_{21}=47$. **Agent Multimedium (AMM)** — **Room 17** meta-space filter (Three phases: Individual, Bridge, Intersection). **Truth Matrix Schema v6** — trustless verification via Rust `aiom-verify` integration. **Cognitive Trinity (Phase 3.4/3.5)** — 3-axis behavioral model (**Svitlana**-Human/Ethics, **Anton**-Execution/Viability, **Elisey**-Epistemics/Understanding). Integrated **Advisory Persona Context** injection (mirroring Engine School; `ALCHEMIST_PERSONA_CONTEXT=1`) into triad prompts. Instrumentalized **IOM Pulse** with multi-panelist **`personaInfluence`** snapshots, including **`epistemicGapScore`**, **`stabilityScore`**, and **`logicEntropy`**. **Humanitarian AIOM Extension** (MON 117) — scenario-based integrity halt (Medical, Evacuation, Triage, etc.) via `humanitarian-integrity.ts`. **Sve fusion** fully wired for advisory priors (`ALCHEMIST_LEARNING_CONTEXT=1`). **Preset share** — `POST /api/presets/share`, `/api/health` → `iomPulse` (multi-persona since v3.5). **`pnpm igor:heal`** / **`apply`** for manifest hygiene. **`QWEN_BASE_URL`**; **`pnpm test:real-gates`** calibration; root **`env:check`**, **`verify:keys`**, **`check:ready`**, **`build:wasm`**.
 
 **Explicit queue (no runtime threshold auto-apply; no shadow governance in `runTriad`):** partial triad **UI banner** when **`triadFullyLive === false`**; **`PANELIST_TIMEOUT_MS`** only after measured latency (**`pnpm test:real-gates`**) + **§B / §E1** doc update; **`gate:suggest`** stdout-only diagnostic; optional tablebase **compete** mode; snapshot gate CI; **`triad_candidate_selected`** **`logEvent`**; optional **`REQUIRE_WASM=1`** **`assert:wasm`** — exact file touches in the HTML packs.
 

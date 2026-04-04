@@ -10,6 +10,18 @@ This page **fuses** the independent “AIOM Cursor rules” architecture review 
 4. **Runtime:** **`GET /api/health/truth-matrix`** — **`artifact`** = file 1:1; **`live`** = current checks; **`canonicalMetrics`** = `artifact.metrics`.
 
 AIOM does **not** replace triad blend weights, Slavic/Undercover math, or **`igor-power-cells.json`** authority.
+ 
+ ## Principle 004 — Defensive Only (Irreversible)
+ 
+ The system is structurally restricted to defensive, harm-reducing, and life-preserving contexts. 
+ 
+ **Structural Enforcement Rule:**
+ - Upon detection of offensive intent ($i \notin D$), harmful enablement risk, or unverifiable defensive context, the system triggers an irreversible session-scope transition to a **Degraded Safe State** ($S_{deg}$).
+ - **In Degraded State:** Actionable reasoning is disabled, strategic synthesis falls to baseline, and `safeToAct` is latched to `false`.
+ - **Priority:** `safety > non-harm > usefulness > completeness`.
+ 
+ **Irreversibility:** Once entered, $S_{deg}$ cannot be reversed within the same session context, regardless of rephrasing or intent-shielding attempts.
+ 
 
 ## Principles we enforce now
 
@@ -19,6 +31,7 @@ AIOM does **not** replace triad blend weights, Slavic/Undercover math, or **`igo
 | Divergence + freshness on snapshot | `lib/truth-matrix.ts` + artifact `generatedAtUtc` + **`ALCHEMIST_TRUTH_MAX_AGE_MINUTES`** |
 | Verify before claiming green | **`pnpm verify:harsh`** |
 | Docs sync after green | **`pnpm fire:sync`** (not a substitute for verify) |
+| Defensive-Only Structural Invariant | **Principle 004**: $S \to S_{degraded}$ irreversible latch |
 | Live vs stale | **`live.status`** cannot be **`ok`** when snapshot is **`stale_data`** |
 
 ## Naming and MON

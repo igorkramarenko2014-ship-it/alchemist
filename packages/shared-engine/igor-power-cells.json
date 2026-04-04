@@ -190,5 +190,15 @@
       "wrapper/engine-wrapper.types.ts",
       "tests/engine-wrapper.test.ts"
     ]
+  },
+  {
+    "id": "pythia",
+    "tier": "tier2_release_truth",
+    "recommendation": "KEEP",
+    "responsibility": "Lazy Oracle — activates on criticality only. Produces Top 3 scenarios + Troika endorsement. Advisory output to Shigor. No gate mutation. No triad override. Operator decision required.",
+    "artifacts": [
+      "agents/athena-pythia.ts",
+      "agents/pythia-types.ts"
+    ]
   }
 ]

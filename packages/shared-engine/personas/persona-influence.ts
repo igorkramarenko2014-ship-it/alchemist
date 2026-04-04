@@ -5,36 +5,41 @@
  * This is perspective enrichment, NOT identity transfer.
  */
 
-export interface PersonaPerspectiveSignal {
-  personaId: string;
-  tsMs: number;
-  score: number; // 0.0 - 1.0 adherence
-  activeLogics: string[];
-  signature: {
-    pauseApplied: number; // 0 or 1
-    flatteryResisted: number; // 0 or 1
-    agencyReturned: number; // 0 or 1
-    verbosityControlled: number; // 0 or 1
-  };
-}
-
-export interface PersonaInfluenceSnapshot {
-  personaId: string;
-  sampleSize: number;
-  stabilityScore: number;
-  dominantLogics: string[];
-  logicDistribution: Record<string, number>; // L01 -> 0.32 etc.
-  logicEntropyScore: number; // 0.0 to 1.0 (Shannon)
-  signatureRates: {
-    pauseRate: number;
-    flatteryResistanceRate: number;
-    agencyReturnRate: number;
-    verbosityControlRate: number;
-  };
-  epistemicGapScore: number; // 0.0 to 1.0 (High = many gaps)
-  driftRisk: "low" | "medium" | "high";
-  status: "active" | "insufficient_persona_signal";
-}
+import { getPersonaMetadata, PersonaBias } from "./registry";
+ 
+ export interface PersonaPerspectiveSignal {
+   personaId: string;
+   tsMs: number;
+   score: number; // 0.0 - 1.0 adherence
+   activeLogics: string[];
+   signature: {
+     pauseApplied: number; // 0 or 1
+     flatteryResisted: number; // 0 or 1
+     agencyReturned: number; // 0 or 1
+     verbosityControlled: number; // 0 or 1
+   };
+ }
+ 
+ export interface PersonaInfluenceSnapshot {
+   personaId: string;
+   sampleSize: number;
+   stabilityScore: number;
+   dominantLogics: string[];
+   logicDistribution: Record<string, number>; // L01 -> 0.32 etc.
+   logicEntropyScore: number; // 0.0 to 1.0 (Shannon)
+   signatureRates: {
+     pauseRate: number;
+     flatteryResistanceRate: number;
+     agencyReturnRate: number;
+     verbosityControlRate: number;
+   };
+   epistemicGapScore: number; // 0.0 to 1.0 (High = many gaps)
+   biasAnalytics: PersonaBias & {
+     steeringMagnitude: number; // Combined vector length
+   };
+   driftRisk: "low" | "medium" | "high";
+   status: "active" | "insufficient_persona_signal";
+ }
 
 const RING_MAX_SIGNALS = 100;
 const MIN_SIGNALS_FOR_ENTROPY = 10;
@@ -97,23 +102,35 @@ export function getPersonaInfluenceSnapshot(personaId: string, windowMs = 360000
 
   // Phase 3.4: Epistemic Gap Score
   // Measured by Mechanism Gaps (L03), Illusion Breaks (L01), and Goal Misalignment (L14)
-  const epistemicLogics = ["L01_ILLUSION_BREAK", "L02_CAUSAL_DEMAND", "L03_MECHANISM_GAP", "L15_KNOWLEDGE_TOPOLOGY"];
-  const epistemicHits = win.filter(s => s.activeLogics.some(l => epistemicLogics.includes(l))).length;
-  const epistemicGapScore = epistemicHits / n;
-
-  return {
-    personaId,
-    sampleSize: n,
-    stabilityScore,
-    dominantLogics,
-    logicDistribution,
-    logicEntropyScore,
-    signatureRates,
-    epistemicGapScore,
-    driftRisk: stabilityScore > 0.85 ? "low" : stabilityScore > 0.7 ? "medium" : "high",
-    status: n < MIN_SIGNALS_FOR_ENTROPY ? "insufficient_persona_signal" : "active"
-  };
-}
+ 
+   const epistemicLogics = ["L01_ILLUSION_BREAK", "L02_CAUSAL_DEMAND", "L03_MECHANISM_GAP", "L15_KNOWLEDGE_TOPOLOGY"];
+   const epistemicHits = win.filter(s => s.activeLogics.some(l => epistemicLogics.includes(l))).length;
+   const epistemicGapScore = epistemicHits / n;
+ 
+   // Operational 16: Retrieve and average bias influence
+   const meta = getPersonaMetadata(personaId);
+   const bias = meta?.bias || { novelty: 0, coherence: 0, risk: 0, entropy: 0 };
+   const steeringMagnitude = Math.sqrt(
+     Math.pow(bias.novelty, 2) + Math.pow(bias.coherence, 2) + Math.pow(bias.risk, 2) + Math.pow(bias.entropy, 2)
+   );
+ 
+   return {
+     personaId,
+     sampleSize: n,
+     stabilityScore,
+     dominantLogics,
+     logicDistribution,
+     logicEntropyScore,
+     signatureRates,
+     epistemicGapScore,
+     biasAnalytics: {
+       ...bias,
+       steeringMagnitude
+     },
+     driftRisk: stabilityScore > 0.85 ? "low" : stabilityScore > 0.7 ? "medium" : "high",
+     status: n < MIN_SIGNALS_FOR_ENTROPY ? "insufficient_persona_signal" : "active"
+   };
+ }
 
 /** Test helper */
 export function __resetPersonaInfluenceForTests(): void {

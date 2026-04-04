@@ -1,5 +1,6 @@
 import { PersonaInfluenceSnapshot } from "./persona-influence";
 import { OracleSignal, TriadPersonaId } from "../operator/operator-types";
+export { OracleSignal, TriadPersonaId };
 
 /**
  * ORACLE SIGNAL — The Governor Layer

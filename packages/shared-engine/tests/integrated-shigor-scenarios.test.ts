@@ -183,7 +183,7 @@ describe("integrated-shigor-scenarios", () => {
         oracleSignal: { leadPersona: "elisey", depthLevel: 0.9, warmth: 0.5, readinessMatch: 0.5, truthDensity: 0.5, silenceAfter: false, deferTruth: false }
       });
       const decision = computeShigorDecision(c);
-      expectDecision(decision, { deferTruth: true, rationaleIncludes: ["DEFER_TRUTH"] });
+      expectDecision(decision, { deferTruth: true, rationaleIncludes: ["CONSENT_LACKING"] });
     });
 
     it("3. Warm Truth, Human-Safe: should not defer", () => {

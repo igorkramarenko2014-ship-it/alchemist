@@ -1,0 +1,19 @@
+[workspace]
+members = [
+    "crates/aiom-runner",
+    "crates/aiom-trace",
+    "crates/aiom-merkle",
+    "crates/aiom-signing",
+    "crates/aiom-timestamp",
+    "crates/aiom-artifact",
+    "crates/aiom-verify",
+    "crates/aiom-log",
+]
+resolver = "2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = 'abort'
+strip = true

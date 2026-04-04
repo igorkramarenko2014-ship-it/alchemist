@@ -11,16 +11,17 @@
     "verification",
     "sources",
     "metrics",
-    "divergences"
+    "divergences",
+    "trustless"
   ],
   "properties": {
     "schemaVersion": {
       "type": "number",
-      "const": 5
+      "const": 6
     },
     "integrityStatus": {
       "type": "string",
-      "enum": ["nominal", "compromised", "degraded"]
+      "enum": ["nominal", "compromised", "degraded", "unverified"]
     },
     "generatedAtUtc": {
       "type": "string",
@@ -92,7 +93,8 @@
         "syncedAtUtc",
         "learningOutcomes",
         "ajiStatus",
-        "identityStatus"
+        "identityStatus",
+        "room17"
       ],
       "properties": {
         "learningOutcomes": {
@@ -234,11 +236,66 @@
             "anyHardStop": { "type": "boolean" },
             "lastCheckedAt": { "type": "string", "format": "date-time" }
           }
+        },
+        "room17": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "graduationRate",
+            "sessionsTotal",
+            "ideasGraduated",
+            "ideasReturned",
+            "emergenceTypes"
+          ],
+          "properties": {
+            "graduationRate": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sessionsTotal": { "type": "integer", "minimum": 0 },
+            "ideasGraduated": { "type": "integer", "minimum": 0 },
+            "ideasReturned": { "type": "integer", "minimum": 0 },
+            "lastSessionAt": { "type": ["string", "null"], "format": "date-time" },
+            "emergenceTypes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["direct", "triangulated", "unexpected", "none"],
+              "properties": {
+                "direct": { "type": "integer", "minimum": 0 },
+                "triangulated": { "type": "integer", "minimum": 0 },
+                "unexpected": { "type": "integer", "minimum": 0 },
+                "none": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
         }
       }
     },
     "divergences": {
       "type": "array"
+    },
+    "trustless": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verifiable",
+        "status"
+      ],
+      "properties": {
+        "verifiable": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "unverified",
+            "mismatch"
+          ]
+        },
+        "chainRootHash": { "type": "string" },
+        "merkleRootHash": { "type": "string" },
+        "signingKeyId": { "type": "string" },
+        "externalTimestamp": { "type": "number" },
+        "input_bytes_hex": { "type": "string" }
+      }
     }
   }
 }

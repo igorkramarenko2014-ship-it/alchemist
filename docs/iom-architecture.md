@@ -1,6 +1,6 @@
 # IOM architecture (auto-generated)
 
-Last sync: **2026-04-03** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
+Last sync: **2026-04-04** — run `pnpm igor:docs` to refresh after editing `igor-power-cells.json`.
 
 > Diagnostic firewall: Tier 3 is advisory-only and must never mutate Tier 1 outcomes without an explicit tested bridge.
 
@@ -75,6 +75,13 @@ Last sync: **2026-04-03** — run `pnpm igor:docs` to refresh after editing `igo
 - **Recommendation:** `KEEP`
 - **Responsibility:** User-consented shareable preset pages — slug generation, score gate (≥0.85), OG metadata from real candidate fields, paramArray visual only (no .fxp bytes exposed).
 - **Artifacts:** `../../apps/web-app/lib/share-preset.ts`, `../../apps/web-app/lib/preset-store.ts`, `../../apps/web-app/app/presets/[slug]/page.tsx`, `../../apps/web-app/app/api/presets/share/route.ts`
+
+### pythia
+
+- **Tier:** `tier2_release_truth`
+- **Recommendation:** `KEEP`
+- **Responsibility:** Lazy Oracle — activates on criticality only. Produces Top 3 scenarios + Troika endorsement. Advisory output to Shigor. No gate mutation. No triad override. Operator decision required.
+- **Artifacts:** `agents/athena-pythia.ts`, `agents/pythia-types.ts`
 
 ## Quarantined advisory cells (Tier 3)
 

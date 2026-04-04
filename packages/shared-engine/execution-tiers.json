@@ -121,6 +121,12 @@
       "recommendation": "QUARANTINE",
       "advisoryOnly": true,
       "hotPathMutable": false
+    },
+    "pythia": {
+      "tier": "tier2_release_truth",
+      "recommendation": "KEEP",
+      "advisoryOnly": true,
+      "hotPathMutable": false
     }
   }
 }

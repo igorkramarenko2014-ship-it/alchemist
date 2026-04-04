@@ -125,4 +125,9 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
     responsibility: "3-layer trust adaptive adapter: intake, transmutation lock, and AIOM trust surface integration. Provides human-readable confidence and fallback signals.",
     artifacts: ["wrapper/engine-wrapper.ts", "wrapper/engine-wrapper.types.ts", "tests/engine-wrapper.test.ts"] as const,
   },
+  {
+    id: "pythia",
+    responsibility: "Lazy Oracle — activates on criticality only. Produces Top 3 scenarios + Troika endorsement. Advisory output to Shigor. No gate mutation. No triad override. Operator decision required.",
+    artifacts: ["agents/athena-pythia.ts", "agents/pythia-types.ts"] as const,
+  },
 ] as const;

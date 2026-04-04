@@ -10,8 +10,10 @@ import {
   computeHealthAgentAjiChatFusion,
   getIgorOrchestratorManifest,
   getIOMHealthPulse,
+  getIntegrityHealthSnapshot,
   InfluenceStatus,
 } from "@alchemist/shared-engine";
+
 import { loadLearningIndex } from "@alchemist/shared-engine/node";
 import { getTruthArtifact } from "@/lib/truth-matrix";
 import { getGFUSCBurnState } from "@/lib/gfusc-burn-check";
@@ -129,37 +131,15 @@ export async function GET(request: Request) {
     repoRoot != null ? getSystemHealthMetricFromArtifacts(repoRoot) : null;
 
   const learningIndex = loadLearningIndex();
-  const truthArtifact = getTruthArtifact();
+  
+  // Requirement B: No lock/influence logic in route.ts.
+  // Use centralized engine truth.
+  const integritySnapshot = getIntegrityHealthSnapshot();
+  const influence = integritySnapshot.influence;
 
-  const priorsStatus: InfluenceStatus["priorsStatus"] = {
-    active: env.learningContextEnabled || env.corpusPriorEnabled || env.tastePriorEnabled,
-    learningContext: env.learningContextEnabled,
-    corpusPrior: env.corpusPriorEnabled,
-    tastePrior: env.tastePriorEnabled,
-    confidence: (learningIndex?.fitnessSnapshot?.learningOutcomes?.confidence as any) ?? "low",
-    stalenessDays: (learningIndex?.fitnessSnapshot?.lessonFitness?.[0]?.stalenessDays as any) ?? null,
-  };
+  // Enhance influence with persona status from IOM pulse if available
+  influence.personaStatus = iomPulse.personaInfluence ?? [];
 
-  const learningStatus: InfluenceStatus["learningStatus"] = {
-    status: learningIndex ? "active" : "inactive",
-    confidence: (learningIndex?.fitnessSnapshot?.learningOutcomes?.confidence as any) ?? "low",
-    sampleCount: learningIndex?.fitnessSnapshot?.learningOutcomes?.sampleCount ?? 0,
-  };
-
-  const ajiStatus: InfluenceStatus["ajiStatus"] = {
-    active: (truthArtifact?.metrics as any)?.identityStatus?.ajiActive ?? false,
-    expiresAtUtc: process.env.ALCHEMIST_AJI_EXPIRES_AT ?? null,
-  };
-
-  const influence: InfluenceStatus = {
-    priorsStatus,
-    learningStatus,
-    ajiStatus,
-    triadMode: {
-      mode: httpTriadCoverage === "full" ? "fetcher" : httpTriadCoverage === "partial" ? "partial" : "stub",
-    },
-    personaStatus: iomPulse.personaInfluence ?? null,
-  };
 
   return NextResponse.json({
     ok: !isBurned,

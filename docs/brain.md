@@ -10,6 +10,10 @@
 |------|------|
 | **`FIRESTARTER.md`** | Recovery bible, workflow appendices, INIT paste |
 | **`FIRE.md`** | Assessment contracts §A–L + **`pnpm fire:sync`** metrics |
+| **`AIOM-Technical-Brief.md`** | High-level AIOM v2 technical summary (Phase A–D) |
+| **`GFUSC-spec.md`** | GFUSC Behavioral Protocol (Principle 001) |
+| **`CORE_MODEL_V6.md`** | **Unified Core Model Part VI** — GF(127) and the 117-node structure |
+| **`ILASI.md`** | **Igor’s Library of Abstract Sudden Ideas** — canonical architectural principles |
 | **`brain.md`** | This file — deep orientation, §9a fusion, §9c–§9d Igor / IOM |
 | **Cognitive Trinity** | **Svitlana / Anton / Elisey** — 3-axis agentic observability layer |
 | **`codex-narrative.md`** | Codex working narrative: current repo picture, recent safe changes, and session-close discipline |

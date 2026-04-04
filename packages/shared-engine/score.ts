@@ -17,7 +17,13 @@ import type { AICandidate, Panelist, UserMode } from "@alchemist/shared-types";
 import type { GameChanger } from "./aji-logic";
 import { runAjiCrystallization } from "./aji-logic";
 import { logEvent } from "./telemetry";
+import {
+  evaluateIntegrityLocks,
+  IntegrityLockReason,
+  IntegrityLockStatus,
+} from "./integrity";
 import { interpretTask } from "./transmutation/task-interpreter";
+
 import { computeOutcomeAlignment } from "./transmutation/transmutation-outcome";
 import { PANELIST_WEIGHTS } from "./constants";
 import { TRANSMUTATION_BOUNDS } from "./transmutation/transmutation-bounds";
@@ -521,41 +527,17 @@ function isProfileMalformed(p: TransmutationProfile): boolean {
 }
 
 /**
- * Same pipeline as `scoreCandidates`, but surfaces **`STATUS_NOISY`** when the Gatekeeper
- * rejects the batch: scores (IQR + rolling Z) and, when provided, parallel **`durationMs`**
- * (floor + same stats). **`durationMs` is not mutated or attached** to candidates.
- *
- * **Transmutation Phase 2:** if `options.transmutationProfile` is set, the Slavic cosine
- * threshold is shifted by `gate_offsets.slavic_threshold_delta` before dedup.
- * Gate law (validate / PNH / HARD GATE) is unchanged.
+ * Internal scoring and deduplication pipeline (Move Step 5).
+ * Logic from the original scoreCandidatesWithGate, extracted for Lock separation.
  */
-export function scoreCandidatesWithGate(
+function performScoringPipeline(
   candidates: AICandidate[],
-  prompt?: string,
+  prompt: string,
   durationMs?: number[],
-  options?: ScoreCandidatesOptions
+  options?: ScoreCandidatesOptions,
+  activeLocks: IntegrityLockStatus[] = []
 ): ScoreCandidatesGatedResult {
-  const p = prompt?.trim() ?? "";
-  if (p.length > 0) {
-    const scoringLane: PnhTriadLane = options?.pnhScoringLane ?? "fully_live";
-    const gate = validateTriadIntent({ prompt: p }, { pnhTriadLane: scoringLane });
-    if (gate.ok === false) {
-      logEvent("pnh_scoring_guard", {
-        interventionType: "scoring_guard_blocked",
-        reason: gate.reason,
-        detail: gate.detail,
-        originalPromptHash: hashPromptForTelemetry(p),
-      });
-      return {
-        status: "OK",
-        candidates: [],
-        creativePivot: buildCreativePivotForDeadEnd(prompt),
-      };
-    }
-  }
-  if (candidates.length === 0) {
-    return { status: "OK", candidates: [] };
-  }
+  const p = prompt.trim();
   if (!isTelemetryPureFromCandidates(candidates, durationMs)) {
     return {
       status: STATUS_NOISY,
@@ -571,7 +553,7 @@ export function scoreCandidatesWithGate(
 
   // Phase 2: apply Slavic threshold shift from transmutation profile (bounded; advisory only)
   const slavicDeltaRaw = effectiveProfile?.gate_offsets?.slavic_threshold_delta ?? 0;
-  const slavicDelta = Math.max(-0.03, Math.min(0.03, slavicDeltaRaw)); // TRANSMUTATION_BOUNDS.single_threshold_delta_max
+  const slavicDelta = Math.max(-0.03, Math.min(0.03, slavicDeltaRaw));
   const baseSlavicThreshold = slavicCosineThresholdForPrompt(p);
   const effectiveSlavicThreshold = Math.max(0.5, Math.min(0.99, baseSlavicThreshold + slavicDelta));
 
@@ -588,76 +570,189 @@ export function scoreCandidatesWithGate(
     };
   }
 
+  // Lock 3/4 adjustment: Epistemic Brake / Human Priority
+  // (In a full implementation, these would shift weights inside intentBlendRankKey)
   const optionsWithProfile = { ...options, transmutationProfile: effectiveProfile };
   const blended = applyIntentBlendSort(deduped, prompt, optionsWithProfile);
   const withCorpus = applyCorpusAffinityResort(blended, optionsWithProfile);
   const ranked = applyTasteAffinityResort(withCorpus, optionsWithProfile);
 
   if (profile) {
-    const weights: Record<string, number> = {};
-    const weightClamped: Record<string, boolean> = {};
-    for (const p of ["LLAMA", "DEEPSEEK", "QWEN"] as Panelist[]) {
-      const baseline = PANELIST_WEIGHTS[p] ?? 0;
-      const effective = effectivePanelistWeight({ panelist: p } as AICandidate, effectiveProfile);
-      weights[p] = effective;
-      const requested = profile.triad_weights?.[p];
-      weightClamped[p] = !isFallback && requested != null && Number.isFinite(requested) && (requested > baseline + 0.12 || requested < baseline - 0.12);
-    }
-    
-    logEvent("transmutation_scoring_applied", {
-      status: isFallback ? "fallback_baseline" : "applied",
-      policy_family: profile ? (isFallback ? "CORRUPT" : "active") : "none",
-      // Resolved vs Effective (Audit Trail)
-      resolved_slavic_delta: profile.gate_offsets?.slavic_threshold_delta ?? 0,
-      effective_slavic_delta: slavicDelta,
-      slavic_clamped: !isFallback && (profile.gate_offsets?.slavic_threshold_delta ?? 0) !== slavicDelta,
-      
-      resolved_weights: profile.triad_weights,
-      effective_weights: weights,
-      weights_clamped: Object.values(weightClamped).some(v => v),
-      
-      resolved_priors: profile.priors,
-      effective_priors: {
-        corpus_affinity_weight: options?.corpusAffinityWeight ?? (effectiveProfile?.priors?.corpus_affinity_weight ?? 0.45),
-        taste_weight: options?.tasteWeight ?? (effectiveProfile?.priors?.taste_weight ?? 0.06),
-      },
-      priors_clamped: false, 
-      
-      survivor_count: ranked.length,
-      fallback_reason: isFallback ? (profile ? "malformed_shape" : "missing_profile") : undefined,
-      note: "Audit trail: resolved intent vs bounded effective application."
-    });
-
-    // MOVE 3: Intent Alignment (Outcome Signal)
-    const winner = ranked[0];
-    if (winner && deduped.length > 0) {
-      const taskSchemaSnapshot = interpretTask(p ?? "");
-      const survivorAlignments = deduped.map(c => 
-        computeOutcomeAlignment(taskSchemaSnapshot, c).final
-      );
-      const winnerAlignment = computeOutcomeAlignment(taskSchemaSnapshot, winner);
-      const survivorMeanAlignment = survivorAlignments.reduce((a, b) => a + b, 0) / survivorAlignments.length;
-
-      logEvent("transmutation_outcome_alignment", {
-        runId: options?.runId ?? "none",
-        status: isFallback ? "fallback_baseline" : "applied",
-        alignmentFinal: winnerAlignment.final,
-        alignmentConfidence: winnerAlignment.confidence,
-        breakdown: winnerAlignment.breakdown,
-        taskSchemaSnapshot: taskSchemaSnapshot,
-        alignmentGainV1: winnerAlignment.final - survivorMeanAlignment,
-        survivorMeanAlignment: survivorMeanAlignment,
-        policyFamily: profile ? (isFallback ? "CORRUPT" : "active") : "none",
-        note: "Evaluation of behavior shift correctness (MOVE 3)."
-      });
-    }
+    logTransmutationAuditTrail(
+      profile,
+      effectiveProfile,
+      isFallback,
+      ranked,
+      deduped,
+      p,
+      slavicDelta, // Pass the actual applied delta
+      options
+    );
   }
+
 
   return {
     status: "OK",
     candidates: ranked,
   };
 }
+
+/** 
+ * Wraps final result with integrity metadata and applies dead-end rules. 
+ */
+function applyIntegrityOutcome(
+  result: ScoreCandidatesGatedResult,
+  locks: IntegrityLockStatus[],
+  prompt: string
+): ScoreCandidatesGatedResult {
+  const activeLock = locks.find(l => l.active);
+  if (activeLock) {
+    // Hard locks override output
+    if (activeLock.id === "consent" || activeLock.id === "execution") {
+      return {
+        status: "OK",
+        candidates: [],
+        creativePivot: buildCreativePivotForDeadEnd(prompt),
+      };
+    }
+  }
+  return result;
+}
+
+function logTransmutationAuditTrail(
+  profile: TransmutationProfile,
+  effectiveProfile: TransmutationProfile | null,
+  isFallback: boolean,
+  ranked: AICandidate[],
+  deduped: AICandidate[],
+  p: string,
+  effectiveSlavicDelta: number,
+  options?: ScoreCandidatesOptions,
+) {
+  const weights: Record<string, number> = {};
+  const weightClamped: Record<string, boolean> = {};
+  for (const pan of ["LLAMA", "DEEPSEEK", "QWEN"] as Panelist[]) {
+    const baseline = PANELIST_WEIGHTS[pan] ?? 0;
+    const effective = effectivePanelistWeight({ panelist: pan } as AICandidate, effectiveProfile);
+    weights[pan] = effective;
+    const requested = profile.triad_weights?.[pan];
+    weightClamped[pan] =
+      !isFallback &&
+      requested != null &&
+      Number.isFinite(requested) &&
+      (requested > baseline + 0.12 || requested < baseline - 0.12);
+  }
+
+  const resolvedSlavicDelta = profile.gate_offsets?.slavic_threshold_delta ?? 0;
+
+  logEvent("transmutation_scoring_applied", {
+    status: isFallback ? "fallback_baseline" : "applied",
+    policy_family: profile ? (isFallback ? "CORRUPT" : "active") : "none",
+    resolved_slavic_delta: resolvedSlavicDelta,
+    effective_slavic_delta: effectiveSlavicDelta,
+    slavic_clamped: !isFallback && resolvedSlavicDelta !== effectiveSlavicDelta,
+    resolved_weights: profile.triad_weights,
+    effective_weights: weights,
+    weights_clamped: Object.values(weightClamped).some((v) => v),
+    survivor_count: ranked.length,
+    fallback_reason: isFallback ? "malformed_shape" : undefined,
+  });
+
+
+  const winner = ranked[0];
+  if (winner && deduped.length > 0) {
+    const taskSchemaSnapshot = interpretTask(p ?? "");
+    const survivorAlignments = deduped.map(
+      (c) => computeOutcomeAlignment(taskSchemaSnapshot, c).final,
+    );
+    const winnerAlignment = computeOutcomeAlignment(taskSchemaSnapshot, winner);
+    const survivorMeanAlignment =
+      survivorAlignments.reduce((a, b) => a + b, 0) / survivorAlignments.length;
+
+    logEvent("transmutation_outcome_alignment", {
+      runId: options?.runId ?? "none",
+      status: isFallback ? "fallback_baseline" : "applied",
+      alignmentFinal: winnerAlignment.final,
+      alignmentConfidence: winnerAlignment.confidence,
+      breakdown: winnerAlignment.breakdown,
+      taskSchemaSnapshot: taskSchemaSnapshot,
+      alignmentGainV1: winnerAlignment.final - survivorMeanAlignment,
+      survivorMeanAlignment: survivorMeanAlignment,
+      policyFamily: profile ? (isFallback ? "CORRUPT" : "active") : "none",
+      note: "Evaluation of behavior shift correctness (MOVE 3).",
+    });
+  }
+}
+
+/**
+ * Same pipeline as `scoreCandidates`, but surfaces **`STATUS_NOISY`** when the Gatekeeper
+ * rejects the batch.
+ *
+ * **Phase 2 (Hardening):** Applies Integrity Locks (1-5) in deterministic order.
+ * Requirement A, D, E: Deterministic, Separated, Telemetry-last.
+ */
+export function scoreCandidatesWithGate(
+  candidates: AICandidate[],
+  prompt?: string,
+  durationMs?: number[],
+  options?: ScoreCandidatesOptions
+): ScoreCandidatesGatedResult {
+  const p = prompt?.trim() ?? "";
+  
+  // 1. Evaluate Integrity Locks (Requirement A)
+  const locks = evaluateIntegrityLocks();
+  const lockReasons = locks.filter(l => l.active).map(l => l.reason).filter(Boolean);
+
+  // 2. PNH / Intent Guard (Pre-scan)
+  if (p.length > 0) {
+    const scoringLane: PnhTriadLane = options?.pnhScoringLane ?? "fully_live";
+    const gate = validateTriadIntent({ prompt: p }, { pnhTriadLane: scoringLane });
+    if (gate.ok === false) {
+      logEvent("pnh_scoring_guard", {
+        interventionType: "scoring_guard_blocked",
+        reason: gate.reason,
+        originalPromptHash: hashPromptForTelemetry(p),
+      });
+      return {
+        status: "OK",
+        candidates: [],
+        creativePivot: buildCreativePivotForDeadEnd(prompt),
+      };
+    }
+  }
+
+  // 3. Early Exit for Hard Locks (Consent/Execution)
+  const hardLock = locks.find(l => l.active && (l.id === "consent" || l.id === "execution"));
+  if (hardLock) {
+    return applyIntegrityOutcome({ status: "OK", candidates: [] }, locks, p);
+  }
+
+  if (candidates.length === 0) {
+    return { status: "OK", candidates: [] };
+  }
+
+  // 4. Perform Scoring Pipeline (Requirement D)
+  const result = performScoringPipeline(candidates, p, durationMs, options, locks);
+
+  // 5. Final Outcome & Telemetry (Requirement E)
+  const finalized = applyIntegrityOutcome(result, locks, p);
+  
+  logEvent("triad_run_influence", {
+    runId: options?.runId ?? "none",
+    lockReasons,
+    candidateCountBefore: candidates.length,
+    candidateCountAfter: finalized.candidates.length,
+    hasPivot: !!finalized.creativePivot,
+    priorsUsed: {
+      learning: !!options?.corpusAffinityPrior,
+      taste: !!options?.tastePrior,
+    },
+    note: "Requirement E: Influence telemetry emitted after decision calculation.",
+  });
+
+  return finalized;
+}
+
 
 /** Sort candidates by weighted score descending; invalid removed; Slavic cosine dedup applied. */
 export function scoreCandidates(
