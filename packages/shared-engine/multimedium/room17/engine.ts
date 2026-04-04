@@ -14,6 +14,7 @@ import { generateEntropy } from '../../entropy';
 import { assessSafety, calculateInverseMultiplier } from '../../safety/defensive-guard';
 import { calculateMandalaDrift, MandalaPattern } from './mandala-alignment';
 import { AntonInfrastructure } from './anton-infra';
+import { synthesizeMentorFeedback } from '../../mentors/grounding';
 
 /**
  * Global signal trigger for Anton activation.
@@ -24,7 +25,7 @@ export function activateAnton(signal: string): boolean {
 
 /**
  * ROOM 17 ENGINE — The Filter Before Scale.
- * Execute the 3-phase lifecycle of a meta-session with Justice & Anton Layers.
+ * Execute the 3-phase lifecycle of a meta-session with Justice, Anton & Mentor Layers.
  */
 export async function runRoom17(params: {
   sessionId?: string;
@@ -58,28 +59,31 @@ export async function runRoom17(params: {
       return structuralCollapse(session, safety.reasonCodes.join(', ') || 'offensive_intent');
   }
 
-  // 5. Recursive Alignment (Mandala Logic)
+  // 5. Mentor Grounding Layer (Phase H)
+  const mentorGrounding = synthesizeMentorFeedback(params.task, safety.driftScore, safety.intent);
+
+  // 6. Recursive Alignment (Mandala Logic)
   const activePatterns: MandalaPattern[] = [];
   if (params.task.includes('protect') || params.task.includes('rescue')) activePatterns.push('03_Triangle', '10_Sri_Yantra');
   if (params.task.includes('bridge') || params.task.includes('grow')) activePatterns.push('05_Lotus', '14_Labyrinth');
   
-  const finalDrift = calculateMandalaDrift(activePatterns, params.existingSession?.agents?.length || 0, safety.driftScore);
+  const finalDrift = calculateMandalaDrift(activePatterns, params.existingSession?.agents?.length || 0, mentorGrounding.isGrounded ? safety.driftScore : safety.driftScore + 0.05); // Un-grounded adds slight drift
   const inverseMultiplier = calculateInverseMultiplier(1.0, finalDrift, false);
 
-  // 6. Anton Layer: Infra-Path Detection (Phase G)
+  // 7. Anton Layer: Infra-Path Detection (Phase G)
   const infraBoost = anton.calculateInfraBoost(finalDrift, false);
 
-  // 7. Phase 1 — INDIVIDUAL
+  // 8. Phase 1 — INDIVIDUAL
   const visions: Room17Vision[] = await Promise.all(
     params.agents.map(agent => runIndividualPhase(agent, params.task, params.allSpaces, params.agentComplete))
   );
 
-  // 8. Phase 2 — BRIDGE
+  // 9. Phase 2 — BRIDGE
   // High drift or low confidence reduces bridge efficiency, but infra-path boosts it
   const bridgeCertainty = safety.intent === 'defensive' ? 1.0 : 0.5 * inverseMultiplier * infraBoost;
   const bridges: BridgeAttempt[] = await runBridgePhase(visions, params.agents, params.agentComplete, bridgeCertainty);
 
-  // 9. Phase 3 — INTERSECTION
+  // 10. Phase 3 — INTERSECTION
   const intersection = findIntersection(visions, bridges);
   const verdict = determineVerdict(intersection);
 
@@ -91,7 +95,7 @@ export async function runRoom17(params: {
     bridges,
     intersection,
     verdict,
-    operatorReviewRequired: verdict === 'graduate_to_117',
+    operatorReviewRequired: verdict === 'graduate_to_117' || !mentorGrounding.isGrounded,
     structuralMetrics: {
         room17_connectivity: intersection.found ? 1.0 : 0.4,
         mon117_signal: 1.0 * inverseMultiplier * finalInfraBoost,
@@ -99,6 +103,10 @@ export async function runRoom17(params: {
         driftScore: finalDrift,
         inverseMultiplier: inverseMultiplier,
         infraBoost: finalInfraBoost
+    },
+    mentorFeedback: {
+        combined: mentorGrounding.mentorFeedback.combined,
+        isGrounded: mentorGrounding.isGrounded
     }
   };
 }
@@ -132,6 +140,10 @@ function structuralCollapse(session: Room17Session, reason: string): Intersectio
             driftScore: 1.0,
             inverseMultiplier: 0.008,
             infraBoost: 1.0
+        },
+        mentorFeedback: {
+            combined: "Игореш, заземлись. Мы потеряли структуру. 🤗",
+            isGrounded: false
         }
     };
 }
@@ -151,6 +163,10 @@ function createDegradedResult(session: Room17Session): IntersectionResult {
             driftScore: 1.0,
             inverseMultiplier: 0.008,
             infraBoost: 1.0
+        },
+        mentorFeedback: {
+            combined: "Система в состоянии деградации. Ожидай восстановления.",
+            isGrounded: false
         }
     };
 }

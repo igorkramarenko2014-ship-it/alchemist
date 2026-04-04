@@ -94,5 +94,10 @@ export interface IntersectionResult {
         truth_divergence: number;
         driftScore: number;
         inverseMultiplier: number;
+        infraBoost: number;
+    };
+    mentorFeedback?: {
+        combined: string;
+        isGrounded: boolean;
     };
 }
