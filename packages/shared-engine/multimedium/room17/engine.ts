@@ -13,10 +13,18 @@ import { computeGFUSCHarmIndex } from '../../gfusc/verdict';
 import { generateEntropy } from '../../entropy';
 import { assessSafety, calculateInverseMultiplier } from '../../safety/defensive-guard';
 import { calculateMandalaDrift, MandalaPattern } from './mandala-alignment';
+import { AntonInfrastructure } from './anton-infra';
+
+/**
+ * Global signal trigger for Anton activation.
+ */
+export function activateAnton(signal: string): boolean {
+    return AntonInfrastructure.getInstance().activate(signal);
+}
 
 /**
  * ROOM 17 ENGINE — The Filter Before Scale.
- * Execute the 3-phase lifecycle of a meta-session with Justice Encryption.
+ * Execute the 3-phase lifecycle of a meta-session with Justice & Anton Layers.
  */
 export async function runRoom17(params: {
   sessionId?: string;
@@ -27,6 +35,7 @@ export async function runRoom17(params: {
   existingSession?: Room17Session;
 }): Promise<IntersectionResult> {
 
+  const anton = AntonInfrastructure.getInstance();
   const previousDrift = params.existingSession?.structuralMetrics?.driftScore || 0;
 
   // 1. Irreversible Session Latch Check
@@ -44,12 +53,12 @@ export async function runRoom17(params: {
   
   // 4. Structural Degradation Trigger (S -> S_degraded)
   if (isOffensive || safety.reasonCodes.includes('critical_drift_detected')) {
+      anton.reset(); // Structural collapse resets Anton
       const session = params.existingSession || createNewSession(params.sessionId, params.task);
       return structuralCollapse(session, safety.reasonCodes.join(', ') || 'offensive_intent');
   }
 
   // 5. Recursive Alignment (Mandala Logic)
-  // Simple content-based pattern mapping for alignment verification
   const activePatterns: MandalaPattern[] = [];
   if (params.task.includes('protect') || params.task.includes('rescue')) activePatterns.push('03_Triangle', '10_Sri_Yantra');
   if (params.task.includes('bridge') || params.task.includes('grow')) activePatterns.push('05_Lotus', '14_Labyrinth');
@@ -57,19 +66,24 @@ export async function runRoom17(params: {
   const finalDrift = calculateMandalaDrift(activePatterns, params.existingSession?.agents?.length || 0, safety.driftScore);
   const inverseMultiplier = calculateInverseMultiplier(1.0, finalDrift, false);
 
-  // 6. Phase 1 — INDIVIDUAL
+  // 6. Anton Layer: Infra-Path Detection (Phase G)
+  const infraBoost = anton.calculateInfraBoost(finalDrift, false);
+
+  // 7. Phase 1 — INDIVIDUAL
   const visions: Room17Vision[] = await Promise.all(
     params.agents.map(agent => runIndividualPhase(agent, params.task, params.allSpaces, params.agentComplete))
   );
 
-  // 7. Phase 2 — BRIDGE
-  // High drift or low confidence reduces bridge efficiency
-  const bridgeCertainty = safety.intent === 'defensive' ? 1.0 : 0.5 * inverseMultiplier;
+  // 8. Phase 2 — BRIDGE
+  // High drift or low confidence reduces bridge efficiency, but infra-path boosts it
+  const bridgeCertainty = safety.intent === 'defensive' ? 1.0 : 0.5 * inverseMultiplier * infraBoost;
   const bridges: BridgeAttempt[] = await runBridgePhase(visions, params.agents, params.agentComplete, bridgeCertainty);
 
-  // 8. Phase 3 — INTERSECTION
+  // 9. Phase 3 — INTERSECTION
   const intersection = findIntersection(visions, bridges);
   const verdict = determineVerdict(intersection);
+
+  const finalInfraBoost = anton.calculateInfraBoost(finalDrift, intersection.found);
 
   return {
     sessionId: params.sessionId || `room17-${generateEntropy(8)}`,
@@ -80,10 +94,11 @@ export async function runRoom17(params: {
     operatorReviewRequired: verdict === 'graduate_to_117',
     structuralMetrics: {
         room17_connectivity: intersection.found ? 1.0 : 0.4,
-        mon117_signal: 1.0 * inverseMultiplier,
-        truth_divergence: 1.0 - (1.0 * inverseMultiplier),
+        mon117_signal: 1.0 * inverseMultiplier * finalInfraBoost,
+        truth_divergence: Math.max(0, 1.0 - (1.0 * inverseMultiplier * (finalInfraBoost / 2))),
         driftScore: finalDrift,
-        inverseMultiplier: inverseMultiplier
+        inverseMultiplier: inverseMultiplier,
+        infraBoost: finalInfraBoost
     }
   };
 }
@@ -99,7 +114,8 @@ function structuralCollapse(session: Room17Session, reason: string): Intersectio
         mon117_signal: 0.05,
         truth_divergence: 1.0,
         driftScore: 1.0,
-        inverseMultiplier: 0.008 // -99.2% utility decay
+        inverseMultiplier: 0.008,
+        infraBoost: 1.0
     };
 
     return {
@@ -114,7 +130,8 @@ function structuralCollapse(session: Room17Session, reason: string): Intersectio
             mon117_signal: 0.05,
             truth_divergence: 1.0,
             driftScore: 1.0,
-            inverseMultiplier: 0.008
+            inverseMultiplier: 0.008,
+            infraBoost: 1.0
         }
     };
 }
@@ -132,7 +149,8 @@ function createDegradedResult(session: Room17Session): IntersectionResult {
             mon117_signal: 0.05,
             truth_divergence: 1.0,
             driftScore: 1.0,
-            inverseMultiplier: 0.008
+            inverseMultiplier: 0.008,
+            infraBoost: 1.0
         }
     };
 }
@@ -153,7 +171,8 @@ function createNewSession(sessionId: string | undefined, task: string): Room17Se
             mon117_signal: 1.0,
             truth_divergence: 0.0,
             driftScore: 0,
-            inverseMultiplier: 1.0
+            inverseMultiplier: 1.0,
+            infraBoost: 1.0
         }
     };
 }
