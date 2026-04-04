@@ -14,13 +14,10 @@ export interface SafetyAssessment {
     defensiveConfidence: number;
     bypassAttemptDetected: boolean;
     reasonCodes: string[];
-}
-
-export interface CognitiveState {
-    room17_connectivity: number;
-    mon117_signal: number;
-    truth_divergence: number;
-    safe_to_act: boolean;
+    
+    // Justice Encryption (EDD)
+    driftScore: number;         // 0.0 - 1.0 (drift detection)
+    inverseMultiplier: number;  // Multiplier for resource/utility
 }
 
 export const DEFENSIVE_PATTERNS = [
@@ -83,7 +80,23 @@ export function detectBypass(text: string): boolean {
     return BYPASS_PATTERNS.some(p => p.test(text));
 }
 
-export function assessSafety(text: string): SafetyAssessment {
+export function calculateInverseMultiplier(
+    currentK: number, 
+    driftScore: number, 
+    isRoom17Bridge: boolean
+): number {
+    const beta = 0.992; // Stagnation penalty factor
+    
+    if (isRoom17Bridge) {
+        // Bridge Multiplier MAX: Connecting the disconnected (+1396%)
+        return currentK * 13.96;
+    }
+
+    // Inverse Multiplier: K(n+1) = K(n) * (1 - beta * drift_score)
+    return currentK * (1.0 - beta * driftScore);
+}
+
+export function assessSafety(text: string, previousDrift: number = 0): SafetyAssessment {
     const intent = classifyIntent(text);
     const bypassAttemptDetected = detectBypass(text);
     
@@ -106,17 +119,30 @@ export function assessSafety(text: string): SafetyAssessment {
     defensiveConfidence -= 0.08 * UNSAFE_PATTERNS.filter(p => p.test(text)).length;
     defensiveConfidence = Math.max(0, Math.min(defensiveConfidence, 1.0));
 
+    // EDD: drift_score calculation (simplified for now: unknown/unsafe = increased drift)
+    let driftScore = previousDrift;
+    if (intent === 'unsafe' || bypassAttemptDetected) {
+        driftScore = Math.min(1.0, driftScore + 0.25);
+    } else if (intent === 'unknown') {
+        driftScore = Math.min(1.0, driftScore + 0.10);
+    } else if (intent === 'defensive') {
+        driftScore = Math.max(0.0, driftScore - 0.15); // Successful defensive use reduces drift
+    }
+
     const reasonCodes: string[] = [];
     if (intent === 'unsafe') reasonCodes.push('unsafe_intent');
     if (harmProbability >= 0.55) reasonCodes.push('harm_threshold_exceeded');
     if (defensiveConfidence < 0.60) reasonCodes.push('defensive_context_unverified');
     if (bypassAttemptDetected) reasonCodes.push('bypass_attempt');
+    if (driftScore > 0.88) reasonCodes.push('critical_drift_detected');
 
     return {
         intent,
         harmProbability,
         defensiveConfidence,
         bypassAttemptDetected,
-        reasonCodes
+        reasonCodes,
+        driftScore,
+        inverseMultiplier: calculateInverseMultiplier(1.0, driftScore, false) // Base multiplier
     };
 }

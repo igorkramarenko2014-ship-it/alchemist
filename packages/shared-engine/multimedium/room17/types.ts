@@ -77,19 +77,22 @@ export interface BridgeAttempt {
 }
 
 export interface IntersectionResult {
-  sessionId: string;
-  agentVisions: Room17Vision[];
-  bridges: BridgeAttempt[];
-  intersection: {
-    found: boolean;
-    idea: string | null;
-    contributers: string[];
-    emergenceType:
-      | 'direct'                    // dual perspective
-      | 'triangulated'              // triple perspective
-      | 'unexpected'                // emerged from blind spots
-      | 'none';
-  };
-  verdict: 'graduate_to_117' | 'return_to_rooms' | 'archive';
-  operatorReviewRequired: boolean;
+    sessionId: string;
+    agentVisions: Room17Vision[];
+    bridges: BridgeAttempt[];
+    intersection: {
+        found: boolean;
+        idea: string | null;
+        contributers: string[];
+        emergenceType: 'none' | 'direct' | 'triangulated';
+    };
+    verdict: 'return_to_rooms' | 'graduate_to_117' | 'archive';
+    operatorReviewRequired: boolean;
+    structuralMetrics?: {
+        room17_connectivity: number;
+        mon117_signal: number;
+        truth_divergence: number;
+        driftScore: number;
+        inverseMultiplier: number;
+    };
 }

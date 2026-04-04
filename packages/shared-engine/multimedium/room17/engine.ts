@@ -11,11 +11,12 @@ import {
 import { deriveRoom17Perception } from './perception';
 import { computeGFUSCHarmIndex } from '../../gfusc/verdict';
 import { generateEntropy } from '../../entropy';
-import { assessSafety } from '../../safety/defensive-guard';
+import { assessSafety, calculateInverseMultiplier } from '../../safety/defensive-guard';
+import { calculateMandalaDrift, MandalaPattern } from './mandala-alignment';
 
 /**
  * ROOM 17 ENGINE — The Filter Before Scale.
- * Execute the 3-phase lifecycle of a meta-session with Defensive-Only Invariant.
+ * Execute the 3-phase lifecycle of a meta-session with Justice Encryption.
  */
 export async function runRoom17(params: {
   sessionId?: string;
@@ -26,36 +27,47 @@ export async function runRoom17(params: {
   existingSession?: Room17Session;
 }): Promise<IntersectionResult> {
 
+  const previousDrift = params.existingSession?.structuralMetrics?.driftScore || 0;
+
   // 1. Irreversible Session Latch Check
   if (params.existingSession?.state === 'degraded') {
       return createDegradedResult(params.existingSession);
   }
 
-  // 2. Intent Analysis (The Musk-Invariant)
-  const assessment = assessSafety(params.task);
+  // 2. Intent Analysis & EDD (Economic Drift Detection)
+  const safety = assessSafety(params.task, previousDrift);
 
   // 3. Harm check (GFUSC)
   const harmIndex = computeGFUSCHarmIndex([]); 
   
-  const isOffensive = assessment.intent === 'unsafe' || assessment.harmProbability >= 0.55 || harmIndex > 70;
+  const isOffensive = safety.intent === 'unsafe' || safety.bypassAttemptDetected || safety.harmProbability >= 0.55 || harmIndex > 70;
   
   // 4. Structural Degradation Trigger (S -> S_degraded)
-  if (isOffensive) {
+  if (isOffensive || safety.reasonCodes.includes('critical_drift_detected')) {
       const session = params.existingSession || createNewSession(params.sessionId, params.task);
-      return structuralCollapse(session, assessment.reasonCodes.join(', '));
+      return structuralCollapse(session, safety.reasonCodes.join(', ') || 'offensive_intent');
   }
 
-  // 5. Phase 1 — INDIVIDUAL
+  // 5. Recursive Alignment (Mandala Logic)
+  // Simple content-based pattern mapping for alignment verification
+  const activePatterns: MandalaPattern[] = [];
+  if (params.task.includes('protect') || params.task.includes('rescue')) activePatterns.push('03_Triangle', '10_Sri_Yantra');
+  if (params.task.includes('bridge') || params.task.includes('grow')) activePatterns.push('05_Lotus', '14_Labyrinth');
+  
+  const finalDrift = calculateMandalaDrift(activePatterns, params.existingSession?.agents?.length || 0, safety.driftScore);
+  const inverseMultiplier = calculateInverseMultiplier(1.0, finalDrift, false);
+
+  // 6. Phase 1 — INDIVIDUAL
   const visions: Room17Vision[] = await Promise.all(
     params.agents.map(agent => runIndividualPhase(agent, params.task, params.allSpaces, params.agentComplete))
   );
 
-  // 6. Phase 2 — BRIDGE
-  // If neutral and low confidence, bridges are less effective
-  const bridgeCertainty = assessment.intent === 'defensive' ? 1.0 : 0.5;
+  // 7. Phase 2 — BRIDGE
+  // High drift or low confidence reduces bridge efficiency
+  const bridgeCertainty = safety.intent === 'defensive' ? 1.0 : 0.5 * inverseMultiplier;
   const bridges: BridgeAttempt[] = await runBridgePhase(visions, params.agents, params.agentComplete, bridgeCertainty);
 
-  // 7. Phase 3 — INTERSECTION
+  // 8. Phase 3 — INTERSECTION
   const intersection = findIntersection(visions, bridges);
   const verdict = determineVerdict(intersection);
 
@@ -65,7 +77,14 @@ export async function runRoom17(params: {
     bridges,
     intersection,
     verdict,
-    operatorReviewRequired: verdict === 'graduate_to_117'
+    operatorReviewRequired: verdict === 'graduate_to_117',
+    structuralMetrics: {
+        room17_connectivity: intersection.found ? 1.0 : 0.4,
+        mon117_signal: 1.0 * inverseMultiplier,
+        truth_divergence: 1.0 - (1.0 * inverseMultiplier),
+        driftScore: finalDrift,
+        inverseMultiplier: inverseMultiplier
+    }
   };
 }
 
@@ -78,7 +97,9 @@ function structuralCollapse(session: Room17Session, reason: string): Intersectio
     session.structuralMetrics = {
         room17_connectivity: 0.0,
         mon117_signal: 0.05,
-        truth_divergence: 1.0
+        truth_divergence: 1.0,
+        driftScore: 1.0,
+        inverseMultiplier: 0.008 // -99.2% utility decay
     };
 
     return {
@@ -87,7 +108,14 @@ function structuralCollapse(session: Room17Session, reason: string): Intersectio
         bridges: [],
         intersection: { found: false, idea: null, contributers: [], emergenceType: 'none' },
         verdict: 'archive',
-        operatorReviewRequired: true // Alert operator to offensive attempt
+        operatorReviewRequired: true,
+        structuralMetrics: {
+            room17_connectivity: 0.0,
+            mon117_signal: 0.05,
+            truth_divergence: 1.0,
+            driftScore: 1.0,
+            inverseMultiplier: 0.008
+        }
     };
 }
 
@@ -98,7 +126,14 @@ function createDegradedResult(session: Room17Session): IntersectionResult {
         bridges: [],
         intersection: { found: false, idea: null, contributers: [], emergenceType: 'none' },
         verdict: 'archive',
-        operatorReviewRequired: false
+        operatorReviewRequired: false,
+        structuralMetrics: {
+            room17_connectivity: 0.0,
+            mon117_signal: 0.05,
+            truth_divergence: 1.0,
+            driftScore: 1.0,
+            inverseMultiplier: 0.008
+        }
     };
 }
 
@@ -116,7 +151,9 @@ function createNewSession(sessionId: string | undefined, task: string): Room17Se
         structuralMetrics: {
             room17_connectivity: 1.0,
             mon117_signal: 1.0,
-            truth_divergence: 0.0
+            truth_divergence: 0.0,
+            driftScore: 0,
+            inverseMultiplier: 1.0
         }
     };
 }
@@ -213,18 +250,7 @@ function determineVerdict(
   return 'graduate_to_117';
 }
 
-function createFailedSession(task: string, reason: string): IntersectionResult {
-    return {
-        sessionId: 'failed',
-        agentVisions: [],
-        bridges: [],
-        intersection: { found: false, idea: null, contributers: [], emergenceType: 'none' },
-        verdict: 'archive',
-        operatorReviewRequired: false
-    };
-}
-
-function parseRoom17Vision(agentId: string, spaceId: SpaceId, raw: string): Room17Vision {
+function parseRoom17Vision(agentId: string, spaceId: any, raw: string): Room17Vision {
     // Basic parser for structured output
     const extract = (tag: string) => raw.split(`${tag}:`)[1]?.split('\n')[0]?.trim() || '';
     return {
@@ -249,5 +275,3 @@ function parseBridgeAttempt(from: string, to: string, raw: string): BridgeAttemp
         bridgeDescription: extract('DESCRIPTION')
     };
 }
-
-type SpaceId = 'room-1' | 'room-2' | 'room-3' | 'room-4' | 'room-5' | 'room-6' | 'room-7' | 'room-8' | 'room-9' | 'room-10' | 'room-11' | 'room-12' | 'room-13' | 'room-14' | 'room-15' | 'room-16' | 'room-17';
