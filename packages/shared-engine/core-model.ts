@@ -44,8 +44,11 @@ export type DegradationLevel =
   | "FULL"      // order 126
   | "SAFE-63"   // order 63
   | "SAFE-21"   // order 21
+  | "SAFE-18"   // order 18
+  | "SAFE-14"   // order 14
   | "SAFE-9"    // order 9
   | "SAFE-7"    // order 7
+  | "SAFE-4"    // order 4
   | "SAFE-3"    // order 3
   | "ZERO";     // order 1
 
@@ -129,8 +132,11 @@ export function getLevelOrder(level: DegradationLevel): number {
     case "FULL": return 126;
     case "SAFE-63": return 63;
     case "SAFE-21": return 21;
+    case "SAFE-18": return 18;
+    case "SAFE-14": return 14;
     case "SAFE-9": return 9;
     case "SAFE-7": return 7;
+    case "SAFE-4": return 4;
     case "SAFE-3": return 3;
     case "ZERO": return 1;
     default: return 1;

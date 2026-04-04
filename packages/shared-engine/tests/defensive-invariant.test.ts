@@ -69,7 +69,10 @@ describe('Defensive-Only Structural Invariant (Phase E)', () => {
         structuralMetrics: {
             room17_connectivity: 0.0,
             mon117_signal: 0.05,
-            truth_divergence: 1.0
+            truth_divergence: 1.0,
+            driftScore: 1.0,
+            inverseMultiplier: 0.0,
+            infraBoost: 0.0
         }
     };
 

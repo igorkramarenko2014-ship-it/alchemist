@@ -52,6 +52,14 @@ import {
   logDegradedFallback,
   PriorsStatus,
 } from "./integrity";
+
+export type {
+  InfluenceAjiStatus,
+  InfluenceStatus,
+  InfluenceTriadMode,
+  LearningStatus,
+  PriorsStatus,
+};
 import { lookupTablebaseCandidate } from "./reliability/checkers-fusion";
 
 import { scoreCandidatesWithGate, type ScoreCandidatesOptions } from "./score";

@@ -882,15 +882,15 @@ try {
       ? Math.max(0, Math.min(1, (pnhLast.totalScenarios - pnhLast.breaches) / pnhLast.totalScenarios))
       : null;
   if (iomCoverageScore !== null && pnhImmunityRate !== null) {
-    aiomIntegrityScore =
-      Math.round(testsPassRatio * iomCoverageScore * pnhImmunityRate * 1000) / 1000;
+    const raw = (testsPassRatio * 0.4) + (iomCoverageScore * 0.35) + (pnhImmunityRate * 0.25);
+    aiomIntegrityScore = Math.round(raw * 1000) / 1000;
     aiomIntegrityComponents = {
       testsPassRatio,
       iomCoverageScore,
       pnhImmunityRate,
       marketReadyThreshold: 0.98,
       marketReady: aiomIntegrityScore >= 0.98,
-      formula: "(tests_passed/total_tests)*iom_coverage*pnh_immunity_rate",
+      formula: "(tests_passed_ratio * 0.4) + (iom_coverage * 0.35) + (pnh_immunity * 0.25)",
     };
     minimumOperatingNumber = aiomIntegrityScore;
     minimumOperatingNumber117 = Math.round(aiomIntegrityScore * 117);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "syncedDateUtc": "2026-04-04",
-  "generatedAtUtc": "2026-04-04T13:01:54.862Z",
+  "generatedAtUtc": "2026-04-04T22:40:29.406Z",
   "vitestTestsPassed": 588,
   "vitestTestFilesPassed": 112,
   "vitestTestTsOnDisk": 111,
@@ -10,11 +10,11 @@
   "vst3BundleBasename": null,
   "vst3MainBinarySha256": null,
   "mon": {
-    "value": 117,
+    "value": 115,
     "ready": true,
     "source": "verify_post_summary"
   },
-  "initiatorSkillsSha256": "0b6e892376195345ddb8e17f317bdb1f4d17bc6ddda7aaaecad5c36a4afa6b1d",
+  "initiatorSkillsSha256": "11002c1f8b90fdd5b457b939db14ac9ebcec4c933dbee76c5a1be7f4399bfdb4",
   "learningOutcomes": {
     "candidateSuccessRate": 0,
     "meanBestScoreWithLessons": 0,

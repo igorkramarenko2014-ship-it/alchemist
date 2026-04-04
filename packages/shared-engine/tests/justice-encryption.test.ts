@@ -51,7 +51,8 @@ describe('Justice Encryption: Economic Drift Detector (EDD)', () => {
                     mon117_signal: 1.0,
                     truth_divergence: 0.0,
                     driftScore: 0.85, // Already high drift
-                    inverseMultiplier: 1.0
+                    inverseMultiplier: 1.0,
+                    infraBoost: 1.0
                 }
             }
         });

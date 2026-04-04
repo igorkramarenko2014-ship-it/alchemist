@@ -1,6 +1,6 @@
 # Truth matrix (operator)
 
-**Generated:** 2026-03-28 — refresh with `pnpm truth:matrix`.
+**Generated:** 2026-04-04 — refresh with `pnpm truth:matrix`.
 
 This table is **normative intent**: it summarizes how stub vs fetcher vs tablebase, WASM health, and HARD GATE strictness interact. **Runtime** JSON for the product slice lives at **`GET /api/health/truth-matrix`** (built from `apps/web-app/lib/truth-matrix.ts`).
 

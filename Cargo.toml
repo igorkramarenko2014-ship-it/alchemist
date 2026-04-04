@@ -8,6 +8,7 @@ members = [
     "crates/aiom-artifact",
     "crates/aiom-verify",
     "crates/aiom-log",
+    "packages/fxp-encoder",
 ]
 resolver = "2"
 

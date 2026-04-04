@@ -6,6 +6,7 @@
  */
 import type { CoreModelState, DegradationLevel } from "@alchemist/shared-types";
 import {
+  DegradationLevel as CoreDegradationLevel,
   GENERATOR_DECIMAL,
   getOutputDigit,
   hasDualResonance,
@@ -224,8 +225,8 @@ export function getCoreModelState(): CoreModelState {
   return {
     level: currentCoreLevel,
     state: currentCoreState,
-    resonance: hasDualResonance(currentCoreLevel) ? 1.0 : 0.0,
-    humanReadable: isHumanReadable(currentCoreLevel),
+    resonance: hasDualResonance(currentCoreLevel as CoreDegradationLevel) ? 1.0 : 0.0,
+    humanReadable: isHumanReadable(currentCoreLevel as CoreDegradationLevel),
     digit: getOutputDigit(currentCoreState),
   };
 }

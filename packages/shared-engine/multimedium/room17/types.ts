@@ -46,6 +46,9 @@ export interface Room17Session {
     room17_connectivity: number; // 0.0 - 1.0 (collapse target: 0)
     mon117_signal: number;        // 0.0 - 1.0 (collapse target: 0.05)
     truth_divergence: number;     // 0.0 - 1.0 (collapse target: 1.0)
+    driftScore: number;           // 0.0 - 1.0 (collapse target: 1.0)
+    inverseMultiplier: number;
+    infraBoost: number;
   };
 }
 
@@ -56,6 +59,8 @@ export interface Room17Agent {
   individualOutput?: Room17Vision;
   bridgeAttempts: BridgeAttempt[];
 }
+
+export type AMMAgent = Room17Agent;
 
 export interface Room17Vision {
   agentId: string;

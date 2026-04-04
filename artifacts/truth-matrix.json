@@ -1,9 +1,9 @@
 {
   "schemaVersion": 6,
-  "generatedAtUtc": "2026-04-04T13:01:54.906Z",
-  "generationSequence": 45,
-  "generationNonce": "5c7cd2e1-61e2-4be2-90f1-826faf6c8970",
-  "buildTimestamp": "2026-04-04T13:01:54.906Z",
+  "generatedAtUtc": "2026-04-04T22:46:34.510Z",
+  "generationSequence": 58,
+  "generationNonce": "44e2fb28-3586-4fb9-a6d1-bb0dd9191cac",
+  "buildTimestamp": "2026-04-04T22:46:34.510Z",
   "integrityStatus": "unverified",
   "trustless": {
     "verifiable": true,
@@ -14,7 +14,7 @@
     "externalTimestamp": 1712160000000,
     "input_bytes_hex": "676f6c64656e2d696e707574"
   },
-  "divergenceCheckedAtUtc": "2026-04-04T13:01:54.906Z",
+  "divergenceCheckedAtUtc": "2026-04-04T22:46:34.510Z",
   "verification": "Verify via jq and sha256sum as defined in AIOM-Technical-Brief.md",
   "sources": {
     "verifyPostSummary": "artifacts/verify/verify-post-summary.json",
@@ -34,12 +34,12 @@
     },
     "testsPassed": 588,
     "testsTotal": 588,
-    "iomCoverageScore": 1,
-    "iomCellCount": 24,
+    "iomCoverageScore": 0.96,
+    "iomCellCount": 25,
     "iomCoveredCount": 24,
-    "wasmBinaryHash": "eb29271ce3f3b8fd2133591d1db3e1aa18a40d2853ef1ecc8c0781caf55b9a22",
+    "wasmBinaryHash": "a62c40d4396427a2cc890d265cc828bc980c822644689fb903ae26d4272ff70e",
     "mon": {
-      "value": 117,
+      "value": 115,
       "ready": true,
       "source": "verify_post_summary"
     },
@@ -51,7 +51,7 @@
       "scenarioManifestHash": "0e6d7b1e2b4b314888e839f5174360647a32849cc5033e44490264bdcea352b3"
     },
     "wasmStatus": "available",
-    "syncedAtUtc": "2026-04-04T13:01:54.862Z",
+    "syncedAtUtc": "2026-04-04T22:40:29.406Z",
     "ajiStatus": {
       "activationRate": 0,
       "lastActivatedAtUtc": null,
@@ -69,7 +69,7 @@
       "activeScenarios": 7,
       "scenariosAtSAFE7OrAbove": 7,
       "anyHardStop": false,
-      "lastCheckedAt": "2026-04-04T13:01:51.878Z"
+      "lastCheckedAt": "2026-04-04T22:46:28.760Z"
     },
     "room17": {
       "sessionsTotal": 0,

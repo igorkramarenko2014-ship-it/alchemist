@@ -15,6 +15,25 @@ export interface TokenLedger {
     saved: number;
   }>;
   lastUpdatedUtc: string;
+  structuralDampeningActive: boolean;
+}
+
+const KPI_SOAR_THRESHOLD = 50000;
+
+/**
+ * Applies gentle limitations to unexpected KPI soars.
+ * Protects the vault while maintaining a trace of the original value.
+ */
+export function applyKpiGuardrails(value: number): { effective: number; dampened: boolean } {
+  if (value <= KPI_SOAR_THRESHOLD) {
+    return { effective: value, dampened: false };
+  }
+  
+  // Logarithmic compression above threshold: limit + log10(overflow)
+  const overflow = value - KPI_SOAR_THRESHOLD;
+  const effective = Math.round(KPI_SOAR_THRESHOLD + (Math.log10(overflow) * 1000));
+  
+  return { effective, dampened: true };
 }
 
 export function createEmptyLedger(): TokenLedger {
@@ -33,6 +52,7 @@ export function createEmptyLedger(): TokenLedger {
       qwen: { actual: 0, baseline: 0, saved: 0 },
     },
     lastUpdatedUtc: new Date().toISOString(),
+    structuralDampeningActive: false,
   };
 }
 
@@ -80,6 +100,16 @@ export function computeTokenUsageUpdate(
 
   if (ledger.window.totalBaselineTokens > 0) {
     ledger.window.savingsPercent = (ledger.window.totalSavedTokens / ledger.window.totalBaselineTokens) * 100;
+  }
+
+  // Apply KPI Guardrails to the final window metrics
+  const baselineGuard = applyKpiGuardrails(ledger.window.totalBaselineTokens);
+  const actualGuard = applyKpiGuardrails(ledger.window.totalActualTokens);
+  
+  if (baselineGuard.dampened || actualGuard.dampened) {
+      ledger.structuralDampeningActive = true;
+      ledger.window.totalBaselineTokens = baselineGuard.effective;
+      ledger.window.totalActualTokens = actualGuard.effective;
   }
 
   ledger.lastUpdatedUtc = new Date().toISOString();

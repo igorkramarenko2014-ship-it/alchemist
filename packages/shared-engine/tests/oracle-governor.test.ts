@@ -18,6 +18,13 @@ describe("Pythia Oracle Governor (Phase 3.6)", () => {
       verbosityControlRate: 0.5
     },
     epistemicGapScore: gap,
+    biasAnalytics: {
+      novelty: 0.5,
+      coherence: 0.5,
+      risk: 0.5,
+      entropy: 0.5,
+      steeringMagnitude: 1.0
+    },
     driftRisk: "low",
     status: "active"
   });
@@ -71,6 +78,7 @@ describe("Pythia Oracle Governor (Phase 3.6)", () => {
         depthLevel: 0.8,
         warmth: 0.9,
         readinessMatch: 0.8,
+        truthDensity: 0.5,
         silenceAfter: true,
         deferTruth: false
       };
@@ -90,6 +98,7 @@ describe("Pythia Oracle Governor (Phase 3.6)", () => {
         depthLevel: 0.9,
         warmth: 0.5,
         readinessMatch: 0.2,
+        truthDensity: 0.5,
         silenceAfter: false,
         deferTruth: true
       };
