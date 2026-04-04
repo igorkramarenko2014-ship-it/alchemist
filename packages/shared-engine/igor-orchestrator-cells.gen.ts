@@ -129,5 +129,6 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
     id: "pythia",
     responsibility: "Lazy Oracle — activates on criticality only. Produces Top 3 scenarios + Troika endorsement. Advisory output to Shigor. No gate mutation. No triad override. Operator decision required.",
     artifacts: ["agents/athena-pythia.ts", "agents/pythia-types.ts"] as const,
+    tier: "tier2_release_truth",
   },
 ] as const;

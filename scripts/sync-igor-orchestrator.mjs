@@ -141,7 +141,17 @@ function loadPowerCells(engineDir) {
     if (!Array.isArray(c.artifacts) || !c.artifacts.every((x) => typeof x === "string" && x.trim())) {
       throw new Error(`[igor:sync] power cell ${id}: artifacts must be non-empty strings array`);
     }
-    cells.push({ id: id.trim(), responsibility: responsibility.trim(), artifacts: c.artifacts.map((x) => x.trim()) });
+    const tier = c.tier;
+    if (tier !== undefined && typeof tier !== "string") {
+      throw new Error(`[igor:sync] power cell ${id}: tier must be a string`);
+    }
+
+    cells.push({
+      id: id.trim(),
+      responsibility: responsibility.trim(),
+      artifacts: c.artifacts.map((x) => x.trim()),
+      tier: typeof tier === "string" ? tier.trim() : undefined,
+    });
   }
   return cells;
 }
@@ -190,6 +200,9 @@ function emitCellsTs(cells) {
     lines.push(`    id: ${JSON.stringify(c.id)},`);
     lines.push(`    responsibility: ${JSON.stringify(c.responsibility)},`);
     lines.push(`    artifacts: [${arts}] as const,`);
+    if (c.tier) {
+      lines.push(`    tier: ${JSON.stringify(c.tier)},`);
+    }
     lines.push("  },");
   }
   lines.push("] as const;");

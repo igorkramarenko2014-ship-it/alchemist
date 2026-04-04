@@ -39,6 +39,7 @@ export interface IgorOrchestratorPowerCell {
   id: string;
   responsibility: string;
   artifacts: readonly string[];
+  tier?: string;
 }
 
 /** Workspace packages — `pnpm igor:sync` scans `apps/*` + `packages/*` and merges `igor-orchestrator-meta.json`. */

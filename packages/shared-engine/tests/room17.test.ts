@@ -47,7 +47,7 @@ DESCRIPTION: A perfect bridge between logic and motion.
     });
 
     const result = await runRoom17({
-      task: 'Optimize the state machine',
+      task: 'Protect the state machine and rescue the logic flow.', // Defensive-aligned for AIOM v3
       agents,
       allSpaces,
       agentComplete: mockComplete
