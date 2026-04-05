@@ -89,7 +89,11 @@ export function panelistDnaText(panelist: Panelist): string {
  */
 export function triadPanelistSystemPrompt(
   panelist: Panelist,
-  opts?: { learningContext?: string },
+  opts?: { 
+    learningContext?: string; 
+    quantumRound?: number; 
+    contextSummaries?: string[]; 
+  },
 ): string {
   const lit = PANELIST_JSON_LITERAL[panelist];
   const dna = panelistDnaText(panelist);
@@ -103,9 +107,16 @@ export function triadPanelistSystemPrompt(
     `score (number 0-1), reasoning (string, at least 50 characters),`,
     `paramArray (array of exactly 128 numbers, each in [0,1], varied — not all the same value),`,
     `panelist (string, must be exactly "${lit}").`,
+    opts?.quantumRound === 2 ? "Additionally, for Round 2, you MUST include a 'summary' field (string, ≤120 chars) explaining what you changed vs Round 1 and why." : "",
     "Return at most 3 objects.",
   ].join(" ");
+
+  const summaries = opts?.contextSummaries?.length 
+    ? `\n\nOTHER_PANELISTS_ROUND_1_SUMMARIES:\n${opts.contextSummaries.join("\n")}`
+    : "";
+  
   const ctx = opts?.learningContext?.trim();
-  if (!ctx) return base;
-  return `${base}\n\n${ctx}`;
+  const baseWithSummaries = summaries ? `${base}${summaries}` : base;
+  if (!ctx) return baseWithSummaries;
+  return `${baseWithSummaries}\n\n${ctx}`;
 }

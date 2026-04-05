@@ -4,7 +4,10 @@
  */
 /** @type {Record<string, string[]>} */
 export const IOM_CELL_VITEST_FILES = {
-  triad: ["tests/triad-pulse-alignment.test.ts"],
+  triad: [
+    "tests/triad-pulse-alignment.test.ts",
+    "tests/triad-quantum-cycle.test.ts"
+  ],
   gatekeeper: ["tests/gatekeeper-telemetry.test.ts"],
   undercover_adversarial: ["tests/undercover-slavic.test.ts"],
   slavic_score: ["tests/undercover-slavic.test.ts"],

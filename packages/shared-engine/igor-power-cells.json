@@ -5,6 +5,7 @@
     "artifacts": [
       "triad.ts",
       "triad-monitor.ts",
+      "triad-quantum-cycle.ts",
       "candidate-finalizer.ts",
       "triad-constraint-injection.ts",
       "creative-diversity-layer.ts",

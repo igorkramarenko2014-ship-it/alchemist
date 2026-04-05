@@ -6,7 +6,7 @@ import type { Panelist } from "@alchemist/shared-types";
 import { ATHENA_SOE_RECALIBRATION_LINE, PANELIST_ALCHEMIST_CODENAME } from "./triad-panel-governance";
 import { logEvent } from "./telemetry";
 
-function nowMs(): number {
+export function nowMs(): number {
   if (typeof performance !== "undefined" && typeof performance.now === "function") {
     return performance.now();
   }
@@ -128,4 +128,4 @@ export async function withTriadPanelistTiming<T>(
   }
 }
 
-export { nowMs };
+

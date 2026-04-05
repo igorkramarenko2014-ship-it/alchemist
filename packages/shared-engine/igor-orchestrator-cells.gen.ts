@@ -8,7 +8,7 @@ export const IGOR_SHARED_ENGINE_POWER_CELLS_GEN = [
   {
     id: "triad",
     responsibility: "LLAMA/DEEPSEEK/QWEN fetch or stub; panel timing; gated scoring entry. triadPanelistSystemPrompt injects distinct PANELIST_DNA_SEED lines (ATHENA/HERMES/HESTIA vs wire ids) + elaboration; HARD GATE line forbids byte invention — verified triad-panelist-prompt.test.ts.",
-    artifacts: ["triad.ts", "triad-monitor.ts", "candidate-finalizer.ts", "triad-constraint-injection.ts", "creative-diversity-layer.ts", "power-logic-fusion.ts", "arbitration/social-probe.ts", "triad-panelist-prompt.ts", "triad-panelist-system-prompt.ts", "explainability/decision-receipt.ts", "constants.ts", "circuit-breaker.ts", "triad-parity-report.ts"] as const,
+    artifacts: ["triad.ts", "triad-monitor.ts", "triad-quantum-cycle.ts", "candidate-finalizer.ts", "triad-constraint-injection.ts", "creative-diversity-layer.ts", "power-logic-fusion.ts", "arbitration/social-probe.ts", "triad-panelist-prompt.ts", "triad-panelist-system-prompt.ts", "explainability/decision-receipt.ts", "constants.ts", "circuit-breaker.ts", "triad-parity-report.ts"] as const,
   },
   {
     id: "gatekeeper",

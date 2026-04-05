@@ -22,13 +22,14 @@ import {
   type PnhTriadIntervention,
 } from "./pnh/pnh-triad-defense";
 import type { PnhTriadLane } from "./pnh/pnh-context-types";
-import {
-  logAthenaSoeRecalibration,
-  logTriadRunEnd,
-  logTriadRunStart,
-  newTriadRunId,
-  nowMs,
+import { runQuantumCycle } from "./triad-quantum-cycle";
+import { 
+  nowMs, 
+  newTriadRunId, 
+  logTriadRunStart, 
+  logTriadRunEnd, 
   withTriadPanelistTiming,
+  logAthenaSoeRecalibration
 } from "./triad-monitor";
 import {
   computeTriadGovernance,
@@ -663,6 +664,13 @@ export async function runTriad(
     triadSessionIdOverride?: string;
     /** Optional callback for token usage recording (e.g. for Node-side persist). */
     onTokenUsage?: (params: { actual: Record<Panelist, TokenUsageMetrics | null>, baseline: Record<Panelist, number> }) => void;
+    /** 
+     * **Quantum Cycle v0.1** (Stage 1)
+     * Enable non-commutative two-round revision flow.
+     */
+    mode?: "static" | "quantum";
+    /** Engine School context block (usually from buildLearningContext). */
+    learningContext?: string;
   }
 ): Promise<AIAnalysis> {
   const skipPnh = options?.skipPnhTriadDefense === true;
@@ -693,12 +701,25 @@ export async function runTriad(
     }
   }
 
+  const runId = options?.triadSessionIdOverride ?? newTriadRunId();
+  const fetcher = options?.fetcher || makeTriadFetcher(options?.fetcher === undefined, "", { triadSessionId: runId });
   const signal = options?.signal;
-  const fetcher = options?.fetcher;
   const runConsensus = options?.runConsensusValidation === true;
   const useConsensusFilter = options?.useConsensusFilter === true;
 
-  const runId = options?.triadSessionIdOverride ?? newTriadRunId();
+  if (options?.mode === "quantum") {
+    const quantum = await runQuantumCycle(prompt, {
+      runId,
+      fetcher: async (p, pan, sig, ctx) => {
+        const res = await fetcher(p, pan, sig, ctx);
+        return Array.isArray(res) ? { candidates: res } : res;
+      },
+      signal,
+      userMode: options.userMode,
+      learningContext: options.learningContext
+    });
+    return quantum.analysis;
+  }
   const tRun0 = nowMs();
 
   // Phase 2: Resolve Transmutation early (fail-open)
@@ -745,7 +766,7 @@ export async function runTriad(
     options?.skipTablebase === true ? null : lookupTablebaseCandidate(prompt, runId);
   const triadRunMode = tablebaseCandidate
     ? "tablebase"
-    : fetcher
+    : options?.fetcher
       ? "fetcher"
       : "stub";
 

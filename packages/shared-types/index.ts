@@ -278,6 +278,58 @@ export interface TriadRunTelemetry {
    * How priors and learning outcomes influenced this specific run.
    */
   influenceSummary?: InfluenceSummary;
+  /**
+   * **Quantum Cycle v0.1** (Stage 1)
+   * Non-commutative two-round revision flow: Round 1 (ind) -> Round 2 (contextual).
+   */
+  quantumCycle?: {
+    roundLogs: RoundLog[];
+    divergenceReport: DivergenceReport;
+    hestiaEval?: HestiaEval;
+    fallbackUsed: boolean;
+    fallbackReason?: string;
+  };
+}
+
+// ─── Quantum Cycle (Non-Commutative) ──────────────────────────────────────────
+
+/** Product codenames for UI/telemetry alignment. */
+export type AlchemistCodename = "ATHENA" | "HERMES" | "HESTIA";
+
+export interface CognitiveDelta {
+  agent: AlchemistCodename;
+  round: 2;
+  delta_type: "expand" | "contradict" | "refine" | "noise";
+  novelty_score: number;
+  coherence_score: number;
+  impact_score: number;
+  state_hash_before: string;
+  state_hash_after: string;
+  summary: string;
+}
+
+export interface DivergenceReport {
+  divergence: boolean;
+  max_delta_agent: AlchemistCodename;
+  divergence_score: number;
+  requires_review: boolean;
+}
+
+export interface HestiaEval {
+  risk_score: number;
+  choke_flag: boolean;
+  override_available: boolean;
+  risk_reason: string;
+}
+
+export interface RoundLog {
+  runId: string;
+  round: 1 | 2;
+  agent: AlchemistCodename;
+  input_summary: string;
+  output_summary: string;
+  delta?: CognitiveDelta;
+  timestamp: string;
 }
 
 export interface InfluenceSummary {

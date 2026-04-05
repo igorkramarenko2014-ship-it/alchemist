@@ -26,6 +26,7 @@ const STOPWORDS = new Set([
   "want",
   "with",
   "you",
+  "token",
 ]);
 
 /** Same legibility slice as Slavic text path — duplicated here to avoid **`score.ts`** import cycles. */

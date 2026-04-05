@@ -5,7 +5,10 @@
 import type { IgorOrchestratorPowerCell } from "./igor-orchestrator-layer";
 
 export const IOM_CELL_VITEST_MAP: Readonly<Record<string, readonly string[]>> = {
-  triad: ["tests/triad-pulse-alignment.test.ts"],
+  triad: [
+    "tests/triad-pulse-alignment.test.ts",
+    "tests/triad-quantum-cycle.test.ts"
+  ],
   gatekeeper: ["tests/gatekeeper-telemetry.test.ts"],
   undercover_adversarial: ["tests/undercover-slavic.test.ts"],
   slavic_score: ["tests/undercover-slavic.test.ts"],
