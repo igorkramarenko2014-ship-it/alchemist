@@ -142,7 +142,8 @@
     "soe:migrate": "tsx scripts/migrate-structured-soe-hints.ts",
     "iom:ghost:check": "node scripts/iom-ghost-check.mjs",
     "personas:verify": "node packages/shared-engine/personas/scripts/validate-personas.mjs",
-    "test:personas": "pnpm --filter @alchemist/shared-engine exec vitest run tests/personas-behavior.test.ts"
+    "test:personas": "pnpm --filter @alchemist/shared-engine exec vitest run tests/personas-behavior.test.ts",
+    "personas:sync": "python3 scripts/bridge-telegram.py"
   },
   "devDependencies": {
     "@alchemist/fxp-encoder": "workspace:*",
