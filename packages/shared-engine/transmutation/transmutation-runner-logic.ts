@@ -3,7 +3,7 @@ import { interpretTask } from "./task-interpreter";
 import { resolveContext } from "./context-resolver-logic";
 import { selectPolicy } from "./policy-selector";
 import { solveParameters } from "./parameter-solver-logic";
-import { type TransmutationResult, PolicyFamily } from "./transmutation-types";
+import { type TransmutationResult, type WikiKnowledgeBase, PolicyFamily } from "./transmutation-types";
 import { TRANSMUTATION_BOUNDS } from "./transmutation-bounds";
 
 /**
@@ -19,15 +19,23 @@ export function resolveTransmutation(
     refineryOverrides?: any;
     recentExports?: string[];
     projectContext?: { genre_hint?: string; session_id?: string };
+    wikiKnowledge?: WikiKnowledgeBase;
+    domainVocabulary?: string[];
+    coreConcepts?: string[];
   },
   _terminator?: () => void
 ): TransmutationResult {
   try {
-    const task = interpretTask(prompt);
+    const task = interpretTask(prompt, {
+      domainVocabulary: opts?.domainVocabulary ?? opts?.wikiKnowledge?.domain_vocabulary,
+    });
     const context = resolveContext(task, {
       learningIndex: opts?.learningIndex,
       tasteIndex: opts?.tasteIndex,
       recentExports: opts?.recentExports,
+      wikiKnowledge: opts?.wikiKnowledge,
+      domainVocabulary: opts?.domainVocabulary,
+      coreConcepts: opts?.coreConcepts,
     });
     const policy = selectPolicy(task, context);
     const { profile, audit } = solveParameters(policy, task, context, {
@@ -52,7 +60,7 @@ export function resolveTransmutation(
       fallback_used: false,
     };
   } catch (err) {
-    const baseline = getBaselineResult();
+    const baseline = getBaselineResult(opts?.wikiKnowledge, opts?.domainVocabulary, opts?.coreConcepts);
     logEvent("transmutation_profile_emitted", {
       policy_family: PolicyFamily.BASELINE_STATIC,
       confidence: 0,
@@ -63,14 +71,24 @@ export function resolveTransmutation(
   }
 }
 
-function getBaselineResult(): TransmutationResult {
+function getBaselineResult(
+  wikiKnowledge?: WikiKnowledgeBase,
+  domainVocabulary?: string[],
+  coreConcepts?: string[],
+): TransmutationResult {
   const triad_weights = { ...TRANSMUTATION_BOUNDS.baseline_triad_weights };
   return {
     transmutation_profile: {
       triad_weights,
       gate_offsets: { slavic_threshold_delta: 0, novelty_gate_delta: 0 },
       priors: { taste_weight: 0.06, corpus_affinity_weight: 0.45, lesson_weight: 0.5 },
-      context_injection: { lessons: [], cluster: null },
+      context_injection: {
+        lessons: [],
+        cluster: null,
+        wiki_knowledge: wikiKnowledge,
+        domain_vocabulary: domainVocabulary ?? wikiKnowledge?.domain_vocabulary,
+        core_concepts: coreConcepts ?? wikiKnowledge?.core_concepts,
+      },
       verification_profile: { aiom_strictness: 0.5, drift_tolerance: 0.07 },
     },
     audit_trace: {

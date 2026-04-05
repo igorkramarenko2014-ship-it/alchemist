@@ -45,15 +45,20 @@ const CONSISTENCY_TERMS = ["similar", "consistent", "same vibe", "matching", "re
  * Normalizes raw prompt string → TaskSchema (MOVE 3 / Transmutation Phase 1).
  * O(n) complexity. No external deps.
  */
-export function interpretTask(prompt: string): TaskSchema {
+export function interpretTask(
+  prompt: string,
+  opts?: { domainVocabulary?: string[] }
+): TaskSchema {
   const p = prompt.toLowerCase().trim();
   const tokens = p.split(/[^a-z0-9]+/);
+  const domainVocabulary = opts?.domainVocabulary ?? [];
 
   let taskType: TransmutationTaskType = "unknown";
   const moods = new Set<TransmutationMood>();
   const genres = new Set<string>();
   let noveltyMatch = 0;
   let consistencyMatch = 0;
+  let domainVocabularyMatches = 0;
 
   for (const token of tokens) {
     if (token.length === 0) continue;
@@ -82,6 +87,18 @@ export function interpretTask(prompt: string): TaskSchema {
     }
   }
 
+  for (const phrase of domainVocabulary) {
+    const normalized = phrase.toLowerCase().trim();
+    if (normalized.length === 0) continue;
+    if (p.includes(normalized)) {
+      domainVocabularyMatches += 1;
+      const normalizedGenre = normalized.replace(/\s+/g, "_");
+      if (!GENRE_CUES.includes(normalizedGenre)) {
+        genres.add(normalizedGenre);
+      }
+    }
+  }
+
   // Handle multi-word genre cues if prompt raw contains them
   for (const g of GENRE_CUES) {
     if (p.includes(g.replace("_", " "))) {
@@ -95,7 +112,9 @@ export function interpretTask(prompt: string): TaskSchema {
     novelty_preference = noveltyMatch / (noveltyMatch + consistencyMatch);
   }
 
-  const confidence = Math.min(1, (tokens.length > 0 ? (moods.size + genres.size + (taskType !== "unknown" ? 1 : 0)) / 4 : 0));
+  const confidenceBase = tokens.length > 0 ? (moods.size + genres.size + (taskType !== "unknown" ? 1 : 0)) / 4 : 0;
+  const domainBoost = Math.min(0.2, domainVocabularyMatches * 0.05);
+  const confidence = Math.min(1, confidenceBase + domainBoost);
 
   return {
     task_type: taskType,

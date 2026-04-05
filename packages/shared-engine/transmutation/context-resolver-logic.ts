@@ -8,9 +8,12 @@ import type { TaskSchema, ContextPack } from "./transmutation-types";
 export function resolveContext(
   task: TaskSchema,
   opts?: {
-    learningIndex?: any; 
+    learningIndex?: any;
     tasteIndex?: any;
     recentExports?: string[];
+    wikiKnowledge?: ContextPack["wiki_knowledge"];
+    domainVocabulary?: string[];
+    coreConcepts?: string[];
   }
 ): ContextPack {
   const learningIndex = opts?.learningIndex;
@@ -57,5 +60,8 @@ export function resolveContext(
     recent_exports_count,
     taste_prior_strength,
     corpus_density,
+    wiki_knowledge: opts?.wikiKnowledge,
+    domain_vocabulary: opts?.domainVocabulary ?? opts?.wikiKnowledge?.domain_vocabulary,
+    core_concepts: opts?.coreConcepts ?? opts?.wikiKnowledge?.core_concepts,
   };
 }

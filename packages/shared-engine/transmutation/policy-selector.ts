@@ -5,6 +5,11 @@ import { PolicyFamily, type TaskSchema, type ContextPack } from "./transmutation
  * Order matters (priority rules first).
  */
 export function selectPolicy(task: TaskSchema, context: ContextPack): PolicyFamily {
+  const hasWikiDomainSignal =
+    (context.core_concepts?.length ?? 0) > 0 ||
+    (context.domain_vocabulary?.length ?? 0) > 0 ||
+    (context.wiki_knowledge?.articles.length ?? 0) > 0;
+
   // BASELINE: Absolutely no prompt signals.
   if (task.task_type === "unknown" && task.target_mood.length === 0 && task.genre_affinity.length === 0 && task.novelty_preference === 0.5) {
     return PolicyFamily.BASELINE_STATIC;
@@ -22,6 +27,11 @@ export function selectPolicy(task: TaskSchema, context: ContextPack): PolicyFami
 
   // CORPUS LED: we found very strong lesson matches and the prompt is high-confidence.
   if (context.corpus_density > 0.6 && task.confidence > 0.7) {
+    return PolicyFamily.CORPUS_LED;
+  }
+
+  // DOMAIN LED: wiki bootstrap supplied a meaningful domain map and the prompt has decent signal.
+  if (hasWikiDomainSignal && task.confidence >= 0.65) {
     return PolicyFamily.CORPUS_LED;
   }
 

@@ -12,6 +12,9 @@ export function resolveContext(
     learningIndexPath?: string;
     tasteIndexPath?: string;
     recentExports?: string[];
+    wikiKnowledge?: ContextPack["wiki_knowledge"];
+    domainVocabulary?: string[];
+    coreConcepts?: string[];
   }
 ): ContextPack {
   const learningIndex = loadJsonSafe(opts?.learningIndexPath);
@@ -21,6 +24,9 @@ export function resolveContext(
     learningIndex,
     tasteIndex,
     recentExports: opts?.recentExports,
+    wikiKnowledge: opts?.wikiKnowledge,
+    domainVocabulary: opts?.domainVocabulary,
+    coreConcepts: opts?.coreConcepts,
   });
 }
 

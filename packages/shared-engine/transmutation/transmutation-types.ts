@@ -6,6 +6,23 @@ import type { Panelist } from "@alchemist/shared-types";
  * Phase 2 (reactive): wires into scoreCandidates / triad weights.
  */
 
+ export interface WikiArticle {
+   title: string;
+   url: string;
+   summary: string;
+   relevance_score: number;
+   tags: string[];
+ }
+
+ export interface WikiKnowledgeBase {
+   domain: string;
+   articles: WikiArticle[];
+   core_concepts: string[];
+   domain_vocabulary: string[];
+   bootstrapped_at: string;
+   cache_valid_until: string;
+ }
+
 export type TransmutationTaskType =
   | "pluck"
   | "pad"
@@ -51,6 +68,9 @@ export interface ContextPack {
   taste_prior_strength: number;
   /** 0-1: ratio of matched lessons to total lessons. */
   corpus_density: number;
+  wiki_knowledge?: WikiKnowledgeBase;
+  domain_vocabulary?: string[];
+  core_concepts?: string[];
 }
 
 export enum PolicyFamily {
@@ -77,6 +97,9 @@ export interface TransmutationProfile {
   context_injection: {
     lessons: string[];
     cluster: string | null;
+    wiki_knowledge?: WikiKnowledgeBase;
+    domain_vocabulary?: string[];
+    core_concepts?: string[];
   };
   verification_profile: {
     aiom_strictness: number;

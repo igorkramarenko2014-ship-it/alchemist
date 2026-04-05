@@ -3,11 +3,13 @@ import path from "node:path";
 import { logEvent } from "../telemetry";
 import { resolveTransmutation } from "../transmutation/transmutation-runner-logic";
 import { PolicyFamily } from "../transmutation/transmutation-types";
-import type { 
-  WrapperRequest, 
-  WrapperResponse, 
-  TrustSignal, 
-  WrapperContext 
+import { bootstrapWikiKnowledge } from "./wiki-bridge";
+import type {
+  WrapperRequest,
+  WrapperResponse,
+  TrustSignal,
+  WrapperContext,
+  WrapperExecutionOptions,
 } from "./engine-wrapper.types";
 
 /**
@@ -30,13 +32,32 @@ function findMonorepoRoot(startDir: string): string | null {
 /**
  * ALCHEMIST ENGINE WRAPPER — STANDALONE ADAPTER
  */
+export async function initializeWrapperContext(
+  request: WrapperRequest,
+  opts?: WrapperExecutionOptions,
+): Promise<WrapperContext> {
+  const requestId = Math.random().toString(36).substring(7);
+  const startTimeMs = Date.now();
+  const wikiKnowledge = await bootstrapWikiKnowledge({
+    domain: request.domain,
+    ...opts?.wikiBridge,
+  });
+  return {
+    requestId,
+    startTimeMs,
+    request,
+    wikiKnowledge,
+  };
+}
+
 export async function executeWrapperRequest(
   request: WrapperRequest,
-  opts?: { truthMatrixPath?: string }
+  opts?: WrapperExecutionOptions
 ): Promise<WrapperResponse> {
-  const startTimeMs = Date.now();
-  const requestId = Math.random().toString(36).substring(7);
-  
+  const wrapperContext = await initializeWrapperContext(request, opts);
+  const { requestId, wikiKnowledge } = wrapperContext;
+  const resolvedWikiKnowledge = wikiKnowledge ?? undefined;
+
   // LAYER 1: INTAKE (VALIDATION)
   if (!request.domain || !request.intent || typeof request.callerTrustLevel !== "number") {
     throw new Error("WRAPPER_INTAKE_ERROR: Malformed request structure.");
@@ -48,7 +69,10 @@ export async function executeWrapperRequest(
   // Use the underlying transmutation module (interprets intent text)
   // One-way Lock: if humanitarianGate is true, we force PolicyFamily.HUMANITARIAN
   const transmutation = resolveTransmutation(request.intent, {
-    projectContext: { genre_hint: request.domain, session_id: requestId }
+    projectContext: { genre_hint: request.domain, session_id: requestId },
+    wikiKnowledge: resolvedWikiKnowledge,
+    domainVocabulary: resolvedWikiKnowledge?.domain_vocabulary,
+    coreConcepts: resolvedWikiKnowledge?.core_concepts,
   });
 
   if (request.humanitarianGate === true) {
@@ -57,12 +81,12 @@ export async function executeWrapperRequest(
     transmutation.audit_trace.reasons.push("Wrapper: Humanitarian Lock Enforced");
     // In a real execution, we might re-solve parameters with the new policy,
     // but the transmutation module's resolveTransmutation already selected a policy.
-    // To be strictly compliant with the brief's "enforce" requirement, 
+    // To be strictly compliant with the brief's "enforce" requirement,
     // we ensure the audit trace reflects the lock.
   }
 
-  logEvent("wrapper_transmutation_end", { 
-    requestId, 
+  logEvent("wrapper_transmutation_end", {
+    requestId,
     policy: transmutation.audit_trace.policy_family,
     confidence: transmutation.confidence
   });
@@ -84,6 +108,7 @@ export async function executeWrapperRequest(
     result: {
       action: request.intent,
       payload: request.payload,
+      wikiKnowledge,
       transmutationProfile: {
         ...transmutation.transmutation_profile,
         audit_trace: transmutation.audit_trace
@@ -102,7 +127,7 @@ export async function executeWrapperRequest(
 function buildTrustSignal(explicitPath?: string): TrustSignal {
   const root = findMonorepoRoot(__dirname);
   const targetPath = explicitPath || (root ? path.join(root, "artifacts", "truth-matrix.json") : null);
-  
+
   if (!targetPath || !fs.existsSync(targetPath)) {
     return {
       mon: { value: 0, ready: false, source: "unknown" },
@@ -119,7 +144,7 @@ function buildTrustSignal(explicitPath?: string): TrustSignal {
     const raw = fs.readFileSync(targetPath, "utf8");
     const artifact = JSON.parse(raw);
     const metrics = artifact.metrics || {};
-    
+
     // Freshness check (15 min standard)
     const generatedMs = Date.parse(artifact.generatedAtUtc);
     const isStale = (Date.now() - generatedMs) > (15 * 60 * 1000);

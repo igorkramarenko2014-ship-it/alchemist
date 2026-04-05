@@ -23,9 +23,12 @@ export function solveParameters(
   const triad_weights = { ...TRANSMUTATION_BOUNDS.baseline_triad_weights };
   const gate_offsets = { slavic_threshold_delta: 0, novelty_gate_delta: 0 };
   const priors = { taste_weight: 0.06, corpus_affinity_weight: 0.45, lesson_weight: 0.5 };
-  const context_injection: { lessons: string[]; cluster: string | null } = {
+  const context_injection: TransmutationProfile["context_injection"] = {
     lessons: context.lesson_matches.slice(0, TRANSMUTATION_BOUNDS.lesson_injection_limit),
     cluster: Object.keys(context.cluster_affinity)[0] || null,
+    wiki_knowledge: context.wiki_knowledge,
+    domain_vocabulary: context.domain_vocabulary,
+    core_concepts: context.core_concepts,
   };
   const verification_profile = { aiom_strictness: 0.5, drift_tolerance: 0.07 };
 
@@ -95,7 +98,7 @@ export function solveParameters(
         // Match by policyFamily and (optionally) taskType
         if (entry.policyFamily === policy && (!entry.taskType || entry.taskType === task.task_type)) {
           const nudge = entry.nudge;
-          
+
           // 1. Panelist Weight Nudges (±0.01-0.02)
           if (nudge.triad_weights) {
             for (const [p, delta] of Object.entries(nudge.triad_weights)) {
@@ -103,7 +106,7 @@ export function solveParameters(
               const currentDrift = cumulativeDriftManual[`triad:${panelist}`] || 0;
               const allowed = 0.04 - currentDrift; // Budget cap
               const finalDelta = Math.min(allowed, delta as number);
-              
+
               if (Math.abs(finalDelta) > 0.001) {
                 triad_weights[panelist] += finalDelta;
                 cumulativeDriftManual[`triad:${panelist}`] = currentDrift + finalDelta;

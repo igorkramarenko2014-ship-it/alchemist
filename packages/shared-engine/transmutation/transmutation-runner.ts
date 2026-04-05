@@ -4,7 +4,7 @@ import { resolveContext } from "./context-resolver";
 import { interpretTask } from "./task-interpreter";
 import { selectPolicy } from "./policy-selector";
 import { solveParameters } from "./parameter-solver";
-import { type TransmutationResult, PolicyFamily } from "./transmutation-types";
+import { type TransmutationResult, type WikiKnowledgeBase, PolicyFamily } from "./transmutation-types";
 
 /**
  * Main entry point for AIOM Phase 1 Transmutation Module (Node only).
@@ -17,11 +17,16 @@ export function resolveTransmutation(
     tasteIndexPath?: string;
     recentExports?: string[];
     projectContext?: { genre_hint?: string; session_id?: string };
+    wikiKnowledge?: WikiKnowledgeBase;
+    domainVocabulary?: string[];
+    coreConcepts?: string[];
   },
   _terminator?: () => void
 ): TransmutationResult {
   try {
-    const task = interpretTask(prompt);
+    const task = interpretTask(prompt, {
+      domainVocabulary: opts?.domainVocabulary ?? opts?.wikiKnowledge?.domain_vocabulary,
+    });
     // Node-specific resolveContext handles FS
     const context = resolveContext(task, opts);
     const policy = selectPolicy(task, context);
@@ -50,6 +55,9 @@ export function resolveTransmutation(
     return resolveTransmutationLogic(prompt, {
       recentExports: opts?.recentExports,
       projectContext: opts?.projectContext,
+      wikiKnowledge: opts?.wikiKnowledge,
+      domainVocabulary: opts?.domainVocabulary,
+      coreConcepts: opts?.coreConcepts,
     });
   }
 }

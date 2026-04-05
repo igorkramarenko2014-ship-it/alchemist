@@ -1,3 +1,6 @@
+ import type { WikiKnowledgeBase } from "../transmutation/transmutation-types";
+ import type { WikiBridgeConfig } from "./wiki-bridge";
+
 
 
 /**
@@ -39,8 +42,8 @@ export interface WrapperRequest {
   callerTrustLevel: number;
   /** Force direct engine check skip cache. */
   requireFreshness: boolean;
-  /** 
-   * MANDATORY One-way lock for humanitarian applications. 
+  /**
+   * MANDATORY One-way lock for humanitarian applications.
    * Once set, cannot be unset or broadened via Partial/Generic hacks.
    */
   readonly humanitarianGate: true | false;
@@ -54,6 +57,12 @@ export interface WrapperContext {
   startTimeMs: number;
   request: WrapperRequest;
   transmutationTrace?: any; // internal audit
+  wikiKnowledge?: WikiKnowledgeBase | null;
+}
+
+export interface WrapperExecutionOptions {
+  truthMatrixPath?: string;
+  wikiBridge?: Omit<WikiBridgeConfig, "domain">;
 }
 
 /**
