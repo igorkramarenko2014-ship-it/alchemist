@@ -1,10 +1,10 @@
 {
   "schemaVersion": 3,
-  "syncedDateUtc": "2026-04-04",
-  "generatedAtUtc": "2026-04-04T22:40:29.406Z",
-  "vitestTestsPassed": 588,
-  "vitestTestFilesPassed": 112,
-  "vitestTestTsOnDisk": 111,
+  "syncedDateUtc": "2026-04-05",
+  "generatedAtUtc": "2026-04-05T19:46:02.409Z",
+  "vitestTestsPassed": 592,
+  "vitestTestFilesPassed": 113,
+  "vitestTestTsOnDisk": 112,
   "nextJsVersion": "14.2.35",
   "vst3BundlePresent": false,
   "vst3BundleBasename": null,
@@ -14,7 +14,7 @@
     "ready": true,
     "source": "verify_post_summary"
   },
-  "initiatorSkillsSha256": "11002c1f8b90fdd5b457b939db14ac9ebcec4c933dbee76c5a1be7f4399bfdb4",
+  "initiatorSkillsSha256": "1ee32fae14ac0f94171d98807a0e13a32179eceb0aeb6349a0ad1e6ef1be3224",
   "learningOutcomes": {
     "candidateSuccessRate": 0,
     "meanBestScoreWithLessons": 0,
