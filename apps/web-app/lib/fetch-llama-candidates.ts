@@ -38,7 +38,7 @@ export async function fetchLlamaCandidates(
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     const isRetry = attempt === 2;
-    const currentPrompt = isRetry 
+    const currentPrompt = isRetry
       ? `${prompt}\n\n[RETRY_NUDGE] Respond only with a valid JSON array of candidates. No prose.`
       : prompt;
 
@@ -52,7 +52,7 @@ export async function fetchLlamaCandidates(
         },
         body: JSON.stringify({
           model,
-          max_tokens: 8192,
+          max_tokens: 1024,
           messages: [
             {
               role: "system",
@@ -110,7 +110,7 @@ export async function fetchLlamaCandidates(
         throw new Error(`Assistant JSON parse error: ${err instanceof Error ? err.message : String(err)}`);
       }
 
-      const normalized = Array.isArray(raw) 
+      const normalized = Array.isArray(raw)
         ? raw
             .slice(0, MAX_CANDIDATES)
             .map((item) => normalizeRawCandidateItem(item, panelist))
@@ -125,7 +125,7 @@ export async function fetchLlamaCandidates(
 
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
-      
+
       logEvent("panelist_response_malformed", {
         panelist,
         runId: rid,
